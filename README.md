@@ -58,3 +58,24 @@ To run all SDK checks, use this from the repository root:
 ```bash
 mise exec -- just check
 ```
+
+## Producer setup CLI
+
+Create the tenant-bound OAuth2 producer client and print env snippets:
+
+```bash
+go run github.com/haakco/custd-sdk/sdk-go/cmd/custd-sdk-setup@latest \
+  --base-url=https://custd.k8.haak.co \
+  --admin-url=https://custd.k8.haak.co \
+  --admin-token="$CUSTD_ADMIN_TOKEN" \
+  --token-url=https://custd-auth.k8.haak.co/oauth2/token \
+  --tenant=tracklab \
+  --company-name="TrackLab" \
+  --client-id=tl-custd-bridge \
+  --scope=events.write \
+  --environment=production \
+  --env-prefix=TL_CUSTD_BRIDGE
+```
+
+The helper uses `CustdClient.Admin.Tenants` and
+`CustdClient.Admin.OAuthClients`, so key/bootstrap behavior stays in the SDK.
