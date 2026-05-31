@@ -49,12 +49,12 @@ with `sourceSystem`, `sourceCompany`, `environment`, `schemaVersion`, and
 Requires the dev stack running with Hydra using JWT access tokens and ingest-api configured with `AUTH_JWKS_URL`.
 
 ```bash
-cd packages/sdk-go
+cd sdk-go
 go run ./cmd/smoke-dev
 ```
 
-To run all SDK live smoke tests, use:
+To run all SDK checks, use this from the repository root:
 
 ```bash
-just test-sdk-e2e
+mise exec -- just check
 ```
