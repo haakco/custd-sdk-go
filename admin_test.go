@@ -74,6 +74,33 @@ func TestAdminOAuthClientsReturnSecretOnlyFromSecretEndpoints(t *testing.T) {
 	assertOAuthClientListDoesNotLeakSecret(t, client, doer)
 }
 
+func TestAdminSitesManageBrowserSites(t *testing.T) {
+	doer := newCaptureDoer(http.StatusCreated, `{"siteUuid":"site-123","companySlug":"acme","name":"Docs","identityMode":"cookieless","allowedOrigins":["https://example.com"],"rateLimitPerMinute":600,"retentionDays":365,"enabled":true,"writeKey":"site_pk_test"}`)
+	client := newAdminTestClient(t, doer, "http://localhost:8080")
+
+	created, err := client.Admin.Sites.Create(context.Background(), AdminSiteCreate{
+		CompanySlug:    "acme",
+		Name:           "Docs",
+		IdentityMode:   "cookieless",
+		AllowedOrigins: []string{"https://example.com"},
+	})
+	if err != nil {
+		t.Fatalf("Create returned error: %v", err)
+	}
+	if created.WriteKey != "site_pk_test" || doer.requests[0].URL != "http://localhost:8080/api/v1/admin/sites" {
+		t.Fatalf("created=%+v request=%+v", created, doer.requests[0])
+	}
+	doer.status = http.StatusOK
+	doer.body = `{"writeKey":"site_pk_next"}`
+	rotated, err := client.Admin.Sites.RotateWriteKey(context.Background(), "site-123")
+	if err != nil {
+		t.Fatalf("RotateWriteKey returned error: %v", err)
+	}
+	if rotated.WriteKey != "site_pk_next" {
+		t.Fatalf("writeKey = %q", rotated.WriteKey)
+	}
+}
+
 func assertOAuthClientListDoesNotLeakSecret(t *testing.T, client *CustdClient, doer *captureDoer) {
 	t.Helper()
 	doer.status = http.StatusOK

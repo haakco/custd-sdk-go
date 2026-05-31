@@ -16,6 +16,7 @@ const adminEndpoint = "/api/v1/admin"
 type AdminClient struct {
 	Tenants      *TenantAdminClient
 	OAuthClients *OAuthClientAdminClient
+	Sites        *SiteAdminClient
 	client       *CustdClient
 }
 
@@ -27,10 +28,15 @@ type OAuthClientAdminClient struct {
 	admin *AdminClient
 }
 
+type SiteAdminClient struct {
+	admin *AdminClient
+}
+
 func newAdminClient(client *CustdClient) *AdminClient {
 	admin := &AdminClient{client: client}
 	admin.Tenants = &TenantAdminClient{admin: admin}
 	admin.OAuthClients = &OAuthClientAdminClient{admin: admin}
+	admin.Sites = &SiteAdminClient{admin: admin}
 	return admin
 }
 
@@ -93,6 +99,35 @@ func (c *OAuthClientAdminClient) RotateSecret(
 	var secret AdminOAuthClientSecretResponse
 	err := c.admin.request(ctx, http.MethodPost, "/oauth-clients/"+url.PathEscape(clientID)+"/rotate-secret", nil, &secret)
 	return &secret, err
+}
+
+func (c *SiteAdminClient) Create(ctx context.Context, req AdminSiteCreate) (*AdminSiteCreateResponse, error) {
+	var site AdminSiteCreateResponse
+	err := c.admin.request(ctx, http.MethodPost, "/sites", req, &site)
+	return &site, err
+}
+
+func (c *SiteAdminClient) List(ctx context.Context) (*AdminSiteList, error) {
+	var sites AdminSiteList
+	err := c.admin.request(ctx, http.MethodGet, "/sites", nil, &sites)
+	return &sites, err
+}
+
+func (c *SiteAdminClient) Get(ctx context.Context, siteUUID string) (*AdminSite, error) {
+	return adminGetByID[AdminSite](ctx, c.admin, "/sites/", siteUUID)
+}
+
+func (c *SiteAdminClient) Delete(ctx context.Context, siteUUID string) error {
+	return c.admin.request(ctx, http.MethodDelete, "/sites/"+url.PathEscape(siteUUID), nil, nil)
+}
+
+func (c *SiteAdminClient) RotateWriteKey(
+	ctx context.Context,
+	siteUUID string,
+) (*AdminSiteWriteKeyResponse, error) {
+	var key AdminSiteWriteKeyResponse
+	err := c.admin.request(ctx, http.MethodPost, "/sites/"+url.PathEscape(siteUUID)+"/rotate-write-key", nil, &key)
+	return &key, err
 }
 
 func (c *AdminClient) request(ctx context.Context, method string, path string, payload any, out any) error {
