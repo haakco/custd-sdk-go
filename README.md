@@ -79,3 +79,11 @@ go run github.com/haakco/custd-sdk/sdk-go/cmd/custd-sdk-setup@latest \
 
 The helper uses `CustdClient.Admin.Tenants` and
 `CustdClient.Admin.OAuthClients`, so key/bootstrap behavior stays in the SDK.
+
+## Browser Site Admin Helpers
+
+Use `CustdClient.Admin.Sites` to create, list, get, delete, and rotate browser
+tracker Sites. `Create` returns the public write key once. `List` and `Get`
+return `AdminSite` metadata without the write key. `RotateWriteKey` returns the
+replacement write key once; update browser tracker config and stop using the old
+key after rotation.
