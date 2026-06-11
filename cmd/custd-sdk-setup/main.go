@@ -32,6 +32,7 @@ func run(ctx context.Context, args []string) error {
 	clientID := fs.String("client-id", env("CUSTD_OAUTH_CLIENT_ID", ""), "Producer OAuth client ID")
 	environment := fs.String("environment", env("CUSTD_ENVIRONMENT", "production"), "Producer environment label")
 	prefix := fs.String("env-prefix", env("CUSTD_ENV_PREFIX", "CUSTD"), "Environment variable prefix for generic output")
+	schemaDir := fs.String("register-schemas", env("CUSTD_SCHEMA_DIR", ""), "Directory of schema JSON files to register after producer setup")
 	ensureTenant := fs.Bool("ensure-tenant", true, "Create the tenant before creating the OAuth client")
 	fs.Var(&scopes, "scope", "OAuth scope; may be repeated or comma-separated")
 	if err := fs.Parse(args); err != nil {
@@ -67,6 +68,7 @@ func run(ctx context.Context, args []string) error {
 		Scopes:       scopes.values(),
 		Environment:  *environment,
 		EnsureTenant: *ensureTenant,
+		SchemaDir:    *schemaDir,
 	})
 	if err != nil {
 		return err

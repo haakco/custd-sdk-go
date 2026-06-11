@@ -132,6 +132,45 @@ func TestAdminSitesListGetDeleteDoNotExposeWriteKeys(t *testing.T) {
 	})
 }
 
+func TestAdminSchemasRegisterAndVersionSchemas(t *testing.T) {
+	doer := newCaptureDoer(http.StatusOK, `{"schemas":[{"eventTypeSlug":"courib.delivery.created","version":"1.0.0"}]}`)
+	client := newAdminTestClient(t, doer, "http://localhost:8080")
+
+	list, err := client.Admin.Schemas.List(context.Background())
+	if err != nil {
+		t.Fatalf("List returned error: %v", err)
+	}
+	if len(list.Schemas) != 1 || list.Schemas[0].EventTypeSlug != "courib.delivery.created" {
+		t.Fatalf("schemas = %+v", list.Schemas)
+	}
+	doer.status = http.StatusCreated
+	doer.body = `{"eventTypeSlug":"courib.delivery.created","version":"1.0.0","jsonSchema":{"type":"object"}}`
+	registered, err := client.Admin.Schemas.Register(context.Background(), AdminSchemaRegister{
+		EventTypeSlug: "courib.delivery.created",
+		Version:       "1.0.0",
+		JSONSchema:    map[string]any{"type": "object"},
+	})
+	if err != nil {
+		t.Fatalf("Register returned error: %v", err)
+	}
+	doer.body = `{"eventTypeSlug":"courib.delivery.created","version":"1.1.0","jsonSchema":{"type":"object"}}`
+	next, err := client.Admin.Schemas.CreateVersion(context.Background(), "courib.delivery.created", AdminSchemaVersionCreate{
+		Version:    "1.1.0",
+		JSONSchema: map[string]any{"type": "object"},
+	})
+	if err != nil {
+		t.Fatalf("CreateVersion returned error: %v", err)
+	}
+	if registered.Version != "1.0.0" || next.Version != "1.1.0" {
+		t.Fatalf("registered=%+v next=%+v", registered, next)
+	}
+	assertSiteRequests(t, doer.requests, []string{
+		"GET http://localhost:8080/api/v1/admin/schemas",
+		"POST http://localhost:8080/api/v1/admin/schemas",
+		"POST http://localhost:8080/api/v1/admin/schemas/courib.delivery.created/versions",
+	})
+}
+
 func assertSiteRequests(t *testing.T, requests []*HTTPRequest, want []string) {
 	t.Helper()
 	if len(requests) != len(want) {

@@ -3,6 +3,8 @@ package custd
 import (
 	"context"
 	"encoding/json"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -84,13 +86,118 @@ func TestSetupProducerCreatesTenantAndOAuthClient(t *testing.T) {
 	}
 }
 
+func TestSetupProducerRegistersSchemasFromDirectory(t *testing.T) {
+	dir := t.TempDir()
+	schema := `{"eventTypeSlug":"courib.delivery.created","version":"1.0.0","jsonSchema":{"type":"object"}}`
+	if err := os.WriteFile(filepath.Join(dir, "delivery-created.json"), []byte(schema), 0o600); err != nil {
+		t.Fatalf("write schema: %v", err)
+	}
+	doer := &capturingSetupDoer{}
+	admin := NewClient(&ClientConfig{
+		BaseURL:    "http://localhost:8090",
+		APIKey:     "admin-token",
+		HTTPClient: doer,
+	})
+	defer func() { _ = admin.Close(context.Background()) }()
+
+	_, err := SetupProducer(context.Background(), admin, ProducerSetupRequest{
+		BaseURL:      "http://localhost:8087",
+		TokenURL:     "http://localhost:4444/oauth2/token",
+		TenantSlug:   "acme",
+		ClientID:     "acme-producer",
+		Environment:  "development",
+		EnsureTenant: false,
+		SchemaDir:    dir,
+	})
+	if err != nil {
+		t.Fatalf("SetupProducer returned error: %v", err)
+	}
+
+	if len(doer.requests) != 2 {
+		t.Fatalf("expected schema and oauth requests, got %d", len(doer.requests))
+	}
+	if doer.requests[0].path != "/api/v1/admin/schemas" {
+		t.Fatalf("first path = %q", doer.requests[0].path)
+	}
+	if doer.requests[1].path != "/api/v1/admin/oauth-clients" {
+		t.Fatalf("second path = %q", doer.requests[1].path)
+	}
+	if doer.requests[0].body["eventTypeSlug"] != "courib.delivery.created" {
+		t.Fatalf("schema body = %+v", doer.requests[0].body)
+	}
+}
+
+func TestSetupProducerDoesNotCreateOAuthClientWhenSchemaRegistrationFails(t *testing.T) {
+	dir := t.TempDir()
+	schema := `{"eventTypeSlug":"courib.delivery.created","version":"1.0.0","jsonSchema":{"type":"object"}}`
+	if err := os.WriteFile(filepath.Join(dir, "delivery-created.json"), []byte(schema), 0o600); err != nil {
+		t.Fatalf("write schema: %v", err)
+	}
+	doer := &capturingSetupDoer{schemaStatus: 503}
+	admin := NewClient(&ClientConfig{
+		BaseURL:    "http://localhost:8090",
+		APIKey:     "admin-token",
+		HTTPClient: doer,
+	})
+	defer func() { _ = admin.Close(context.Background()) }()
+
+	_, err := SetupProducer(context.Background(), admin, ProducerSetupRequest{
+		BaseURL:      "http://localhost:8087",
+		TokenURL:     "http://localhost:4444/oauth2/token",
+		TenantSlug:   "acme",
+		ClientID:     "acme-producer",
+		Environment:  "development",
+		EnsureTenant: false,
+		SchemaDir:    dir,
+	})
+
+	if err == nil || !strings.Contains(err.Error(), "register schema") {
+		t.Fatalf("expected register schema error, got %v", err)
+	}
+	if len(doer.requests) != 1 || doer.requests[0].path != "/api/v1/admin/schemas" {
+		t.Fatalf("expected only schema request before failure, got %+v", doer.requests)
+	}
+}
+
+func TestSetupProducerPreflightsSchemaDirectoryBeforeCreatingOAuthClient(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "broken.json"), []byte(`{"eventTypeSlug":`), 0o600); err != nil {
+		t.Fatalf("write schema: %v", err)
+	}
+	doer := &capturingSetupDoer{}
+	admin := NewClient(&ClientConfig{
+		BaseURL:    "http://localhost:8090",
+		APIKey:     "admin-token",
+		HTTPClient: doer,
+	})
+	defer func() { _ = admin.Close(context.Background()) }()
+
+	_, err := SetupProducer(context.Background(), admin, ProducerSetupRequest{
+		BaseURL:      "http://localhost:8087",
+		TokenURL:     "http://localhost:4444/oauth2/token",
+		TenantSlug:   "acme",
+		ClientID:     "acme-producer",
+		Environment:  "development",
+		EnsureTenant: true,
+		SchemaDir:    dir,
+	})
+
+	if err == nil || !strings.Contains(err.Error(), "decode schema") {
+		t.Fatalf("expected decode schema error, got %v", err)
+	}
+	if len(doer.requests) != 0 {
+		t.Fatalf("expected no mutating requests before schema preflight, got %+v", doer.requests)
+	}
+}
+
 type setupRequest struct {
 	path string
 	body map[string]any
 }
 
 type capturingSetupDoer struct {
-	requests []setupRequest
+	requests     []setupRequest
+	schemaStatus int
 }
 
 func (d *capturingSetupDoer) Do(req *HTTPRequest) (*HTTPResponse, error) {
@@ -116,6 +223,11 @@ func (d *capturingSetupDoer) Do(req *HTTPRequest) (*HTTPResponse, error) {
 			"scopes":       body["scopes"],
 			"clientSecret": "created-secret",
 		})
+	case "/api/v1/admin/schemas":
+		if d.schemaStatus != 0 {
+			return jsonResponse(d.schemaStatus, map[string]any{"error": "schema unavailable"})
+		}
+		return jsonResponse(201, body)
 	default:
 		return jsonResponse(404, map[string]any{"error": "not found"})
 	}

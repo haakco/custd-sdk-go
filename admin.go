@@ -17,6 +17,7 @@ type AdminClient struct {
 	Tenants      *TenantAdminClient
 	OAuthClients *OAuthClientAdminClient
 	Sites        *SiteAdminClient
+	Schemas      *SchemaAdminClient
 	client       *CustdClient
 }
 
@@ -32,11 +33,16 @@ type SiteAdminClient struct {
 	admin *AdminClient
 }
 
+type SchemaAdminClient struct {
+	admin *AdminClient
+}
+
 func newAdminClient(client *CustdClient) *AdminClient {
 	admin := &AdminClient{client: client}
 	admin.Tenants = &TenantAdminClient{admin: admin}
 	admin.OAuthClients = &OAuthClientAdminClient{admin: admin}
 	admin.Sites = &SiteAdminClient{admin: admin}
+	admin.Schemas = &SchemaAdminClient{admin: admin}
 	return admin
 }
 
@@ -128,6 +134,38 @@ func (c *SiteAdminClient) RotateWriteKey(
 	var key AdminSiteWriteKeyResponse
 	err := c.admin.request(ctx, http.MethodPost, "/sites/"+url.PathEscape(siteUUID)+"/rotate-write-key", nil, &key)
 	return &key, err
+}
+
+func (c *SchemaAdminClient) Register(ctx context.Context, req AdminSchemaRegister) (*AdminSchema, error) {
+	var schema AdminSchema
+	err := c.admin.request(ctx, http.MethodPost, "/schemas", req, &schema)
+	return &schema, err
+}
+
+func (c *SchemaAdminClient) List(ctx context.Context) (*AdminSchemaList, error) {
+	var schemas AdminSchemaList
+	err := c.admin.request(ctx, http.MethodGet, "/schemas", nil, &schemas)
+	return &schemas, err
+}
+
+func (c *SchemaAdminClient) Get(ctx context.Context, eventTypeSlug string) (*AdminSchema, error) {
+	return adminGetByID[AdminSchema](ctx, c.admin, "/schemas/", eventTypeSlug)
+}
+
+func (c *SchemaAdminClient) CreateVersion(
+	ctx context.Context,
+	eventTypeSlug string,
+	req AdminSchemaVersionCreate,
+) (*AdminSchema, error) {
+	var schema AdminSchema
+	err := c.admin.request(
+		ctx,
+		http.MethodPost,
+		"/schemas/"+url.PathEscape(eventTypeSlug)+"/versions",
+		req,
+		&schema,
+	)
+	return &schema, err
 }
 
 func (c *AdminClient) request(ctx context.Context, method string, path string, payload any, out any) error {

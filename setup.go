@@ -2,7 +2,10 @@ package custd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
@@ -22,6 +25,7 @@ type ProducerSetupRequest struct {
 	Scopes       []string
 	Environment  string
 	EnsureTenant bool
+	SchemaDir    string
 }
 
 // ProducerCredentials is the secret-bearing result returned once Custd creates
@@ -47,6 +51,10 @@ func SetupProducer(
 	if err := ValidateProducerSetupRequest(req); err != nil {
 		return nil, err
 	}
+	schemas, err := LoadSchemaRegistrationsFromDir(req.SchemaDir)
+	if err != nil {
+		return nil, err
+	}
 	if req.EnsureTenant {
 		_, err := admin.Admin.Tenants.Create(ctx, AdminTenantCreate{
 			Slug:        req.TenantSlug,
@@ -54,6 +62,11 @@ func SetupProducer(
 		})
 		if err != nil && !isAlreadyExistsError(err) {
 			return nil, fmt.Errorf("custd: create tenant: %w", err)
+		}
+	}
+	if len(schemas) > 0 {
+		if err := RegisterSchemas(ctx, admin, schemas); err != nil {
+			return nil, err
 		}
 	}
 	created, err := admin.Admin.OAuthClients.Create(ctx, AdminOAuthClientCreate{
@@ -74,6 +87,50 @@ func SetupProducer(
 		Scopes:       created.Scopes,
 		Environment:  req.Environment,
 	}, nil
+}
+
+func RegisterSchemasFromDir(ctx context.Context, admin *CustdClient, dir string) error {
+	schemas, err := LoadSchemaRegistrationsFromDir(dir)
+	if err != nil {
+		return err
+	}
+	return RegisterSchemas(ctx, admin, schemas)
+}
+
+func LoadSchemaRegistrationsFromDir(dir string) ([]AdminSchemaRegister, error) {
+	if dir == "" {
+		return nil, nil
+	}
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, fmt.Errorf("custd: read schema directory: %w", err)
+	}
+	schemas := make([]AdminSchemaRegister, 0, len(entries))
+	for _, entry := range entries {
+		if entry.IsDir() || filepath.Ext(entry.Name()) != ".json" {
+			continue
+		}
+		path := filepath.Join(dir, entry.Name())
+		raw, err := os.ReadFile(path)
+		if err != nil {
+			return nil, fmt.Errorf("custd: read schema %s: %w", path, err)
+		}
+		var schema AdminSchemaRegister
+		if err := json.Unmarshal(raw, &schema); err != nil {
+			return nil, fmt.Errorf("custd: decode schema %s: %w", path, err)
+		}
+		schemas = append(schemas, schema)
+	}
+	return schemas, nil
+}
+
+func RegisterSchemas(ctx context.Context, admin *CustdClient, schemas []AdminSchemaRegister) error {
+	for _, schema := range schemas {
+		if _, err := admin.Admin.Schemas.Register(ctx, schema); err != nil {
+			return fmt.Errorf("custd: register schema %s: %w", schema.EventTypeSlug, err)
+		}
+	}
+	return nil
 }
 
 // ValidateProducerSetupRequest returns clear setup errors before network calls

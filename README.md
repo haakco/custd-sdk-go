@@ -68,7 +68,7 @@ go run github.com/haakco/custd-sdk/sdk-go/cmd/custd-sdk-setup@latest \
   --base-url=https://custd.k8.haak.co \
   --admin-url=https://custd.k8.haak.co \
   --admin-token="$CUSTD_ADMIN_TOKEN" \
-  --token-url=https://custd-auth.k8.haak.co/oauth2/token \
+  --token-url=https://auth.k8.haak.co/oauth2/token \
   --tenant=tracklab \
   --company-name="TrackLab" \
   --client-id=tl-custd-bridge \
@@ -79,6 +79,8 @@ go run github.com/haakco/custd-sdk/sdk-go/cmd/custd-sdk-setup@latest \
 
 The helper uses `CustdClient.Admin.Tenants` and
 `CustdClient.Admin.OAuthClients`, so key/bootstrap behavior stays in the SDK.
+Pass `--register-schemas ./schemas` to register every `.json` schema file in a
+directory after producer credential creation.
 
 ## Browser Site Admin Helpers
 
@@ -87,3 +89,15 @@ tracker Sites. `Create` returns the public write key once. `List` and `Get`
 return `AdminSite` metadata without the write key. `RotateWriteKey` returns the
 replacement write key once; update browser tracker config and stop using the old
 key after rotation.
+
+## Schema Admin Helpers
+
+Use `CustdClient.Admin.Schemas` from setup code:
+
+```go
+_, err := client.Admin.Schemas.Register(ctx, custd.AdminSchemaRegister{
+    EventTypeSlug: "courib.delivery.created",
+    Version:       "1.0.0",
+    JSONSchema:    map[string]any{"type": "object"},
+})
+```
