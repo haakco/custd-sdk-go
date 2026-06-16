@@ -1,0 +1,30 @@
+# golangci-lint configuration for the custd Go SDK.
+# Lean set tuned for a small, dependency-light SDK module — not a copy of the
+# larger product repos. Formatters (gofmt/goimports) are separate in v2.
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  default: none
+  enable:
+    - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - errorlint
+    - misspell
+    - unconvert
+    - whitespace
+  exclusions:
+    generated: strict
+    presets:
+      - std-error-handling
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
