@@ -9,6 +9,23 @@ Version `1.0.0` targets the canonical ingest endpoint
 This SDK was not released against the legacy path, so there is no compatibility
 alias or deprecation window.
 
+## Install
+
+Consume the Go module from the public monorepo subdir (its `go.mod` module path
+is `github.com/haakco/custd-sdk/sdk-go`, tagged `sdk-go/vX.Y.Z`):
+
+```bash
+go get github.com/haakco/custd-sdk/sdk-go@latest
+```
+
+```go
+import custd "github.com/haakco/custd-sdk/sdk-go"
+```
+
+> The `haakco/custd-sdk-go` mirror exists but is not yet `go get`-able under that
+> name — its `go.mod` still declares the monorepo subdir path. Use the import
+> above until the mirror's module path is renamed.
+
 ## Usage
 
 Static token:
