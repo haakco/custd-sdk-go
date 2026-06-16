@@ -37,6 +37,26 @@ client := custd.NewClient(&custd.ClientConfig{
 defer client.Close(context.Background())
 ```
 
+Provisioned producer bundle (no manual OAuth mapping):
+
+```go
+client, err := custd.NewClientFromProvisionedProducer(creds)
+if err != nil {
+    return err
+}
+defer client.Close(context.Background())
+_ = client.Track(context.Background(), &custd.EventEnvelope{
+    EventTypeSlug: "order.completed",
+    SchemaVersion: "1.0.0",
+    CompanySlug:   creds.CompanySlug,
+    Context:       custd.EventContext{Device: &custd.DeviceContext{Type: "server"}},
+    Payload:       map[string]any{"orderTotal": 42},
+})
+```
+
+Use `custd.RedactedProvisionedProducer(creds)` to show the bundle on a dashboard
+without exposing the client secret.
+
 The client rejects plaintext non-local Custd and token URLs. Localhost HTTP is
 allowed for development.
 

@@ -41,6 +41,66 @@ type ProducerCredentials struct {
 	Environment  string
 }
 
+// ProvisionedProducerCredentials is the flat camelCase bundle Custd returns
+// from the producer provisioning API. Consumers pass it straight to
+// NewClientFromProvisionedProducer without any manual field mapping.
+type ProvisionedProducerCredentials struct {
+	CompanySlug  string            `json:"companySlug"`
+	BaseURL      string            `json:"baseUrl"`
+	TokenURL     string            `json:"tokenUrl"`
+	Audience     string            `json:"audience"`
+	ClientID     string            `json:"clientId"`
+	ClientSecret string            `json:"clientSecret"`
+	Scopes       []string          `json:"scopes"`
+	Environment  string            `json:"environment"`
+	Metadata     map[string]string `json:"metadata,omitempty"`
+}
+
+// RedactedProvisionedProducerCredentials is the display-safe view of a
+// provisioned producer bundle. It mirrors ProvisionedProducerCredentials but
+// omits the client secret so it is safe to render on dashboards.
+type RedactedProvisionedProducerCredentials struct {
+	CompanySlug string            `json:"companySlug"`
+	BaseURL     string            `json:"baseUrl"`
+	TokenURL    string            `json:"tokenUrl"`
+	Audience    string            `json:"audience"`
+	ClientID    string            `json:"clientId"`
+	Scopes      []string          `json:"scopes"`
+	Environment string            `json:"environment"`
+	Metadata    map[string]string `json:"metadata,omitempty"`
+}
+
+// NewClientFromProvisionedProducer builds an event-producing client directly
+// from a provisioned producer bundle, hiding the OAuth wiring.
+func NewClientFromProvisionedProducer(creds ProvisionedProducerCredentials) (*CustdClient, error) {
+	if strings.TrimSpace(creds.ClientSecret) == "" {
+		return nil, fmt.Errorf("custd: provisioned producer bundle is missing the client secret")
+	}
+	cfg := DefaultClientConfig()
+	cfg.BaseURL = strings.TrimRight(creds.BaseURL, "/")
+	cfg.ClientID = creds.ClientID
+	cfg.ClientSecret = creds.ClientSecret
+	cfg.TokenURL = creds.TokenURL
+	cfg.Audience = creds.Audience
+	cfg.Scopes = normalizeScopes(creds.Scopes)
+	return NewClient(&cfg), nil
+}
+
+// RedactedProvisionedProducer returns the display-safe view of a provisioned
+// producer bundle, omitting the client secret.
+func RedactedProvisionedProducer(creds ProvisionedProducerCredentials) RedactedProvisionedProducerCredentials {
+	return RedactedProvisionedProducerCredentials{
+		CompanySlug: creds.CompanySlug,
+		BaseURL:     creds.BaseURL,
+		TokenURL:    creds.TokenURL,
+		Audience:    creds.Audience,
+		ClientID:    creds.ClientID,
+		Scopes:      creds.Scopes,
+		Environment: creds.Environment,
+		Metadata:    creds.Metadata,
+	}
+}
+
 // SetupProducer ensures the tenant exists when requested, creates an OAuth2
 // producer client, and returns the credential bundle consumers need.
 func SetupProducer(

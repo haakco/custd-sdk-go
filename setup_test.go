@@ -233,6 +233,63 @@ func (d *capturingSetupDoer) Do(req *HTTPRequest) (*HTTPResponse, error) {
 	}
 }
 
+func TestNewClientFromProvisionedProducerConsumesBundleDirectly(t *testing.T) {
+	creds := loadProvisionedProducerFixture(t, "valid-provisioned-producer.json")
+
+	client, err := NewClientFromProvisionedProducer(creds)
+	if err != nil {
+		t.Fatalf("NewClientFromProvisionedProducer returned error: %v", err)
+	}
+	defer func() { _ = client.Close(context.Background()) }()
+
+	if client == nil {
+		t.Fatal("expected client, got nil")
+	}
+}
+
+func TestNewClientFromProvisionedProducerRejectsMissingSecret(t *testing.T) {
+	creds := loadProvisionedProducerFixture(t, "invalid-provisioned-producer-missing-secret.json")
+
+	_, err := NewClientFromProvisionedProducer(creds)
+	if err == nil || !strings.Contains(err.Error(), "client secret") {
+		t.Fatalf("expected missing client secret error, got %v", err)
+	}
+}
+
+func TestRedactedProvisionedProducerOmitsSecret(t *testing.T) {
+	creds := loadProvisionedProducerFixture(t, "valid-provisioned-producer.json")
+
+	redacted := RedactedProvisionedProducer(creds)
+
+	if redacted.ClientID != creds.ClientID {
+		t.Fatalf("expected client ID %q, got %q", creds.ClientID, redacted.ClientID)
+	}
+	encoded, err := json.Marshal(redacted)
+	if err != nil {
+		t.Fatalf("marshal redacted: %v", err)
+	}
+	if strings.Contains(string(encoded), creds.ClientSecret) {
+		t.Fatalf("redacted view leaked secret: %s", encoded)
+	}
+	if strings.Contains(string(encoded), "clientSecret") {
+		t.Fatalf("redacted view exposed clientSecret field: %s", encoded)
+	}
+}
+
+func loadProvisionedProducerFixture(t *testing.T, name string) ProvisionedProducerCredentials {
+	t.Helper()
+	path := filepath.Join("..", "contract-fixtures", name)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read fixture %s: %v", name, err)
+	}
+	var creds ProvisionedProducerCredentials
+	if err := json.Unmarshal(data, &creds); err != nil {
+		t.Fatalf("decode fixture %s: %v", name, err)
+	}
+	return creds
+}
+
 func jsonResponse(status int, body map[string]any) (*HTTPResponse, error) {
 	encoded, err := json.Marshal(body)
 	if err != nil {
