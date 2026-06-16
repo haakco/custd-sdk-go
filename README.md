@@ -26,6 +26,27 @@ import custd "github.com/haakco/custd-sdk-go"
 > monorepo under `sdk-go/` and published to the read-only `custd-sdk-go` mirror on
 > each release. Import the mirror path above, not the monorepo subdir.
 
+## Migrating from `github.com/haakco/custd-sdk/sdk-go`
+
+The module path **changed in `v1.3.2`** (breaking). Versions up to and including
+`sdk-go/v1.3.1` were imported from the monorepo subdir path
+`github.com/haakco/custd-sdk/sdk-go`; that path is now frozen and will not receive
+further releases.
+
+To move to `v1.3.2`+:
+
+```bash
+# 1. Update import paths in your code
+#    github.com/haakco/custd-sdk/sdk-go  ->  github.com/haakco/custd-sdk-go
+# 2. Pull the renamed module
+go get github.com/haakco/custd-sdk-go@v1.3.2
+# 3. Drop the now-unused old module
+go mod tidy
+```
+
+The package name (`custd`) and every exported symbol are unchanged — only the
+module/import path moves, so it is a mechanical find-and-replace.
+
 ## Usage
 
 Static token:
