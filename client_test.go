@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"os"
-	"path/filepath"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -127,11 +125,7 @@ func TestOAuthRejectsPlaintextNonLocalURLs(t *testing.T) {
 
 func loadFixture(t *testing.T, name string) *EventEnvelope {
 	t.Helper()
-	path := filepath.Join("..", "contract-fixtures", name)
-	data, err := os.ReadFile(path)
-	if err != nil {
-		t.Fatalf("read fixture %s: %v", name, err)
-	}
+	data := readContractFixture(t, name)
 	var event EventEnvelope
 	if err := json.Unmarshal(data, &event); err != nil {
 		t.Fatalf("decode fixture %s: %v", name, err)

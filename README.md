@@ -11,20 +11,20 @@ alias or deprecation window.
 
 ## Install
 
-Consume the Go module from the public monorepo subdir (its `go.mod` module path
-is `github.com/haakco/custd-sdk/sdk-go`, tagged `sdk-go/vX.Y.Z`):
+Consume the Go module from its dedicated mirror `github.com/haakco/custd-sdk-go`
+(tagged `vX.Y.Z`):
 
 ```bash
-go get github.com/haakco/custd-sdk/sdk-go@latest
+go get github.com/haakco/custd-sdk-go@latest
 ```
 
 ```go
-import custd "github.com/haakco/custd-sdk/sdk-go"
+import custd "github.com/haakco/custd-sdk-go"
 ```
 
-> The `haakco/custd-sdk-go` mirror exists but is not yet `go get`-able under that
-> name — its `go.mod` still declares the monorepo subdir path. Use the import
-> above until the mirror's module path is renamed.
+> This module is developed in the [`custd-sdk`](https://github.com/haakco/custd-sdk)
+> monorepo under `sdk-go/` and published to the read-only `custd-sdk-go` mirror on
+> each release. Import the mirror path above, not the monorepo subdir.
 
 ## Usage
 
@@ -101,7 +101,7 @@ mise exec -- just check
 Create the tenant-bound OAuth2 producer client and print env snippets:
 
 ```bash
-go run github.com/haakco/custd-sdk/sdk-go/cmd/custd-sdk-setup@latest \
+go run github.com/haakco/custd-sdk-go/cmd/custd-sdk-setup@latest \
   --base-url=https://custd.k8.haak.co \
   --admin-url=https://custd.k8.haak.co \
   --admin-token="$CUSTD_ADMIN_TOKEN" \

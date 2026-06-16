@@ -278,11 +278,7 @@ func TestRedactedProvisionedProducerOmitsSecret(t *testing.T) {
 
 func loadProvisionedProducerFixture(t *testing.T, name string) ProvisionedProducerCredentials {
 	t.Helper()
-	path := filepath.Join("..", "contract-fixtures", name)
-	data, err := os.ReadFile(path)
-	if err != nil {
-		t.Fatalf("read fixture %s: %v", name, err)
-	}
+	data := readContractFixture(t, name)
 	var creds ProvisionedProducerCredentials
 	if err := json.Unmarshal(data, &creds); err != nil {
 		t.Fatalf("decode fixture %s: %v", name, err)

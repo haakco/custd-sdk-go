@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	custd "github.com/haakco/custd-sdk/sdk-go"
+	custd "github.com/haakco/custd-sdk-go"
 )
 
 func main() {
