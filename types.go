@@ -48,6 +48,17 @@ type eventBatchRequest struct {
 	Events []EventEnvelope `json:"events"`
 }
 
+// eventResult is the per-event outcome the ingest API returns in a batch
+// response. On a partial failure the top-level success is false and the
+// rejected events are identifiable here.
+type eventResult struct {
+	EventUUID string `json:"eventUuid"`
+	Success   bool   `json:"success"`
+	Status    int    `json:"status"`
+	Error     string `json:"error"`
+}
+
 type eventBatchResponse struct {
-	Success bool `json:"success"`
+	Success bool          `json:"success"`
+	Results []eventResult `json:"results"`
 }

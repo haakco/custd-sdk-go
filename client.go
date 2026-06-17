@@ -189,9 +189,49 @@ func (c *CustdClient) checkBatchResponse(statusCode int, body []byte) error {
 		return fmt.Errorf("custd: decode batch response: %w", err)
 	}
 	if !response.Success {
-		return newNonRetryableError(statusCode)
+		return newBatchRejectionError(statusCode, response.Results)
 	}
 	return nil
+}
+
+// newBatchRejectionError builds a non-retryable error that names the rejected
+// events (uuid, status, reason) so a partial batch failure is diagnosable
+// without re-probing the API. The list is capped to keep the message bounded.
+func newBatchRejectionError(statusCode int, results []eventResult) *sendError {
+	failed := make([]eventResult, 0, len(results))
+	for _, r := range results {
+		if !r.Success {
+			failed = append(failed, r)
+		}
+	}
+	if len(failed) == 0 {
+		return &sendError{
+			StatusCode: statusCode,
+			Message:    fmt.Sprintf("custd: batch request failed with status %d (no per-event results)", statusCode),
+			Retryable:  false,
+		}
+	}
+	const maxList = 10
+	parts := make([]string, 0, maxList+1)
+	for i, r := range failed {
+		if i >= maxList {
+			break
+		}
+		detail := r.Error
+		if detail == "" {
+			detail = "no error detail"
+		}
+		parts = append(parts, fmt.Sprintf("%s [status %d] %s", r.EventUUID, r.Status, detail))
+	}
+	if len(failed) > maxList {
+		parts = append(parts, fmt.Sprintf("+%d more", len(failed)-maxList))
+	}
+	return &sendError{
+		StatusCode: statusCode,
+		Message: fmt.Sprintf("custd: batch rejected %d of %d event(s): %s",
+			len(failed), len(results), strings.Join(parts, "; ")),
+		Retryable: false,
+	}
 }
 
 func (c *CustdClient) batchEndpoint() string {

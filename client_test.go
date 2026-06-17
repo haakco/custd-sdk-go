@@ -299,6 +299,32 @@ func TestFlushSendsOneBatchRequest(t *testing.T) {
 	}
 }
 
+func TestFlushBatchRejectionNamesFailedEvents(t *testing.T) {
+	client, srv := testClientWithServer(t, func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusAccepted)
+		_, _ = w.Write([]byte(`{"success":false,"results":[` +
+			`{"eventUuid":"evt-ok","success":true,"status":202},` +
+			`{"eventUuid":"evt-bad","success":false,"status":400,"error":"validation failed"}` +
+			`]}`))
+	})
+	defer srv.Close()
+	defer func() { _ = client.Close(context.Background()) }()
+
+	enqueueN(client, validEvent(), 2)
+	err := client.Flush(context.Background())
+	if err == nil {
+		t.Fatal("expected batch rejection error, got nil")
+	}
+	for _, want := range []string{"evt-bad", "400", "validation failed", "1 of 2"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Fatalf("error %q must contain %q", err.Error(), want)
+		}
+	}
+	if strings.Contains(err.Error(), "evt-ok") {
+		t.Fatalf("error must not name succeeded events: %q", err.Error())
+	}
+}
+
 func TestFlushSendsEvents(t *testing.T) {
 	var received []EventEnvelope
 	var mu sync.Mutex
