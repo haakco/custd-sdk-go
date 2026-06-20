@@ -143,7 +143,7 @@ func (c *CustdClient) sendBatchViaDoer(body []byte) error {
 		Body:    body,
 	})
 	if err != nil {
-		return fmt.Errorf("custd: request failed: %w", err)
+		return newRetryableTransportError(err)
 	}
 	return c.checkBatchResponse(resp.StatusCode, resp.Body)
 }
@@ -158,7 +158,7 @@ func (c *CustdClient) sendBatchViaHTTP(ctx context.Context, body []byte) error {
 	}
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("custd: request failed: %w", err)
+		return newRetryableTransportError(err)
 	}
 	// nolint:errcheck // response body fully read below; a close error cannot affect the already-read batch response
 	defer func() { _ = resp.Body.Close() }()

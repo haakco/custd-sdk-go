@@ -31,10 +31,15 @@ type sendError struct {
 	StatusCode int
 	Message    string
 	Retryable  bool
+	Cause      error
 }
 
 func (e *sendError) Error() string {
 	return e.Message
+}
+
+func (e *sendError) Unwrap() error {
+	return e.Cause
 }
 
 // newRetryableError creates a retryable send error.
@@ -43,6 +48,14 @@ func newRetryableError(statusCode int) *sendError {
 		StatusCode: statusCode,
 		Message:    fmt.Sprintf("custd: retryable status %d", statusCode),
 		Retryable:  true,
+	}
+}
+
+func newRetryableTransportError(err error) *sendError {
+	return &sendError{
+		Message:   fmt.Sprintf("custd: request failed: %v", err),
+		Retryable: true,
+		Cause:     err,
 	}
 }
 

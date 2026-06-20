@@ -3,6 +3,7 @@ package custd
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -406,6 +407,43 @@ func TestRetryOnServerError(t *testing.T) {
 	if attempts.Load() != 3 {
 		t.Fatalf("expected 3 attempts, got %d", attempts.Load())
 	}
+}
+
+func TestRetryOnTransportError(t *testing.T) {
+	var attempts atomic.Int32
+	client := NewClient(&ClientConfig{
+		BaseURL:       "https://custd.example.com",
+		APIKey:        "test-key",
+		BatchSize:     5,
+		FlushInterval: time.Hour,
+		Retry: RetryConfig{
+			MaxAttempts: 3,
+			BaseDelay:   time.Millisecond,
+			MaxDelay:    time.Millisecond,
+			Jitter:      0,
+		},
+		HTTPClient: retryableTransportDoer(func() int32 {
+			return attempts.Add(1)
+		}),
+	})
+	defer func() { _ = client.Close(context.Background()) }()
+
+	client.q.enqueue(validEvent())
+	if err := client.Flush(context.Background()); err != nil {
+		t.Fatalf("expected success after transport retry, got: %v", err)
+	}
+	if attempts.Load() != 2 {
+		t.Fatalf("expected 2 attempts, got %d", attempts.Load())
+	}
+}
+
+type retryableTransportDoer func() int32
+
+func (d retryableTransportDoer) Do(*HTTPRequest) (*HTTPResponse, error) {
+	if d() == 1 {
+		return nil, errors.New("EOF")
+	}
+	return &HTTPResponse{StatusCode: http.StatusAccepted, Body: []byte(`{"success":true}`)}, nil
 }
 
 func TestNonRetryableErrorStopsImmediately(t *testing.T) {
