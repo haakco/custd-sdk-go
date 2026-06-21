@@ -2,6 +2,7 @@ package custd
 
 import (
 	"bytes"
+	"compress/gzip"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -129,17 +130,40 @@ func (c *CustdClient) sendBatch(ctx context.Context, events []EventEnvelope) err
 	if err != nil {
 		return fmt.Errorf("custd: marshal event batch: %w", err)
 	}
-	if c.config.HTTPClient != nil {
-		return c.sendBatchViaDoer(body)
+	body, gzipped, err := c.maybeCompress(body)
+	if err != nil {
+		return err
 	}
-	return c.sendBatchViaHTTP(ctx, body)
+	if c.config.HTTPClient != nil {
+		return c.sendBatchViaDoer(body, gzipped)
+	}
+	return c.sendBatchViaHTTP(ctx, body, gzipped)
 }
 
-func (c *CustdClient) sendBatchViaDoer(body []byte) error {
+// maybeCompress gzip-compresses the body when compression is enabled and the
+// body meets the configured threshold. It returns the body to send and whether
+// it was compressed.
+func (c *CustdClient) maybeCompress(body []byte) ([]byte, bool, error) {
+	enabled := c.config.CompressionEnabled != nil && *c.config.CompressionEnabled
+	if !enabled || len(body) < c.config.CompressionThreshold {
+		return body, false, nil
+	}
+	var buf bytes.Buffer
+	w := gzip.NewWriter(&buf)
+	if _, err := w.Write(body); err != nil {
+		return nil, false, fmt.Errorf("custd: gzip batch body: %w", err)
+	}
+	if err := w.Close(); err != nil {
+		return nil, false, fmt.Errorf("custd: gzip batch body: %w", err)
+	}
+	return buf.Bytes(), true, nil
+}
+
+func (c *CustdClient) sendBatchViaDoer(body []byte, gzipped bool) error {
 	resp, err := c.config.HTTPClient.Do(&HTTPRequest{
 		Method:  http.MethodPost,
 		URL:     c.batchEndpoint(),
-		Headers: c.headers(),
+		Headers: c.headers(gzipped),
 		Body:    body,
 	})
 	if err != nil {
@@ -148,12 +172,12 @@ func (c *CustdClient) sendBatchViaDoer(body []byte) error {
 	return c.checkBatchResponse(resp.StatusCode, resp.Body)
 }
 
-func (c *CustdClient) sendBatchViaHTTP(ctx context.Context, body []byte) error {
+func (c *CustdClient) sendBatchViaHTTP(ctx context.Context, body []byte, gzipped bool) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.batchEndpoint(), bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("custd: create request: %w", err)
 	}
-	for k, v := range c.headers() {
+	for k, v := range c.headers(gzipped) {
 		req.Header.Set(k, v)
 	}
 	resp, err := c.httpClient.Do(req)
@@ -238,10 +262,14 @@ func (c *CustdClient) batchEndpoint() string {
 	return strings.TrimRight(c.config.BaseURL, "/") + ingestBatchEndpoint
 }
 
-// headers returns the default request headers.
-func (c *CustdClient) headers() map[string]string {
+// headers returns the default request headers. When gzipped is true it sets
+// Content-Encoding: gzip to signal a compressed body to the ingest API.
+func (c *CustdClient) headers(gzipped bool) map[string]string {
 	headers := map[string]string{
 		"Content-Type": "application/json",
+	}
+	if gzipped {
+		headers["Content-Encoding"] = "gzip"
 	}
 	if c.config.APIKey != "" {
 		headers["Authorization"] = "Bearer " + c.config.APIKey
@@ -287,6 +315,12 @@ func applyDefaults(cfg *ClientConfig) ClientConfig {
 	}
 	if cfg.MaxQueueSize <= 0 {
 		cfg.MaxQueueSize = defaults.MaxQueueSize
+	}
+	if cfg.CompressionEnabled == nil {
+		cfg.CompressionEnabled = defaults.CompressionEnabled
+	}
+	if cfg.CompressionThreshold <= 0 {
+		cfg.CompressionThreshold = defaults.CompressionThreshold
 	}
 	cfg.Retry = applyRetryDefaults(&cfg.Retry, &defaults.Retry)
 	return *cfg

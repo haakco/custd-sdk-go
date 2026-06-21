@@ -187,7 +187,7 @@ func (c *AdminClient) requestViaDoer(method string, path string, body []byte, ou
 	resp, err := c.client.config.HTTPClient.Do(&HTTPRequest{
 		Method:  method,
 		URL:     c.endpoint(path),
-		Headers: c.client.headers(),
+		Headers: c.client.headers(false),
 		Body:    body,
 	})
 	if err != nil {
@@ -204,7 +204,7 @@ func (c *AdminClient) requestViaHTTP(ctx context.Context, method string, path st
 	if err != nil {
 		return fmt.Errorf("custd: create admin request: %w", err)
 	}
-	for k, v := range c.client.headers() {
+	for k, v := range c.client.headers(false) {
 		req.Header.Set(k, v)
 	}
 	resp, err := c.client.httpClient.Do(req)

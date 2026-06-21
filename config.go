@@ -28,6 +28,14 @@ type ClientConfig struct {
 	MaxQueueSize  int
 	Retry         RetryConfig
 	HTTPClient    HTTPDoer
+
+	// CompressionEnabled gzip-compresses the batch request body when it meets
+	// CompressionThreshold. Nil defaults to enabled; set to a pointer to false
+	// to disable. The ingest API decodes Content-Encoding: gzip.
+	CompressionEnabled *bool
+	// CompressionThreshold is the minimum serialized body size in bytes before
+	// gzip compression is applied. Zero falls back to the default.
+	CompressionThreshold int
 }
 
 // HTTPDoer abstracts HTTP requests for testing.
@@ -60,12 +68,19 @@ func DefaultRetryConfig() RetryConfig {
 	}
 }
 
+// defaultCompressionThreshold is the body size in bytes at or above which the
+// batch request body is gzip-compressed.
+const defaultCompressionThreshold = 1024
+
 // DefaultClientConfig returns sensible client defaults.
 func DefaultClientConfig() ClientConfig {
+	enabled := true
 	return ClientConfig{
-		BatchSize:     20,
-		FlushInterval: 30 * time.Second,
-		MaxQueueSize:  1000,
-		Retry:         DefaultRetryConfig(),
+		BatchSize:            20,
+		FlushInterval:        30 * time.Second,
+		MaxQueueSize:         1000,
+		Retry:                DefaultRetryConfig(),
+		CompressionEnabled:   &enabled,
+		CompressionThreshold: defaultCompressionThreshold,
 	}
 }
