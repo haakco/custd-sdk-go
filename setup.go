@@ -3,7 +3,9 @@ package custd
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -278,7 +280,25 @@ func normalizeScopes(scopes []string) []string {
 	return out
 }
 
+// isAlreadyExistsError reports whether err is a conflict (HTTP 409) returned
+// when the tenant already exists. It inspects the parsed RFC 9457 problem on the
+// typed send error (status 409 or a conflict code) rather than string-matching,
+// since the problem+json envelope no longer guarantees "409"/"already" in the
+// rendered message.
 func isAlreadyExistsError(err error) bool {
-	msg := strings.ToLower(err.Error())
-	return strings.Contains(msg, "409") || strings.Contains(msg, "already")
+	var se *sendError
+	if errors.As(err, &se) {
+		if se.StatusCode == http.StatusConflict {
+			return true
+		}
+		if se.Problem != nil {
+			if se.Problem.Status == http.StatusConflict {
+				return true
+			}
+			if code := strings.ToLower(se.Problem.Code); code == "conflict" || code == "already_exists" {
+				return true
+			}
+		}
+	}
+	return false
 }

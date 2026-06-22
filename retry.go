@@ -26,15 +26,29 @@ func isRetryableStatus(code int, retrySet map[int]bool) bool {
 	return retrySet[code]
 }
 
-// sendError represents an HTTP error with status code context.
+// sendError represents an HTTP error with status code context. When the server
+// returned an RFC 9457 problem+json body, Problem carries the parsed detail so
+// callers can branch on the typed status/code instead of string-matching.
 type sendError struct {
 	StatusCode int
 	Message    string
 	Retryable  bool
+	Problem    *Problem
 }
 
 func (e *sendError) Error() string {
 	return e.Message
+}
+
+// newProblemError builds a send error from a parsed RFC 9457 problem, carrying
+// the problem through so callers can branch on its status and code.
+func newProblemError(statusCode int, retryable bool, problem *Problem) *sendError {
+	return &sendError{
+		StatusCode: statusCode,
+		Message:    problem.Error(),
+		Retryable:  retryable,
+		Problem:    problem,
+	}
 }
 
 // newRetryableError creates a retryable send error.

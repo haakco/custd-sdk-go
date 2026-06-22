@@ -193,7 +193,7 @@ func (c *AdminClient) requestViaDoer(method string, path string, body []byte, ou
 	if err != nil {
 		return fmt.Errorf("custd: admin request failed: %w", err)
 	}
-	if err := c.client.checkStatus(resp.StatusCode); err != nil {
+	if err := c.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
 		return err
 	}
 	return decodeAdminResponse(resp.Body, out)
@@ -214,7 +214,7 @@ func (c *AdminClient) requestViaHTTP(ctx context.Context, method string, path st
 	// nolint:errcheck // response body fully read below; a close error cannot affect the already-read admin response
 	defer func() { _ = resp.Body.Close() }()
 	respBody, _ := io.ReadAll(resp.Body)
-	if err := c.client.checkStatus(resp.StatusCode); err != nil {
+	if err := c.client.checkStatus(resp.StatusCode, respBody); err != nil {
 		return err
 	}
 	return decodeAdminResponse(respBody, out)

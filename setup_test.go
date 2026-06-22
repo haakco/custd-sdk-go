@@ -86,6 +86,49 @@ func TestSetupProducerCreatesTenantAndOAuthClient(t *testing.T) {
 	}
 }
 
+func TestSetupProducerTreats409ProblemAsAlreadyExisting(t *testing.T) {
+	doer := &capturingSetupDoer{tenantStatus: 409}
+	admin := NewClient(&ClientConfig{
+		BaseURL:    "http://localhost:8090",
+		APIKey:     "admin-token",
+		HTTPClient: doer,
+	})
+	defer func() { _ = admin.Close(context.Background()) }()
+
+	creds, err := SetupProducer(context.Background(), admin, ProducerSetupRequest{
+		BaseURL:      "http://localhost:8087",
+		TokenURL:     "http://localhost:4444/oauth2/token",
+		TenantSlug:   "acme",
+		CompanyName:  "Acme Inc",
+		ClientID:     "acme-producer",
+		Environment:  "development",
+		EnsureTenant: true,
+	})
+	if err != nil {
+		t.Fatalf("expected 409 problem to be treated as already-exists, got error: %v", err)
+	}
+	if creds.ClientSecret != "created-secret" {
+		t.Fatalf("expected oauth client creation to proceed, got secret %q", creds.ClientSecret)
+	}
+	if len(doer.requests) != 2 {
+		t.Fatalf("expected tenant (409) then oauth requests, got %d", len(doer.requests))
+	}
+	if doer.requests[1].path != "/api/v1/admin/oauth-clients" {
+		t.Fatalf("expected oauth client creation after 409, got %q", doer.requests[1].path)
+	}
+}
+
+func TestIsAlreadyExistsErrorMatchesProblemConflict(t *testing.T) {
+	conflict := newProblemError(409, false, &Problem{Type: "conflict", Status: 409, Detail: "tenant already exists"})
+	if !isAlreadyExistsError(conflict) {
+		t.Fatalf("expected 409 problem to be an already-exists error: %v", conflict)
+	}
+	notConflict := newProblemError(400, false, &Problem{Type: "validation_failed", Status: 400, Detail: "bad request"})
+	if isAlreadyExistsError(notConflict) {
+		t.Fatalf("expected 400 problem to NOT be an already-exists error: %v", notConflict)
+	}
+}
+
 func TestSetupProducerRegistersSchemasFromDirectory(t *testing.T) {
 	dir := t.TempDir()
 	schema := `{"eventTypeSlug":"courib.delivery.created","version":"1.0.0","jsonSchema":{"type":"object"}}`
@@ -198,6 +241,7 @@ type setupRequest struct {
 type capturingSetupDoer struct {
 	requests     []setupRequest
 	schemaStatus int
+	tenantStatus int
 }
 
 func (d *capturingSetupDoer) Do(req *HTTPRequest) (*HTTPResponse, error) {
@@ -211,6 +255,9 @@ func (d *capturingSetupDoer) Do(req *HTTPRequest) (*HTTPResponse, error) {
 	d.requests = append(d.requests, setupRequest{path: path, body: body})
 	switch path {
 	case "/api/v1/admin/tenants":
+		if d.tenantStatus != 0 {
+			return problemResponse(d.tenantStatus, "conflict", "Conflict", "tenant already exists", "already_exists")
+		}
 		return jsonResponse(201, map[string]any{
 			"slug":        body["slug"],
 			"companyName": body["companyName"],
@@ -225,12 +272,27 @@ func (d *capturingSetupDoer) Do(req *HTTPRequest) (*HTTPResponse, error) {
 		})
 	case "/api/v1/admin/schemas":
 		if d.schemaStatus != 0 {
-			return jsonResponse(d.schemaStatus, map[string]any{"error": "schema unavailable"})
+			return problemResponse(d.schemaStatus, "service_unavailable", "Service Unavailable", "schema unavailable", "")
 		}
 		return jsonResponse(201, body)
 	default:
-		return jsonResponse(404, map[string]any{"error": "not found"})
+		return problemResponse(404, "not_found", "Not Found", "not found", "")
 	}
+}
+
+// problemResponse builds an RFC 9457 problem+json error response mirroring the
+// frozen ingest/admin error contract.
+func problemResponse(status int, slug, title, detail, code string) (*HTTPResponse, error) {
+	problem := map[string]any{
+		"type":   slug,
+		"title":  title,
+		"status": status,
+		"detail": detail,
+	}
+	if code != "" {
+		problem["code"] = code
+	}
+	return jsonResponse(status, problem)
 }
 
 func TestNewClientFromProvisionedProducerConsumesBundleDirectly(t *testing.T) {

@@ -190,19 +190,25 @@ func (c *CustdClient) sendBatchViaHTTP(ctx context.Context, body []byte, gzipped
 	return c.checkBatchResponse(resp.StatusCode, responseBody)
 }
 
-// checkStatus returns a retryable or non-retryable error for non-2xx status codes.
-func (c *CustdClient) checkStatus(statusCode int) error {
+// checkStatus returns a retryable or non-retryable error for non-2xx status
+// codes. It decodes the RFC 9457 problem+json body when present so the
+// surfaced error carries the server's type, title, detail, code, and fields.
+func (c *CustdClient) checkStatus(statusCode int, body []byte) error {
 	if statusCode >= 200 && statusCode < 300 {
 		return nil
 	}
-	if isRetryableStatus(statusCode, c.retrySet) {
+	retryable := isRetryableStatus(statusCode, c.retrySet)
+	if problem := parseProblem(body); problem != nil {
+		return newProblemError(statusCode, retryable, problem)
+	}
+	if retryable {
 		return newRetryableError(statusCode)
 	}
 	return newNonRetryableError(statusCode)
 }
 
 func (c *CustdClient) checkBatchResponse(statusCode int, body []byte) error {
-	if err := c.checkStatus(statusCode); err != nil {
+	if err := c.checkStatus(statusCode, body); err != nil {
 		return err
 	}
 	var response eventBatchResponse
@@ -241,11 +247,7 @@ func newBatchRejectionError(statusCode int, results []eventResult) *sendError {
 		if i >= maxList {
 			break
 		}
-		detail := r.Error
-		if detail == "" {
-			detail = "no error detail"
-		}
-		parts = append(parts, fmt.Sprintf("%s [status %d] %s", r.EventUUID, r.Status, detail))
+		parts = append(parts, fmt.Sprintf("%s [status %d] %s", r.EventUUID, r.Status, eventResultDetail(r)))
 	}
 	if len(failed) > maxList {
 		parts = append(parts, fmt.Sprintf("+%d more", len(failed)-maxList))
@@ -256,6 +258,24 @@ func newBatchRejectionError(statusCode int, results []eventResult) *sendError {
 			len(failed), len(results), strings.Join(parts, "; ")),
 		Retryable: false,
 	}
+}
+
+// eventResultDetail renders the problem detail for a rejected per-event result,
+// falling back to the problem title or a placeholder when no message is present.
+func eventResultDetail(r eventResult) string {
+	if r.Error == nil {
+		return "no error detail"
+	}
+	if r.Error.Detail != "" {
+		return r.Error.Detail
+	}
+	if r.Error.Title != "" {
+		return r.Error.Title
+	}
+	if r.Error.Code != "" {
+		return "code " + r.Error.Code
+	}
+	return "no error detail"
 }
 
 func (c *CustdClient) batchEndpoint() string {

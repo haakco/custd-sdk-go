@@ -304,7 +304,8 @@ func TestFlushBatchRejectionNamesFailedEvents(t *testing.T) {
 		w.WriteHeader(http.StatusAccepted)
 		_, _ = w.Write([]byte(`{"success":false,"results":[` +
 			`{"eventUuid":"evt-ok","success":true,"status":202},` +
-			`{"eventUuid":"evt-bad","success":false,"status":400,"error":"validation failed"}` +
+			`{"eventUuid":"evt-bad","success":false,"status":400,` +
+			`"error":{"type":"validation_failed","title":"Validation Failed","status":400,"detail":"validation failed"}}` +
 			`]}`))
 	})
 	defer srv.Close()
@@ -322,6 +323,29 @@ func TestFlushBatchRejectionNamesFailedEvents(t *testing.T) {
 	}
 	if strings.Contains(err.Error(), "evt-ok") {
 		t.Fatalf("error must not name succeeded events: %q", err.Error())
+	}
+}
+
+func TestFlushSurfacesProblemDetailOnNon2xx(t *testing.T) {
+	client, srv := testClientWithServer(t, func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/problem+json")
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"type":"validation_failed","title":"Validation Failed",` +
+			`"status":400,"detail":"event payload invalid","code":"invalid_payload",` +
+			`"fields":{"payload":"required"}}`))
+	})
+	defer srv.Close()
+	defer func() { _ = client.Close(context.Background()) }()
+
+	enqueueN(client, validEvent(), 1)
+	err := client.Flush(context.Background())
+	if err == nil {
+		t.Fatal("expected problem error, got nil")
+	}
+	for _, want := range []string{"event payload invalid", "400", "invalid_payload", "payload=required"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Fatalf("error %q must contain %q", err.Error(), want)
+		}
 	}
 }
 
