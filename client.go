@@ -135,9 +135,9 @@ func (c *CustdClient) sendBatch(ctx context.Context, events []EventEnvelope) err
 		return err
 	}
 	if c.config.HTTPClient != nil {
-		return c.sendBatchViaDoer(body, gzipped)
+		return c.sendBatchViaDoer(body, gzipped, len(events))
 	}
-	return c.sendBatchViaHTTP(ctx, body, gzipped)
+	return c.sendBatchViaHTTP(ctx, body, gzipped, len(events))
 }
 
 // maybeCompress gzip-compresses the body when compression is enabled and the
@@ -159,7 +159,7 @@ func (c *CustdClient) maybeCompress(body []byte) ([]byte, bool, error) {
 	return buf.Bytes(), true, nil
 }
 
-func (c *CustdClient) sendBatchViaDoer(body []byte, gzipped bool) error {
+func (c *CustdClient) sendBatchViaDoer(body []byte, gzipped bool, eventCount int) error {
 	resp, err := c.config.HTTPClient.Do(&HTTPRequest{
 		Method:  http.MethodPost,
 		URL:     c.batchEndpoint(),
@@ -167,12 +167,12 @@ func (c *CustdClient) sendBatchViaDoer(body []byte, gzipped bool) error {
 		Body:    body,
 	})
 	if err != nil {
-		return fmt.Errorf("custd: request failed: %w", err)
+		return newRetryableTransportError(err)
 	}
-	return c.checkBatchResponse(resp.StatusCode, resp.Body)
+	return c.checkBatchResponse(resp.StatusCode, resp.Body, eventCount)
 }
 
-func (c *CustdClient) sendBatchViaHTTP(ctx context.Context, body []byte, gzipped bool) error {
+func (c *CustdClient) sendBatchViaHTTP(ctx context.Context, body []byte, gzipped bool, eventCount int) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.batchEndpoint(), bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("custd: create request: %w", err)
@@ -182,12 +182,12 @@ func (c *CustdClient) sendBatchViaHTTP(ctx context.Context, body []byte, gzipped
 	}
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("custd: request failed: %w", err)
+		return newRetryableTransportError(err)
 	}
 	// nolint:errcheck // response body fully read below; a close error cannot affect the already-read batch response
 	defer func() { _ = resp.Body.Close() }()
 	responseBody, _ := io.ReadAll(resp.Body)
-	return c.checkBatchResponse(resp.StatusCode, responseBody)
+	return c.checkBatchResponse(resp.StatusCode, responseBody, eventCount)
 }
 
 // checkStatus returns a retryable or non-retryable error for non-2xx status
@@ -207,7 +207,7 @@ func (c *CustdClient) checkStatus(statusCode int, body []byte) error {
 	return newNonRetryableError(statusCode)
 }
 
-func (c *CustdClient) checkBatchResponse(statusCode int, body []byte) error {
+func (c *CustdClient) checkBatchResponse(statusCode int, body []byte, sentEventCount int) error {
 	if err := c.checkStatus(statusCode, body); err != nil {
 		return err
 	}
@@ -218,10 +218,38 @@ func (c *CustdClient) checkBatchResponse(statusCode int, body []byte) error {
 	if err := json.Unmarshal(body, &response); err != nil {
 		return fmt.Errorf("custd: decode batch response: %w", err)
 	}
-	if !response.Success {
+	if len(response.Results) != 0 && len(response.Results) != sentEventCount {
+		return &sendError{
+			StatusCode: statusCode,
+			Message: fmt.Sprintf(
+				"custd: batch response result count %d does not match sent event count %d",
+				len(response.Results), sentEventCount,
+			),
+			Retryable: false,
+		}
+	}
+	for i, result := range response.Results {
+		if result.EventUUID == "" {
+			return &sendError{
+				StatusCode: statusCode,
+				Message:    fmt.Sprintf("custd: batch response result %d missing eventUuid", i),
+				Retryable:  false,
+			}
+		}
+	}
+	if !response.Success || hasFailedBatchResult(response.Results) {
 		return newBatchRejectionError(statusCode, response.Results)
 	}
 	return nil
+}
+
+func hasFailedBatchResult(results []eventResult) bool {
+	for _, result := range results {
+		if !result.Success {
+			return true
+		}
+	}
+	return false
 }
 
 // newBatchRejectionError builds a non-retryable error that names the rejected

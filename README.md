@@ -152,6 +152,9 @@ key after rotation.
 
 Use `CustdClient.Admin.Schemas` from setup code:
 
+Supported feature parity and intentionally missing helpers are documented in the SDK
+root README.
+
 ```go
 _, err := client.Admin.Schemas.Register(ctx, custd.AdminSchemaRegister{
     EventTypeSlug: "courib.delivery.created",

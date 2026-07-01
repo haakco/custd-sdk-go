@@ -3,6 +3,7 @@ package custd
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -367,6 +368,168 @@ func TestFlushSendsEvents(t *testing.T) {
 	if len(received) != 2 {
 		t.Fatalf("expected 2 events, got %d", len(received))
 	}
+}
+
+func TestRetryOnTransportError(t *testing.T) {
+	var attempts atomic.Int32
+	client := NewClient(&ClientConfig{
+		BaseURL:       "https://custd.example.com",
+		APIKey:        "test-key",
+		BatchSize:     5,
+		FlushInterval: time.Hour,
+		Retry: RetryConfig{
+			MaxAttempts: 3,
+			BaseDelay:   time.Millisecond,
+			MaxDelay:    time.Millisecond,
+			Jitter:      0,
+		},
+		HTTPClient: retryableTransportDoer(func() int32 {
+			return attempts.Add(1)
+		}),
+	})
+	defer func() { _ = client.Close(context.Background()) }()
+
+	client.q.enqueue(validEvent())
+	if err := client.Flush(context.Background()); err != nil {
+		t.Fatalf("expected success after transport retry, got: %v", err)
+	}
+	if attempts.Load() != 2 {
+		t.Fatalf("expected 2 attempts, got %d", attempts.Load())
+	}
+}
+
+func TestRetryAfterLostResponseReusesEventUUID(t *testing.T) {
+	var attempts atomic.Int32
+	doer := lostResponseDoer{
+		t:        t,
+		attempts: &attempts,
+	}
+	client := NewClient(&ClientConfig{
+		BaseURL:       "https://custd.example.com",
+		APIKey:        "test-key",
+		BatchSize:     5,
+		FlushInterval: time.Hour,
+		Retry: RetryConfig{
+			MaxAttempts: 3,
+			BaseDelay:   time.Millisecond,
+			MaxDelay:    time.Millisecond,
+			Jitter:      0,
+		},
+		HTTPClient: &doer,
+	})
+	defer func() { _ = client.Close(context.Background()) }()
+
+	client.q.enqueue(validEvent())
+	if err := client.Flush(context.Background()); err != nil {
+		t.Fatalf("expected success after lost-response retry, got: %v", err)
+	}
+	if attempts.Load() != 2 {
+		t.Fatalf("expected 2 attempts, got %d", attempts.Load())
+	}
+	if doer.firstEventUUID == "" {
+		t.Fatal("expected first attempt to capture event UUID")
+	}
+	if doer.secondEventUUID != doer.firstEventUUID {
+		t.Fatalf("retry changed event UUID: first=%q second=%q", doer.firstEventUUID, doer.secondEventUUID)
+	}
+}
+
+func TestFlushRejectsFailedResultEvenWhenTopLevelSuccessTrue(t *testing.T) {
+	client, srv := testClientWithServer(t, func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusAccepted)
+		_, _ = w.Write([]byte(`{"success":true,"results":[` +
+			`{"eventUuid":"evt-bad","success":false,"status":400,` +
+			`"error":{"type":"validation_failed","title":"Validation Failed","status":400,"detail":"validation failed"}}` +
+			`]}`))
+	})
+	defer srv.Close()
+	defer func() { _ = client.Close(context.Background()) }()
+
+	enqueueN(client, validEvent(), 1)
+	err := client.Flush(context.Background())
+	if err == nil {
+		t.Fatal("expected batch rejection error, got nil")
+	}
+	for _, want := range []string{"evt-bad", "400", "validation failed", "1 of 1"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Fatalf("error %q must contain %q", err.Error(), want)
+		}
+	}
+}
+
+func TestFlushRejectsBatchResultCountMismatch(t *testing.T) {
+	client, srv := testClientWithServer(t, func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusAccepted)
+		_, _ = w.Write([]byte(`{"success":true,"results":[]}`))
+	})
+	defer srv.Close()
+	defer func() { _ = client.Close(context.Background()) }()
+
+	enqueueN(client, validEvent(), 1)
+	err := client.Flush(context.Background())
+	if err == nil {
+		t.Fatal("expected result-count mismatch error, got nil")
+	}
+	if !strings.Contains(err.Error(), "batch response result count 0 does not match sent event count 1") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestFlushRejectsBatchResultMissingEventUUID(t *testing.T) {
+	client, srv := testClientWithServer(t, func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusAccepted)
+		_, _ = w.Write([]byte(`{"success":true,"results":[{"success":true,"status":202}]}`))
+	})
+	defer srv.Close()
+	defer func() { _ = client.Close(context.Background()) }()
+
+	enqueueN(client, validEvent(), 1)
+	err := client.Flush(context.Background())
+	if err == nil {
+		t.Fatal("expected missing event UUID error, got nil")
+	}
+	if !strings.Contains(err.Error(), "batch response result 0 missing eventUuid") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+type retryableTransportDoer func() int32
+
+func (d retryableTransportDoer) Do(*HTTPRequest) (*HTTPResponse, error) {
+	if d() == 1 {
+		return nil, errors.New("EOF")
+	}
+	return &HTTPResponse{StatusCode: http.StatusAccepted, Body: []byte(`{"success":true}`)}, nil
+}
+
+type lostResponseDoer struct {
+	t               *testing.T
+	attempts        *atomic.Int32
+	firstEventUUID  string
+	secondEventUUID string
+}
+
+func (d *lostResponseDoer) Do(req *HTTPRequest) (*HTTPResponse, error) {
+	attempt := d.attempts.Add(1)
+	eventUUID := firstBatchEventUUID(d.t, req.Body)
+	if attempt == 1 {
+		d.firstEventUUID = eventUUID
+		return nil, errors.New("EOF after server accepted request")
+	}
+	d.secondEventUUID = eventUUID
+	return &HTTPResponse{StatusCode: http.StatusAccepted, Body: []byte(`{"success":true}`)}, nil
+}
+
+func firstBatchEventUUID(t *testing.T, body []byte) string {
+	t.Helper()
+	var batch eventBatchRequest
+	if err := json.Unmarshal(body, &batch); err != nil {
+		t.Fatalf("decode batch body: %v", err)
+	}
+	if len(batch.Events) != 1 {
+		t.Fatalf("batch events = %d, want 1", len(batch.Events))
+	}
+	return batch.Events[0].EventUUID
 }
 
 func enqueueN(client *CustdClient, event *EventEnvelope, n int) {

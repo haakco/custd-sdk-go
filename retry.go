@@ -33,11 +33,16 @@ type sendError struct {
 	StatusCode int
 	Message    string
 	Retryable  bool
+	Cause      error
 	Problem    *Problem
 }
 
 func (e *sendError) Error() string {
 	return e.Message
+}
+
+func (e *sendError) Unwrap() error {
+	return e.Cause
 }
 
 // newProblemError builds a send error from a parsed RFC 9457 problem, carrying
@@ -57,6 +62,16 @@ func newRetryableError(statusCode int) *sendError {
 		StatusCode: statusCode,
 		Message:    fmt.Sprintf("custd: retryable status %d", statusCode),
 		Retryable:  true,
+	}
+}
+
+func newRetryableTransportError(err error) *sendError {
+	// Custd ingest is idempotent for repeated eventUuid values across the hot
+	// event row, raw landing ledger, outbox, and JetStream message ID paths.
+	return &sendError{
+		Message:   fmt.Sprintf("custd: request failed: %v", err),
+		Retryable: true,
+		Cause:     err,
 	}
 }
 

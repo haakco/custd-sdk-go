@@ -32,6 +32,7 @@ func main() {
 
 	payload := json.RawMessage(`{"source":"sdk-go-smoke"}`)
 	err = client.Track(ctx, &custd.EventEnvelope{
+		CompanySlug:  envOrDefault("CUSTD_DEV_COMPANY_SLUG", "test-company"),
 		EventTypeSlug: "page-view",
 		SchemaVersion: "1.0.0",
 		Timestamp:     time.Now().UTC().Format(time.RFC3339Nano),
