@@ -215,10 +215,16 @@ func (c *CustdClient) checkBatchResponse(statusCode int, body []byte, sentEventC
 	if len(body) == 0 {
 		return nil
 	}
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(body, &raw); err != nil {
+		return fmt.Errorf("custd: decode batch response: %w", err)
+	}
+	rawResults, resultsPresent := raw["results"]
+	resultsMustMatch := resultsPresent && !bytes.Equal(bytes.TrimSpace(rawResults), []byte("null"))
 	if err := json.Unmarshal(body, &response); err != nil {
 		return fmt.Errorf("custd: decode batch response: %w", err)
 	}
-	if len(response.Results) != 0 && len(response.Results) != sentEventCount {
+	if resultsMustMatch && len(response.Results) != sentEventCount {
 		return &sendError{
 			StatusCode: statusCode,
 			Message: fmt.Sprintf(
