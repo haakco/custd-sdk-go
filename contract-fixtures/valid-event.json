@@ -1,0 +1,29 @@
+{
+  "eventUuid": "01957abc-0000-0000-0000-000000000001",
+  "eventTypeSlug": "page-view",
+  "schemaVersion": "1.0.0",
+  "timestamp": "2026-01-23T12:00:00.000Z",
+  "sessionId": "01957abc-0000-0000-0000-000000000002",
+  "anonymousId": "01957abc-0000-0000-0000-000000000003",
+  "userUuid": null,
+  "companySlug": "test-company",
+  "context": {
+    "page": {
+      "url": "https://example.com",
+      "path": "/",
+      "title": "Home",
+      "referrer": "https://referrer.example.com"
+    },
+    "device": {
+      "type": "desktop",
+      "os": "macOS",
+      "browser": "Chrome"
+    },
+    "locale": "en-US",
+    "timezone": "UTC",
+    "ip": "127.0.0.1"
+  },
+  "payload": {
+    "example": true
+  }
+}
