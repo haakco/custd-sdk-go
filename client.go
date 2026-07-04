@@ -30,18 +30,19 @@ const defaultHTTPTimeout = 10 * time.Second
 // custd-structure: allow-methods public SDK facade; ingestion, flush, and admin helpers share client config/lifecycle
 // custd-structure: allow-fields public SDK facade; fields keep queue, retry, HTTP, and lifecycle state together
 type CustdClient struct {
-	Admin      *AdminClient
-	config     ClientConfig
-	q          *queue
-	retrySet   map[int]bool
-	mu         sync.Mutex
-	ticker     *time.Ticker
-	done       chan struct{}
-	wg         sync.WaitGroup
-	closeOnce  sync.Once
-	httpClient *http.Client
-	rng        *mrand.Rand
-	rngMu      sync.Mutex
+	Admin        *AdminClient
+	Provisioning *ProvisioningClient
+	config       ClientConfig
+	q            *queue
+	retrySet     map[int]bool
+	mu           sync.Mutex
+	ticker       *time.Ticker
+	done         chan struct{}
+	wg           sync.WaitGroup
+	closeOnce    sync.Once
+	httpClient   *http.Client
+	rng          *mrand.Rand
+	rngMu        sync.Mutex
 }
 
 // NewClient creates a new CustdClient with the given configuration.
@@ -57,6 +58,7 @@ func NewClient(config *ClientConfig) *CustdClient {
 		rng:        newSecureRand(),
 	}
 	c.Admin = newAdminClient(c)
+	c.Provisioning = newProvisioningClient(c)
 	c.startFlusher()
 	return c
 }

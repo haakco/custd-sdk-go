@@ -63,3 +63,58 @@ type eventBatchResponse struct {
 	Success bool          `json:"success"`
 	Results []eventResult `json:"results"`
 }
+
+type DataSpaceCreate struct {
+	Slug        string `json:"slug"`
+	CompanyName string `json:"companyName"`
+}
+
+type DataSpace struct {
+	Slug              string `json:"slug"`
+	CompanyName       string `json:"companyName"`
+	ParentCompanySlug string `json:"parentCompanySlug"`
+	Enabled           bool   `json:"enabled"`
+}
+
+type DataSpaceEntitlementState struct {
+	Enabled                        bool `json:"enabled"`
+	ActiveDataSpaces               int  `json:"activeDataSpaces"`
+	MaxActiveDataSpaces            int  `json:"maxActiveDataSpaces"`
+	MaxActiveProducersPerDataSpace int  `json:"maxActiveProducersPerDataSpace"`
+}
+
+type DataSpaceList struct {
+	DataSpaces  []DataSpace               `json:"dataSpaces"`
+	Entitlement DataSpaceEntitlementState `json:"entitlement"`
+}
+
+type ProducerProvisionRequest struct {
+	CompanySlug   string            `json:"companySlug"`
+	ProducerSlug  string            `json:"producerSlug"`
+	DisplayName   string            `json:"displayName,omitempty"`
+	Environment   string            `json:"environment,omitempty"`
+	Scopes        []string          `json:"scopes,omitempty"`
+	ScopeTemplate string            `json:"scopeTemplate,omitempty"`
+	Metadata      map[string]string `json:"metadata,omitempty"`
+}
+
+type ProducerProvisionResponse struct {
+	BaseURL      string            `json:"baseUrl,omitempty"`
+	TokenURL     string            `json:"tokenUrl,omitempty"`
+	Audience     string            `json:"audience,omitempty"`
+	ClientID     string            `json:"clientId"`
+	ClientSecret string            `json:"clientSecret"`
+	CompanySlug  string            `json:"companySlug"`
+	ProducerSlug string            `json:"producerSlug"`
+	Scopes       []string          `json:"scopes"`
+	Metadata     map[string]string `json:"metadata,omitempty"`
+}
+
+type ProducerProvisionPublicClient struct {
+	ClientID     string            `json:"clientId"`
+	CompanySlug  string            `json:"companySlug"`
+	ProducerSlug string            `json:"producerSlug"`
+	Scopes       []string          `json:"scopes"`
+	Environment  string            `json:"environment,omitempty"`
+	Metadata     map[string]string `json:"metadata,omitempty"`
+}
