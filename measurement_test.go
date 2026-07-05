@@ -50,6 +50,28 @@ func TestMeasurementObservationBulkValidatesRowResults(t *testing.T) {
 	})
 }
 
+func TestMeasurementCSVImportValidatesRowResults(t *testing.T) {
+	doer := newCaptureDoer(http.StatusAccepted, string(readContractFixture(t, "measurement-csv-import-response.json")))
+	client := newAdminTestClient(t, doer, "http://localhost:8080")
+
+	response, err := client.Admin.Measurement.Projects.ImportCSVString(
+		context.Background(),
+		"checkout-runway",
+		"seriesSlug,observedAt,value\ncheckout-completions,2026-07-01T00:00:00Z,42.5\n",
+		2,
+	)
+	if err != nil {
+		t.Fatalf("ImportCSVString returned error: %v", err)
+	}
+
+	if response.Accepted != 1 || response.Rejected != 1 {
+		t.Fatalf("response = %+v", response)
+	}
+	assertSiteRequests(t, doer.requests, []string{
+		"POST http://localhost:8080/api/v1/admin/measurement/projects/checkout-runway/observations:csv",
+	})
+}
+
 func TestMeasurementObservationBulkFailsOnResultCountMismatch(t *testing.T) {
 	doer := newCaptureDoer(http.StatusAccepted, `{"results":[]}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
