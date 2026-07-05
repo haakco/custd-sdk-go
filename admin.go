@@ -18,6 +18,7 @@ type AdminClient struct {
 	OAuthClients *OAuthClientAdminClient
 	Sites        *SiteAdminClient
 	Schemas      *SchemaAdminClient
+	Measurement  *MeasurementAdminClient
 	client       *CustdClient
 }
 
@@ -43,6 +44,7 @@ func newAdminClient(client *CustdClient) *AdminClient {
 	admin.OAuthClients = &OAuthClientAdminClient{admin: admin}
 	admin.Sites = &SiteAdminClient{admin: admin}
 	admin.Schemas = &SchemaAdminClient{admin: admin}
+	admin.Measurement = newMeasurementAdminClient(admin)
 	return admin
 }
 
