@@ -1,11 +1,17 @@
 package custd
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
+	"strings"
 )
+
+const measurementEndpoint = "/api/v1/measurement"
 
 type MeasurementAdminClient struct {
 	Projects *MeasurementProjectAdminClient
@@ -13,6 +19,15 @@ type MeasurementAdminClient struct {
 
 type MeasurementProjectAdminClient struct {
 	admin *AdminClient
+}
+
+type MeasurementClient struct {
+	Projects *MeasurementProjectClient
+	client   *CustdClient
+}
+
+type MeasurementProjectClient struct {
+	measurement *MeasurementClient
 }
 
 type MeasurementProjectCreate struct {
@@ -89,8 +104,180 @@ type MeasurementCSVImportResponse struct {
 	Results  []MeasurementObservationResult `json:"results"`
 }
 
+type MeasurementImportRun struct {
+	ImportID    string                         `json:"importId"`
+	ProjectSlug string                         `json:"projectSlug"`
+	Source      string                         `json:"source"`
+	RowCount    int                            `json:"rowCount"`
+	Accepted    int                            `json:"accepted"`
+	Rejected    int                            `json:"rejected"`
+	CreatedAt   string                         `json:"createdAt"`
+	CompletedAt string                         `json:"completedAt,omitempty"`
+	Results     []MeasurementObservationResult `json:"results"`
+}
+
+type MeasurementCalibrationExerciseCreate struct {
+	Question    string         `json:"question"`
+	Confidence  float64        `json:"confidence"`
+	LowerBound  float64        `json:"lowerBound"`
+	UpperBound  float64        `json:"upperBound"`
+	ActualValue *float64       `json:"actualValue,omitempty"`
+	Contained   *bool          `json:"contained,omitempty"`
+	ResolvedAt  string         `json:"resolvedAt,omitempty"`
+	PriorUUID   string         `json:"priorUuid,omitempty"`
+	Metadata    map[string]any `json:"metadata,omitempty"`
+}
+
+type MeasurementCalibrationExercise struct {
+	ExerciseUUID string  `json:"exerciseUuid"`
+	ProjectSlug  string  `json:"projectSlug"`
+	Status       string  `json:"status"`
+	Question     string  `json:"question"`
+	Confidence   float64 `json:"confidence"`
+	LowerBound   float64 `json:"lowerBound"`
+	UpperBound   float64 `json:"upperBound"`
+	ActualValue  float64 `json:"actualValue,omitempty"`
+	Contained    *bool   `json:"contained,omitempty"`
+	ResolvedAt   string  `json:"resolvedAt,omitempty"`
+	CreatedAt    string  `json:"createdAt,omitempty"`
+	UpdatedAt    string  `json:"updatedAt,omitempty"`
+}
+
+type MeasurementDecisionModelCreate struct {
+	DecisionSlug string                        `json:"decisionSlug"`
+	Name         string                        `json:"name"`
+	Description  string                        `json:"description,omitempty"`
+	Status       string                        `json:"status"`
+	Objective    string                        `json:"objective,omitempty"`
+	Choices      []MeasurementDecisionChoice   `json:"choices"`
+	Variables    []MeasurementDecisionVariable `json:"variables"`
+	Metadata     map[string]any                `json:"metadata,omitempty"`
+}
+
+type MeasurementDecisionChoice struct {
+	ChoiceSlug  string                         `json:"choiceSlug"`
+	Name        string                         `json:"name"`
+	Description string                         `json:"description,omitempty"`
+	Expression  *MeasurementDecisionExpression `json:"expression"`
+}
+
+type MeasurementDecisionVariable struct {
+	VariableSlug     string         `json:"variableSlug"`
+	Name             string         `json:"name"`
+	Unit             string         `json:"unit,omitempty"`
+	DistributionSlug string         `json:"distributionSlug"`
+	Parameters       map[string]any `json:"parameters,omitempty"`
+	MeasurementCost  float64        `json:"measurementCost,omitempty"`
+}
+
+type MeasurementDecisionExpression struct {
+	Kind         string                          `json:"kind"`
+	Value        *float64                        `json:"value,omitempty"`
+	VariableSlug string                          `json:"variableSlug,omitempty"`
+	Children     []MeasurementDecisionExpression `json:"children,omitempty"`
+}
+
+type MeasurementDecisionModel struct {
+	DecisionUUID string                                `json:"decisionUuid"`
+	DecisionSlug string                                `json:"decisionSlug"`
+	ProjectSlug  string                                `json:"projectSlug"`
+	Status       string                                `json:"status"`
+	Name         string                                `json:"name"`
+	Description  string                                `json:"description,omitempty"`
+	Objective    string                                `json:"objective,omitempty"`
+	Choices      []MeasurementDecisionChoiceResponse   `json:"choices,omitempty"`
+	Variables    []MeasurementDecisionVariableResponse `json:"variables,omitempty"`
+	CreatedAt    string                                `json:"createdAt,omitempty"`
+	UpdatedAt    string                                `json:"updatedAt,omitempty"`
+}
+
+type MeasurementDecisionChoiceResponse struct {
+	ChoiceUUID  string                         `json:"choiceUuid,omitempty"`
+	ChoiceSlug  string                         `json:"choiceSlug"`
+	Name        string                         `json:"name"`
+	Description string                         `json:"description,omitempty"`
+	Expression  *MeasurementDecisionExpression `json:"expression,omitempty"`
+}
+
+type MeasurementDecisionVariableResponse struct {
+	VariableUUID     string         `json:"variableUuid,omitempty"`
+	VariableSlug     string         `json:"variableSlug"`
+	Name             string         `json:"name"`
+	Unit             string         `json:"unit,omitempty"`
+	DistributionSlug string         `json:"distributionSlug"`
+	Parameters       map[string]any `json:"parameters,omitempty"`
+	MeasurementCost  float64        `json:"measurementCost,omitempty"`
+}
+
+type MeasurementForecastRunRequest struct {
+	Seed        int64 `json:"seed,omitempty"`
+	SampleCount int   `json:"sampleCount,omitempty"`
+}
+
+type MeasurementForecastRun struct {
+	ForecastRunUUID string                       `json:"forecastRunUuid"`
+	ProjectSlug     string                       `json:"projectSlug"`
+	Status          string                       `json:"status"`
+	Method          string                       `json:"method"`
+	GeneratedAt     string                       `json:"generatedAt"`
+	InputCount      int                          `json:"inputCount"`
+	SampleCount     int                          `json:"sampleCount"`
+	Seed            int64                        `json:"seed"`
+	Percentiles     map[string]string            `json:"percentiles"`
+	Warnings        []MeasurementForecastWarning `json:"warnings,omitempty"`
+	Provenance      map[string]string            `json:"provenance"`
+}
+
+type MeasurementForecastWarning struct {
+	Code     string `json:"code"`
+	Severity string `json:"severity"`
+	Message  string `json:"message"`
+}
+
+type MeasurementSimulationRunRequest struct {
+	Seed        int64 `json:"seed,omitempty"`
+	SampleCount int   `json:"sampleCount,omitempty"`
+}
+
+type MeasurementSimulationRun struct {
+	SimulationRunUUID string                           `json:"simulationRunUuid"`
+	ProjectSlug       string                           `json:"projectSlug"`
+	DecisionSlug      string                           `json:"decisionSlug"`
+	Status            string                           `json:"status"`
+	Method            string                           `json:"method"`
+	GeneratedAt       string                           `json:"generatedAt"`
+	CompletedAt       string                           `json:"completedAt"`
+	SampleCount       int                              `json:"sampleCount"`
+	Seed              int64                            `json:"seed"`
+	Variables         []MeasurementVOIVariableResponse `json:"variables"`
+	Warnings          []MeasurementSimulationWarning   `json:"warnings,omitempty"`
+	Provenance        map[string]string                `json:"provenance"`
+}
+
+type MeasurementVOIVariableResponse struct {
+	VariableSlug    string  `json:"variableSlug"`
+	Name            string  `json:"name"`
+	Rank            int     `json:"rank"`
+	EVPI            float64 `json:"evpi"`
+	EVPPI           float64 `json:"evppi,omitempty"`
+	MeasurementCost float64 `json:"measurementCost"`
+	WorthMeasuring  bool    `json:"worthMeasuring"`
+}
+
+type MeasurementSimulationWarning struct {
+	Code     string `json:"code"`
+	Severity string `json:"severity"`
+	Message  string `json:"message"`
+}
+
 func newMeasurementAdminClient(admin *AdminClient) *MeasurementAdminClient {
 	return &MeasurementAdminClient{Projects: &MeasurementProjectAdminClient{admin: admin}}
+}
+
+func newMeasurementClient(client *CustdClient) *MeasurementClient {
+	measurement := &MeasurementClient{client: client}
+	measurement.Projects = &MeasurementProjectClient{measurement: measurement}
+	return measurement
 }
 
 func (c *MeasurementProjectAdminClient) Create(
@@ -155,6 +342,85 @@ func (c *MeasurementProjectAdminClient) ImportCSVString(
 	return &response, nil
 }
 
+func (c *MeasurementProjectAdminClient) GetImportRun(
+	ctx context.Context,
+	projectSlug string,
+	importID string,
+) (*MeasurementImportRun, error) {
+	var response MeasurementImportRun
+	path := "/measurement/projects/" + url.PathEscape(projectSlug) + "/imports/" + url.PathEscape(importID)
+	err := c.admin.request(ctx, http.MethodGet, path, nil, &response)
+	return &response, err
+}
+
+func (c *MeasurementProjectAdminClient) CreateCalibrationExercise(
+	ctx context.Context,
+	projectSlug string,
+	req MeasurementCalibrationExerciseCreate,
+) (*MeasurementCalibrationExercise, error) {
+	var response MeasurementCalibrationExercise
+	path := "/measurement/projects/" + url.PathEscape(projectSlug) + "/calibration-exercises"
+	err := c.admin.request(ctx, http.MethodPost, path, req, &response)
+	return &response, err
+}
+
+func (c *MeasurementProjectAdminClient) CreateDecisionModel(
+	ctx context.Context,
+	projectSlug string,
+	req MeasurementDecisionModelCreate,
+) (*MeasurementDecisionModel, error) {
+	var response MeasurementDecisionModel
+	path := "/measurement/projects/" + url.PathEscape(projectSlug) + "/decisions"
+	err := c.admin.request(ctx, http.MethodPost, path, req, &response)
+	return &response, err
+}
+
+func (c *MeasurementProjectClient) RunForecast(
+	ctx context.Context,
+	projectSlug string,
+	req MeasurementForecastRunRequest,
+) (*MeasurementForecastRun, error) {
+	var response MeasurementForecastRun
+	path := "/projects/" + url.PathEscape(projectSlug) + "/forecast-runs"
+	err := c.measurement.request(ctx, http.MethodPost, path, req, &response)
+	return &response, err
+}
+
+func (c *MeasurementProjectClient) GetForecastRun(
+	ctx context.Context,
+	projectSlug string,
+	forecastRunUUID string,
+) (*MeasurementForecastRun, error) {
+	var response MeasurementForecastRun
+	path := "/projects/" + url.PathEscape(projectSlug) + "/forecast-runs/" + url.PathEscape(forecastRunUUID)
+	err := c.measurement.request(ctx, http.MethodGet, path, nil, &response)
+	return &response, err
+}
+
+func (c *MeasurementProjectClient) RunDecisionSimulation(
+	ctx context.Context,
+	projectSlug string,
+	decisionSlug string,
+	req MeasurementSimulationRunRequest,
+) (*MeasurementSimulationRun, error) {
+	var response MeasurementSimulationRun
+	path := measurementDecisionSimulationPath(projectSlug, decisionSlug)
+	err := c.measurement.request(ctx, http.MethodPost, path, req, &response)
+	return &response, err
+}
+
+func (c *MeasurementProjectClient) GetDecisionSimulationRun(
+	ctx context.Context,
+	projectSlug string,
+	decisionSlug string,
+	simulationRunUUID string,
+) (*MeasurementSimulationRun, error) {
+	var response MeasurementSimulationRun
+	path := measurementDecisionSimulationPath(projectSlug, decisionSlug) + "/" + url.PathEscape(simulationRunUUID)
+	err := c.measurement.request(ctx, http.MethodGet, path, nil, &response)
+	return &response, err
+}
+
 func validateMeasurementResults(results []MeasurementObservationResult, submittedRows int) error {
 	if len(results) != submittedRows {
 		return fmt.Errorf(
@@ -168,4 +434,65 @@ func validateMeasurementResults(results []MeasurementObservationResult, submitte
 		}
 	}
 	return nil
+}
+
+func measurementDecisionSimulationPath(projectSlug string, decisionSlug string) string {
+	return "/projects/" + url.PathEscape(projectSlug) +
+		"/decisions/" + url.PathEscape(decisionSlug) + "/simulation-runs"
+}
+
+func (c *MeasurementClient) request(ctx context.Context, method string, path string, payload any, out any) error {
+	var body []byte
+	var err error
+	if payload != nil {
+		body, err = json.Marshal(payload)
+		if err != nil {
+			return fmt.Errorf("custd: marshal measurement request: %w", err)
+		}
+	}
+	if c.client.config.HTTPClient != nil {
+		return c.requestViaDoer(method, path, body, out)
+	}
+	return c.requestViaHTTP(ctx, method, path, body, out)
+}
+
+func (c *MeasurementClient) requestViaDoer(method string, path string, body []byte, out any) error {
+	resp, err := c.client.config.HTTPClient.Do(&HTTPRequest{
+		Method:  method,
+		URL:     c.endpoint(path),
+		Headers: c.client.headers(false),
+		Body:    body,
+	})
+	if err != nil {
+		return fmt.Errorf("custd: measurement request failed: %w", err)
+	}
+	if err := c.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
+		return err
+	}
+	return decodeAdminResponse(resp.Body, out)
+}
+
+func (c *MeasurementClient) requestViaHTTP(ctx context.Context, method string, path string, body []byte, out any) error {
+	req, err := http.NewRequestWithContext(ctx, method, c.endpoint(path), bytes.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("custd: create measurement request: %w", err)
+	}
+	for k, v := range c.client.headers(false) {
+		req.Header.Set(k, v)
+	}
+	resp, err := c.client.httpClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("custd: measurement request failed: %w", err)
+	}
+	// nolint:errcheck // response body fully read below; a close error cannot affect the already-read measurement response
+	defer func() { _ = resp.Body.Close() }()
+	respBody, _ := io.ReadAll(resp.Body)
+	if err := c.client.checkStatus(resp.StatusCode, respBody); err != nil {
+		return err
+	}
+	return decodeAdminResponse(respBody, out)
+}
+
+func (c *MeasurementClient) endpoint(path string) string {
+	return strings.TrimRight(c.client.config.BaseURL, "/") + measurementEndpoint + path
 }

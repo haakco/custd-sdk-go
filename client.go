@@ -31,6 +31,7 @@ const defaultHTTPTimeout = 10 * time.Second
 // custd-structure: allow-fields public SDK facade; fields keep queue, retry, HTTP, and lifecycle state together
 type CustdClient struct {
 	Admin        *AdminClient
+	Measurement  *MeasurementClient
 	Provisioning *ProvisioningClient
 	config       ClientConfig
 	q            *queue
@@ -58,6 +59,7 @@ func NewClient(config *ClientConfig) *CustdClient {
 		rng:        newSecureRand(),
 	}
 	c.Admin = newAdminClient(c)
+	c.Measurement = newMeasurementClient(c)
 	c.Provisioning = newProvisioningClient(c)
 	c.startFlusher()
 	return c
