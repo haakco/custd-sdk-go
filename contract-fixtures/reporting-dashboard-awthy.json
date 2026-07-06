@@ -1,0 +1,15 @@
+{
+  "key": "awthy_managed_audit_reporting",
+  "title": "Awthy managed audit reporting",
+  "hidden": true,
+  "widgets": [
+    {
+      "key": "secure_checkout_flow",
+      "title": "Secure checkout flow",
+      "kind": "funnel",
+      "template": "awthy_secure_checkout_flow",
+      "metrics": ["flow_completion_rate"],
+      "dimensions": ["flow_step"]
+    }
+  ]
+}
