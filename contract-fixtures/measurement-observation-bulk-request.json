@@ -1,0 +1,16 @@
+{
+  "rows": [
+    {
+      "seriesSlug": "checkout-completions",
+      "observedAt": "2026-07-01T00:00:00Z",
+      "value": 42.5,
+      "idempotencyKey": "checkout-completions-2026-07-01"
+    },
+    {
+      "seriesSlug": "checkout-completions",
+      "observedAt": "2026-07-02T00:00:00Z",
+      "value": 44.25,
+      "idempotencyKey": "checkout-completions-2026-07-02"
+    }
+  ]
+}
