@@ -1,0 +1,22 @@
+{
+  "projectSlug": "checkout-runway",
+  "name": "Checkout Runway",
+  "kind": "deadline_forecast",
+  "description": "Forecast whether checkout fixes land before the release deadline",
+  "series": [
+    {
+      "seriesSlug": "checkout-completions",
+      "name": "Checkout completions",
+      "unit": "count",
+      "completionDirection": "increase",
+      "source": "manual"
+    }
+  ],
+  "target": {
+    "targetSlug": "release",
+    "name": "Release",
+    "targetValue": 100,
+    "targetDate": "2026-08-31T00:00:00Z",
+    "state": "active"
+  }
+}
