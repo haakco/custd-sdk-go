@@ -1,0 +1,33 @@
+{
+  "buckets": [
+    {
+      "date": "2026-07-06",
+      "count": 50,
+      "source": "auto",
+      "complete": true,
+      "message": "flow_completion_rate",
+      "secondaryCount": 50
+    }
+  ],
+  "count": 2,
+  "complete": true,
+  "truncated": false,
+  "queryDurationMs": 42,
+  "snapshotAgeMs": 120000,
+  "eventLagP95Ms": 8000,
+  "trust": {
+    "status": "healthy",
+    "dataFreshness": "snapshot_age_ms:120000",
+    "lastAwthyExport": "2026-07-06",
+    "schemaVersion": "awthy-audit-event/1.0.0",
+    "contractVersion": "managed-reporting/1.0",
+    "rollupState": "healthy",
+    "queryWarnings": [],
+    "coverage": "complete",
+    "permissionClass": "reporting.read",
+    "dataSufficiency": "sufficient",
+    "captureState": "enabled",
+    "consentState": "present",
+    "exportState": "received"
+  }
+}
