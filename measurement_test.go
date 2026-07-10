@@ -9,7 +9,7 @@ import (
 )
 
 func TestMeasurementProjectsCreateUsesAdminAPI(t *testing.T) {
-	doer := newCaptureDoer(http.StatusCreated, `{"projectUuid":"project-123","projectSlug":"checkout-runway","name":"Checkout Runway","kind":"deadline_forecast","status":"active"}`)
+	doer := newCaptureDoer(http.StatusCreated, `{"projectUuid":"project-123","projectCode":"checkout-runway","name":"Checkout Runway","kind":"deadline_forecast","status":"active"}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080/")
 	var req MeasurementProjectCreate
 	if err := json.Unmarshal(readContractFixture(t, "measurement-project-create.json"), &req); err != nil {
@@ -21,7 +21,7 @@ func TestMeasurementProjectsCreateUsesAdminAPI(t *testing.T) {
 		t.Fatalf("Create returned error: %v", err)
 	}
 
-	if project.ProjectUUID != "project-123" || project.ProjectSlug != "checkout-runway" {
+	if project.ProjectUUID != "project-123" || project.ProjectCode != "checkout-runway" {
 		t.Fatalf("project = %+v", project)
 	}
 	assertSiteRequests(t, doer.requests, []string{
@@ -57,7 +57,7 @@ func TestMeasurementCSVImportValidatesRowResults(t *testing.T) {
 	response, err := client.Admin.Measurement.Projects.ImportCSVString(
 		context.Background(),
 		"checkout-runway",
-		"seriesSlug,observedAt,value\ncheckout-completions,2026-07-01T00:00:00Z,42.5\n",
+		"seriesUuid,observedAt,value\ncheckout-completions,2026-07-01T00:00:00Z,42.5\n",
 		2,
 	)
 	if err != nil {
@@ -73,7 +73,7 @@ func TestMeasurementCSVImportValidatesRowResults(t *testing.T) {
 }
 
 func TestMeasurementImportRunGetUsesAdminAPI(t *testing.T) {
-	doer := newCaptureDoer(http.StatusOK, `{"importId":"import-123","projectSlug":"checkout-runway","source":"csv","rowCount":2,"accepted":1,"rejected":1,"createdAt":"2026-07-06T00:00:00Z","results":[{"rowIndex":1,"success":true,"observationUuid":"obs-1"},{"rowIndex":2,"success":false,"status":422,"title":"Invalid measurement observation","detail":"observedAt must be an RFC3339 timestamp"}]}`)
+	doer := newCaptureDoer(http.StatusOK, `{"importId":"import-123","projectCode":"checkout-runway","source":"csv","rowCount":2,"accepted":1,"rejected":1,"createdAt":"2026-07-06T00:00:00Z","results":[{"rowIndex":1,"success":true,"observationUuid":"obs-1"},{"rowIndex":2,"success":false,"status":422,"title":"Invalid measurement observation","detail":"observedAt must be an RFC3339 timestamp"}]}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
 
 	run, err := client.Admin.Measurement.Projects.GetImportRun(context.Background(), "checkout-runway", "import-123")
@@ -89,7 +89,7 @@ func TestMeasurementImportRunGetUsesAdminAPI(t *testing.T) {
 }
 
 func TestMeasurementCalibrationExerciseCreateUsesAdminAPI(t *testing.T) {
-	doer := newCaptureDoer(http.StatusCreated, `{"exerciseUuid":"exercise-123","projectSlug":"checkout-runway","status":"scored","question":"Will checkout launch by target date?","confidence":80,"lowerBound":70,"upperBound":110,"actualValue":100,"contained":true,"resolvedAt":"2026-08-31T00:00:00Z"}`)
+	doer := newCaptureDoer(http.StatusCreated, `{"exerciseUuid":"exercise-123","projectCode":"checkout-runway","status":"scored","question":"Will checkout launch by target date?","confidence":80,"lowerBound":70,"upperBound":110,"actualValue":100,"contained":true,"resolvedAt":"2026-08-31T00:00:00Z"}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
 	actualValue := 100.0
 	contained := true
@@ -119,23 +119,23 @@ func TestMeasurementCalibrationExerciseCreateUsesAdminAPI(t *testing.T) {
 }
 
 func TestMeasurementDecisionModelCreateUsesAdminAPI(t *testing.T) {
-	doer := newCaptureDoer(http.StatusCreated, `{"decisionUuid":"decision-123","decisionSlug":"launch-choice","projectSlug":"checkout-runway","status":"active","name":"Launch choice","choices":[{"choiceSlug":"ship","name":"Ship","expression":{"kind":"variable","variableSlug":"conversion-rate"}}],"variables":[{"variableSlug":"conversion-rate","name":"Conversion rate","distributionSlug":"normal","parameters":{"mean":10,"stddev":2},"measurementCost":1}]}`)
+	doer := newCaptureDoer(http.StatusCreated, `{"decisionUuid":"decision-123","decisionCode":"launch-choice","projectCode":"checkout-runway","status":"active","name":"Launch choice","choices":[{"choiceCode":"ship","name":"Ship","expression":{"kind":"variable","variableCode":"conversion-rate"}}],"variables":[{"variableCode":"conversion-rate","name":"Conversion rate","distributionSlug":"normal","parameters":{"mean":10,"stddev":2},"measurementCost":1}]}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
 
 	decision, err := client.Admin.Measurement.Projects.CreateDecisionModel(
 		context.Background(),
 		"checkout-runway",
 		MeasurementDecisionModelCreate{
-			DecisionSlug: "launch-choice",
+			DecisionCode: "launch-choice",
 			Name:         "Launch choice",
 			Status:       "active",
 			Choices: []MeasurementDecisionChoice{{
-				ChoiceSlug: "ship",
+				ChoiceCode: "ship",
 				Name:       "Ship",
-				Expression: &MeasurementDecisionExpression{Kind: "variable", VariableSlug: "conversion-rate"},
+				Expression: &MeasurementDecisionExpression{Kind: "variable", VariableCode: "conversion-rate"},
 			}},
 			Variables: []MeasurementDecisionVariable{{
-				VariableSlug:     "conversion-rate",
+				VariableCode:     "conversion-rate",
 				Name:             "Conversion rate",
 				DistributionSlug: "normal",
 				Parameters:       map[string]any{"mean": 10, "stddev": 2},
@@ -146,7 +146,7 @@ func TestMeasurementDecisionModelCreateUsesAdminAPI(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CreateDecisionModel returned error: %v", err)
 	}
-	if decision.DecisionUUID != "decision-123" || decision.DecisionSlug != "launch-choice" {
+	if decision.DecisionUUID != "decision-123" || decision.DecisionCode != "launch-choice" {
 		t.Fatalf("decision = %+v", decision)
 	}
 	assertSiteRequests(t, doer.requests, []string{
@@ -155,7 +155,7 @@ func TestMeasurementDecisionModelCreateUsesAdminAPI(t *testing.T) {
 }
 
 func TestMeasurementForecastRunUsesAnalyticsAPI(t *testing.T) {
-	doer := newCaptureDoer(http.StatusOK, `{"forecastRunUuid":"forecast-123","projectSlug":"checkout-runway","status":"completed","method":"bootstrap_quantile","generatedAt":"2026-07-05T12:00:00Z","inputCount":42,"sampleCount":2000,"seed":770501,"percentiles":{"p10":"2026-08-12T00:00:00Z","p50":"2026-08-27T00:00:00Z","p90":"2026-09-18T00:00:00Z"},"warnings":[{"code":"sparse","severity":"warning","message":"limited input"}],"provenance":{"engineVersion":"measurement-go-v1","inputHash":"sha256:abc"}}`)
+	doer := newCaptureDoer(http.StatusOK, `{"forecastRunUuid":"forecast-123","projectCode":"checkout-runway","status":"completed","method":"bootstrap_quantile","generatedAt":"2026-07-05T12:00:00Z","inputCount":42,"sampleCount":2000,"seed":770501,"percentiles":{"p10":"2026-08-12T00:00:00Z","p50":"2026-08-27T00:00:00Z","p90":"2026-09-18T00:00:00Z"},"warnings":[{"code":"sparse","severity":"warning","message":"limited input"}],"provenance":{"engineVersion":"measurement-go-v1","inputHash":"sha256:abc"}}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
 
 	forecast, err := client.Measurement.Projects.RunForecast(
@@ -175,7 +175,7 @@ func TestMeasurementForecastRunUsesAnalyticsAPI(t *testing.T) {
 }
 
 func TestMeasurementDecisionSimulationUsesAnalyticsAPI(t *testing.T) {
-	doer := newCaptureDoer(http.StatusOK, `{"simulationRunUuid":"simulation-123","projectSlug":"checkout-runway","decisionSlug":"launch-choice","status":"completed","method":"evpi_rank","generatedAt":"2026-07-05T12:00:00Z","completedAt":"2026-07-05T12:00:01Z","sampleCount":2000,"seed":770501,"variables":[{"variableSlug":"conversion-rate","name":"Conversion rate","rank":1,"evpi":12.5,"measurementCost":1,"worthMeasuring":true}],"warnings":[{"code":"decision_weight_defaulted","severity":"warning","message":"defaulted"}],"provenance":{"engineVersion":"measurement-go-v1","inputHash":"sha256:def"}}`)
+	doer := newCaptureDoer(http.StatusOK, `{"simulationRunUuid":"simulation-123","projectCode":"checkout-runway","decisionCode":"launch-choice","status":"completed","method":"evpi_rank","generatedAt":"2026-07-05T12:00:00Z","completedAt":"2026-07-05T12:00:01Z","sampleCount":2000,"seed":770501,"variables":[{"variableCode":"conversion-rate","name":"Conversion rate","rank":1,"evpi":12.5,"measurementCost":1,"worthMeasuring":true}],"warnings":[{"code":"decision_weight_defaulted","severity":"warning","message":"defaulted"}],"provenance":{"engineVersion":"measurement-go-v1","inputHash":"sha256:def"}}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
 
 	simulation, err := client.Measurement.Projects.RunDecisionSimulation(
@@ -225,7 +225,7 @@ func measurementBulkRequest(count int) MeasurementObservationBulkRequest {
 	rows := make([]MeasurementObservationInput, count)
 	for i := range rows {
 		rows[i] = MeasurementObservationInput{
-			SeriesSlug: "checkout-completions",
+			SeriesUUID: "checkout-completions",
 			ObservedAt: "2026-07-01T00:00:00Z",
 			Value:      42,
 		}

@@ -31,7 +31,7 @@ type MeasurementProjectClient struct {
 }
 
 type MeasurementProjectCreate struct {
-	ProjectSlug string                    `json:"projectSlug"`
+	ProjectCode string                    `json:"projectCode"`
 	Name        string                    `json:"name"`
 	Kind        string                    `json:"kind"`
 	Description string                    `json:"description,omitempty"`
@@ -41,7 +41,7 @@ type MeasurementProjectCreate struct {
 
 type MeasurementProject struct {
 	ProjectUUID string `json:"projectUuid"`
-	ProjectSlug string `json:"projectSlug"`
+	ProjectCode string `json:"projectCode"`
 	Name        string `json:"name"`
 	Kind        string `json:"kind"`
 	Status      string `json:"status"`
@@ -53,15 +53,15 @@ type MeasurementProjectList struct {
 }
 
 type MeasurementSeriesCreate struct {
-	SeriesSlug          string `json:"seriesSlug"`
+	SeriesCode          string `json:"seriesCode"`
 	Name                string `json:"name"`
-	Unit                string `json:"unit"`
+	UnitSlug            string `json:"unitSlug"`
 	CompletionDirection string `json:"completionDirection"`
 	Source              string `json:"source"`
 }
 
 type MeasurementTargetCreate struct {
-	TargetSlug  string  `json:"targetSlug"`
+	TargetCode  string  `json:"targetCode"`
 	Name        string  `json:"name"`
 	TargetValue float64 `json:"targetValue"`
 	TargetDate  string  `json:"targetDate,omitempty"`
@@ -69,7 +69,7 @@ type MeasurementTargetCreate struct {
 }
 
 type MeasurementObservationInput struct {
-	SeriesSlug     string            `json:"seriesSlug"`
+	SeriesUUID     string            `json:"seriesUuid"`
 	ObservedAt     string            `json:"observedAt"`
 	Value          float64           `json:"value"`
 	IdempotencyKey string            `json:"idempotencyKey,omitempty"`
@@ -106,7 +106,7 @@ type MeasurementCSVImportResponse struct {
 
 type MeasurementImportRun struct {
 	ImportID    string                         `json:"importId"`
-	ProjectSlug string                         `json:"projectSlug"`
+	ProjectUUID string                         `json:"projectUuid"`
 	Source      string                         `json:"source"`
 	RowCount    int                            `json:"rowCount"`
 	Accepted    int                            `json:"accepted"`
@@ -130,7 +130,7 @@ type MeasurementCalibrationExerciseCreate struct {
 
 type MeasurementCalibrationExercise struct {
 	ExerciseUUID string  `json:"exerciseUuid"`
-	ProjectSlug  string  `json:"projectSlug"`
+	ProjectUUID  string  `json:"projectUuid"`
 	Status       string  `json:"status"`
 	Question     string  `json:"question"`
 	Confidence   float64 `json:"confidence"`
@@ -144,7 +144,7 @@ type MeasurementCalibrationExercise struct {
 }
 
 type MeasurementDecisionModelCreate struct {
-	DecisionSlug string                        `json:"decisionSlug"`
+	DecisionCode string                        `json:"decisionCode"`
 	Name         string                        `json:"name"`
 	Description  string                        `json:"description,omitempty"`
 	Status       string                        `json:"status"`
@@ -155,16 +155,16 @@ type MeasurementDecisionModelCreate struct {
 }
 
 type MeasurementDecisionChoice struct {
-	ChoiceSlug  string                         `json:"choiceSlug"`
+	ChoiceCode  string                         `json:"choiceCode"`
 	Name        string                         `json:"name"`
 	Description string                         `json:"description,omitempty"`
 	Expression  *MeasurementDecisionExpression `json:"expression"`
 }
 
 type MeasurementDecisionVariable struct {
-	VariableSlug     string         `json:"variableSlug"`
+	VariableCode     string         `json:"variableCode"`
 	Name             string         `json:"name"`
-	Unit             string         `json:"unit,omitempty"`
+	UnitSlug         string         `json:"unit,omitempty"`
 	DistributionSlug string         `json:"distributionSlug"`
 	Parameters       map[string]any `json:"parameters,omitempty"`
 	MeasurementCost  float64        `json:"measurementCost,omitempty"`
@@ -173,14 +173,14 @@ type MeasurementDecisionVariable struct {
 type MeasurementDecisionExpression struct {
 	Kind         string                          `json:"kind"`
 	Value        *float64                        `json:"value,omitempty"`
-	VariableSlug string                          `json:"variableSlug,omitempty"`
+	VariableCode string                          `json:"variableCode,omitempty"`
 	Children     []MeasurementDecisionExpression `json:"children,omitempty"`
 }
 
 type MeasurementDecisionModel struct {
 	DecisionUUID string                                `json:"decisionUuid"`
-	DecisionSlug string                                `json:"decisionSlug"`
-	ProjectSlug  string                                `json:"projectSlug"`
+	DecisionCode string                                `json:"decisionCode"`
+	ProjectUUID  string                                `json:"projectUuid"`
 	Status       string                                `json:"status"`
 	Name         string                                `json:"name"`
 	Description  string                                `json:"description,omitempty"`
@@ -193,7 +193,7 @@ type MeasurementDecisionModel struct {
 
 type MeasurementDecisionChoiceResponse struct {
 	ChoiceUUID  string                         `json:"choiceUuid,omitempty"`
-	ChoiceSlug  string                         `json:"choiceSlug"`
+	ChoiceCode  string                         `json:"choiceCode"`
 	Name        string                         `json:"name"`
 	Description string                         `json:"description,omitempty"`
 	Expression  *MeasurementDecisionExpression `json:"expression,omitempty"`
@@ -201,9 +201,9 @@ type MeasurementDecisionChoiceResponse struct {
 
 type MeasurementDecisionVariableResponse struct {
 	VariableUUID     string         `json:"variableUuid,omitempty"`
-	VariableSlug     string         `json:"variableSlug"`
+	VariableCode     string         `json:"variableCode"`
 	Name             string         `json:"name"`
-	Unit             string         `json:"unit,omitempty"`
+	UnitSlug         string         `json:"unit,omitempty"`
 	DistributionSlug string         `json:"distributionSlug"`
 	Parameters       map[string]any `json:"parameters,omitempty"`
 	MeasurementCost  float64        `json:"measurementCost,omitempty"`
@@ -216,7 +216,7 @@ type MeasurementForecastRunRequest struct {
 
 type MeasurementForecastRun struct {
 	ForecastRunUUID string                       `json:"forecastRunUuid"`
-	ProjectSlug     string                       `json:"projectSlug"`
+	ProjectUUID     string                       `json:"projectUuid"`
 	Status          string                       `json:"status"`
 	Method          string                       `json:"method"`
 	GeneratedAt     string                       `json:"generatedAt"`
@@ -241,8 +241,8 @@ type MeasurementSimulationRunRequest struct {
 
 type MeasurementSimulationRun struct {
 	SimulationRunUUID string                           `json:"simulationRunUuid"`
-	ProjectSlug       string                           `json:"projectSlug"`
-	DecisionSlug      string                           `json:"decisionSlug"`
+	ProjectUUID       string                           `json:"projectUuid"`
+	DecisionUUID      string                           `json:"decisionUuid"`
 	Status            string                           `json:"status"`
 	Method            string                           `json:"method"`
 	GeneratedAt       string                           `json:"generatedAt"`
@@ -255,7 +255,7 @@ type MeasurementSimulationRun struct {
 }
 
 type MeasurementVOIVariableResponse struct {
-	VariableSlug    string  `json:"variableSlug"`
+	VariableCode    string  `json:"variableCode"`
 	Name            string  `json:"name"`
 	Rank            int     `json:"rank"`
 	EVPI            float64 `json:"evpi"`
@@ -295,27 +295,27 @@ func (c *MeasurementProjectAdminClient) List(ctx context.Context) (*MeasurementP
 	return &projects, err
 }
 
-func (c *MeasurementProjectAdminClient) Get(ctx context.Context, projectSlug string) (*MeasurementProject, error) {
-	return adminGetByID[MeasurementProject](ctx, c.admin, "/measurement/projects/", projectSlug)
+func (c *MeasurementProjectAdminClient) Get(ctx context.Context, projectUuid string) (*MeasurementProject, error) {
+	return adminGetByID[MeasurementProject](ctx, c.admin, "/measurement/projects/", projectUuid)
 }
 
 func (c *MeasurementProjectAdminClient) SubmitObservation(
 	ctx context.Context,
-	projectSlug string,
+	projectUuid string,
 	observation MeasurementObservationInput,
 ) (*MeasurementObservationBulkResponse, error) {
-	return c.SubmitObservations(ctx, projectSlug, MeasurementObservationBulkRequest{
+	return c.SubmitObservations(ctx, projectUuid, MeasurementObservationBulkRequest{
 		Rows: []MeasurementObservationInput{observation},
 	})
 }
 
 func (c *MeasurementProjectAdminClient) SubmitObservations(
 	ctx context.Context,
-	projectSlug string,
+	projectUuid string,
 	req MeasurementObservationBulkRequest,
 ) (*MeasurementObservationBulkResponse, error) {
 	var response MeasurementObservationBulkResponse
-	path := "/measurement/projects/" + url.PathEscape(projectSlug) + "/observations:bulk"
+	path := "/measurement/projects/" + url.PathEscape(projectUuid) + "/observations:bulk"
 	if err := c.admin.request(ctx, http.MethodPost, path, req, &response); err != nil {
 		return nil, err
 	}
@@ -327,12 +327,12 @@ func (c *MeasurementProjectAdminClient) SubmitObservations(
 
 func (c *MeasurementProjectAdminClient) ImportCSVString(
 	ctx context.Context,
-	projectSlug string,
+	projectUuid string,
 	csv string,
 	expectedRows int,
 ) (*MeasurementCSVImportResponse, error) {
 	var response MeasurementCSVImportResponse
-	path := "/measurement/projects/" + url.PathEscape(projectSlug) + "/observations:csv"
+	path := "/measurement/projects/" + url.PathEscape(projectUuid) + "/observations:csv"
 	if err := c.admin.request(ctx, http.MethodPost, path, map[string]string{"csv": csv}, &response); err != nil {
 		return nil, err
 	}
@@ -344,79 +344,79 @@ func (c *MeasurementProjectAdminClient) ImportCSVString(
 
 func (c *MeasurementProjectAdminClient) GetImportRun(
 	ctx context.Context,
-	projectSlug string,
+	projectUuid string,
 	importID string,
 ) (*MeasurementImportRun, error) {
 	var response MeasurementImportRun
-	path := "/measurement/projects/" + url.PathEscape(projectSlug) + "/imports/" + url.PathEscape(importID)
+	path := "/measurement/projects/" + url.PathEscape(projectUuid) + "/imports/" + url.PathEscape(importID)
 	err := c.admin.request(ctx, http.MethodGet, path, nil, &response)
 	return &response, err
 }
 
 func (c *MeasurementProjectAdminClient) CreateCalibrationExercise(
 	ctx context.Context,
-	projectSlug string,
+	projectUuid string,
 	req MeasurementCalibrationExerciseCreate,
 ) (*MeasurementCalibrationExercise, error) {
 	var response MeasurementCalibrationExercise
-	path := "/measurement/projects/" + url.PathEscape(projectSlug) + "/calibration-exercises"
+	path := "/measurement/projects/" + url.PathEscape(projectUuid) + "/calibration-exercises"
 	err := c.admin.request(ctx, http.MethodPost, path, req, &response)
 	return &response, err
 }
 
 func (c *MeasurementProjectAdminClient) CreateDecisionModel(
 	ctx context.Context,
-	projectSlug string,
+	projectUuid string,
 	req MeasurementDecisionModelCreate,
 ) (*MeasurementDecisionModel, error) {
 	var response MeasurementDecisionModel
-	path := "/measurement/projects/" + url.PathEscape(projectSlug) + "/decisions"
+	path := "/measurement/projects/" + url.PathEscape(projectUuid) + "/decisions"
 	err := c.admin.request(ctx, http.MethodPost, path, req, &response)
 	return &response, err
 }
 
 func (c *MeasurementProjectClient) RunForecast(
 	ctx context.Context,
-	projectSlug string,
+	projectUuid string,
 	req MeasurementForecastRunRequest,
 ) (*MeasurementForecastRun, error) {
 	var response MeasurementForecastRun
-	path := "/projects/" + url.PathEscape(projectSlug) + "/forecast-runs"
+	path := "/projects/" + url.PathEscape(projectUuid) + "/forecast-runs"
 	err := c.measurement.request(ctx, http.MethodPost, path, req, &response)
 	return &response, err
 }
 
 func (c *MeasurementProjectClient) GetForecastRun(
 	ctx context.Context,
-	projectSlug string,
+	projectUuid string,
 	forecastRunUUID string,
 ) (*MeasurementForecastRun, error) {
 	var response MeasurementForecastRun
-	path := "/projects/" + url.PathEscape(projectSlug) + "/forecast-runs/" + url.PathEscape(forecastRunUUID)
+	path := "/projects/" + url.PathEscape(projectUuid) + "/forecast-runs/" + url.PathEscape(forecastRunUUID)
 	err := c.measurement.request(ctx, http.MethodGet, path, nil, &response)
 	return &response, err
 }
 
 func (c *MeasurementProjectClient) RunDecisionSimulation(
 	ctx context.Context,
-	projectSlug string,
-	decisionSlug string,
+	projectUuid string,
+	decisionUuid string,
 	req MeasurementSimulationRunRequest,
 ) (*MeasurementSimulationRun, error) {
 	var response MeasurementSimulationRun
-	path := measurementDecisionSimulationPath(projectSlug, decisionSlug)
+	path := measurementDecisionSimulationPath(projectUuid, decisionUuid)
 	err := c.measurement.request(ctx, http.MethodPost, path, req, &response)
 	return &response, err
 }
 
 func (c *MeasurementProjectClient) GetDecisionSimulationRun(
 	ctx context.Context,
-	projectSlug string,
-	decisionSlug string,
+	projectUuid string,
+	decisionUuid string,
 	simulationRunUUID string,
 ) (*MeasurementSimulationRun, error) {
 	var response MeasurementSimulationRun
-	path := measurementDecisionSimulationPath(projectSlug, decisionSlug) + "/" + url.PathEscape(simulationRunUUID)
+	path := measurementDecisionSimulationPath(projectUuid, decisionUuid) + "/" + url.PathEscape(simulationRunUUID)
 	err := c.measurement.request(ctx, http.MethodGet, path, nil, &response)
 	return &response, err
 }
@@ -436,9 +436,9 @@ func validateMeasurementResults(results []MeasurementObservationResult, submitte
 	return nil
 }
 
-func measurementDecisionSimulationPath(projectSlug string, decisionSlug string) string {
-	return "/projects/" + url.PathEscape(projectSlug) +
-		"/decisions/" + url.PathEscape(decisionSlug) + "/simulation-runs"
+func measurementDecisionSimulationPath(projectUuid string, decisionUuid string) string {
+	return "/projects/" + url.PathEscape(projectUuid) +
+		"/decisions/" + url.PathEscape(decisionUuid) + "/simulation-runs"
 }
 
 func (c *MeasurementClient) request(ctx context.Context, method string, path string, payload any, out any) error {
