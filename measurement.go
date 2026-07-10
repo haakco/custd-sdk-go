@@ -40,12 +40,32 @@ type MeasurementProjectCreate struct {
 }
 
 type MeasurementProject struct {
-	ProjectUUID string `json:"projectUuid"`
-	ProjectCode string `json:"projectCode"`
-	Name        string `json:"name"`
-	Kind        string `json:"kind"`
-	Status      string `json:"status"`
-	Description string `json:"description,omitempty"`
+	ProjectUUID string              `json:"projectUuid"`
+	ProjectCode string              `json:"projectCode"`
+	Name        string              `json:"name"`
+	Kind        string              `json:"kind"`
+	Status      string              `json:"status"`
+	Description string              `json:"description,omitempty"`
+	Series      []MeasurementSeries `json:"series,omitempty"`
+	Target      *MeasurementTarget  `json:"target,omitempty"`
+}
+
+type MeasurementSeries struct {
+	SeriesUUID          string `json:"seriesUuid"`
+	SeriesCode          string `json:"seriesCode"`
+	Name                string `json:"name"`
+	UnitSlug            string `json:"unitSlug"`
+	CompletionDirection string `json:"completionDirection"`
+	Source              string `json:"source"`
+}
+
+type MeasurementTarget struct {
+	TargetUUID  string  `json:"targetUuid"`
+	TargetCode  string  `json:"targetCode"`
+	Name        string  `json:"name"`
+	TargetValue float64 `json:"targetValue"`
+	TargetDate  string  `json:"targetDate,omitempty"`
+	State       string  `json:"state"`
 }
 
 type MeasurementProjectList struct {

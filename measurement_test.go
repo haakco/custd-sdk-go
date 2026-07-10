@@ -9,7 +9,7 @@ import (
 )
 
 func TestMeasurementProjectsCreateUsesAdminAPI(t *testing.T) {
-	doer := newCaptureDoer(http.StatusCreated, `{"projectUuid":"project-123","projectCode":"checkout-runway","name":"Checkout Runway","kind":"deadline_forecast","status":"active"}`)
+	doer := newCaptureDoer(http.StatusCreated, `{"projectUuid":"project-123","projectCode":"checkout-runway","name":"Checkout Runway","kind":"deadline_forecast","status":"active","series":[{"seriesUuid":"series-123","seriesCode":"checkout-completions","name":"Checkout completions","unitSlug":"count","completionDirection":"increase","source":"manual"}],"target":{"targetUuid":"target-123","targetCode":"release","name":"Release","targetValue":100,"state":"active"}}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080/")
 	var req MeasurementProjectCreate
 	if err := json.Unmarshal(readContractFixture(t, "measurement-project-create.json"), &req); err != nil {
