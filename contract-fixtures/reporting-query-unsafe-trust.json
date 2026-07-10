@@ -1,0 +1,20 @@
+{
+  "buckets": [],
+  "count": 0,
+  "complete": false,
+  "truncated": false,
+  "queryDurationMs": 1,
+  "trust": {
+    "status": "error",
+    "dataFreshness": "unknown",
+    "rollupState": "failed",
+    "coverage": "none",
+    "dataSufficiency": "not_enough_data",
+    "captureState": "enabled",
+    "consentState": "present",
+    "exportState": "failed",
+    "rawPayload": {
+      "email": "customer@example.test"
+    }
+  }
+}
