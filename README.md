@@ -123,10 +123,10 @@ Create the tenant-bound OAuth2 producer client and print env snippets:
 
 ```bash
 go run github.com/haakco/custd-sdk-go/cmd/custd-sdk-setup@latest \
-  --base-url=https://custd.k8.haak.co \
-  --admin-url=https://custd.k8.haak.co \
+  --base-url=https://custd.com \
+  --admin-url=https://custd.com \
   --admin-token="$CUSTD_ADMIN_TOKEN" \
-  --token-url=https://auth.k8.haak.co/oauth2/token \
+  --token-url=https://auth.custd.com/oauth2/token \
   --tenant=tracklab \
   --company-name="TrackLab" \
   --client-id=tl-custd-bridge \
