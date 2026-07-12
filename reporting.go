@@ -18,10 +18,13 @@ type ReportingClient struct {
 }
 
 type ReportingDashboard struct {
-	Key     string            `json:"key"`
-	Title   string            `json:"title"`
-	Hidden  bool              `json:"hidden,omitempty"`
-	Widgets []ReportingWidget `json:"widgets"`
+	Key            string            `json:"key"`
+	Title          string            `json:"title"`
+	Hidden         bool              `json:"hidden,omitempty"`
+	DefaultRange   string            `json:"defaultRange"`
+	RefreshSeconds int               `json:"refreshSeconds"`
+	RequiredScopes []string          `json:"requiredScopes"`
+	Widgets        []ReportingWidget `json:"widgets"`
 }
 
 type ReportingWidget struct {

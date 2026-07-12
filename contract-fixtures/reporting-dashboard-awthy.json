@@ -2,6 +2,9 @@
   "key": "awthy_managed_audit_reporting",
   "title": "Awthy managed audit reporting",
   "hidden": true,
+  "defaultRange": "14d",
+  "refreshSeconds": 300,
+  "requiredScopes": ["reporting:read"],
   "widgets": [
     {
       "key": "secure_checkout_flow",

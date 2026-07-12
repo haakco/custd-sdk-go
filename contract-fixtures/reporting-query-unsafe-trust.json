@@ -13,8 +13,10 @@
     "captureState": "enabled",
     "consentState": "present",
     "exportState": "failed",
-    "rawPayload": {
-      "email": "customer@example.test"
+    "diagnostics": {
+      "customer": {
+        "Email": "customer@example.test"
+      }
     }
   }
 }

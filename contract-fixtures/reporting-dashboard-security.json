@@ -1,0 +1,18 @@
+{
+  "key": "security_operations",
+  "title": "Security operations",
+  "hidden": false,
+  "defaultRange": "14d",
+  "refreshSeconds": 300,
+  "requiredScopes": ["reporting:read"],
+  "widgets": [
+    {
+      "key": "security_events_by_severity",
+      "title": "Security events by severity",
+      "kind": "timeseries",
+      "template": "security_events",
+      "metrics": ["event_count"],
+      "dimensions": ["severity"]
+    }
+  ]
+}
