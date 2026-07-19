@@ -16,6 +16,7 @@ import (
 const reportingEndpoint = "/api/v1/reporting"
 
 var subjectInsightTemplatePattern = regexp.MustCompile(`^[a-z][a-z0-9_]{0,127}$`)
+var preparedDataUUIDPattern = regexp.MustCompile(`(?i)^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`)
 
 type ReportingClient struct {
 	client *CustdClient
@@ -62,6 +63,48 @@ type SubjectInsightRequest struct {
 
 type SubjectInsightResponse struct {
 	Data RenderedWidgetData `json:"data"`
+}
+
+type PreparedDataStatus struct {
+	TenantSlug      string                 `json:"tenantSlug"`
+	ProcessingState string                 `json:"processingState"`
+	Availability    string                 `json:"availability"`
+	ObservedAt      string                 `json:"observedAt"`
+	Watermark       string                 `json:"watermark,omitempty"`
+	Provenance      PreparedDataProvenance `json:"provenance"`
+	Retryability    string                 `json:"retryability"`
+	Warnings        []PreparedDataWarning  `json:"warnings,omitempty"`
+	NextAction      PreparedDataNextAction `json:"nextAction"`
+}
+type PreparedDataProvenance struct {
+	Owner      string `json:"owner"`
+	Generation string `json:"generation,omitempty"`
+	SourceURN  string `json:"sourceUrn,omitempty"`
+	Watermark  string `json:"watermark,omitempty"`
+}
+type PreparedDataWarning struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+type PreparedDataNextAction struct {
+	Action           string `json:"action"`
+	PollAfterSeconds int    `json:"pollAfterSeconds,omitempty"`
+	MaxRetries       int    `json:"maxRetries,omitempty"`
+}
+type PreparedDataReceiptStatus struct {
+	PreparedDataStatus
+	ReceiptUUID string `json:"receiptUuid"`
+}
+type PreparedDataOutputStatus struct {
+	PreparedDataStatus
+	OutputUUID string `json:"outputUuid"`
+}
+type PreparedDataOutputList struct {
+	Outputs []PreparedDataOutputStatus `json:"outputs"`
+}
+type PreparedDataQueryEnvelope struct {
+	Output PreparedDataOutputStatus `json:"output"`
+	Data   RenderedWidgetData       `json:"data"`
 }
 
 type RenderedWidgetData struct {
@@ -211,6 +254,36 @@ func (r *ReportingClient) SubjectInsight(ctx context.Context, req SubjectInsight
 	return &out, err
 }
 
+func (r *ReportingClient) Receipt(ctx context.Context, receiptUUID string) (*PreparedDataReceiptStatus, error) {
+	if !preparedDataUUIDPattern.MatchString(receiptUUID) {
+		return nil, fmt.Errorf("custd: receiptUuid must be a UUID")
+	}
+	var out PreparedDataReceiptStatus
+	err := r.request(ctx, http.MethodGet, "/processing/"+url.PathEscape(receiptUUID), nil, &out)
+	return &out, err
+}
+func (r *ReportingClient) Outputs(ctx context.Context) (*PreparedDataOutputList, error) {
+	var out PreparedDataOutputList
+	err := r.request(ctx, http.MethodGet, "/outputs", nil, &out)
+	return &out, err
+}
+func (r *ReportingClient) Output(ctx context.Context, outputUUID string) (*PreparedDataOutputStatus, error) {
+	if !preparedDataUUIDPattern.MatchString(outputUUID) {
+		return nil, fmt.Errorf("custd: outputUuid must be a UUID")
+	}
+	var out PreparedDataOutputStatus
+	err := r.request(ctx, http.MethodGet, "/outputs/"+url.PathEscape(outputUUID), nil, &out)
+	return &out, err
+}
+func (r *ReportingClient) QueryOutput(ctx context.Context, outputUUID string, req ReportingQueryRequest) (*PreparedDataQueryEnvelope, error) {
+	if !preparedDataUUIDPattern.MatchString(outputUUID) {
+		return nil, fmt.Errorf("custd: outputUuid must be a UUID")
+	}
+	var out PreparedDataQueryEnvelope
+	err := r.request(ctx, http.MethodPost, "/outputs/"+url.PathEscape(outputUUID)+"/query", req, &out)
+	return &out, err
+}
+
 func validateReportingSubjectInsightRequest(req SubjectInsightRequest) error {
 	if !subjectInsightTemplatePattern.MatchString(req.Template) {
 		return fmt.Errorf("custd: reporting subject insight template is invalid")
@@ -293,6 +366,9 @@ func (r *ReportingClient) requestViaHTTP(ctx context.Context, method string, pat
 }
 
 func (r *ReportingClient) endpoint(path string) string {
+	if strings.HasPrefix(path, "/processing/") {
+		return strings.TrimRight(r.client.config.BaseURL, "/") + "/api/v1" + path
+	}
 	return strings.TrimRight(r.client.config.BaseURL, "/") + reportingEndpoint + path
 }
 

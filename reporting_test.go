@@ -35,6 +35,19 @@ func TestReportingDashboardReadsGenericPackDashboard(t *testing.T) {
 	}
 }
 
+func TestReportingOutputSelectsCanonicalOutput(t *testing.T) {
+	uuid := "33333333-3333-4333-8333-333333333333"
+	doer := newCaptureDoer(http.StatusOK, `{"outputUuid":"`+uuid+`","tenantSlug":"acme-co","processingState":"ready","availability":"complete","observedAt":"2026-07-18T12:01:00Z","provenance":{"owner":"rollups"},"retryability":"none","nextAction":{"action":"none"}}`)
+	client := newAdminTestClient(t, doer, "http://localhost:8080")
+	status, err := client.Reporting.Output(context.Background(), uuid)
+	if err != nil || status.OutputUUID != uuid {
+		t.Fatalf("Output() = %#v, %v", status, err)
+	}
+	if doer.requests[0].URL != "http://localhost:8080/api/v1/reporting/outputs/"+uuid {
+		t.Fatalf("url = %s", doer.requests[0].URL)
+	}
+}
+
 func TestReportingQueryReturnsTrustDiagnostics(t *testing.T) {
 	doer := newCaptureDoer(http.StatusOK, string(readContractFixture(t, "reporting-query-security-trust.json")))
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
