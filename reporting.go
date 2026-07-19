@@ -8,10 +8,14 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
+	"time"
 )
 
 const reportingEndpoint = "/api/v1/reporting"
+
+var subjectInsightTemplatePattern = regexp.MustCompile(`^[a-z][a-z0-9_]{0,127}$`)
 
 type ReportingClient struct {
 	client *CustdClient
@@ -46,6 +50,89 @@ type ReportingQueryRequest struct {
 	RangeDays  int               `json:"rangeDays,omitempty"`
 	MaxRows    int               `json:"maxRows,omitempty"`
 	CountOnly  bool              `json:"countOnly,omitempty"`
+}
+
+type SubjectInsightRequest struct {
+	Template  string `json:"template"`
+	Subject   string `json:"subject"`
+	From      string `json:"from,omitempty"`
+	To        string `json:"to,omitempty"`
+	RangeDays int    `json:"rangeDays,omitempty"`
+}
+
+type SubjectInsightResponse struct {
+	Data RenderedWidgetData `json:"data"`
+}
+
+type RenderedWidgetData struct {
+	Buckets         []RenderedWidgetBucket   `json:"buckets"`
+	Value           RenderedMetricValue      `json:"value"`
+	Metadata        *ReportingQueryMetadata  `json:"metadata,omitempty"`
+	Sources         []ReportingSourceSummary `json:"sources,omitempty"`
+	Warnings        []string                 `json:"warnings,omitempty"`
+	QueryDurationMs int64                    `json:"queryDurationMs"`
+	ParquetURICount int                      `json:"parquetUriCount,omitempty"`
+	SnapshotAgeMs   int64                    `json:"snapshotAgeMs"`
+	EventLagP95Ms   int64                    `json:"eventLagP95Ms"`
+	Delta           *RenderedMetricValue     `json:"delta,omitempty"`
+	DeltaPercent    float64                  `json:"deltaPercent,omitempty"`
+	DeltaLabel      string                   `json:"deltaLabel,omitempty"`
+	SecondaryLabel  string                   `json:"secondaryLabel,omitempty"`
+	Trust           *RenderedReportingTrust  `json:"trust,omitempty"`
+}
+
+type RenderedWidgetBucket struct {
+	Date            string               `json:"date"`
+	Value           RenderedMetricValue  `json:"value"`
+	Source          string               `json:"source"`
+	QueryDurationMs int64                `json:"queryDurationMs"`
+	ParquetURICount int                  `json:"parquetUriCount,omitempty"`
+	Message         string               `json:"message,omitempty"`
+	Secondary       *RenderedMetricValue `json:"secondary,omitempty"`
+}
+
+type RenderedMetricValue struct {
+	Value           float64 `json:"value"`
+	Unit            string  `json:"unit"`
+	SampleCount     int     `json:"sampleCount"`
+	DataSufficiency string  `json:"dataSufficiency"`
+	Complete        bool    `json:"complete"`
+	Truncated       bool    `json:"truncated,omitempty"`
+}
+
+type ReportingQueryMetadata struct {
+	ResolvedTemplate string `json:"resolvedTemplate"`
+	RangeStart       string `json:"rangeStart,omitempty"`
+	RangeEnd         string `json:"rangeEnd,omitempty"`
+	EffectiveMaxRows int    `json:"effectiveMaxRows"`
+	ReturnedRows     int    `json:"returnedRows"`
+	ReturnedBuckets  int    `json:"returnedBuckets"`
+	CoveredWindows   int    `json:"coveredWindows"`
+}
+
+type ReportingSourceSummary struct {
+	Kind          string `json:"kind"`
+	Count         int    `json:"count"`
+	CoverageStart string `json:"coverageStart,omitempty"`
+	CoverageEnd   string `json:"coverageEnd,omitempty"`
+	Completeness  string `json:"completeness"`
+}
+
+type RenderedReportingTrust struct {
+	Status            string   `json:"status"`
+	DataFreshness     string   `json:"dataFreshness"`
+	LastExport        string   `json:"lastExport,omitempty"`
+	SchemaVersion     string   `json:"schemaVersion,omitempty"`
+	ContractVersion   string   `json:"contractVersion,omitempty"`
+	RollupState       string   `json:"rollupState"`
+	QueryWarnings     []string `json:"queryWarnings,omitempty"`
+	Coverage          string   `json:"coverage"`
+	PermissionClass   string   `json:"permissionClass,omitempty"`
+	CaptureState      string   `json:"captureState"`
+	ConsentState      string   `json:"consentState"`
+	ExportState       string   `json:"exportState"`
+	PartialReason     string   `json:"partialReason,omitempty"`
+	UnavailableReason string   `json:"unavailableReason,omitempty"`
 }
 
 type ReportingFilter struct {
@@ -115,6 +202,44 @@ func (r *ReportingClient) Query(ctx context.Context, req ReportingQueryRequest) 
 	return &out, err
 }
 
+func (r *ReportingClient) SubjectInsight(ctx context.Context, req SubjectInsightRequest) (*SubjectInsightResponse, error) {
+	if err := validateReportingSubjectInsightRequest(req); err != nil {
+		return nil, err
+	}
+	var out SubjectInsightResponse
+	err := r.request(ctx, http.MethodPost, "/insights/subject", req, &out)
+	return &out, err
+}
+
+func validateReportingSubjectInsightRequest(req SubjectInsightRequest) error {
+	if !subjectInsightTemplatePattern.MatchString(req.Template) {
+		return fmt.Errorf("custd: reporting subject insight template is invalid")
+	}
+	if strings.TrimSpace(req.Subject) == "" || len(req.Subject) > 512 {
+		return fmt.Errorf("custd: reporting subject insight subject is required")
+	}
+	hasRange := req.RangeDays != 0
+	hasFrom := req.From != ""
+	hasTo := req.To != ""
+	if hasRange == (hasFrom || hasTo) {
+		return fmt.Errorf("custd: reporting subject insight requires rangeDays or from and to")
+	}
+	if hasRange && (req.RangeDays < 1 || req.RangeDays > 366) {
+		return fmt.Errorf("custd: reporting subject insight rangeDays must be between 1 and 366")
+	}
+	if !hasRange && (!hasFrom || !hasTo) {
+		return fmt.Errorf("custd: reporting subject insight from and to are required together")
+	}
+	if !hasRange {
+		from, fromErr := time.Parse(time.RFC3339, req.From)
+		to, toErr := time.Parse(time.RFC3339, req.To)
+		if fromErr != nil || toErr != nil || !to.After(from) || to.Sub(from) > 366*24*time.Hour {
+			return fmt.Errorf("custd: reporting subject insight date range is invalid")
+		}
+	}
+	return nil
+}
+
 func (r *ReportingClient) request(ctx context.Context, method string, path string, payload any, out any) error {
 	var body []byte
 	var err error
@@ -181,13 +306,83 @@ func decodeReportingResponse(body []byte, out any) error {
 	return nil
 }
 
-func (t *ReportingTrust) UnmarshalJSON(data []byte) error {
-	var raw any
-	if err := json.Unmarshal(data, &raw); err != nil {
+func (r *SubjectInsightResponse) UnmarshalJSON(data []byte) error {
+	type subjectInsightResponseAlias SubjectInsightResponse
+	var decoded subjectInsightResponseAlias
+	if err := json.Unmarshal(data, &decoded); err != nil {
 		return err
 	}
-	if containsUnsafeReportingTrustKey(raw) {
-		return fmt.Errorf("custd: unsafe reporting trust diagnostics")
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(data, &fields); err != nil {
+		return err
+	}
+	if raw, ok := fields["data"]; !ok || string(raw) == "null" {
+		return fmt.Errorf("custd: subject insight response missing data")
+	}
+	*r = SubjectInsightResponse(decoded)
+	return nil
+}
+
+func (d *RenderedWidgetData) UnmarshalJSON(data []byte) error {
+	type renderedWidgetAlias RenderedWidgetData
+	var decoded renderedWidgetAlias
+	if err := json.Unmarshal(data, &decoded); err != nil {
+		return err
+	}
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(data, &fields); err != nil {
+		return err
+	}
+	for _, field := range []string{"buckets", "value", "queryDurationMs", "snapshotAgeMs", "eventLagP95Ms"} {
+		if raw, ok := fields[field]; !ok || string(raw) == "null" {
+			return fmt.Errorf("custd: rendered widget data missing %s", field)
+		}
+	}
+	*d = RenderedWidgetData(decoded)
+	return nil
+}
+
+func (b *RenderedWidgetBucket) UnmarshalJSON(data []byte) error {
+	type renderedBucketAlias RenderedWidgetBucket
+	var decoded renderedBucketAlias
+	if err := json.Unmarshal(data, &decoded); err != nil {
+		return err
+	}
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(data, &fields); err != nil {
+		return err
+	}
+	for _, field := range []string{"date", "value", "source", "queryDurationMs"} {
+		if raw, ok := fields[field]; !ok || string(raw) == "null" {
+			return fmt.Errorf("custd: rendered widget bucket missing %s", field)
+		}
+	}
+	*b = RenderedWidgetBucket(decoded)
+	return nil
+}
+
+func (v *RenderedMetricValue) UnmarshalJSON(data []byte) error {
+	type renderedValueAlias RenderedMetricValue
+	var decoded renderedValueAlias
+	if err := json.Unmarshal(data, &decoded); err != nil {
+		return err
+	}
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(data, &fields); err != nil {
+		return err
+	}
+	for _, field := range []string{"value", "unit", "sampleCount", "dataSufficiency", "complete"} {
+		if raw, ok := fields[field]; !ok || string(raw) == "null" {
+			return fmt.Errorf("custd: rendered metric value missing %s", field)
+		}
+	}
+	*v = RenderedMetricValue(decoded)
+	return nil
+}
+
+func (t *ReportingTrust) UnmarshalJSON(data []byte) error {
+	if err := rejectUnsafeReportingTrust(data); err != nil {
+		return err
 	}
 	type trustAlias ReportingTrust
 	var decoded trustAlias
@@ -195,6 +390,134 @@ func (t *ReportingTrust) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*t = ReportingTrust(decoded)
+	return nil
+}
+
+func (t *RenderedReportingTrust) UnmarshalJSON(data []byte) error {
+	if err := rejectUnsafeReportingTrust(data); err != nil {
+		return err
+	}
+	type trustAlias RenderedReportingTrust
+	var decoded trustAlias
+	if err := json.Unmarshal(data, &decoded); err != nil {
+		return err
+	}
+	*t = RenderedReportingTrust(decoded)
+	if err := validateRenderedReportingTrustFields(data); err != nil {
+		return err
+	}
+	return nil
+}
+
+func validateRenderedReportingTrustFields(data []byte) error {
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(data, &fields); err != nil {
+		return err
+	}
+	for _, field := range []string{
+		"status", "dataFreshness", "rollupState", "coverage",
+		"captureState", "consentState", "exportState",
+	} {
+		raw, ok := fields[field]
+		if !ok || string(raw) == "null" {
+			return fmt.Errorf("custd: rendered reporting trust missing %s", field)
+		}
+		var value string
+		if err := json.Unmarshal(raw, &value); err != nil || value == "" {
+			return fmt.Errorf("custd: rendered reporting trust missing %s", field)
+		}
+	}
+	return nil
+}
+
+func (m *ReportingQueryMetadata) UnmarshalJSON(data []byte) error {
+	type metadataAlias ReportingQueryMetadata
+	var decoded metadataAlias
+	if err := json.Unmarshal(data, &decoded); err != nil {
+		return err
+	}
+	*m = ReportingQueryMetadata(decoded)
+	if err := validateReportingQueryMetadataFields(data); err != nil {
+		return err
+	}
+	return nil
+}
+
+func validateReportingQueryMetadataFields(data []byte) error {
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(data, &fields); err != nil {
+		return err
+	}
+	raw, ok := fields["resolvedTemplate"]
+	if !ok || string(raw) == "null" {
+		return fmt.Errorf("custd: reporting query metadata missing resolvedTemplate")
+	}
+	var resolvedTemplate string
+	if err := json.Unmarshal(raw, &resolvedTemplate); err != nil || resolvedTemplate == "" {
+		return fmt.Errorf("custd: reporting query metadata missing resolvedTemplate")
+	}
+	for _, field := range []string{
+		"effectiveMaxRows", "returnedRows", "returnedBuckets", "coveredWindows",
+	} {
+		raw, ok := fields[field]
+		if !ok || string(raw) == "null" {
+			return fmt.Errorf("custd: reporting query metadata missing %s", field)
+		}
+		var value int
+		if err := json.Unmarshal(raw, &value); err != nil {
+			return fmt.Errorf("custd: reporting query metadata missing %s", field)
+		}
+	}
+	return nil
+}
+
+func (s *ReportingSourceSummary) UnmarshalJSON(data []byte) error {
+	type sourceAlias ReportingSourceSummary
+	var decoded sourceAlias
+	if err := json.Unmarshal(data, &decoded); err != nil {
+		return err
+	}
+	*s = ReportingSourceSummary(decoded)
+	if err := validateReportingSourceSummaryFields(data); err != nil {
+		return err
+	}
+	return nil
+}
+
+func validateReportingSourceSummaryFields(data []byte) error {
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(data, &fields); err != nil {
+		return err
+	}
+	for _, field := range []string{"kind", "completeness"} {
+		raw, ok := fields[field]
+		if !ok || string(raw) == "null" {
+			return fmt.Errorf("custd: reporting source summary missing %s", field)
+		}
+		var value string
+		if err := json.Unmarshal(raw, &value); err != nil || value == "" {
+			return fmt.Errorf("custd: reporting source summary missing %s", field)
+		}
+	}
+	raw, ok := fields["count"]
+	if !ok || string(raw) == "null" {
+		return fmt.Errorf("custd: reporting source summary missing count")
+	}
+	var count int
+	if err := json.Unmarshal(raw, &count); err != nil {
+		return fmt.Errorf("custd: reporting source summary missing count")
+	}
+	return nil
+}
+
+func rejectUnsafeReportingTrust(data []byte) error {
+	var raw any
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	if containsUnsafeReportingTrustKey(raw) {
+		return fmt.Errorf("custd: unsafe reporting trust diagnostics")
+	}
 	return nil
 }
 
