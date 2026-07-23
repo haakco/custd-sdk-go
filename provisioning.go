@@ -14,9 +14,10 @@ import (
 const apiEndpoint = "/api/v1"
 
 type ProvisioningClient struct {
-	DataSpaces *DataSpaceProvisioningClient
-	Producers  *ProducerProvisioningClient
-	client     *CustdClient
+	DataSpaces   *DataSpaceProvisioningClient
+	Producers    *ProducerProvisioningClient
+	Reservations *ProducerReservationsClient
+	client       *CustdClient
 }
 
 type DataSpaceProvisioningClient struct {
@@ -27,10 +28,42 @@ type ProducerProvisioningClient struct {
 	provisioning *ProvisioningClient
 }
 
+// ProducerReservationsClient owns the producer-reservation lifecycle on a data
+// space. Reservations are scoped to a data space; callers carry the resolved
+// tenant via the bearer token.
+type ProducerReservationsClient struct {
+	provisioning *ProvisioningClient
+}
+
+type ProducerReservation struct {
+	ProducerSlug      string `json:"producerSlug"`
+	ParentCompanySlug string `json:"parentCompanySlug"`
+	ChildCompanySlug  string `json:"childCompanySlug,omitempty"`
+	ClaimedByClientID string `json:"claimedByClientId,omitempty"`
+	Status            string `json:"status"`
+	ReservedAt        string `json:"reservedAt,omitempty"`
+	ExpiresAt         string `json:"expiresAt,omitempty"`
+	MaxTTLSeconds     int64  `json:"maxTtlSeconds,omitempty"`
+}
+
+type ProducerReservationListResponse struct {
+	Reservations []ProducerReservation `json:"reservations"`
+}
+
+type ProducerReservationCreateRequest struct {
+	ProducerSlug string `json:"producerSlug"`
+	TTLSeconds   int64  `json:"ttlSeconds,omitempty"`
+}
+
+type ProducerReservationClaimRequest struct {
+	ClaimedByClientID string `json:"claimedByClientId"`
+}
+
 func newProvisioningClient(client *CustdClient) *ProvisioningClient {
 	provisioning := &ProvisioningClient{client: client}
 	provisioning.DataSpaces = &DataSpaceProvisioningClient{provisioning: provisioning}
 	provisioning.Producers = &ProducerProvisioningClient{provisioning: provisioning}
+	provisioning.Reservations = &ProducerReservationsClient{provisioning: provisioning}
 	return provisioning
 }
 
@@ -92,6 +125,64 @@ func (c *ProducerProvisioningClient) RotateSecret(
 
 func (c *ProducerProvisioningClient) Revoke(ctx context.Context, clientID string) error {
 	return c.provisioning.request(ctx, http.MethodDelete, "/producer-provisioning/"+url.PathEscape(clientID), nil, nil)
+}
+
+func (c *ProducerReservationsClient) Reserve(
+	ctx context.Context,
+	dataSpaceSlug string,
+	req ProducerReservationCreateRequest,
+) (*ProducerReservation, error) {
+	var out ProducerReservation
+	err := c.provisioning.request(
+		ctx,
+		http.MethodPost,
+		"/data-spaces/"+url.PathEscape(dataSpaceSlug)+"/producer-reservations",
+		req,
+		&out,
+	)
+	return &out, err
+}
+
+func (c *ProducerReservationsClient) List(
+	ctx context.Context,
+	dataSpaceSlug string,
+) (*ProducerReservationListResponse, error) {
+	var out ProducerReservationListResponse
+	err := c.provisioning.request(
+		ctx,
+		http.MethodGet,
+		"/data-spaces/"+url.PathEscape(dataSpaceSlug)+"/producer-reservations",
+		nil,
+		&out,
+	)
+	return &out, err
+}
+
+func (c *ProducerReservationsClient) Claim(
+	ctx context.Context,
+	dataSpaceSlug string,
+	producerSlug string,
+	req ProducerReservationClaimRequest,
+) (*ProducerReservation, error) {
+	var out ProducerReservation
+	err := c.provisioning.request(
+		ctx,
+		http.MethodPost,
+		"/data-spaces/"+url.PathEscape(dataSpaceSlug)+"/producer-reservations/"+url.PathEscape(producerSlug)+"/claim",
+		req,
+		&out,
+	)
+	return &out, err
+}
+
+func (c *ProducerReservationsClient) Release(ctx context.Context, dataSpaceSlug string, producerSlug string) error {
+	return c.provisioning.request(
+		ctx,
+		http.MethodDelete,
+		"/data-spaces/"+url.PathEscape(dataSpaceSlug)+"/producer-reservations/"+url.PathEscape(producerSlug),
+		nil,
+		nil,
+	)
 }
 
 func (c *ProvisioningClient) request(ctx context.Context, method string, path string, payload any, out any) error {

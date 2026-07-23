@@ -14,12 +14,18 @@ import (
 const adminEndpoint = "/api/v1/admin"
 
 type AdminClient struct {
-	Tenants      *TenantAdminClient
-	OAuthClients *OAuthClientAdminClient
-	Sites        *SiteAdminClient
-	Schemas      *SchemaAdminClient
-	Measurement  *MeasurementAdminClient
-	client       *CustdClient
+	Tenants        *TenantAdminClient
+	OAuthClients   *OAuthClientAdminClient
+	Sites          *SiteAdminClient
+	Schemas        *SchemaAdminClient
+	Measurement    *MeasurementAdminClient
+	Privacy        *PrivacyAdminClient
+	Retention      *RetentionAdminClient
+	StorageAlerts  *StorageAlertAdminClient
+	Audit          *AuditAdminClient
+	Offboarding    *OffboardingAdminClient
+	ReportingPacks *ReportingPacksAdminClient
+	client         *CustdClient
 }
 
 type TenantAdminClient struct {
@@ -45,6 +51,12 @@ func newAdminClient(client *CustdClient) *AdminClient {
 	admin.Sites = &SiteAdminClient{admin: admin}
 	admin.Schemas = &SchemaAdminClient{admin: admin}
 	admin.Measurement = newMeasurementAdminClient(admin)
+	admin.Privacy = &PrivacyAdminClient{admin: admin}
+	admin.Retention = &RetentionAdminClient{admin: admin}
+	admin.StorageAlerts = &StorageAlertAdminClient{admin: admin}
+	admin.Audit = &AuditAdminClient{admin: admin}
+	admin.Offboarding = &OffboardingAdminClient{admin: admin}
+	admin.ReportingPacks = &ReportingPacksAdminClient{admin: admin}
 	return admin
 }
 
@@ -109,6 +121,25 @@ func (c *OAuthClientAdminClient) RotateSecret(
 	return &secret, err
 }
 
+// UpdateScopes replaces the scope profile on an existing OAuth client. Tenant
+// administrators are limited to OAuth clients owned by their tenant; the wrong
+// path returns 404 under Stage 1 contract.
+func (c *OAuthClientAdminClient) UpdateScopes(
+	ctx context.Context,
+	clientID string,
+	req AdminOAuthClientUpdateScopesRequest,
+) (*AdminOAuthClient, error) {
+	var out AdminOAuthClient
+	err := c.admin.request(
+		ctx,
+		http.MethodPatch,
+		"/oauth-clients/"+url.PathEscape(clientID)+"/scopes",
+		req,
+		&out,
+	)
+	return &out, err
+}
+
 func (c *SiteAdminClient) Create(ctx context.Context, req AdminSiteCreate) (*AdminSiteCreateResponse, error) {
 	var site AdminSiteCreateResponse
 	err := c.admin.request(ctx, http.MethodPost, "/sites", req, &site)
@@ -168,6 +199,58 @@ func (c *SchemaAdminClient) CreateVersion(
 		&schema,
 	)
 	return &schema, err
+}
+
+// Validate runs the stateless dialect validator (jsonschema or avro).
+func (c *SchemaAdminClient) Validate(
+	ctx context.Context,
+	req AdminSchemaValidateRequest,
+) (*AdminSchemaValidateResult, error) {
+	var out AdminSchemaValidateResult
+	err := c.admin.request(ctx, http.MethodPost, "/schema/validate", req, &out)
+	return &out, err
+}
+
+// EnableVersion flips a registered schema version to enabled. Cross-tenant
+// or absent-resource lookups collapse to 404 indistinguishable from not-found.
+func (c *SchemaAdminClient) EnableVersion(
+	ctx context.Context,
+	tenantSlug string,
+	eventTypeSlug string,
+	req AdminSchemaEnableRequest,
+) error {
+	return c.admin.request(
+		ctx,
+		http.MethodPost,
+		"/schema/"+url.PathEscape(tenantSlug)+"/"+url.PathEscape(eventTypeSlug)+"/enable",
+		req,
+		nil,
+	)
+}
+
+// DryRun validates the schema against the provided samples without registering.
+func (c *SchemaAdminClient) DryRun(
+	ctx context.Context,
+	tenantSlug string,
+	eventTypeSlug string,
+	req AdminSchemaDryRunRequest,
+) (*AdminSchemaDryRunResult, error) {
+	var out AdminSchemaDryRunResult
+	err := c.admin.request(
+		ctx,
+		http.MethodPost,
+		"/schema/"+url.PathEscape(tenantSlug)+"/"+url.PathEscape(eventTypeSlug)+"/dry-run",
+		req,
+		&out,
+	)
+	return &out, err
+}
+
+// Audit returns schema registrations scoped to the effective tenant.
+func (c *SchemaAdminClient) Audit(ctx context.Context) (*AdminSchemaAuditListResponse, error) {
+	var out AdminSchemaAuditListResponse
+	err := c.admin.request(ctx, http.MethodGet, "/schema/audit", nil, &out)
+	return &out, err
 }
 
 func (c *AdminClient) request(ctx context.Context, method string, path string, payload any, out any) error {
