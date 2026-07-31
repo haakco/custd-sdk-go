@@ -1,0 +1,24 @@
+{
+  "policies": [
+    {
+      "tenantSlug": "acme",
+      "scope": "tenant",
+      "retentionClass": "operational",
+      "maxAgeSeconds": 2592000,
+      "precedence": 100,
+      "legalHold": false,
+      "effectiveAt": "2026-07-01T00:00:00Z",
+      "expiresAt": null
+    },
+    {
+      "tenantSlug": "acme",
+      "scope": "data_space",
+      "retentionClass": "legal",
+      "maxAgeSeconds": 31536000,
+      "precedence": 200,
+      "legalHold": true,
+      "effectiveAt": "2026-07-01T00:00:00Z",
+      "expiresAt": "2027-07-01T00:00:00Z"
+    }
+  ]
+}

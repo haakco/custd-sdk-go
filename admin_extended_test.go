@@ -205,10 +205,10 @@ func TestAuditAdminClientLifecycle(t *testing.T) {
 }
 
 func TestOffboardingAdminClientLifecycle(t *testing.T) {
-	doer := newCaptureDoer(http.StatusOK, `{"tenantSlug":"acme","effectiveAt":"2026-08-23T00:00:00Z","gracePeriodDays":7,"reason":"client request","status":"scheduled"}`)
+	doer := newCaptureDoer(http.StatusCreated, `{"tenantSlug":"acme","effectiveAt":"2026-08-23T00:00:00Z","gracePeriodDays":7,"reason":"client request","status":"scheduled"}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080/")
 
-	sched, err := client.Admin.Offboarding.Schedule(context.Background(), "acme", OffboardingScheduleRequest{
+	sched, err := client.Admin.Offboarding.Schedule(context.Background(), OffboardingScheduleRequest{
 		EffectiveAt:     "2026-08-23T00:00:00Z",
 		GracePeriodDays: 7,
 		Reason:          "client request",
@@ -220,10 +220,12 @@ func TestOffboardingAdminClientLifecycle(t *testing.T) {
 	if sched.TenantSlug != "acme" {
 		t.Fatalf("sched = %+v", sched)
 	}
-	if doer.requests[0].URL != "http://localhost:8080/api/v1/admin/offboarding/schedules/acme" {
-		t.Fatalf("Schedule URL = %s", doer.requests[0].URL)
+	if doer.requests[0].Method != http.MethodPost ||
+		doer.requests[0].URL != "http://localhost:8080/api/v1/admin/offboarding/schedules" {
+		t.Fatalf("Schedule request = %+v", doer.requests[0])
 	}
 
+	doer.status = http.StatusOK
 	doer.body = `{"schedules":[{"tenantSlug":"acme","effectiveAt":"2026-08-23T00:00:00Z","gracePeriodDays":7,"reason":"client request","status":"scheduled"}]}`
 	list, err := client.Admin.Offboarding.ListSchedules(context.Background())
 	if err != nil {
@@ -233,16 +235,49 @@ func TestOffboardingAdminClientLifecycle(t *testing.T) {
 		t.Fatalf("schedules = %+v", list.Schedules)
 	}
 
+	doer.body = `{"tenantSlug":"acme","effectiveAt":"2026-08-23T00:00:00Z","gracePeriodDays":7,"reason":"client request","status":"scheduled"}`
+	gotSchedule, err := client.Admin.Offboarding.GetSchedule(context.Background(), "acme")
+	if err != nil {
+		t.Fatalf("GetSchedule error: %v", err)
+	}
+	if gotSchedule.TenantSlug != "acme" || gotSchedule.GracePeriodDays != 7 {
+		t.Fatalf("gotSchedule = %+v", gotSchedule)
+	}
+	if doer.requests[2].Method != http.MethodGet ||
+		doer.requests[2].URL != "http://localhost:8080/api/v1/admin/offboarding/schedules/acme" {
+		t.Fatalf("GetSchedule request = %+v", doer.requests[2])
+	}
+
 	doer.status = http.StatusNoContent
 	if err := client.Admin.Offboarding.CancelSchedule(context.Background(), "acme", OffboardingCancelRequest{
 		Reason: "client cancelled",
 	}); err != nil {
 		t.Fatalf("CancelSchedule error: %v", err)
 	}
-	if doer.requests[2].URL != "http://localhost:8080/api/v1/admin/offboarding/schedules/acme/cancel" {
-		t.Fatalf("CancelSchedule URL = %s", doer.requests[2].URL)
+	if doer.requests[3].URL != "http://localhost:8080/api/v1/admin/offboarding/schedules/acme/cancel" {
+		t.Fatalf("CancelSchedule URL = %s", doer.requests[3].URL)
 	}
 
+	doer.status = http.StatusAccepted
+	doer.body = `{"requestUuid":"req-1","tenantSlug":"acme","status":"pending","requestedBy":"u-1","requestedAt":"2026-07-23T12:00:00Z"}`
+	created, err := client.Admin.Offboarding.RequestOffboarding(context.Background(), OffboardingRequestCreate{
+		Confirmation: "acme",
+	})
+	if err != nil {
+		t.Fatalf("RequestOffboarding error: %v", err)
+	}
+	if created.RequestUUID != "req-1" {
+		t.Fatalf("created = %+v", created)
+	}
+	if doer.requests[4].Method != http.MethodPost ||
+		doer.requests[4].URL != "http://localhost:8080/api/v1/admin/offboarding" {
+		t.Fatalf("RequestOffboarding request = %+v", doer.requests[4])
+	}
+	if string(doer.requests[4].Body) != `{"confirmation":"acme"}` {
+		t.Fatalf("RequestOffboarding body = %q", string(doer.requests[4].Body))
+	}
+
+	doer.status = http.StatusOK
 	doer.body = `{"requestUuid":"req-1","tenantSlug":"acme","status":"pending","requestedBy":"u-1","requestedAt":"2026-07-23T12:00:00Z"}`
 	got, err := client.Admin.Offboarding.GetRequest(context.Background(), "req-1")
 	if err != nil {

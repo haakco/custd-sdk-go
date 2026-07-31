@@ -1,0 +1,10 @@
+{
+  "previewId": "rp_01J5K7N4Y8X9Z2B6V3D1M0Q7RJ",
+  "tenantSlug": "acme",
+  "estimatedDeletions": [
+    {"store": "raw_landing", "count": 142},
+    {"store": "parquet_events", "count": 23},
+    {"store": "rollup_materializations", "count": 7}
+  ],
+  "previewedAt": "2026-07-31T08:00:00Z"
+}

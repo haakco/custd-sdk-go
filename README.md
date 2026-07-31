@@ -162,3 +162,43 @@ _, err := client.Admin.Schemas.Register(ctx, custd.AdminSchemaRegister{
     JSONSchema:    map[string]any{"type": "object"},
 })
 ```
+
+## Lifecycle administration
+
+The Go SDK exposes typed admin clients for the five lifecycle
+namespaces. Every method takes `context.Context` and returns server
+responses verbatim. Forward-only: no deprecated aliases.
+
+```go
+admin := client.Admin()
+
+// Tenant storage: list/create/get/revoke.
+loc, err := admin.TenantStorage.Create(ctx, custd.TenantStorageCreateRequest{
+    TenantSlug:    "acme",
+    ClientLocation: "s3://acme-prod-warehouse/events/",
+})
+
+// Subject exports: full request lifecycle.
+exp, err := admin.SubjectExports.Create(ctx, custd.SubjectExportCreateRequest{
+    TenantSlug:     "acme",
+    Subject:        custd.Subject{Type: "userUuid", Value: "01J5..."},
+    Scope:          "portability",
+    IdempotencyKey: "acme-2026-07-31",
+})
+
+// Physical erasures: NO cancel/retry — server has none.
+force, err := admin.PrivacyErasures.Force(ctx, "pe_01J5...")
+
+// Retention policies: list/get/upsert/delete + preview/apply/listRuns.
+runs, err := admin.Retention.ListRuns(ctx, "acme")
+
+// Offboarding: full request lifecycle + schedules.
+sched, err := admin.Offboarding.Schedule(ctx, custd.OffboardingScheduleRequest{
+    TenantSlug: "acme",
+    ExecuteAt:  "2026-12-31T00:00:00Z",
+    Reason:     "contract_end",
+})
+```
+
+SDKs never log signed URLs, raw personal data, export bytes, or
+subject identifiers outside opaque IDs.

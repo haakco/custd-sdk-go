@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "1.0",
+  "generatedFrom": "custd@35e6a3e1",
+  "namespaces": {
+    "tenant-storage": {
+      "fixtures": [
+        {"file": "valid-list-response.json", "assert": ["$.locations", "$.locations[0].id", "$.locations[0].tenantSlug", "$.locations[0].serverAssignedPrefix", "$.locations[0].status"]},
+        {"file": "valid-create-request.json", "assert": ["$.tenantSlug", "$.clientLocation"]},
+        {"file": "valid-create-response.json", "assert": ["$.id", "$.tenantSlug", "$.clientLocation", "$.serverAssignedPrefix", "$.status"]},
+        {"file": "valid-get-response.json", "assert": ["$.id", "$.tenantSlug", "$.status"]},
+        {"file": "isolation-other-tenant-response.json", "assert": ["$.locations", "$[?(@.locations.length() == 0)]"]},
+        {"file": "invalid-tenant-mismatch.json", "assert": ["$.error", "$.message"]}
+      ]
+    },
+    "subject-exports": {
+      "fixtures": [
+        {"file": "valid-create-request.json", "assert": ["$.tenantSlug", "$.subject", "$.scope", "$.idempotencyKey"]},
+        {"file": "valid-create-response.json", "assert": ["$.requestId", "$.tenantSlug", "$.state", "$.expiresAt"]},
+        {"file": "valid-list-response.json", "assert": ["$.exports", "$.exports[0].requestId", "$.exports[0].state"]},
+        {"file": "valid-get-response.json", "assert": ["$.requestId", "$.state", "$.checksum"]},
+        {"file": "valid-cancel-response.json", "assert": ["$.requestId", "$.state", "$.cancelledAt"]},
+        {"file": "valid-download-response.json", "assert": ["$.requestId", "$.downloadUrl", "$.expiresAt"]},
+        {"file": "valid-force-response.json", "assert": ["$.requestId", "$.state", "$.forcedAt"]},
+        {"file": "invalid-tenant-mismatch.json", "assert": ["$.error", "$.message"]},
+        {"file": "expired-download-response.json", "assert": ["$.error", "$.message"]}
+      ]
+    },
+    "privacy-erasures": {
+      "fixtures": [
+        {"file": "valid-create-request.json", "assert": ["$.tenantSlug", "$.selector", "$.reason"]},
+        {"file": "valid-create-response.json", "assert": ["$.requestUuid", "$.tenantSlug", "$.state"]},
+        {"file": "valid-list-response.json", "assert": ["$.erasures", "$.erasures[0].requestUuid"]},
+        {"file": "valid-get-response.json", "assert": ["$.requestUuid", "$.state", "$.perStoreProgress"]},
+        {"file": "valid-force-response.json", "assert": ["$.requestUuid", "$.state", "$.forcedAt"]},
+        {"file": "isolation-other-tenant.json", "assert": ["$.erasures"]},
+        {"file": "legal-hold-retained.json", "assert": ["$.state", "$.perStoreProgress[?(@.store=='legal_hold')]"]},
+        {"file": "invalid-selector.json", "assert": ["$.error", "$.message"]}
+      ]
+    },
+    "retention": {
+      "fixtures": [
+        {"file": "valid-list-response.json", "assert": ["$.policies", "$.policies[0].tenantSlug", "$.policies[0].scope", "$.policies[0].retentionClass", "$.policies[0].maxAgeSeconds", "$.policies[0].precedence", "$.policies[0].legalHold"]},
+        {"file": "valid-get-response.json", "assert": ["$.policies", "$.policies[0].retentionClass"]},
+        {"file": "valid-upsert-request.json", "assert": ["$.scope", "$.retentionClass", "$.maxAgeSeconds", "$.precedence", "$.legalHold"]},
+        {"file": "valid-upsert-response.json", "assert": ["$.tenantSlug", "$.scope", "$.retentionClass", "$.maxAgeSeconds"]},
+        {"file": "valid-preview-response.json", "assert": ["$.previewId", "$.tenantSlug", "$.estimatedDeletions"]},
+        {"file": "valid-apply-response.json", "assert": ["$.runId", "$.tenantSlug", "$.state"]},
+        {"file": "valid-runs-response.json", "assert": ["$.runs", "$.runs[0].runId", "$.runs[0].state"]},
+        {"file": "invalid-selectorless-scope.json", "assert": ["$.error", "$.message"]},
+        {"file": "invalid-negative-max-age.json", "assert": ["$.error", "$.message"]}
+      ]
+    },
+    "offboarding": {
+      "fixtures": [
+        {"file": "valid-request-create-request.json", "assert": ["$.tenantSlug", "$.requestedByUserId", "$.idempotencyKey"]},
+        {"file": "valid-request-create-response.json", "assert": ["$.requestUuid", "$.tenantSlug", "$.state", "$.requestedAt"]},
+        {"file": "valid-request-get-response.json", "assert": ["$.requestUuid", "$.state", "$.previewInventoryDigest", "$.exportArtifactId"]},
+        {"file": "valid-confirm-response.json", "assert": ["$.requestUuid", "$.state", "$.confirmedAt"]},
+        {"file": "valid-cancel-response.json", "assert": ["$.requestUuid", "$.state", "$.cancelledAt"]},
+        {"file": "valid-preview-response.json", "assert": ["$.requestUuid", "$.previewInventoryDigest", "$.perStore"]},
+        {"file": "valid-export-response.json", "assert": ["$.requestUuid", "$.exportArtifactId", "$.schemaVersion", "$.complete"]},
+        {"file": "valid-download-response.json", "assert": ["$.requestUuid", "$.downloadUrl", "$.expiresAt"]},
+        {"file": "valid-acknowledge-response.json", "assert": ["$.requestUuid", "$.state", "$.acknowledgedAt"]},
+        {"file": "valid-execute-response.json", "assert": ["$.requestUuid", "$.state", "$.waiver.role"]},
+        {"file": "valid-retry-response.json", "assert": ["$.requestUuid", "$.state", "$.retriedAt"]},
+        {"file": "valid-receipt-response.json", "assert": ["$.requestUuid", "$.finalState", "$.perStore", "$.sha256"]},
+        {"file": "valid-schedule-create-request.json", "assert": ["$.tenantSlug", "$.executeAt", "$.reason"]},
+        {"file": "valid-schedule-create-response.json", "assert": ["$.tenantSlug", "$.executeAt", "$.state"]},
+        {"file": "valid-schedule-list-response.json", "assert": ["$.schedules", "$.schedules[0].tenantSlug"]},
+        {"file": "invalid-waiver-empty.json", "assert": ["$.error", "$.message"]},
+        {"file": "incomplete-erasure-blocks-confirm.json", "assert": ["$.error", "$.safeNextAction"]},
+        {"file": "isolation-other-tenant.json", "assert": ["$.error", "$.message"]}
+      ]
+    }
+  }
+}

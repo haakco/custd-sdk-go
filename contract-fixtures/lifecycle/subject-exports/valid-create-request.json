@@ -1,0 +1,9 @@
+{
+  "tenantSlug": "acme",
+  "subject": {
+    "type": "userUuid",
+    "value": "01J5K7N4Y8X9Z2B6V3D1M0Q7RJ"
+  },
+  "scope": "portability",
+  "idempotencyKey": "export-acme-01J5K7N4Y8X9Z2B6V3D1M0Q7RJ-2026-07-31"
+}

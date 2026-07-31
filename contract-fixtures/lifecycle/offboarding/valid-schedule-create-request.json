@@ -1,0 +1,5 @@
+{
+  "tenantSlug": "acme",
+  "executeAt": "2026-12-31T00:00:00Z",
+  "reason": "contract_end"
+}
