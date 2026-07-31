@@ -1,4 +1,0 @@
-{
-  "error": "invalid_max_age",
-  "message": "maxAgeSeconds must be a non-negative integer."
-}
