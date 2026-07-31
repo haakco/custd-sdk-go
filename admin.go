@@ -25,6 +25,9 @@ type AdminClient struct {
 	Audit          *AuditAdminClient
 	Offboarding    *OffboardingAdminClient
 	ReportingPacks *ReportingPacksAdminClient
+	TenantStorage  *TenantStorageAdminClient
+	SubjectExports *SubjectExportAdminClient
+	Erasures       *PrivacyErasureAdminClient
 	client         *CustdClient
 }
 
@@ -57,6 +60,9 @@ func newAdminClient(client *CustdClient) *AdminClient {
 	admin.Audit = &AuditAdminClient{admin: admin}
 	admin.Offboarding = &OffboardingAdminClient{admin: admin}
 	admin.ReportingPacks = &ReportingPacksAdminClient{admin: admin}
+	admin.TenantStorage = &TenantStorageAdminClient{admin: admin}
+	admin.SubjectExports = &SubjectExportAdminClient{admin: admin}
+	admin.Erasures = &PrivacyErasureAdminClient{admin: admin}
 	return admin
 }
 
@@ -307,6 +313,55 @@ func (c *AdminClient) requestViaHTTP(ctx context.Context, method string, path st
 
 func (c *AdminClient) endpoint(path string) string {
 	return strings.TrimRight(c.client.config.BaseURL, "/") + adminEndpoint + path
+}
+
+// requestNonAdmin issues a request outside the /api/v1/admin namespace. It
+// exists for endpoints that share the admin auth context but live at the
+// top-level /api/v1 surface (e.g. tenant-storage-locations). It reuses the
+// same auth headers, body encoding, and status decoding as request.
+func (c *AdminClient) requestNonAdmin(ctx context.Context, method string, path string, payload any, out any) error {
+	var body []byte
+	var err error
+	if payload != nil {
+		body, err = json.Marshal(payload)
+		if err != nil {
+			return fmt.Errorf("custd: marshal non-admin request: %w", err)
+		}
+	}
+	url := strings.TrimRight(c.client.config.BaseURL, "/") + "/api/v1" + path
+	if c.client.config.HTTPClient != nil {
+		resp, err := c.client.config.HTTPClient.Do(&HTTPRequest{
+			Method:  method,
+			URL:     url,
+			Headers: c.client.headers(false),
+			Body:    body,
+		})
+		if err != nil {
+			return fmt.Errorf("custd: non-admin request failed: %w", err)
+		}
+		if err := c.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
+			return err
+		}
+		return decodeAdminResponse(resp.Body, out)
+	}
+	req, err := http.NewRequestWithContext(ctx, method, url, bytes.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("custd: create non-admin request: %w", err)
+	}
+	for k, v := range c.client.headers(false) {
+		req.Header.Set(k, v)
+	}
+	resp, err := c.client.httpClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("custd: non-admin request failed: %w", err)
+	}
+	// nolint:errcheck // response body fully read below; a close error cannot affect the already-read response
+	defer func() { _ = resp.Body.Close() }()
+	respBody, _ := io.ReadAll(resp.Body)
+	if err := c.client.checkStatus(resp.StatusCode, respBody); err != nil {
+		return err
+	}
+	return decodeAdminResponse(respBody, out)
 }
 
 func decodeAdminResponse(body []byte, out any) error {

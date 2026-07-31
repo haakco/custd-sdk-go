@@ -7,6 +7,264 @@ import (
 	"strconv"
 )
 
+// TenantStorageAdminClient owns tenant-scoped storage location registration.
+// Locations are server-prefixed: the SDK submits clientLocation and the
+// server returns a serverAssignedPrefix that the SDK must use for raw
+// landing writes. Tenant is derived from the auth context; wrong-tenant
+// reads collapse to an empty list indistinguishable from "no locations".
+type TenantStorageAdminClient struct {
+	admin *AdminClient
+}
+
+// TenantStorageLocation is the per-tenant storage entry. ClientLocation is
+// the client-supplied bucket URI; ServerAssignedPrefix is the writable
+// prefix the server mints on the tenant's behalf.
+type TenantStorageLocation struct {
+	ID                   string `json:"id"`
+	TenantSlug           string `json:"tenantSlug"`
+	ClientLocation       string `json:"clientLocation"`
+	ServerAssignedPrefix string `json:"serverAssignedPrefix"`
+	Status               string `json:"status"`
+	CreatedAt            string `json:"createdAt,omitempty"`
+	ExpiresAt            string `json:"expiresAt,omitempty"`
+}
+
+// TenantStorageListResponse is the body for GET /tenant-storage-locations.
+type TenantStorageListResponse struct {
+	Locations []TenantStorageLocation `json:"locations"`
+}
+
+// TenantStorageCreateRequest is the body for POST /tenant-storage-locations.
+// Tenant is server-derived; callers must not pre-fill TenantSlug.
+type TenantStorageCreateRequest struct {
+	TenantSlug     string `json:"tenantSlug,omitempty"`
+	ClientLocation string `json:"clientLocation"`
+}
+
+func (c *TenantStorageAdminClient) List(ctx context.Context) (*TenantStorageListResponse, error) {
+	var out TenantStorageListResponse
+	err := c.admin.requestNonAdmin(ctx, http.MethodGet, "/tenant-storage-locations", nil, &out)
+	return &out, err
+}
+
+func (c *TenantStorageAdminClient) Create(
+	ctx context.Context,
+	req TenantStorageCreateRequest,
+) (*TenantStorageLocation, error) {
+	var out TenantStorageLocation
+	err := c.admin.requestNonAdmin(ctx, http.MethodPost, "/tenant-storage-locations", req, &out)
+	return &out, err
+}
+
+func (c *TenantStorageAdminClient) Get(ctx context.Context, id string) (*TenantStorageLocation, error) {
+	var out TenantStorageLocation
+	err := c.admin.requestNonAdmin(ctx, http.MethodGet, "/tenant-storage-locations/"+url.PathEscape(id), nil, &out)
+	return &out, err
+}
+
+// Revoke removes a tenant storage location. The server is the authority for
+// whether the prefix is immediately unusable; the SDK must not assume
+// partial deletes are atomic.
+func (c *TenantStorageAdminClient) Revoke(ctx context.Context, id string) error {
+	return c.admin.requestNonAdmin(
+		ctx,
+		http.MethodDelete,
+		"/tenant-storage-locations/"+url.PathEscape(id),
+		nil,
+		nil,
+	)
+}
+
+// SubjectExportAdminClient owns per-tenant subject export requests. The
+// download surface returns a short-lived signed URL the SDK must surface
+// only to the caller; it must not be logged or echoed into error messages.
+type SubjectExportAdminClient struct {
+	admin *AdminClient
+}
+
+// SubjectExportSubject is the typed selector the server returns alongside
+// an export request. The value is a server-side identifier (e.g. a user
+// UUID); the SDK must not echo it into logs or error messages.
+type SubjectExportSubject struct {
+	Type  string `json:"type"`
+	Value string `json:"value"`
+}
+
+// SubjectExport is the receipt returned for a subject export request. The
+// Checksum and ArtifactSize are present only once the request is in
+// terminal ready state.
+type SubjectExport struct {
+	RequestID    string               `json:"requestId"`
+	TenantSlug   string               `json:"tenantSlug"`
+	Subject      SubjectExportSubject `json:"subject"`
+	Scope        string               `json:"scope"`
+	State        string               `json:"state"`
+	CreatedAt    string               `json:"createdAt,omitempty"`
+	ExpiresAt    string               `json:"expiresAt,omitempty"`
+	Checksum     string               `json:"checksum,omitempty"`
+	ArtifactSize int64                `json:"artifactSize,omitempty"`
+}
+
+// SubjectExportListResponse is the body for GET /admin/subject-exports.
+type SubjectExportListResponse struct {
+	Exports []SubjectExport `json:"exports"`
+}
+
+// SubjectExportCreateRequest is the body for POST /admin/subject-exports.
+// IdempotencyKey is required for safe retries.
+type SubjectExportCreateRequest struct {
+	TenantSlug     string               `json:"tenantSlug"`
+	Subject        SubjectExportSubject `json:"subject"`
+	Scope          string               `json:"scope"`
+	IdempotencyKey string               `json:"idempotencyKey"`
+}
+
+// SubjectExportDownloadResponse is the body for GET
+// /admin/subject-exports/{requestId}/download. The DownloadURL is a
+// short-lived signed URL the SDK must hand back to the caller without
+// logging the URL value or the underlying subject identifier.
+type SubjectExportDownloadResponse struct {
+	RequestID   string `json:"requestId"`
+	DownloadURL string `json:"downloadUrl"`
+	ExpiresAt   string `json:"expiresAt,omitempty"`
+}
+
+func (c *SubjectExportAdminClient) Create(
+	ctx context.Context,
+	req SubjectExportCreateRequest,
+) (*SubjectExport, error) {
+	var out SubjectExport
+	err := c.admin.request(ctx, http.MethodPost, "/subject-exports", req, &out)
+	return &out, err
+}
+
+func (c *SubjectExportAdminClient) List(ctx context.Context) (*SubjectExportListResponse, error) {
+	var out SubjectExportListResponse
+	err := c.admin.request(ctx, http.MethodGet, "/subject-exports", nil, &out)
+	return &out, err
+}
+
+func (c *SubjectExportAdminClient) Get(ctx context.Context, requestID string) (*SubjectExport, error) {
+	return adminGetByID[SubjectExport](ctx, c.admin, "/subject-exports/", requestID)
+}
+
+func (c *SubjectExportAdminClient) Cancel(ctx context.Context, requestID string) error {
+	return c.admin.request(
+		ctx,
+		http.MethodPost,
+		"/subject-exports/"+url.PathEscape(requestID)+"/cancel",
+		nil,
+		nil,
+	)
+}
+
+// Download returns a short-lived signed URL. The DownloadURL field is
+// sensitive; callers must not log the URL or echo it into error messages.
+func (c *SubjectExportAdminClient) Download(
+	ctx context.Context,
+	requestID string,
+) (*SubjectExportDownloadResponse, error) {
+	var out SubjectExportDownloadResponse
+	err := c.admin.request(
+		ctx,
+		http.MethodGet,
+		"/subject-exports/"+url.PathEscape(requestID)+"/download",
+		nil,
+		&out,
+	)
+	return &out, err
+}
+
+func (c *SubjectExportAdminClient) Force(ctx context.Context, requestID string) (*SubjectExport, error) {
+	var out SubjectExport
+	err := c.admin.request(
+		ctx,
+		http.MethodPost,
+		"/subject-exports/"+url.PathEscape(requestID)+"/force",
+		nil,
+		&out,
+	)
+	return &out, err
+}
+
+// PrivacyErasureAdminClient owns per-tenant subject erasure requests.
+// Erasures are forward-only: there is no Cancel or Retry surface because
+// the server contract has none. Force is the bounded operator action.
+type PrivacyErasureAdminClient struct {
+	admin *AdminClient
+}
+
+// PrivacyErasureSelector is the typed selector the SDK submits to identify
+// a subject. The value is server-side identifier; do not log it.
+type PrivacyErasureSelector struct {
+	Type  string `json:"type"`
+	Value string `json:"value"`
+}
+
+// PrivacyErasureStoreProgress tracks per-store progress of an erasure.
+// State==retained is terminal for the legal_hold store and means the row
+// must not be deleted; callers must surface this verbatim.
+type PrivacyErasureStoreProgress struct {
+	Store        string `json:"store"`
+	State        string `json:"state"`
+	DeletedCount int    `json:"deletedCount,omitempty"`
+	Reason       string `json:"reason,omitempty"`
+}
+
+// PrivacyErasure is the receipt returned for an erasure request.
+type PrivacyErasure struct {
+	RequestUUID      string                        `json:"requestUuid"`
+	TenantSlug       string                        `json:"tenantSlug"`
+	Selector         PrivacyErasureSelector        `json:"selector"`
+	State            string                        `json:"state"`
+	PerStoreProgress []PrivacyErasureStoreProgress `json:"perStoreProgress,omitempty"`
+	CreatedAt        string                        `json:"createdAt,omitempty"`
+	CompletedAt      string                        `json:"completedAt,omitempty"`
+}
+
+// PrivacyErasureCreateRequest is the body for POST /admin/privacy/erasures.
+type PrivacyErasureCreateRequest struct {
+	TenantSlug string                 `json:"tenantSlug"`
+	Selector   PrivacyErasureSelector `json:"selector"`
+	Reason     string                 `json:"reason"`
+}
+
+// PrivacyErasureListResponse is the body for GET /admin/privacy/erasures.
+type PrivacyErasureListResponse struct {
+	Erasures []PrivacyErasure `json:"erasures"`
+}
+
+func (c *PrivacyErasureAdminClient) Create(
+	ctx context.Context,
+	req PrivacyErasureCreateRequest,
+) (*PrivacyErasure, error) {
+	var out PrivacyErasure
+	err := c.admin.request(ctx, http.MethodPost, "/privacy/erasures", req, &out)
+	return &out, err
+}
+
+func (c *PrivacyErasureAdminClient) List(ctx context.Context) (*PrivacyErasureListResponse, error) {
+	var out PrivacyErasureListResponse
+	err := c.admin.request(ctx, http.MethodGet, "/privacy/erasures", nil, &out)
+	return &out, err
+}
+
+func (c *PrivacyErasureAdminClient) Get(ctx context.Context, requestUUID string) (*PrivacyErasure, error) {
+	return adminGetByID[PrivacyErasure](ctx, c.admin, "/privacy/erasures/", requestUUID)
+}
+
+func (c *PrivacyErasureAdminClient) Force(ctx context.Context, requestUUID string) (*PrivacyErasure, error) {
+	var out PrivacyErasure
+	err := c.admin.request(
+		ctx,
+		http.MethodPost,
+		"/privacy/erasures/"+url.PathEscape(requestUUID)+"/force",
+		nil,
+		&out,
+	)
+	return &out, err
+}
+
 // PrivacyAdminClient owns the privacy subtrack: rules (closed-purpose) and
 // tenant identifier mappings. The identifier surfaces only ever return the
 // truncated HMAC hash prefix; the plaintext externalId is consumed once on the
@@ -156,6 +414,90 @@ func (c *RetentionAdminClient) Delete(ctx context.Context, tenantSlug string) er
 		nil,
 		nil,
 	)
+}
+
+// RetentionRunDeletion is the per-store deletion estimate a preview returns.
+// The Count is server-computed; the SDK must not infer it client-side.
+type RetentionRunDeletion struct {
+	Store string `json:"store"`
+	Count int    `json:"count"`
+}
+
+// RetentionRunPreview is the body for POST /admin/retention/policies/{slug}/preview.
+// The PreviewId is server-issued; the SDK does not mint it.
+type RetentionRunPreview struct {
+	PreviewID          string                 `json:"previewId"`
+	TenantSlug         string                 `json:"tenantSlug"`
+	EstimatedDeletions []RetentionRunDeletion `json:"estimatedDeletions"`
+	PreviewedAt        string                 `json:"previewedAt,omitempty"`
+}
+
+// RetentionRun is the body element for GET /admin/retention/policies/{slug}/runs.
+// CompletedAt is empty while the run is in flight.
+type RetentionRun struct {
+	RunID        string `json:"runId"`
+	TenantSlug   string `json:"tenantSlug"`
+	State        string `json:"state"`
+	StartedAt    string `json:"startedAt,omitempty"`
+	CompletedAt  string `json:"completedAt,omitempty"`
+	DeletedCount int    `json:"deletedCount,omitempty"`
+}
+
+// RetentionRunsListResponse is the body for GET /admin/retention/policies/{slug}/runs.
+type RetentionRunsListResponse struct {
+	Runs []RetentionRun `json:"runs"`
+}
+
+// Preview asks the server to compute a deletion estimate without applying it.
+// The estimate is server-issued; the SDK must surface it verbatim and never
+// round or re-derive the per-store counts.
+func (c *RetentionAdminClient) Preview(
+	ctx context.Context,
+	tenantSlug string,
+) (*RetentionRunPreview, error) {
+	var out RetentionRunPreview
+	err := c.admin.request(
+		ctx,
+		http.MethodPost,
+		"/retention/policies/"+url.PathEscape(tenantSlug)+"/preview",
+		nil,
+		&out,
+	)
+	return &out, err
+}
+
+// Apply submits the destructive retention run. The server is the authority
+// for whether deletion actually happens; the SDK must not pre-announce state.
+func (c *RetentionAdminClient) Apply(
+	ctx context.Context,
+	tenantSlug string,
+) (*RetentionRun, error) {
+	var out RetentionRun
+	err := c.admin.request(
+		ctx,
+		http.MethodPost,
+		"/retention/policies/"+url.PathEscape(tenantSlug)+"/apply",
+		nil,
+		&out,
+	)
+	return &out, err
+}
+
+// ListRuns returns the retention runs for a single tenant. Empty runs list
+// is the canonical "no runs yet" response, not an error.
+func (c *RetentionAdminClient) ListRuns(
+	ctx context.Context,
+	tenantSlug string,
+) (*RetentionRunsListResponse, error) {
+	var out RetentionRunsListResponse
+	err := c.admin.request(
+		ctx,
+		http.MethodGet,
+		"/retention/policies/"+url.PathEscape(tenantSlug)+"/runs",
+		nil,
+		&out,
+	)
+	return &out, err
 }
 
 // StorageAlertAdminClient owns tenant-scoped storage alert rules. The list and
@@ -425,6 +767,240 @@ func (c *OffboardingAdminClient) ConfirmRequest(ctx context.Context, requestUUID
 		nil,
 		nil,
 	)
+}
+
+// OffboardingPerStore is one row of the per-store inventory the preview
+// endpoint returns. EstimatedCount is server-computed; the SDK must not
+// re-derive it.
+type OffboardingPerStore struct {
+	Store          string `json:"store"`
+	Kind           string `json:"kind"`
+	RetentionClass string `json:"retention_class"`
+	EstimatedCount int    `json:"estimated_count"`
+}
+
+// OffboardingPreviewResponse is the body for POST
+// /admin/offboarding/requests/{requestUuid}/preview.
+type OffboardingPreviewResponse struct {
+	RequestUUID            string                `json:"requestUuid"`
+	PreviewInventoryDigest string                `json:"previewInventoryDigest,omitempty"`
+	PerStore               []OffboardingPerStore `json:"perStore"`
+}
+
+// OffboardingWaiver is the typed waiver the execute endpoint requires.
+// Role identifies the actor (e.g. client_owner); Reason is the human-readable
+// rationale. Timestamp is server-stamped on accept.
+type OffboardingWaiver struct {
+	Role      string `json:"role"`
+	Reason    string `json:"reason"`
+	Timestamp string `json:"timestamp,omitempty"`
+}
+
+// OffboardingExecuteRequest is the body for POST
+// /admin/offboarding/requests/{requestUuid}/execute. Waiver is required for
+// destructive execution; an empty Role returns a 400 waiver_required error
+// the SDK must surface without retry.
+type OffboardingExecuteRequest struct {
+	Waiver OffboardingWaiver `json:"waiver"`
+}
+
+// OffboardingExportResponse is the body for POST
+// /admin/offboarding/requests/{requestUuid}/export. Complete=false means
+// the server is still gathering inventory; callers must poll.
+type OffboardingExportResponse struct {
+	RequestUUID      string `json:"requestUuid"`
+	ExportArtifactID string `json:"exportArtifactId,omitempty"`
+	SchemaVersion    string `json:"schemaVersion,omitempty"`
+	GeneratedAt      string `json:"generatedAt,omitempty"`
+	ExpiresAt        string `json:"expiresAt,omitempty"`
+	Complete         bool   `json:"complete"`
+	Checksum         string `json:"checksum,omitempty"`
+}
+
+// OffboardingDownloadResponse is the body for GET
+// /admin/offboarding/requests/{requestUuid}/download. The DownloadURL is
+// short-lived; callers must not log it or echo it into error messages.
+type OffboardingDownloadResponse struct {
+	RequestUUID string `json:"requestUuid"`
+	DownloadURL string `json:"downloadUrl"`
+	ExpiresAt   string `json:"expiresAt,omitempty"`
+}
+
+// OffboardingAcknowledgeResponse is the body for POST
+// /admin/offboarding/requests/{requestUuid}/acknowledge.
+type OffboardingAcknowledgeResponse struct {
+	RequestUUID    string `json:"requestUuid"`
+	State          string `json:"state,omitempty"`
+	AcknowledgedAt string `json:"acknowledgedAt,omitempty"`
+}
+
+// OffboardingExecuteResponse is the body for POST
+// /admin/offboarding/requests/{requestUuid}/execute. The Waiver is echoed
+// back with the server-stamped timestamp.
+type OffboardingExecuteResponse struct {
+	RequestUUID string            `json:"requestUuid"`
+	State       string            `json:"state,omitempty"`
+	ExecutedAt  string            `json:"executedAt,omitempty"`
+	Waiver      OffboardingWaiver `json:"waiver,omitempty"`
+}
+
+// OffboardingRetryResponse is the body for POST
+// /admin/offboarding/requests/{requestUuid}/retry.
+type OffboardingRetryResponse struct {
+	RequestUUID string `json:"requestUuid"`
+	State       string `json:"state,omitempty"`
+	RetriedAt   string `json:"retriedAt,omitempty"`
+}
+
+// OffboardingReceiptPerStore is one row of the receipt's per-store summary.
+// DeletedCount is server-issued; RetainedExceptionsCount covers legal holds
+// and equivalent exclusions the SDK must not collapse.
+type OffboardingReceiptPerStore struct {
+	Store                   string `json:"store"`
+	RetentionClass          string `json:"retention_class"`
+	DeletedCount            int    `json:"deleted_count"`
+	RetainedExceptionsCount int    `json:"retained_exceptions_count"`
+}
+
+// OffboardingReceiptResponse is the body for GET
+// /admin/offboarding/requests/{requestUuid}/receipt. FinalState is the
+// terminal state of the request; SHA256 is the signed digest the client
+// must store alongside its offboarding record.
+type OffboardingReceiptResponse struct {
+	RequestUUID       string                       `json:"requestUuid"`
+	TenantSlug        string                       `json:"tenantSlug"`
+	FinalState        string                       `json:"finalState"`
+	RequestedByUserID string                       `json:"requestedByUserId,omitempty"`
+	RequestedAt       string                       `json:"requestedAt,omitempty"`
+	CompletedAt       string                       `json:"completedAt,omitempty"`
+	PerStore          []OffboardingReceiptPerStore `json:"perStore"`
+	Waiver            *OffboardingWaiver           `json:"waiver,omitempty"`
+	SHA256            string                       `json:"sha256,omitempty"`
+}
+
+// Preview asks the server to compute the per-store inventory estimate for
+// the offboarding request. The result is server-issued and must be surfaced
+// verbatim; the SDK must not re-derive EstimatedCount.
+func (c *OffboardingAdminClient) Preview(
+	ctx context.Context,
+	requestUUID string,
+) (*OffboardingPreviewResponse, error) {
+	var out OffboardingPreviewResponse
+	err := c.admin.request(
+		ctx,
+		http.MethodPost,
+		"/offboarding/requests/"+url.PathEscape(requestUUID)+"/preview",
+		nil,
+		&out,
+	)
+	return &out, err
+}
+
+// Export triggers the destructive export packaging for a request. The
+// response is the per-request artifact metadata; the download URL is
+// fetched separately via Download.
+func (c *OffboardingAdminClient) Export(
+	ctx context.Context,
+	requestUUID string,
+) (*OffboardingExportResponse, error) {
+	var out OffboardingExportResponse
+	err := c.admin.request(
+		ctx,
+		http.MethodPost,
+		"/offboarding/requests/"+url.PathEscape(requestUUID)+"/export",
+		nil,
+		&out,
+	)
+	return &out, err
+}
+
+// Download returns a short-lived signed URL for the offboarding export
+// artifact. The DownloadURL is sensitive; callers must not log it or echo
+// it into error messages.
+func (c *OffboardingAdminClient) Download(
+	ctx context.Context,
+	requestUUID string,
+) (*OffboardingDownloadResponse, error) {
+	var out OffboardingDownloadResponse
+	err := c.admin.request(
+		ctx,
+		http.MethodGet,
+		"/offboarding/requests/"+url.PathEscape(requestUUID)+"/download",
+		nil,
+		&out,
+	)
+	return &out, err
+}
+
+// Acknowledge records that the operator (or client) has accepted the
+// preview. After acknowledgment the server is willing to accept Execute.
+func (c *OffboardingAdminClient) Acknowledge(
+	ctx context.Context,
+	requestUUID string,
+) (*OffboardingAcknowledgeResponse, error) {
+	var out OffboardingAcknowledgeResponse
+	err := c.admin.request(
+		ctx,
+		http.MethodPost,
+		"/offboarding/requests/"+url.PathEscape(requestUUID)+"/acknowledge",
+		nil,
+		&out,
+	)
+	return &out, err
+}
+
+// Execute triggers the destructive phase. The server requires a non-empty
+// Waiver.Role; an empty waiver returns 400 waiver_required, which the
+// SDK surfaces without retry.
+func (c *OffboardingAdminClient) Execute(
+	ctx context.Context,
+	requestUUID string,
+	req OffboardingExecuteRequest,
+) (*OffboardingExecuteResponse, error) {
+	var out OffboardingExecuteResponse
+	err := c.admin.request(
+		ctx,
+		http.MethodPost,
+		"/offboarding/requests/"+url.PathEscape(requestUUID)+"/execute",
+		req,
+		&out,
+	)
+	return &out, err
+}
+
+// Retry re-arms an offboarding request that previously failed. The server
+// decides whether the request is retryable; the SDK does not pre-filter.
+func (c *OffboardingAdminClient) Retry(
+	ctx context.Context,
+	requestUUID string,
+) (*OffboardingRetryResponse, error) {
+	var out OffboardingRetryResponse
+	err := c.admin.request(
+		ctx,
+		http.MethodPost,
+		"/offboarding/requests/"+url.PathEscape(requestUUID)+"/retry",
+		nil,
+		&out,
+	)
+	return &out, err
+}
+
+// Receipt returns the terminal offboarding receipt for a request. The
+// SHA256 digest is the signed evidence the client must retain alongside
+// its offboarding record.
+func (c *OffboardingAdminClient) Receipt(
+	ctx context.Context,
+	requestUUID string,
+) (*OffboardingReceiptResponse, error) {
+	var out OffboardingReceiptResponse
+	err := c.admin.request(
+		ctx,
+		http.MethodGet,
+		"/offboarding/requests/"+url.PathEscape(requestUUID)+"/receipt",
+		nil,
+		&out,
+	)
+	return &out, err
 }
 
 func auditListParams(opts AuditListOptions) string {

@@ -1,0 +1,11 @@
+{
+  "schedules": [
+    {
+      "tenantSlug": "acme",
+      "executeAt": "2026-12-31T00:00:00Z",
+      "reason": "contract_end",
+      "state": "scheduled",
+      "scheduledAt": "2026-07-31T08:00:00Z"
+    }
+  ]
+}

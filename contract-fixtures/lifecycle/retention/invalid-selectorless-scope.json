@@ -1,0 +1,4 @@
+{
+  "error": "selector_required",
+  "message": "Scope 'data_space' requires an explicit selector; rejected until schema supports safe selectors."
+}

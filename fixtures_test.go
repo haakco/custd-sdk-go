@@ -24,3 +24,13 @@ func readContractFixture(t *testing.T, name string) []byte {
 	t.Fatalf("contract fixture %s not found (looked in %v)", name, candidates)
 	return nil
 }
+
+// readLifecycleFixture loads a shared lifecycle contract fixture under
+// contract-fixtures/lifecycle/{namespace}/{name}. It resolves the same two
+// layouts as readContractFixture (standalone vs monorepo) so lifecycle tests
+// work both in the vendored release split and in the monorepo layout.
+func readLifecycleFixture(t *testing.T, namespace, name string) []byte {
+	t.Helper()
+	rel := filepath.Join("lifecycle", namespace, name)
+	return readContractFixture(t, rel)
+}
