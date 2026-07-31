@@ -8,13 +8,14 @@ forbids inventing endpoints ahead of the server contract.
 
 ## Namespaces
 
-| Namespace              | Endpoints (server source of truth)                                                                                                                                                                                                                                                                |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `tenant-storage/`      | `GET /api/v1/tenant-storage-locations`, `POST /api/v1/tenant-storage-locations`, `GET /api/v1/tenant-storage-locations/{id}`, `DELETE /api/v1/tenant-storage-locations/{id}`                                                                                                                          |
-| `subject-exports/`     | `POST /api/v1/admin/subject-exports`, `GET /api/v1/admin/subject-exports`, `GET /api/v1/admin/subject-exports/{requestId}`, `POST /api/v1/admin/subject-exports/{requestId}/cancel`, `GET /api/v1/admin/subject-exports/{requestId}/download`, `POST /api/v1/admin/subject-exports/{requestId}/force` |
-| `privacy-erasures/`    | `POST /api/v1/admin/privacy/erasures`, `GET /api/v1/admin/privacy/erasures`, `GET /api/v1/admin/privacy/erasures/{requestUuid}`, `POST /api/v1/admin/privacy/erasures/{requestUuid}/force`                                                                                                          |
-| `retention/`           | `GET /api/v1/admin/retention/policies`, `GET /api/v1/admin/retention/policies/{tenantSlug}`, `PUT /api/v1/admin/retention/policies/{tenantSlug}`, `DELETE /api/v1/admin/retention/policies/{tenantSlug}`, `POST /api/v1/admin/retention/policies/{tenantSlug}/preview`, `POST /api/v1/admin/retention/policies/{tenantSlug}/apply`, `GET /api/v1/admin/retention/policies/{tenantSlug}/runs` |
-| `offboarding/`         | `POST /api/v1/admin/offboarding`, `GET /api/v1/admin/offboarding/{requestUuid}`, `POST /api/v1/admin/offboarding/{requestUuid}/cancel`, `POST /api/v1/admin/offboarding/{requestUuid}/confirm`, `POST /api/v1/admin/offboarding/requests/{requestUuid}/preview`, `POST /api/v1/admin/offboarding/requests/{requestUuid}/export`, `GET /api/v1/admin/offboarding/requests/{requestUuid}/download`, `POST /api/v1/admin/offboarding/requests/{requestUuid}/acknowledge`, `POST /api/v1/admin/offboarding/requests/{requestUuid}/execute`, `POST /api/v1/admin/offboarding/requests/{requestUuid}/retry`, `GET /api/v1/admin/offboarding/requests/{requestUuid}/receipt`, `POST /api/v1/admin/offboarding/schedules`, `GET /api/v1/admin/offboarding/schedules/{tenantSlug}`, `POST /api/v1/admin/offboarding/schedules/{tenantSlug}/cancel`, `GET /api/v1/admin/offboarding/schedules` |
+- `tenant-storage/` — location create, list, get, and delete endpoints.
+- `subject-exports/` — request create, list, get, cancel, download, and force
+  endpoints.
+- `privacy-erasures/` — erasure create, list, get, and force endpoints.
+- `retention/` — policy list, get, upsert, delete, preview, apply, and run-list
+  endpoints.
+- `offboarding/` — request lifecycle, preview, export, download, receipt,
+  execution, retry, and schedule endpoints.
 
 ## Filename convention
 
