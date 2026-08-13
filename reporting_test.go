@@ -12,6 +12,30 @@ import (
 	"time"
 )
 
+func TestReportingExportLifecycleUsesAuthenticatedRoutes(t *testing.T) {
+	uuid := "123e4567-e89b-42d3-a456-426614174000"
+	doer := newCaptureDoer(http.StatusOK, `{"id":"`+uuid+`","state":"queued","queuedAt":"2026-08-13T00:00:00Z","attemptCount":0,"cleanupState":"pending","cleanupAttempts":0}`)
+	client := newAdminTestClient(t, doer, "http://localhost:8080")
+	if _, err := client.Reporting.CreateExport(context.Background(), ReportExportCreateRequest{DashboardKey: "executive", Formats: []string{"csv"}, Parameters: map[string]interface{}{}}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := client.Reporting.GetExport(context.Background(), uuid); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := client.Reporting.CancelExport(context.Background(), uuid, "no longer needed"); err != nil {
+		t.Fatal(err)
+	}
+	if got, err := client.Reporting.DownloadExport(context.Background(), uuid, uuid); err != nil || string(got) == "" {
+		t.Fatalf("download = %q, %v", got, err)
+	}
+	want := []string{"/api/v1/reporting/exports", "/api/v1/reporting/exports/" + uuid, "/api/v1/reporting/exports/" + uuid + "/cancel", "/api/v1/reporting/exports/" + uuid + "/artifacts/" + uuid}
+	for i, suffix := range want {
+		if !strings.HasSuffix(doer.requests[i].URL, suffix) {
+			t.Fatalf("request %d URL = %s", i, doer.requests[i].URL)
+		}
+	}
+}
+
 func TestReportingDashboardReadsGenericPackDashboard(t *testing.T) {
 	doer := newCaptureDoer(http.StatusOK, string(readContractFixture(t, "reporting-dashboard-security.json")))
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
