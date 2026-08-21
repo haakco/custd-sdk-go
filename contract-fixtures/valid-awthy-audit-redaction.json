@@ -1,6 +1,5 @@
 {
   "sourceSystem": "awthy",
-  "storeId": "store-123",
   "redactionId": "01957abc-0000-0000-0000-000000000099",
   "reason": "privacy_erasure",
   "events": [
