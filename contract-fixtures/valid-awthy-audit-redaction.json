@@ -5,8 +5,10 @@
   "reason": "privacy_erasure",
   "events": [
     {
-      "localAuditEventId": "evt-local-1",
-      "localAuditEventUuid": "01957abc-0000-0000-0000-000000000001",
+      "selectors": {
+        "localAuditEventId": "evt-local-1",
+        "localAuditEventUuid": "01957abc-0000-0000-0000-000000000001"
+      },
       "fields": ["actor", "target", "sanitizedContext"]
     }
   ]
