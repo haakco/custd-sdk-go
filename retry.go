@@ -7,7 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	mrand "math/rand"
+	mrand "math/rand/v2"
 	"sync"
 	"time"
 )
@@ -132,10 +132,11 @@ func sleepWithContext(ctx context.Context, cfg RetryConfig, attempt int, rng *mr
 
 // newSecureRand creates a math/rand source seeded from crypto/rand.
 func newSecureRand() *mrand.Rand {
-	var seed int64
-	// nolint:errcheck // jitter-only PRNG seed; a crypto/rand read error falls back to the zero seed
-	_ = binary.Read(rand.Reader, binary.LittleEndian, &seed)
-	return mrand.New(mrand.NewSource(seed)) //nolint:gosec // seeded from crypto/rand
+	var seeds [2]uint64
+	if err := binary.Read(rand.Reader, binary.LittleEndian, &seeds); err != nil {
+		seeds = [2]uint64{}
+	}
+	return mrand.New(mrand.NewPCG(seeds[0], seeds[1]))
 }
 
 // backoffDelay calculates exponential backoff with jitter.

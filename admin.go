@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -304,9 +303,10 @@ func (c *AdminClient) requestViaHTTP(ctx context.Context, method string, path st
 	if err != nil {
 		return fmt.Errorf("custd: admin request failed: %w", err)
 	}
-	// nolint:errcheck // response body fully read below; a close error cannot affect the already-read admin response
-	defer func() { _ = resp.Body.Close() }()
-	respBody, _ := io.ReadAll(resp.Body)
+	respBody, bodyErr := readResponseBody(resp.Body)
+	if bodyErr != nil {
+		return fmt.Errorf("custd: read admin response: %w", bodyErr)
+	}
 	if err := c.client.checkStatus(resp.StatusCode, respBody); err != nil {
 		return err
 	}
@@ -357,9 +357,10 @@ func (c *AdminClient) requestNonAdmin(ctx context.Context, method string, path s
 	if err != nil {
 		return fmt.Errorf("custd: non-admin request failed: %w", err)
 	}
-	// nolint:errcheck // response body fully read below; a close error cannot affect the already-read response
-	defer func() { _ = resp.Body.Close() }()
-	respBody, _ := io.ReadAll(resp.Body)
+	respBody, bodyErr := readResponseBody(resp.Body)
+	if bodyErr != nil {
+		return fmt.Errorf("custd: read response: %w", bodyErr)
+	}
 	if err := c.client.checkStatus(resp.StatusCode, respBody); err != nil {
 		return err
 	}

@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -356,9 +355,10 @@ func (r *ReportingClient) requestViaHTTP(ctx context.Context, method string, pat
 	if err != nil {
 		return fmt.Errorf("custd: reporting request failed: %w", err)
 	}
-	// nolint:errcheck // response body fully read below; a close error cannot affect the already-read reporting response
-	defer func() { _ = resp.Body.Close() }()
-	respBody, _ := io.ReadAll(resp.Body)
+	respBody, bodyErr := readResponseBody(resp.Body)
+	if bodyErr != nil {
+		return fmt.Errorf("custd: read reporting response: %w", bodyErr)
+	}
 	if err := r.client.checkStatus(resp.StatusCode, respBody); err != nil {
 		return err
 	}

@@ -6,8 +6,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
-	mrand "math/rand"
+	"log"
+	mrand "math/rand/v2"
 	"net"
 	"net/http"
 	"net/url"
@@ -190,9 +190,10 @@ func (c *CustdClient) sendBatchViaHTTP(ctx context.Context, body []byte, gzipped
 	if err != nil {
 		return newRetryableTransportError(err)
 	}
-	// nolint:errcheck // response body fully read below; a close error cannot affect the already-read batch response
-	defer func() { _ = resp.Body.Close() }()
-	responseBody, _ := io.ReadAll(resp.Body)
+	responseBody, bodyErr := readResponseBody(resp.Body)
+	if bodyErr != nil {
+		return fmt.Errorf("custd: read batch response: %w", bodyErr)
+	}
 	return c.checkBatchResponse(resp.StatusCode, responseBody, eventCount)
 }
 
@@ -355,8 +356,9 @@ func (c *CustdClient) runFlusher() {
 		case <-c.done:
 			return
 		case <-c.ticker.C:
-			// nolint:errcheck // periodic flush; a transient error is retried next tick and surfaced by explicit Flush/Close
-			_ = c.Flush(context.Background())
+			if err := c.Flush(context.Background()); err != nil {
+				log.Printf("custd: periodic flush failed: %v", err)
+			}
 		}
 	}
 }

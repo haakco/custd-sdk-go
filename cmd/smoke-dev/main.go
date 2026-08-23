@@ -27,8 +27,11 @@ func main() {
 		BatchSize:     1,
 		FlushInterval: time.Hour,
 	})
-	// nolint:errcheck // smoke-test client teardown; a close error does not change the smoke result already reported
-	defer func() { _ = client.Close(context.Background()) }()
+	defer func() {
+		if err := client.Close(context.Background()); err != nil {
+			fail(fmt.Errorf("custd sdk go smoke close failed: %w", err))
+		}
+	}()
 
 	payload := json.RawMessage(`{"source":"sdk-go-smoke"}`)
 	err = client.Track(ctx, &custd.EventEnvelope{
