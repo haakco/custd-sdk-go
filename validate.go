@@ -2,8 +2,11 @@ package custd
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 )
+
+var eventLabelKeyPattern = regexp.MustCompile(`^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$`)
 
 type requiredField struct {
 	name    string
@@ -16,10 +19,25 @@ func ValidateEvent(event *EventEnvelope) error {
 		return fmt.Errorf("custd: event is required")
 	}
 	missing := collectMissingFields(event)
-	if len(missing) == 0 {
-		return nil
+	if len(missing) != 0 {
+		return fmt.Errorf("custd: missing required fields: %s", strings.Join(missing, ", "))
 	}
-	return fmt.Errorf("custd: missing required fields: %s", strings.Join(missing, ", "))
+	return validateEventLabels(event.Labels)
+}
+
+func validateEventLabels(labels map[string]string) error {
+	if len(labels) > 16 {
+		return fmt.Errorf("custd: labels may contain at most 16 entries")
+	}
+	for key, value := range labels {
+		if len([]byte(key)) > 64 || !eventLabelKeyPattern.MatchString(key) || strings.HasPrefix(key, "custd.") {
+			return fmt.Errorf("custd: labels.%s has an invalid key", key)
+		}
+		if value == "" || value != strings.TrimSpace(value) || len([]byte(value)) > 128 {
+			return fmt.Errorf("custd: labels.%s has an invalid value", key)
+		}
+	}
+	return nil
 }
 
 // collectMissingFields returns the names of required fields that are empty.
