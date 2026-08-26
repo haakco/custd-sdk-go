@@ -73,7 +73,7 @@ func TestReportingOutputSelectsCanonicalOutput(t *testing.T) {
 }
 
 func TestReportingQueryReturnsTrustDiagnostics(t *testing.T) {
-	doer := newCaptureDoer(http.StatusOK, string(readContractFixture(t, "reporting-query-security-trust.json")))
+	doer := newCaptureDoer(http.StatusOK, string(readContractFixture(t, "reporting-query-rendered.json")))
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
 
 	requestFixtureBytes := readContractFixture(t, "reporting-query-security.json")
@@ -85,16 +85,16 @@ func TestReportingQueryReturnsTrustDiagnostics(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Query returned error: %v", err)
 	}
-	if widget.Trust == nil || widget.Trust.Status != "healthy" || widget.Trust.RollupState != "healthy" {
+	if widget.Trust == nil || widget.Trust.Status != "healthy" || widget.Trust.RollupState != "complete" {
 		t.Fatalf("trust = %#v", widget.Trust)
 	}
-	if widget.Count != 2 || !widget.Complete || widget.Truncated || widget.QueryDurationMs != 42 || widget.ParquetURICount != 1 || widget.SnapshotAgeMs != 120000 || widget.EventLagP95Ms != 8000 || widget.DeltaCount != 1 || widget.DeltaPercent != 100 || widget.DeltaLabel != "vs previous period" || widget.SecondaryLabel != "reviewed events" {
+	if widget.Value.Value != 50 || widget.Value.SampleCount != 50 || !widget.Value.Complete || widget.Value.Truncated || widget.QueryDurationMs != 42 || widget.ParquetURICount != 1 || widget.SnapshotAgeMs != 120000 || widget.EventLagP95Ms != 8000 || widget.Delta == nil || widget.Delta.Value != 25 || widget.DeltaPercent != 100 || widget.DeltaLabel != "vs previous period" || widget.SecondaryLabel != "" {
 		t.Fatalf("widget metadata = %#v", widget)
 	}
-	if len(widget.Buckets) != 1 || widget.Buckets[0].Source != "auto" || !widget.Buckets[0].Complete || widget.Buckets[0].QueryDurationMs != 42 || widget.Buckets[0].ParquetURICount != 1 {
+	if len(widget.Buckets) != 1 || widget.Buckets[0].Source != "auto" || !widget.Buckets[0].Value.Complete || widget.Buckets[0].QueryDurationMs != 42 || widget.Buckets[0].ParquetURICount != 1 {
 		t.Fatalf("bucket metadata = %#v", widget.Buckets)
 	}
-	if widget.Trust.SchemaVersion != "security-event/1.0.0" || widget.Trust.Coverage != "complete" || widget.Trust.PermissionClass != "reporting.read" || len(widget.Trust.QueryWarnings) != 0 {
+	if widget.Trust.Retryability != "none" || widget.Trust.NextAction.Action != "none" || widget.Trust.SchemaVersion != "security-event/1.0.0" || widget.Trust.Coverage != "complete" || widget.Trust.PermissionClass != "reporting.read" || len(widget.Trust.QueryWarnings) != 0 {
 		t.Fatalf("trust metadata = %#v", widget.Trust)
 	}
 	var requestBody map[string]any
@@ -111,7 +111,7 @@ func TestReportingQueryReturnsTrustDiagnostics(t *testing.T) {
 }
 
 func TestReportingQuerySerializesMaxRowsWithoutRowLimit(t *testing.T) {
-	doer := newCaptureDoer(http.StatusOK, string(readContractFixture(t, "reporting-query-security-trust.json")))
+	doer := newCaptureDoer(http.StatusOK, string(readContractFixture(t, "reporting-query-rendered.json")))
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
 	fixtureBytes := readContractFixture(t, "reporting-query-max-rows.json")
 	var request ReportingQueryRequest
@@ -247,7 +247,7 @@ func TestReportingSubjectInsightRejectsMalformedRenderedData(t *testing.T) {
 }
 
 func TestReportingSubjectInsightUsesRenderedTrustContract(t *testing.T) {
-	responseBody := `{"data":{"buckets":[],"value":{"value":2,"unit":"count","sampleCount":2,"dataSufficiency":"sufficient","complete":true},"queryDurationMs":12,"snapshotAgeMs":1500,"eventLagP95Ms":320,"trust":{"status":"healthy","dataFreshness":"fresh","lastExport":"2026-07-18T00:00:00Z","rollupState":"healthy","coverage":"complete","captureState":"enabled","consentState":"present","exportState":"complete"}}}`
+	responseBody := `{"data":{"buckets":[],"value":{"value":2,"unit":"count","sampleCount":2,"dataSufficiency":"sufficient","complete":true},"queryDurationMs":12,"snapshotAgeMs":1500,"eventLagP95Ms":320,"trust":{"status":"healthy","dataFreshness":"fresh","retryability":"none","nextAction":{"action":"none"},"lastExport":"2026-07-18T00:00:00Z","rollupState":"healthy","coverage":"complete","captureState":"enabled","consentState":"present","exportState":"complete"}}}`
 	doer := newCaptureDoer(http.StatusOK, responseBody)
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
 

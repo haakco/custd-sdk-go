@@ -1,15 +1,22 @@
 {
   "buckets": [],
-  "count": 0,
-  "complete": false,
-  "truncated": false,
+  "value": {
+    "value": 0,
+    "unit": "count",
+    "sampleCount": 0,
+    "dataSufficiency": "insufficient",
+    "complete": false
+  },
   "queryDurationMs": 1,
+  "snapshotAgeMs": 0,
+  "eventLagP95Ms": 0,
   "trust": {
     "status": "error",
     "dataFreshness": "unknown",
+    "retryability": "none",
+    "nextAction": { "action": "none" },
     "rollupState": "failed",
     "coverage": "none",
-    "dataSufficiency": "not_enough_data",
     "captureState": "enabled",
     "consentState": "present",
     "exportState": "failed",

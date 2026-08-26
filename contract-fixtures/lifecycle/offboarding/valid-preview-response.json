@@ -1,9 +1,13 @@
 {
   "requestUuid": "ob_01J5K7N4Y8X9Z2B6V3D1M0Q7RJ",
-  "previewInventoryDigest": "sha256:9b8a7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b",
-  "perStore": [
+  "generatedAt": "2026-07-31T08:10:00Z",
+  "expiresAt": "2026-08-07T08:10:00Z",
+  "stores": [
     {"store": "postgres_events", "kind": "events", "retention_class": "operational", "estimated_count": 1247},
     {"store": "raw_landing", "kind": "objects", "retention_class": "operational", "estimated_count": 98},
     {"store": "parquet_events", "kind": "segments", "retention_class": "operational", "estimated_count": 12}
-  ]
+  ],
+  "previewInventoryDigest": "9b8a7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b",
+  "complete": true,
+  "partial": false
 }

@@ -41,15 +41,18 @@ type ReportingWidget struct {
 }
 
 type ReportingQueryRequest struct {
-	Template   string            `json:"template"`
-	Metrics    []string          `json:"metrics"`
-	Dimensions []string          `json:"dimensions,omitempty"`
-	Filters    []ReportingFilter `json:"filters,omitempty"`
-	From       string            `json:"from,omitempty"`
-	To         string            `json:"to,omitempty"`
-	RangeDays  int               `json:"rangeDays,omitempty"`
-	MaxRows    int               `json:"maxRows,omitempty"`
-	CountOnly  bool              `json:"countOnly,omitempty"`
+	DashboardKey string            `json:"dashboardKey,omitempty"`
+	WidgetKey    string            `json:"widgetKey,omitempty"`
+	Template     string            `json:"template"`
+	Metrics      []string          `json:"metrics"`
+	Dimensions   []string          `json:"dimensions,omitempty"`
+	Filters      []ReportingFilter `json:"filters,omitempty"`
+	From         string            `json:"from,omitempty"`
+	To           string            `json:"to,omitempty"`
+	RangeDays    int               `json:"rangeDays,omitempty"`
+	MaxRows      int               `json:"maxRows,omitempty"`
+	CountOnly    bool              `json:"countOnly,omitempty"`
+	Comparison   string            `json:"comparison,omitempty"`
 }
 
 type SubjectInsightRequest struct {
@@ -161,71 +164,34 @@ type ReportingSourceSummary struct {
 }
 
 type RenderedReportingTrust struct {
-	Status            string   `json:"status"`
-	DataFreshness     string   `json:"dataFreshness"`
-	LastExport        string   `json:"lastExport,omitempty"`
-	SchemaVersion     string   `json:"schemaVersion,omitempty"`
-	ContractVersion   string   `json:"contractVersion,omitempty"`
-	RollupState       string   `json:"rollupState"`
-	QueryWarnings     []string `json:"queryWarnings,omitempty"`
-	Coverage          string   `json:"coverage"`
-	PermissionClass   string   `json:"permissionClass,omitempty"`
-	CaptureState      string   `json:"captureState"`
-	ConsentState      string   `json:"consentState"`
-	ExportState       string   `json:"exportState"`
-	PartialReason     string   `json:"partialReason,omitempty"`
-	UnavailableReason string   `json:"unavailableReason,omitempty"`
+	Status            string                  `json:"status"`
+	DataFreshness     string                  `json:"dataFreshness"`
+	Retryability      string                  `json:"retryability"`
+	NextAction        ReportingNextActionHint `json:"nextAction"`
+	LastExport        string                  `json:"lastExport,omitempty"`
+	SchemaVersion     string                  `json:"schemaVersion,omitempty"`
+	ContractVersion   string                  `json:"contractVersion,omitempty"`
+	RollupState       string                  `json:"rollupState"`
+	QueryWarnings     []string                `json:"queryWarnings,omitempty"`
+	Coverage          string                  `json:"coverage"`
+	PermissionClass   string                  `json:"permissionClass,omitempty"`
+	CaptureState      string                  `json:"captureState"`
+	ConsentState      string                  `json:"consentState"`
+	ExportState       string                  `json:"exportState"`
+	PartialReason     string                  `json:"partialReason,omitempty"`
+	UnavailableReason string                  `json:"unavailableReason,omitempty"`
+}
+
+type ReportingNextActionHint struct {
+	Action           string `json:"action"`
+	PollAfterSeconds int    `json:"pollAfterSeconds,omitempty"`
+	MaxRetries       int    `json:"maxRetries,omitempty"`
 }
 
 type ReportingFilter struct {
 	Dimension string `json:"dimension"`
 	Operator  string `json:"operator"`
 	Value     string `json:"value,omitempty"`
-}
-
-type ReportingWidgetData struct {
-	Buckets         []ReportingWidgetBucket `json:"buckets"`
-	Count           int                     `json:"count"`
-	Complete        bool                    `json:"complete"`
-	Truncated       bool                    `json:"truncated"`
-	QueryDurationMs int64                   `json:"queryDurationMs"`
-	ParquetURICount int                     `json:"parquetUriCount,omitempty"`
-	SnapshotAgeMs   int64                   `json:"snapshotAgeMs"`
-	EventLagP95Ms   int64                   `json:"eventLagP95Ms"`
-	DeltaCount      int                     `json:"deltaCount,omitempty"`
-	DeltaPercent    float64                 `json:"deltaPercent,omitempty"`
-	DeltaLabel      string                  `json:"deltaLabel,omitempty"`
-	SecondaryLabel  string                  `json:"secondaryLabel,omitempty"`
-	Trust           *ReportingTrust         `json:"trust,omitempty"`
-}
-
-type ReportingWidgetBucket struct {
-	Date            string `json:"date"`
-	Count           int    `json:"count"`
-	Source          string `json:"source"`
-	Complete        bool   `json:"complete"`
-	QueryDurationMs int64  `json:"queryDurationMs"`
-	ParquetURICount int    `json:"parquetUriCount,omitempty"`
-	Message         string `json:"message,omitempty"`
-	SecondaryCount  int    `json:"secondaryCount,omitempty"`
-}
-
-type ReportingTrust struct {
-	Status            string   `json:"status"`
-	DataFreshness     string   `json:"dataFreshness"`
-	LastAwthyExport   string   `json:"lastAwthyExport,omitempty"`
-	SchemaVersion     string   `json:"schemaVersion,omitempty"`
-	ContractVersion   string   `json:"contractVersion,omitempty"`
-	RollupState       string   `json:"rollupState"`
-	QueryWarnings     []string `json:"queryWarnings,omitempty"`
-	Coverage          string   `json:"coverage"`
-	PermissionClass   string   `json:"permissionClass,omitempty"`
-	DataSufficiency   string   `json:"dataSufficiency"`
-	CaptureState      string   `json:"captureState"`
-	ConsentState      string   `json:"consentState"`
-	ExportState       string   `json:"exportState"`
-	PartialReason     string   `json:"partialReason,omitempty"`
-	UnavailableReason string   `json:"unavailableReason,omitempty"`
 }
 
 func newReportingClient(client *CustdClient) *ReportingClient {
@@ -238,8 +204,8 @@ func (r *ReportingClient) Dashboard(ctx context.Context, key string) (*Reporting
 	return &out, err
 }
 
-func (r *ReportingClient) Query(ctx context.Context, req ReportingQueryRequest) (*ReportingWidgetData, error) {
-	var out ReportingWidgetData
+func (r *ReportingClient) Query(ctx context.Context, req ReportingQueryRequest) (*RenderedWidgetData, error) {
+	var out RenderedWidgetData
 	err := r.request(ctx, http.MethodPost, "/query", req, &out)
 	return &out, err
 }
@@ -456,19 +422,6 @@ func (v *RenderedMetricValue) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (t *ReportingTrust) UnmarshalJSON(data []byte) error {
-	if err := rejectUnsafeReportingTrust(data); err != nil {
-		return err
-	}
-	type trustAlias ReportingTrust
-	var decoded trustAlias
-	if err := json.Unmarshal(data, &decoded); err != nil {
-		return err
-	}
-	*t = ReportingTrust(decoded)
-	return nil
-}
-
 func (t *RenderedReportingTrust) UnmarshalJSON(data []byte) error {
 	if err := rejectUnsafeReportingTrust(data); err != nil {
 		return err
@@ -491,12 +444,19 @@ func validateRenderedReportingTrustFields(data []byte) error {
 		return err
 	}
 	for _, field := range []string{
-		"status", "dataFreshness", "rollupState", "coverage",
+		"status", "dataFreshness", "retryability", "nextAction", "rollupState", "coverage",
 		"captureState", "consentState", "exportState",
 	} {
 		raw, ok := fields[field]
 		if !ok || string(raw) == "null" {
 			return fmt.Errorf("custd: rendered reporting trust missing %s", field)
+		}
+		if field == "nextAction" {
+			var action ReportingNextActionHint
+			if err := json.Unmarshal(raw, &action); err != nil || action.Action == "" {
+				return fmt.Errorf("custd: rendered reporting trust missing %s", field)
+			}
+			continue
 		}
 		var value string
 		if err := json.Unmarshal(raw, &value); err != nil || value == "" {

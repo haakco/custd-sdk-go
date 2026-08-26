@@ -1,15 +1,15 @@
 {
-  "requestUuid": "ob_01J5K7N4Y8X9Z2B6V3D1M0Q7RJ",
-  "tenantSlug": "acme",
-  "finalState": "complete",
-  "requestedByUserId": "u_01J5K7N4Y8X9Z2B6V3D1M0Q7RJ",
-  "requestedAt": "2026-07-31T08:00:00Z",
-  "completedAt": "2026-07-31T09:30:00Z",
-  "perStore": [
+  "company_id": 42,
+  "requested_by_user_id": 7,
+  "requested_by_actor": "user:u_01J5K7N4Y8X9Z2B6V3D1M0Q7RJ",
+  "requested_at": "2026-07-31T08:00:00Z",
+  "completed_at": "2026-07-31T09:30:00Z",
+  "final_state": "complete",
+  "per_store": [
     {"store": "postgres_events", "retention_class": "operational", "deleted_count": 1247, "retained_exceptions_count": 0},
     {"store": "raw_landing", "retention_class": "operational", "deleted_count": 98, "retained_exceptions_count": 0},
     {"store": "parquet_events", "retention_class": "operational", "deleted_count": 12, "retained_exceptions_count": 0}
   ],
-  "waiver": null,
-  "sha256": "sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+  "waiver": {"role": "client_owner", "reason": "explicit_client_request", "timestamp": "2026-07-31T09:04:00Z"},
+  "sha256": "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
 }

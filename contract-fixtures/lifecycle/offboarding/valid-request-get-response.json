@@ -1,9 +1,5 @@
 {
   "requestUuid": "ob_01J5K7N4Y8X9Z2B6V3D1M0Q7RJ",
-  "tenantSlug": "acme",
   "state": "exported",
-  "previewInventoryDigest": "sha256:9b8a7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b",
-  "exportArtifactId": "ob_01J5K7N4Y8X9Z2B6V3D1M0Q7RJ/artifacts/exp_01J5K7N4",
-  "requestedAt": "2026-07-31T08:00:00Z",
-  "exportedAt": "2026-07-31T08:30:00Z"
+  "requestedAt": "2026-07-31T08:00:00Z"
 }

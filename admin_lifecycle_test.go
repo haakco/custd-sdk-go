@@ -2,8 +2,12 @@ package custd
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"net/http"
+	"strconv"
+	"strings"
 	"testing"
 	"time"
 )
@@ -22,11 +26,12 @@ type lifecycleDoer struct {
 	requests []*HTTPRequest
 	status   int
 	body     string
+	headers  map[string]string
 }
 
 func (d *lifecycleDoer) Do(req *HTTPRequest) (*HTTPResponse, error) {
 	d.requests = append(d.requests, req)
-	return &HTTPResponse{StatusCode: d.status, Body: []byte(d.body)}, nil
+	return &HTTPResponse{StatusCode: d.status, Body: []byte(d.body), Headers: d.headers}, nil
 }
 
 func newLifecycleTestClient(t *testing.T, doer *lifecycleDoer, baseURL string) *CustdClient {
@@ -337,7 +342,7 @@ func TestRetention_SelectorlessScope(t *testing.T) {
 // TestOffboarding_FullLifecycle covers the end-to-end offboarding
 // lifecycle: request create, preview, export, download, acknowledge,
 // execute, and receipt. The receipt must include the per-store deletion
-// summary and signed SHA256.
+// summary and its unkeyed SHA256 integrity checksum.
 func TestOffboarding_FullLifecycle(t *testing.T) {
 	client := newLifecycleTestClient(t,
 		&lifecycleDoer{
@@ -356,6 +361,9 @@ func TestOffboarding_FullLifecycle(t *testing.T) {
 	if created.RequestUUID != "ob_01J5K7N4Y8X9Z2B6V3D1M0Q7RJ" {
 		t.Fatalf("created.RequestUUID = %q", created.RequestUUID)
 	}
+	if created.State != "preview" || created.RequestedAt == "" {
+		t.Fatalf("created = %+v", created)
+	}
 
 	doer, ok := client.config.HTTPClient.(*lifecycleDoer)
 	if !ok {
@@ -367,11 +375,17 @@ func TestOffboarding_FullLifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Preview error: %v", err)
 	}
-	if preview.PreviewInventoryDigest == "" {
+	if preview.PreviewInventoryDigest == "" || preview.GeneratedAt == "" || preview.ExpiresAt == "" {
 		t.Fatalf("PreviewInventoryDigest empty")
 	}
-	if len(preview.PerStore) != 3 {
-		t.Fatalf("expected 3 perStore rows, got %d", len(preview.PerStore))
+	if !preview.Complete || preview.Partial {
+		t.Fatalf("preview completeness = complete:%v partial:%v", preview.Complete, preview.Partial)
+	}
+	if len(preview.Stores) != 3 {
+		t.Fatalf("expected 3 stores, got %d", len(preview.Stores))
+	}
+	if preview.Stores[0].RetentionClass != "operational" {
+		t.Fatalf("first preview store = %+v", preview.Stores[0])
 	}
 
 	doer.body = string(readLifecycleFixture(t, "offboarding", "valid-export-response.json"))
@@ -379,31 +393,41 @@ func TestOffboarding_FullLifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Export error: %v", err)
 	}
-	if !export.Complete {
-		t.Fatalf("export.Complete = false")
+	if export.ChecksumSHA256 == "" || export.ByteSize != 4096 || export.RecordCount != 1357 {
+		t.Fatalf("export metadata = %+v", export)
 	}
-	if export.SchemaVersion == "" {
-		t.Fatalf("export.SchemaVersion empty")
+	if export.PreviewInventoryDigest == "" || export.GeneratedAt == "" || export.ExpiresAt == "" {
+		t.Fatalf("export timestamps/digest = %+v", export)
 	}
 
-	doer.body = string(readLifecycleFixture(t, "offboarding", "valid-download-response.json"))
+	var downloadFixture struct {
+		BodyBase64     string `json:"bodyBase64"`
+		ChecksumSHA256 string `json:"checksumSha256"`
+		ByteSize       int64  `json:"byteSize"`
+	}
+	if err := json.Unmarshal(readLifecycleFixture(t, "offboarding", "valid-download-binary.json"), &downloadFixture); err != nil {
+		t.Fatalf("decode download fixture: %v", err)
+	}
+	downloadBytes, err := base64.StdEncoding.DecodeString(downloadFixture.BodyBase64)
+	if err != nil {
+		t.Fatalf("decode download bytes: %v", err)
+	}
+	doer.body = string(downloadBytes)
+	doer.headers = map[string]string{
+		"Content-Length":    strconv.FormatInt(downloadFixture.ByteSize, 10),
+		"X-Checksum-SHA256": downloadFixture.ChecksumSHA256,
+	}
 	download, err := client.Admin.Offboarding.Download(context.Background(), "ob_01J5K7N4Y8X9Z2B6V3D1M0Q7RJ")
 	if err != nil {
 		t.Fatalf("Download error: %v", err)
 	}
-	// DownloadURL is sensitive; assert present but never log/echo it.
-	if download.DownloadURL == "" {
-		t.Fatalf("DownloadURL empty")
+	if string(download.Bytes) != string(downloadBytes) ||
+		download.ChecksumSHA256 != downloadFixture.ChecksumSHA256 ||
+		download.ByteSize != downloadFixture.ByteSize {
+		t.Fatalf("download = %+v, want exact fixture bytes and metadata", download)
 	}
-	// The fixture's download URL must not leak into the returned typed value
-	// at any point that's reachable from the test. We sanity-check by
-	// ensuring the response typed value can be passed around safely.
-	var cleanup map[string]string
-	if err := json.Unmarshal([]byte(doer.body), &cleanup); err != nil {
-		t.Fatalf("download body decode: %v", err)
-	}
-	if _, ok := cleanup["downloadUrl"]; !ok {
-		t.Fatalf("downloadUrl missing from server body")
+	if got := doer.requests[len(doer.requests)-1].Headers["Authorization"]; got != "Bearer admin-token" {
+		t.Fatalf("download authorization = %q", got)
 	}
 
 	doer.body = string(readLifecycleFixture(t, "offboarding", "valid-acknowledge-response.json"))
@@ -411,25 +435,24 @@ func TestOffboarding_FullLifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Acknowledge error: %v", err)
 	}
-	if ack.State != "confirmed" {
+	if ack.State != "requested" || ack.RequestedAt == "" {
 		t.Fatalf("ack.State = %q", ack.State)
 	}
 
 	doer.body = string(readLifecycleFixture(t, "offboarding", "valid-execute-response.json"))
-	exec, err := client.Admin.Offboarding.Execute(context.Background(), "ob_01J5K7N4Y8X9Z2B6V3D1M0Q7RJ", OffboardingExecuteRequest{
-		Waiver: OffboardingWaiver{
-			Role:   "client_owner",
-			Reason: "explicit_client_request",
-		},
-	})
+	doer.headers = nil
+	exec, err := client.Admin.Offboarding.Execute(context.Background(), "ob_01J5K7N4Y8X9Z2B6V3D1M0Q7RJ")
 	if err != nil {
 		t.Fatalf("Execute error: %v", err)
 	}
-	if exec.State != "deleting" {
-		t.Fatalf("exec.State = %q", exec.State)
+	if exec.CompanyID != 42 || exec.FinalState != "complete" {
+		t.Fatalf("exec = %+v", exec)
 	}
-	if exec.Waiver.Role != "client_owner" {
-		t.Fatalf("exec.Waiver.Role = %q", exec.Waiver.Role)
+	if exec.Waiver == nil || exec.Waiver.Role != "client_owner" {
+		t.Fatalf("exec.Waiver = %+v", exec.Waiver)
+	}
+	if got := doer.requests[len(doer.requests)-1].Body; len(got) != 0 {
+		t.Fatalf("execute body = %q, want empty", got)
 	}
 
 	doer.body = string(readLifecycleFixture(t, "offboarding", "valid-receipt-response.json"))
@@ -437,8 +460,14 @@ func TestOffboarding_FullLifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Receipt error: %v", err)
 	}
-	if receipt.FinalState != "complete" {
+	if receipt.CompanyID != 42 || receipt.FinalState != "complete" {
 		t.Fatalf("receipt.FinalState = %q", receipt.FinalState)
+	}
+	if receipt.RequestedByActor != "user:u_01J5K7N4Y8X9Z2B6V3D1M0Q7RJ" {
+		t.Fatalf("receipt.RequestedByActor = %q", receipt.RequestedByActor)
+	}
+	if receipt.RequestedByUserID == nil || *receipt.RequestedByUserID != 7 {
+		t.Fatalf("receipt.RequestedByUserID = %v", receipt.RequestedByUserID)
 	}
 	if receipt.SHA256 == "" {
 		t.Fatalf("receipt.SHA256 empty")
@@ -451,26 +480,48 @@ func TestOffboarding_FullLifecycle(t *testing.T) {
 			t.Fatalf("incomplete perStore row: %+v", row)
 		}
 	}
+
+	machineReceipt := map[string]any{}
+	if err := json.Unmarshal([]byte(doer.body), &machineReceipt); err != nil {
+		t.Fatalf("decode receipt fixture: %v", err)
+	}
+	machineReceipt["requested_by_actor"] = "client:tiao-lifecycle"
+	machineReceipt["requested_by_user_id"] = nil
+	machineBody, err := json.Marshal(machineReceipt)
+	if err != nil {
+		t.Fatalf("encode machine receipt fixture: %v", err)
+	}
+	doer.body = string(machineBody)
+	machine, err := client.Admin.Offboarding.Receipt(context.Background(), "ob_01J5K7N4Y8X9Z2B6V3D1M0Q7RJ")
+	if err != nil {
+		t.Fatalf("machine Receipt error: %v", err)
+	}
+	if machine.RequestedByActor != "client:tiao-lifecycle" {
+		t.Fatalf("machine.RequestedByActor = %q", machine.RequestedByActor)
+	}
+	if machine.RequestedByUserID != nil {
+		t.Fatalf("machine.RequestedByUserID = %d, want nil", *machine.RequestedByUserID)
+	}
 }
 
-// TestOffboarding_WaiverRequired covers the destructive-execute safety
-// rule. An empty waiver must surface as a server error the SDK does not
-// retry. The error envelope carries a stable error code; we assert it.
-func TestOffboarding_WaiverRequired(t *testing.T) {
-	body := readLifecycleFixture(t, "offboarding", "invalid-waiver-empty.json")
-	doer := &lifecycleDoer{status: http.StatusBadRequest, body: string(body)}
-	client := newLifecycleTestClient(t, doer, "http://localhost:8080/")
-
-	_, err := client.Admin.Offboarding.Execute(context.Background(), "ob_01J5K7N4Y8X9Z2B6V3D1M0Q7RJ", OffboardingExecuteRequest{
-		Waiver: OffboardingWaiver{Role: ""},
-	})
-	if err == nil {
-		t.Fatalf("expected waiver_required error")
+func TestOffboarding_DownloadFailsClosedOnInvalidIntegrityMetadata(t *testing.T) {
+	tests := []struct {
+		name    string
+		headers map[string]string
+	}{
+		{"missing checksum", map[string]string{"Content-Length": "3"}},
+		{"wrong checksum", map[string]string{"Content-Length": "3", "X-Checksum-SHA256": strings.Repeat("0", 64)}},
+		{"length mismatch", map[string]string{"Content-Length": "2", "X-Checksum-SHA256": strings.Repeat("0", 64)}},
+		{"declared oversize", map[string]string{"Content-Length": strconv.FormatInt(maxOffboardingDownloadBytes+1, 10), "X-Checksum-SHA256": strings.Repeat("0", 64)}},
 	}
-	// The fixture uses a flat {error, message} envelope. We assert the
-	// error message contains the expected marker so callers can react.
-	if !contains(err.Error(), "waiver") {
-		t.Fatalf("error did not mention waiver: %s", err.Error())
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			doer := &lifecycleDoer{status: http.StatusOK, body: "abc", headers: tt.headers}
+			client := newLifecycleTestClient(t, doer, "http://localhost:8080/")
+			if _, err := client.Admin.Offboarding.Download(context.Background(), "request-1"); err == nil {
+				t.Fatal("Download succeeded with invalid integrity metadata")
+			}
+		})
 	}
 }
 
@@ -483,13 +534,20 @@ func TestOffboarding_ErasureIncompleteBlocksConfirm(t *testing.T) {
 	doer := &lifecycleDoer{status: http.StatusConflict, body: string(body)}
 	client := newLifecycleTestClient(t, doer, "http://localhost:8080/")
 
-	err := client.Admin.Offboarding.ConfirmRequest(context.Background(), "ob_01J5K7N4Y8X9Z2B6V3D1M0Q7RJ")
+	_, err := client.Admin.Offboarding.ConfirmRequest(context.Background(), "ob_01J5K7N4Y8X9Z2B6V3D1M0Q7RJ")
 	if err == nil {
 		t.Fatalf("expected erasure_incomplete error")
 	}
 	// Verify the SDK's error contains the safeNextAction guidance.
 	if !contains(err.Error(), "retry_erasure") {
 		t.Fatalf("error did not surface safeNextAction retry_erasure: %s", err.Error())
+	}
+	var sendErr *sendError
+	if !errors.As(err, &sendErr) || sendErr.Problem == nil {
+		t.Fatalf("error type = %T, want typed problem", err)
+	}
+	if sendErr.Problem.Code != "erasure_incomplete" || sendErr.Problem.SafeNextAction != "retry_erasure" {
+		t.Fatalf("problem = %+v, want code and recovery guidance", sendErr.Problem)
 	}
 }
 

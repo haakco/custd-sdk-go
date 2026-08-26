@@ -1,6 +1,5 @@
 {
-  "error": "erasure_incomplete",
-  "message": "Cannot confirm destructive offboarding while a related erasure request is not in terminal complete state.",
-  "safeNextAction": "retry_erasure",
-  "requestUuid": "ob_01J5K7N4Y8X9Z2B6V3D1M0Q7RJ"
+  "error": "Cannot confirm destructive offboarding while a related erasure request is not in terminal complete state.",
+  "code": "erasure_incomplete",
+  "safe_next_action": "retry_erasure"
 }

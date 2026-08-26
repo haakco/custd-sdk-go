@@ -1,0 +1,71 @@
+{
+  "buckets": [
+    {
+      "date": "2026-07-06",
+      "value": {
+        "value": 50,
+        "unit": "count",
+        "sampleCount": 50,
+        "dataSufficiency": "sufficient",
+        "complete": true
+      },
+      "source": "auto",
+      "queryDurationMs": 42,
+      "parquetUriCount": 1,
+      "message": "event_count"
+    }
+  ],
+  "value": {
+    "value": 50,
+    "unit": "count",
+    "sampleCount": 50,
+    "dataSufficiency": "sufficient",
+    "complete": true,
+    "truncated": false
+  },
+  "metadata": {
+    "resolvedTemplate": "security_events",
+    "effectiveMaxRows": 100,
+    "returnedRows": 1,
+    "returnedBuckets": 1,
+    "coveredWindows": 1
+  },
+  "sources": [
+    {
+      "kind": "auto",
+      "count": 1,
+      "completeness": "complete"
+    }
+  ],
+  "warnings": [],
+  "queryDurationMs": 42,
+  "parquetUriCount": 1,
+  "snapshotAgeMs": 120000,
+  "eventLagP95Ms": 8000,
+  "delta": {
+    "value": 25,
+    "unit": "count",
+    "sampleCount": 25,
+    "dataSufficiency": "sufficient",
+    "complete": true
+  },
+  "deltaPercent": 100,
+  "deltaLabel": "vs previous period",
+  "trust": {
+    "status": "healthy",
+    "dataFreshness": "snapshot_age_ms:120000",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    },
+    "schemaVersion": "security-event/1.0.0",
+    "contractVersion": "managed-reporting/1.0",
+    "rollupState": "complete",
+    "queryWarnings": [],
+    "coverage": "complete",
+    "permissionClass": "reporting.read",
+    "captureState": "enabled",
+    "consentState": "present",
+    "exportState": "received"
+  }
+}

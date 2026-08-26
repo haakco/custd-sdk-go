@@ -418,7 +418,7 @@ func isSecureOrLocalHTTP(raw string) bool {
 		return false
 	}
 	host := u.Hostname()
-	return host == "localhost" || net.ParseIP(host).IsLoopback()
+	return host == "localhost" || host == "host.docker.internal" || net.ParseIP(host).IsLoopback()
 }
 
 // applyRetryDefaults fills in zero-value retry fields.

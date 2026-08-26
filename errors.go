@@ -12,8 +12,8 @@ import (
 // are omitempty on the server side and may be absent.
 //
 // Lifecycle endpoints (tenant-storage, subject-exports, privacy/erasures,
-// retention, offboarding) use a flatter {error, message, safeNextAction,
-// requestId} envelope. parseProblem normalizes that shape into Problem so
+// retention, offboarding) use a flatter {error, code, safe_next_action}
+// envelope. parseProblem normalizes that shape into Problem so
 // callers can branch on Code and SafeNextAction the same way they do for
 // ingest problems.
 type Problem struct {
@@ -75,14 +75,16 @@ func formatFields(fields map[string]string) string {
 // flatErrorEnvelope is the lifecycle endpoints' non-RFC error shape. It is
 // parsed leniently: only the {error, message} pair is required.
 type flatErrorEnvelope struct {
-	Error          string `json:"error"`
-	Message        string `json:"message"`
-	SafeNextAction string `json:"safeNextAction"`
-	RequestID      string `json:"requestId"`
+	Error               string `json:"error"`
+	Code                string `json:"code"`
+	Message             string `json:"message"`
+	SafeNextAction      string `json:"safe_next_action"`
+	SafeNextActionCamel string `json:"safeNextAction"`
+	RequestID           string `json:"requestId"`
 }
 
 // parseProblem decodes an RFC 9457 problem+json body, or a flat
-// {error, message, safeNextAction} envelope. It returns nil when the body
+// {error, code, safe_next_action} envelope. It returns nil when the body
 // is empty or cannot be decoded as either, so callers can fall back to a
 // status-only error.
 func parseProblem(body []byte) *Problem {
@@ -92,7 +94,7 @@ func parseProblem(body []byte) *Problem {
 	}
 	var p Problem
 	if err := json.Unmarshal([]byte(trimmed), &p); err == nil {
-		if p.Type != "" || p.Title != "" || p.Detail != "" || p.Status != 0 || p.Code != "" {
+		if p.Type != "" || p.Title != "" || p.Detail != "" || p.Status != 0 {
 			return &p
 		}
 	}
@@ -100,13 +102,25 @@ func parseProblem(body []byte) *Problem {
 	if err := json.Unmarshal([]byte(trimmed), &flat); err != nil {
 		return nil
 	}
-	if flat.Error == "" && flat.Message == "" {
+	if flat.Error == "" && flat.Message == "" && flat.Code == "" {
 		return nil
 	}
+	safeNextAction := flat.SafeNextAction
+	if safeNextAction == "" {
+		safeNextAction = flat.SafeNextActionCamel
+	}
+	detail := flat.Error
+	if detail == "" {
+		detail = flat.Message
+	}
+	code := flat.Code
+	if code == "" {
+		code = flat.Error
+	}
 	return &Problem{
-		Title:          flat.Message,
-		Code:           flat.Error,
-		SafeNextAction: flat.SafeNextAction,
+		Detail:         detail,
+		Code:           code,
+		SafeNextAction: safeNextAction,
 		RequestID:      flat.RequestID,
 	}
 }

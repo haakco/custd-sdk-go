@@ -209,6 +209,7 @@ func TestOffboardingAdminClientLifecycle(t *testing.T) {
 	client := newAdminTestClient(t, doer, "http://localhost:8080/")
 
 	sched, err := client.Admin.Offboarding.Schedule(context.Background(), OffboardingScheduleRequest{
+		TenantSlug:      "acme",
 		EffectiveAt:     "2026-08-23T00:00:00Z",
 		GracePeriodDays: 7,
 		Reason:          "client request",
@@ -223,6 +224,9 @@ func TestOffboardingAdminClientLifecycle(t *testing.T) {
 	if doer.requests[0].Method != http.MethodPost ||
 		doer.requests[0].URL != "http://localhost:8080/api/v1/admin/offboarding/schedules" {
 		t.Fatalf("Schedule request = %+v", doer.requests[0])
+	}
+	if string(doer.requests[0].Body) != `{"tenantSlug":"acme","effectiveAt":"2026-08-23T00:00:00Z","gracePeriodDays":7,"reason":"client request","status":"scheduled"}` {
+		t.Fatalf("Schedule body = %q", string(doer.requests[0].Body))
 	}
 
 	doer.status = http.StatusOK
@@ -248,20 +252,25 @@ func TestOffboardingAdminClientLifecycle(t *testing.T) {
 		t.Fatalf("GetSchedule request = %+v", doer.requests[2])
 	}
 
-	doer.status = http.StatusNoContent
-	if err := client.Admin.Offboarding.CancelSchedule(context.Background(), "acme", OffboardingCancelRequest{
+	doer.status = http.StatusOK
+	doer.body = `{"tenantSlug":"acme","effectiveAt":"2026-08-23T00:00:00Z","gracePeriodDays":7,"reason":"client cancelled","status":"cancelled"}`
+	cancelled, err := client.Admin.Offboarding.CancelSchedule(context.Background(), "acme", OffboardingCancelRequest{
 		Reason: "client cancelled",
-	}); err != nil {
+	})
+	if err != nil {
 		t.Fatalf("CancelSchedule error: %v", err)
+	}
+	if cancelled.Status != "cancelled" {
+		t.Fatalf("CancelSchedule status = %q, want cancelled", cancelled.Status)
 	}
 	if doer.requests[3].URL != "http://localhost:8080/api/v1/admin/offboarding/schedules/acme/cancel" {
 		t.Fatalf("CancelSchedule URL = %s", doer.requests[3].URL)
 	}
 
 	doer.status = http.StatusAccepted
-	doer.body = `{"requestUuid":"req-1","tenantSlug":"acme","status":"pending","requestedBy":"u-1","requestedAt":"2026-07-23T12:00:00Z"}`
+	doer.body = `{"requestUuid":"req-1","state":"preview","requestedAt":"2026-07-23T12:00:00Z"}`
 	created, err := client.Admin.Offboarding.RequestOffboarding(context.Background(), OffboardingRequestCreate{
-		Confirmation: "acme",
+		Confirmation: "acme", IdempotencyKey: "acme-offboarding-1",
 	})
 	if err != nil {
 		t.Fatalf("RequestOffboarding error: %v", err)
@@ -276,9 +285,12 @@ func TestOffboardingAdminClientLifecycle(t *testing.T) {
 	if string(doer.requests[4].Body) != `{"confirmation":"acme"}` {
 		t.Fatalf("RequestOffboarding body = %q", string(doer.requests[4].Body))
 	}
+	if got := doer.requests[4].Headers["Idempotency-Key"]; got != "acme-offboarding-1" {
+		t.Fatalf("RequestOffboarding idempotency key = %q", got)
+	}
 
 	doer.status = http.StatusOK
-	doer.body = `{"requestUuid":"req-1","tenantSlug":"acme","status":"pending","requestedBy":"u-1","requestedAt":"2026-07-23T12:00:00Z"}`
+	doer.body = `{"requestUuid":"req-1","state":"preview","requestedAt":"2026-07-23T12:00:00Z"}`
 	got, err := client.Admin.Offboarding.GetRequest(context.Background(), "req-1")
 	if err != nil {
 		t.Fatalf("GetRequest error: %v", err)
@@ -287,11 +299,27 @@ func TestOffboardingAdminClientLifecycle(t *testing.T) {
 		t.Fatalf("GetRequest = %+v", got)
 	}
 
-	doer.status = http.StatusNoContent
-	if err := client.Admin.Offboarding.CancelRequest(context.Background(), "req-1"); err != nil {
+	doer.status = http.StatusOK
+	doer.body = `{"requestUuid":"req-1","state":"cancelled","requestedAt":"2026-07-23T12:00:00Z"}`
+	cancelledRequest, err := client.Admin.Offboarding.CancelRequest(context.Background(), "req-1", OffboardingCancelRequest{
+		Reason: "client cancelled",
+	})
+	if err != nil {
 		t.Fatalf("CancelRequest error: %v", err)
 	}
-	if err := client.Admin.Offboarding.ConfirmRequest(context.Background(), "req-1"); err != nil {
+	if cancelledRequest.State != "cancelled" {
+		t.Fatalf("cancelled = %+v", cancelledRequest)
+	}
+	if string(doer.requests[6].Body) != `{"reason":"client cancelled"}` {
+		t.Fatalf("CancelRequest body = %q", string(doer.requests[6].Body))
+	}
+
+	doer.body = `{"requestUuid":"req-1","state":"fencing","requestedAt":"2026-07-23T12:00:00Z"}`
+	confirmed, err := client.Admin.Offboarding.ConfirmRequest(context.Background(), "req-1")
+	if err != nil {
 		t.Fatalf("ConfirmRequest error: %v", err)
+	}
+	if confirmed.State != "fencing" {
+		t.Fatalf("confirmed = %+v", confirmed)
 	}
 }

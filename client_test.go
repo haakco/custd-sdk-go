@@ -124,6 +124,12 @@ func TestOAuthRejectsPlaintextNonLocalURLs(t *testing.T) {
 	}
 }
 
+func TestSecureTransportAllowsDockerHostGateway(t *testing.T) {
+	if !isSecureOrLocalHTTP("http://host.docker.internal:4456") {
+		t.Fatal("expected Docker host gateway to be accepted for local container development")
+	}
+}
+
 func loadFixture(t *testing.T, name string) *EventEnvelope {
 	t.Helper()
 	data := readContractFixture(t, name)

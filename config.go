@@ -55,6 +55,7 @@ type HTTPRequest struct {
 type HTTPResponse struct {
 	StatusCode int
 	Body       []byte
+	Headers    map[string]string
 }
 
 // DefaultRetryConfig returns sensible retry defaults.

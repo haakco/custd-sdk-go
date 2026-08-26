@@ -2,10 +2,11 @@
   "schedules": [
     {
       "tenantSlug": "acme",
-      "executeAt": "2026-12-31T00:00:00Z",
+      "effectiveAt": "2026-12-31T00:00:00Z",
+      "gracePeriodDays": 30,
       "reason": "contract_end",
-      "state": "scheduled",
-      "scheduledAt": "2026-07-31T08:00:00Z"
+      "status": "scheduled",
+      "updatedAt": "2026-07-31T08:00:00Z"
     }
   ]
 }

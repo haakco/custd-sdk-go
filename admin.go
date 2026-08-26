@@ -28,7 +28,6 @@ type AdminClient struct {
 	TenantStorage  *TenantStorageAdminClient
 	SubjectExports *SubjectExportAdminClient
 	Erasures       *PrivacyErasureAdminClient
-	DataLabels     *DataLabelAdminClient
 	client         *CustdClient
 }
 
@@ -65,7 +64,6 @@ func newAdminClient(client *CustdClient) *AdminClient {
 	admin.TenantStorage = &TenantStorageAdminClient{admin: admin}
 	admin.SubjectExports = &SubjectExportAdminClient{admin: admin}
 	admin.Erasures = &PrivacyErasureAdminClient{admin: admin}
-	admin.DataLabels = &DataLabelAdminClient{admin: admin}
 	return admin
 }
 
@@ -263,6 +261,12 @@ func (c *SchemaAdminClient) Audit(ctx context.Context) (*AdminSchemaAuditListRes
 }
 
 func (c *AdminClient) request(ctx context.Context, method string, path string, payload any, out any) error {
+	return c.requestWithHeaders(ctx, method, path, payload, out, nil)
+}
+
+func (c *AdminClient) requestWithHeaders(
+	ctx context.Context, method, path string, payload, out any, headers map[string]string,
+) error {
 	var body []byte
 	var err error
 	if payload != nil {
@@ -272,16 +276,22 @@ func (c *AdminClient) request(ctx context.Context, method string, path string, p
 		}
 	}
 	if c.client.config.HTTPClient != nil {
-		return c.requestViaDoer(method, path, body, out)
+		return c.requestViaDoer(method, path, body, out, headers)
 	}
-	return c.requestViaHTTP(ctx, method, path, body, out)
+	return c.requestViaHTTP(ctx, method, path, body, out, headers)
 }
 
-func (c *AdminClient) requestViaDoer(method string, path string, body []byte, out any) error {
+func (c *AdminClient) requestViaDoer(
+	method, path string, body []byte, out any, extraHeaders map[string]string,
+) error {
+	headers := c.client.headers(false)
+	for key, value := range extraHeaders {
+		headers[key] = value
+	}
 	resp, err := c.client.config.HTTPClient.Do(&HTTPRequest{
 		Method:  method,
 		URL:     c.endpoint(path),
-		Headers: c.client.headers(false),
+		Headers: headers,
 		Body:    body,
 	})
 	if err != nil {
@@ -293,13 +303,18 @@ func (c *AdminClient) requestViaDoer(method string, path string, body []byte, ou
 	return decodeAdminResponse(resp.Body, out)
 }
 
-func (c *AdminClient) requestViaHTTP(ctx context.Context, method string, path string, body []byte, out any) error {
+func (c *AdminClient) requestViaHTTP(
+	ctx context.Context, method, path string, body []byte, out any, extraHeaders map[string]string,
+) error {
 	req, err := http.NewRequestWithContext(ctx, method, c.endpoint(path), bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("custd: create admin request: %w", err)
 	}
 	for k, v := range c.client.headers(false) {
 		req.Header.Set(k, v)
+	}
+	for key, value := range extraHeaders {
+		req.Header.Set(key, value)
 	}
 	resp, err := c.client.httpClient.Do(req)
 	if err != nil {
