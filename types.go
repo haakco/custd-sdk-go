@@ -30,15 +30,16 @@ type EventContext struct {
 
 // EventEnvelope is the event structure accepted by the ingest API.
 type EventEnvelope struct {
-	EventUUID     string       `json:"eventUuid"`
-	EventTypeSlug string       `json:"eventTypeSlug"`
-	SchemaVersion string       `json:"schemaVersion"`
-	Timestamp     string       `json:"timestamp"`
-	SessionID     string       `json:"sessionId"`
-	AnonymousID   string       `json:"anonymousId"`
-	UserUUID      string       `json:"userUuid,omitempty"`
-	CompanySlug   string       `json:"companySlug,omitempty"`
-	Context       EventContext `json:"context"`
+	EventUUID     string            `json:"eventUuid"`
+	EventTypeSlug string            `json:"eventTypeSlug"`
+	SchemaVersion string            `json:"schemaVersion"`
+	Timestamp     string            `json:"timestamp"`
+	SessionID     string            `json:"sessionId"`
+	AnonymousID   string            `json:"anonymousId"`
+	UserUUID      string            `json:"userUuid,omitempty"`
+	CompanySlug   string            `json:"companySlug,omitempty"`
+	Labels        map[string]string `json:"labels,omitempty"`
+	Context       EventContext      `json:"context"`
 	// Payload holds the event-specific data. It uses json.RawMessage to avoid
 	// unnecessary deserialization/reserialization of pass-through payloads.
 	Payload json.RawMessage `json:"payload"`

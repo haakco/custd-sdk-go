@@ -301,7 +301,7 @@ func (r *ReportingClient) requestViaDoer(method string, path string, body []byte
 		Body:    body,
 	})
 	if err != nil {
-		return fmt.Errorf("custd: reporting request failed: %w", err)
+		return &RequestError{Message: "custd: reporting request failed: " + err.Error(), Retryable: true, Cause: err}
 	}
 	if err := r.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
 		return err
@@ -319,7 +319,7 @@ func (r *ReportingClient) requestViaHTTP(ctx context.Context, method string, pat
 	}
 	resp, err := r.client.httpClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("custd: reporting request failed: %w", err)
+		return &RequestError{Message: "custd: reporting request failed: " + err.Error(), Retryable: true, Cause: err}
 	}
 	respBody, bodyErr := readResponseBody(resp.Body)
 	if bodyErr != nil {

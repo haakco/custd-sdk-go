@@ -28,6 +28,7 @@ type AdminClient struct {
 	TenantStorage  *TenantStorageAdminClient
 	SubjectExports *SubjectExportAdminClient
 	Erasures       *PrivacyErasureAdminClient
+	DataLabels     *DataLabelAdminClient
 	client         *CustdClient
 }
 
@@ -64,6 +65,7 @@ func newAdminClient(client *CustdClient) *AdminClient {
 	admin.TenantStorage = &TenantStorageAdminClient{admin: admin}
 	admin.SubjectExports = &SubjectExportAdminClient{admin: admin}
 	admin.Erasures = &PrivacyErasureAdminClient{admin: admin}
+	admin.DataLabels = &DataLabelAdminClient{admin: admin}
 	return admin
 }
 

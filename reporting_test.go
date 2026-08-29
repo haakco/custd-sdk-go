@@ -36,6 +36,19 @@ func TestReportingExportLifecycleUsesAuthenticatedRoutes(t *testing.T) {
 	}
 }
 
+func TestReportingUnavailablePreservesCanonicalProblem(t *testing.T) {
+	doer := newCaptureDoer(http.StatusServiceUnavailable, string(readContractFixture(t, "reporting-unavailable-problem.json")))
+	client := newAdminTestClient(t, doer, "http://localhost:8080")
+	_, err := client.Reporting.Dashboard(context.Background(), "executive")
+	var requestErr *RequestError
+	if !errors.As(err, &requestErr) || !requestErr.Unavailable() {
+		t.Fatalf("error = %#v, want unavailable RequestError", err)
+	}
+	if requestErr.Problem == nil || requestErr.Problem.Code != "reporting_unavailable" || requestErr.Problem.Retryability != "bounded" || requestErr.Problem.NextAction["action"] != "retry" {
+		t.Fatalf("problem = %#v", requestErr.Problem)
+	}
+}
+
 func TestReportingDashboardReadsGenericPackDashboard(t *testing.T) {
 	doer := newCaptureDoer(http.StatusOK, string(readContractFixture(t, "reporting-dashboard-security.json")))
 	client := newAdminTestClient(t, doer, "http://localhost:8080")

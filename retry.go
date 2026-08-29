@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math"
 	mrand "math/rand/v2"
+	"net/http"
 	"sync"
 	"time"
 )
@@ -26,10 +27,10 @@ func isRetryableStatus(code int, retrySet map[int]bool) bool {
 	return retrySet[code]
 }
 
-// sendError represents an HTTP error with status code context. When the server
+// RequestError represents an HTTP or transport error with status code context. When the server
 // returned an RFC 9457 problem+json body, Problem carries the parsed detail so
 // callers can branch on the typed status/code instead of string-matching.
-type sendError struct {
+type RequestError struct {
 	StatusCode int
 	Message    string
 	Retryable  bool
@@ -37,12 +38,18 @@ type sendError struct {
 	Problem    *Problem
 }
 
-func (e *sendError) Error() string {
+type sendError = RequestError
+
+func (e *RequestError) Error() string {
 	return e.Message
 }
 
-func (e *sendError) Unwrap() error {
+func (e *RequestError) Unwrap() error {
 	return e.Cause
+}
+
+func (e *RequestError) Unavailable() bool {
+	return e.StatusCode == 0 || e.StatusCode == http.StatusTooManyRequests || e.StatusCode >= http.StatusInternalServerError
 }
 
 // newProblemError builds a send error from a parsed RFC 9457 problem, carrying

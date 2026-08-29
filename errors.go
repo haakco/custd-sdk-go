@@ -32,7 +32,9 @@ type Problem struct {
 	// RequestID is the server-side request identifier the flat error
 	// envelope carries. Useful for operator lookup; never echo into
 	// per-subject logs.
-	RequestID string `json:"requestId,omitempty"`
+	RequestID    string         `json:"requestId,omitempty"`
+	Retryability string         `json:"retryability,omitempty"`
+	NextAction   map[string]any `json:"nextAction,omitempty"`
 }
 
 // Error renders the problem as a human-readable message. It leads with the
