@@ -200,5 +200,31 @@ sched, err := admin.Offboarding.Schedule(ctx, custd.OffboardingScheduleRequest{
 })
 ```
 
+## Time-plan administration
+
+`client.Admin.TimePlans` exposes typed `TimePlan*` request and response
+structs for plan drafts/revisions, previews, publication and retirement, runs,
+commands, history, and annotation correction/redaction. Calls are tenant-scoped
+through the required company slug; allocation and command results come from the
+server.
+
+```go
+definition := custd.TimePlanDefinition{
+    HorizonMS: 60_000,
+    Blocks: []custd.TimePlanBlock{{
+        UUID: "block-1", SemanticKey: "focus", Title: "Focus", Basis: "absolute",
+    }},
+}
+
+preview, err := client.Admin.TimePlans.Preview(ctx, "acme", definition)
+plan, err := client.Admin.TimePlans.Create(ctx, "acme", custd.TimePlanDraftRequest{
+    PlanKey: "focus", Name: "Focus", Definition: definition,
+})
+```
+
+The typed clients are available from the exact development commit documented
+in the [root README](../README.md); wait for a released SDK tag containing that
+commit before updating a consumer.
+
 SDKs never log signed URLs, raw personal data, export bytes, or
 subject identifiers outside opaque IDs.
