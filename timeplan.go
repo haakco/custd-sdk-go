@@ -268,19 +268,19 @@ type TimePlanRun struct {
 }
 
 type TimePlanCommandRequest struct {
-	CommandID              string                    `json:"commandId"`
-	IdempotencyKey         string                    `json:"idempotencyKey"`
-	ExpectedVersion        int64                     `json:"expectedVersion"`
-	Type                   string                    `json:"type"`
-	BlockID                string                    `json:"blockId,omitempty"`
-	ClientOccurredAt       string                    `json:"clientOccurredAt,omitempty"`
-	BoundaryEndsAt         string                    `json:"boundaryEndsAt,omitempty"`
-	ScheduledStartsAt      string                    `json:"scheduledStartsAt,omitempty"`
-	ScheduledEndsAt        string                    `json:"scheduledEndsAt,omitempty"`
-	StartPolicy            string                    `json:"startPolicy,omitempty"`
-	Reason                 string                    `json:"reason,omitempty"`
-	SupersedesTransitionID int64                     `json:"supersedesTransitionId,omitempty"`
-	Corrected              *TimePlanCorrectedCommand `json:"corrected,omitempty"`
+	CommandID                string                    `json:"commandId"`
+	IdempotencyKey           string                    `json:"idempotencyKey"`
+	ExpectedVersion          int64                     `json:"expectedVersion"`
+	Type                     string                    `json:"type"`
+	BlockID                  string                    `json:"blockId,omitempty"`
+	ClientOccurredAt         string                    `json:"clientOccurredAt,omitempty"`
+	BoundaryEndsAt           string                    `json:"boundaryEndsAt,omitempty"`
+	ScheduledStartsAt        string                    `json:"scheduledStartsAt,omitempty"`
+	ScheduledEndsAt          string                    `json:"scheduledEndsAt,omitempty"`
+	StartPolicy              string                    `json:"startPolicy,omitempty"`
+	Reason                   string                    `json:"reason,omitempty"`
+	SupersedesTransitionUUID string                    `json:"supersedesTransitionUuid,omitempty"`
+	Corrected                *TimePlanCorrectedCommand `json:"corrected,omitempty"`
 }
 
 type TimePlanCorrectedCommand struct {

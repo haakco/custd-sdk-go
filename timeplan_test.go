@@ -2,9 +2,21 @@ package custd
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"testing"
 )
+
+func TestTimePlanCorrectionRequestUsesTransitionUUID(t *testing.T) {
+	request := TimePlanCommandRequest{Type: "append_correction", SupersedesTransitionUUID: "transition-1"}
+	payload, err := json.Marshal(request)
+	if err != nil {
+		t.Fatalf("marshal correction request: %v", err)
+	}
+	if string(payload) != `{"commandId":"","idempotencyKey":"","expectedVersion":0,"type":"append_correction","supersedesTransitionUuid":"transition-1"}` {
+		t.Fatalf("correction payload = %s", payload)
+	}
+}
 
 func TestTimePlanAdminLifecycleUsesTenantScopedRoutes(t *testing.T) {
 	doer := newCaptureDoer(http.StatusOK, `{"plans":[{"uuid":"plan-1","planKey":"focus","name":"Focus","status":"ready","draftRevision":1,"definition":{"horizonMs":60000,"blocks":[]}}]}`)
