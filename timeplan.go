@@ -432,6 +432,9 @@ func (c *TimePlanAdminClient) Retire(ctx context.Context, companySlug, planUUID 
 }
 
 func (c *TimePlanAdminClient) CreateRun(ctx context.Context, companySlug string, req TimePlanRunRequest) (*TimePlanCreatedRun, error) {
+	if err := req.Validate(); err != nil {
+		return nil, err
+	}
 	var out TimePlanCreatedRun
 	err := c.admin.request(ctx, http.MethodPost, timePlanSDKPath("/time-plans/runs", companySlug, 0), req, &out)
 	return &out, err
@@ -450,12 +453,18 @@ func (c *TimePlanAdminClient) History(ctx context.Context, companySlug, runUUID 
 }
 
 func (c *TimePlanAdminClient) Execute(ctx context.Context, companySlug, runUUID string, req TimePlanCommandRequest) (*TimePlanCommandResult, error) {
+	if err := req.Validate(); err != nil {
+		return nil, err
+	}
 	var out TimePlanCommandResult
 	err := c.admin.request(ctx, http.MethodPost, timePlanSDKPath("/time-plans/runs/"+url.PathEscape(runUUID)+"/commands", companySlug, 0), req, &out)
 	return &out, err
 }
 
 func (c *TimePlanAdminClient) CreateAnnotation(ctx context.Context, companySlug, runUUID string, req TimePlanAnnotationInput) (*TimePlanAnnotation, error) {
+	if err := req.Validate(); err != nil {
+		return nil, err
+	}
 	var out TimePlanAnnotation
 	err := c.admin.request(ctx, http.MethodPost, timePlanSDKPath("/time-plans/runs/"+url.PathEscape(runUUID)+"/annotations", companySlug, 0), req, &out)
 	return &out, err
@@ -468,6 +477,9 @@ func (c *TimePlanAdminClient) ListAnnotations(ctx context.Context, companySlug, 
 }
 
 func (c *TimePlanAdminClient) CorrectAnnotation(ctx context.Context, companySlug, runUUID, annotationUUID string, req TimePlanAnnotationInput) (*TimePlanAnnotation, error) {
+	if err := req.Validate(); err != nil {
+		return nil, err
+	}
 	var out TimePlanAnnotation
 	err := c.admin.request(ctx, http.MethodPost, timePlanSDKPath("/time-plans/runs/"+url.PathEscape(runUUID)+"/annotations/"+url.PathEscape(annotationUUID)+"/corrections", companySlug, 0), req, &out)
 	return &out, err
@@ -476,6 +488,9 @@ func (c *TimePlanAdminClient) CorrectAnnotation(ctx context.Context, companySlug
 func (c *TimePlanAdminClient) RedactAnnotation(
 	ctx context.Context, companySlug, runUUID, annotationUUID string, req TimePlanRedactionRequest,
 ) error {
+	if err := req.Validate(); err != nil {
+		return err
+	}
 	return c.admin.request(ctx, http.MethodPost, timePlanSDKPath("/time-plans/runs/"+url.PathEscape(runUUID)+"/annotations/"+url.PathEscape(annotationUUID)+"/redact", companySlug, 0), req, nil)
 }
 

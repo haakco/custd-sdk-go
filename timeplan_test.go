@@ -7,6 +7,76 @@ import (
 	"testing"
 )
 
+func TestTimePlanRequestValidationCases(t *testing.T) {
+	validCommandID := "018f4a10-2f0d-7000-8000-000000000001"
+	tests := []struct {
+		name     string
+		validate func() error
+	}{
+		{name: "run requires plan", validate: func() error { return (TimePlanRunRequest{}).Validate() }},
+		{name: "run requires schedule pair", validate: func() error {
+			return (TimePlanRunRequest{PlanUUID: "plan-1", ScheduledStartsAt: "2026-09-06T10:00:00Z"}).Validate()
+		}},
+		{name: "command requires UUID", validate: func() error {
+			return (TimePlanCommandRequest{IdempotencyKey: "key", Type: "start_run"}).Validate()
+		}},
+		{name: "correction requires replacement", validate: func() error {
+			return (TimePlanCommandRequest{CommandID: validCommandID, IdempotencyKey: "key", Type: "append_correction",
+				SupersedesTransitionUUID: validCommandID}).Validate()
+		}},
+		{name: "annotation requires supported fields", validate: func() error {
+			return (TimePlanAnnotationInput{Type: "note", Text: "note", ActionStatus: "open"}).Validate()
+		}},
+		{name: "redaction requires reason", validate: func() error { return (TimePlanRedactionRequest{}).Validate() }},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if err := test.validate(); err == nil {
+				t.Fatal("Validate() error = nil")
+			}
+		})
+	}
+}
+
+func TestTimePlanAdminRejectsInvalidRequestsBeforeTransport(t *testing.T) {
+	doer := newCaptureDoer(http.StatusOK, `{}`)
+	client := newAdminTestClient(t, doer, "http://localhost:8080")
+	tests := []struct {
+		name string
+		call func() error
+	}{
+		{name: "create run", call: func() error {
+			_, err := client.Admin.TimePlans.CreateRun(context.Background(), "acme", TimePlanRunRequest{})
+			return err
+		}},
+		{name: "execute command", call: func() error {
+			_, err := client.Admin.TimePlans.Execute(context.Background(), "acme", "run-1", TimePlanCommandRequest{})
+			return err
+		}},
+		{name: "create annotation", call: func() error {
+			_, err := client.Admin.TimePlans.CreateAnnotation(context.Background(), "acme", "run-1", TimePlanAnnotationInput{})
+			return err
+		}},
+		{name: "correct annotation", call: func() error {
+			_, err := client.Admin.TimePlans.CorrectAnnotation(context.Background(), "acme", "run-1", "annotation-1", TimePlanAnnotationInput{})
+			return err
+		}},
+		{name: "redact annotation", call: func() error {
+			return client.Admin.TimePlans.RedactAnnotation(context.Background(), "acme", "run-1", "annotation-1", TimePlanRedactionRequest{})
+		}},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if err := test.call(); err == nil {
+				t.Fatal("invalid request was accepted")
+			}
+			if len(doer.requests) != 0 {
+				t.Fatalf("invalid request sent %d requests", len(doer.requests))
+			}
+		})
+	}
+}
+
 func TestTimePlanCorrectionRequestUsesTransitionUUID(t *testing.T) {
 	request := TimePlanCommandRequest{Type: "append_correction", SupersedesTransitionUUID: "transition-1"}
 	payload, err := json.Marshal(request)
@@ -92,5 +162,19 @@ func TestTimePlanDefinitionValidationPreventsTransport(t *testing.T) {
 	}
 	if len(doer.requests) != 0 {
 		t.Fatalf("invalid definition sent %d requests", len(doer.requests))
+	}
+}
+
+func TestTimePlanValidationAcceptsCanonicalCorrectionAndAnnotation(t *testing.T) {
+	command := TimePlanCommandRequest{
+		CommandID: "018f4a10-2f0d-7000-8000-000000000001", IdempotencyKey: "correction-1",
+		ExpectedVersion: 1, Type: "append_correction", SupersedesTransitionUUID: "018f4a10-2f0d-7000-8000-000000000002",
+		Corrected: &TimePlanCorrectedCommand{Type: "cancel_run", EffectiveAt: "2026-09-06T10:00:00Z"},
+	}
+	if err := command.Validate(); err != nil {
+		t.Fatalf("canonical correction rejected: %v", err)
+	}
+	if err := (TimePlanAnnotationInput{Type: "decision", Text: "ship", DecisionStatus: "accepted"}).Validate(); err != nil {
+		t.Fatalf("canonical annotation rejected: %v", err)
 	}
 }
