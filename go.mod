@@ -1,4 +1,4 @@
-module github.com/haakco/custd-sdk-go
+module github.com/haakco/custd-sdk-go/v2
 
 go 1.26.4
 
