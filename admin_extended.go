@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -580,16 +581,69 @@ type AuditAdminClient struct {
 	admin *AdminClient
 }
 
+type AuditScope string
+
+const (
+	AuditScopeTenant AuditScope = "tenant"
+	AuditScopeGlobal AuditScope = "global"
+)
+
+type AuditOutcome string
+
+const (
+	AuditOutcomeAttempted AuditOutcome = "attempted"
+	AuditOutcomeSuccess   AuditOutcome = "success"
+	AuditOutcomeFailure   AuditOutcome = "failure"
+	AuditOutcomeDenied    AuditOutcome = "denied"
+	AuditOutcomePending   AuditOutcome = "pending"
+	AuditOutcomeUnknown   AuditOutcome = "unknown"
+)
+
+type AuditDisclosureState string
+
+const (
+	AuditDisclosureAvailable   AuditDisclosureState = "available"
+	AuditDisclosureRedacted    AuditDisclosureState = "redacted"
+	AuditDisclosureNotRecorded AuditDisclosureState = "not_recorded"
+)
+
+type AuditChange struct {
+	Field  string `json:"field"`
+	Before any    `json:"before,omitempty"`
+	After  any    `json:"after,omitempty"`
+}
+
+type AuditNetworkDisclosure struct {
+	IPAddress      string               `json:"ipAddress,omitempty"`
+	IPAddressState AuditDisclosureState `json:"ipAddressState"`
+	UserAgent      string               `json:"userAgent,omitempty"`
+	UserAgentState AuditDisclosureState `json:"userAgentState"`
+}
+
+type AuditRetentionDisclosure struct {
+	EventMaxAgeSeconds     int64 `json:"eventMaxAgeSeconds"`
+	IPAddressMaxAgeSeconds int64 `json:"ipAddressMaxAgeSeconds"`
+	UserAgentMaxAgeSeconds int64 `json:"userAgentMaxAgeSeconds"`
+}
+
 type AuditEvent struct {
-	EventID      string `json:"eventId"`
-	Action       string `json:"action"`
-	ActorID      string `json:"actorId"`
-	ActorKind    string `json:"actorKind"`
-	ResourceType string `json:"resourceType"`
-	ResourceID   string `json:"resourceId"`
-	IPAddress    string `json:"ipAddress"`
-	Metadata     string `json:"metadata,omitempty"`
-	CreatedAt    string `json:"createdAt"`
+	// EventID is the stable public audit event UUID.
+	EventID          string                  `json:"eventId"`
+	TenantSlug       string                  `json:"tenantSlug"`
+	ActorKind        string                  `json:"actorKind"`
+	ActorReference   string                  `json:"actorReference,omitempty"`
+	ActorDisplayName string                  `json:"actorDisplayName"`
+	ActorRoles       []string                `json:"actorRoles,omitempty"`
+	Action           string                  `json:"action"`
+	ResourceType     string                  `json:"resourceType"`
+	ResourceID       string                  `json:"resourceId,omitempty"`
+	CreatedAt        string                  `json:"createdAt"`
+	Outcome          AuditOutcome            `json:"outcome"`
+	CorrelationID    string                  `json:"correlationId,omitempty"`
+	OperationID      string                  `json:"operationId,omitempty"`
+	Changes          []AuditChange           `json:"changes,omitempty"`
+	Details          map[string]any          `json:"details,omitempty"`
+	Network          *AuditNetworkDisclosure `json:"network,omitempty"`
 }
 
 type AuditListCursor struct {
@@ -597,24 +651,42 @@ type AuditListCursor struct {
 }
 
 type AuditListResponse struct {
-	Events     []AuditEvent     `json:"events"`
-	NextCursor *AuditListCursor `json:"nextCursor"`
+	Events           []AuditEvent              `json:"events"`
+	NextCursor       AuditListCursor           `json:"nextCursor"`
+	CoverageBeginsAt string                    `json:"coverageBeginsAt,omitempty"`
+	Retention        *AuditRetentionDisclosure `json:"retention,omitempty"`
 }
 
 type AuditListOptions struct {
-	ResourceType string
-	ResourceID   string
-	Limit        int
-	Cursor       string
+	Scope              AuditScope
+	CompanySlug        string
+	AffectedTenantSlug string
+	Since              string
+	Until              string
+	ActorKind          string
+	ActorReference     string
+	Action             string
+	ResourceType       string
+	ResourceID         string
+	Outcome            AuditOutcome
+	CorrelationID      string
+	Limit              int
+	Cursor             string
+}
+
+type AuditExportResponse struct {
+	Body        []byte
+	ContentType string
 }
 
 type ReportingPackAuditEvent struct {
-	Action       string `json:"action"`
-	ActorID      string `json:"actorId"`
-	ResourceType string `json:"resourceType"`
-	ResourceID   string `json:"resourceId"`
-	PackKey      string `json:"packKey"`
-	CreatedAt    string `json:"createdAt"`
+	Action           string `json:"action"`
+	ActorReference   string `json:"actorReference,omitempty"`
+	ActorDisplayName string `json:"actorDisplayName"`
+	ResourceType     string `json:"resourceType"`
+	ResourceID       string `json:"resourceId"`
+	PackKey          string `json:"packKey"`
+	CreatedAt        string `json:"createdAt"`
 }
 
 type ReportingPackAuditListResponse struct {
@@ -631,16 +703,51 @@ func (c *AuditAdminClient) ListEvents(
 	}
 	var out AuditListResponse
 	err := c.admin.request(ctx, http.MethodGet, path, nil, &out)
+	if err == nil {
+		for _, event := range out.Events {
+			if err := validateAuditEventUUID(event.EventID); err != nil {
+				return nil, err
+			}
+		}
+	}
 	return &out, err
 }
 
-func (c *AuditAdminClient) GetEvent(ctx context.Context, eventID string) (*AuditEvent, error) {
-	return adminGetByID[AuditEvent](ctx, c.admin, "/audit/events/", eventID)
+func (c *AuditAdminClient) GetEvent(ctx context.Context, eventID string, options ...AuditListOptions) (*AuditEvent, error) {
+	path := "/audit/events/" + url.PathEscape(eventID)
+	if len(options) > 0 {
+		if params := auditLookupParams(options[0]); params != "" {
+			path += "?" + params
+		}
+	}
+	var out AuditEvent
+	err := c.admin.request(ctx, http.MethodGet, path, nil, &out)
+	if err == nil {
+		err = validateAuditEventUUID(out.EventID)
+	}
+	return &out, err
 }
 
-func (c *AuditAdminClient) ListReportingPackEvents(ctx context.Context) (*ReportingPackAuditListResponse, error) {
+func (c *AuditAdminClient) ExportEvents(ctx context.Context, opts AuditListOptions, format string) (*AuditExportResponse, error) {
+	if format == "" {
+		format = "json"
+	}
+	if format != "csv" && format != "json" {
+		return nil, fmt.Errorf("custd: audit export format must be csv or json")
+	}
+	params := auditExportParams(opts)
+	params.Set("format", format)
+	path := "/audit/events/export?" + params.Encode()
+	body, headers, err := c.admin.requestBytes(ctx, http.MethodGet, path)
+	if err != nil {
+		return nil, err
+	}
+	return &AuditExportResponse{Body: body, ContentType: responseHeader(headers, "Content-Type")}, nil
+}
+
+func (c *AuditAdminClient) ListReportingPackEvents(ctx context.Context, packKey string) (*ReportingPackAuditListResponse, error) {
 	var out ReportingPackAuditListResponse
-	err := c.admin.request(ctx, http.MethodGet, "/reporting-packs/audit-events", nil, &out)
+	err := c.admin.request(ctx, http.MethodGet, "/reporting-packs/audit-events?packKey="+url.QueryEscape(packKey), nil, &out)
 	return &out, err
 }
 
@@ -1077,13 +1184,7 @@ func (c *OffboardingAdminClient) Receipt(
 }
 
 func auditListParams(opts AuditListOptions) string {
-	params := url.Values{}
-	if opts.ResourceType != "" {
-		params.Set("resourceType", opts.ResourceType)
-	}
-	if opts.ResourceID != "" {
-		params.Set("resourceId", opts.ResourceID)
-	}
+	params := auditFilterParams(opts)
 	if opts.Limit > 0 {
 		params.Set("limit", strconv.Itoa(opts.Limit))
 	}
@@ -1091,4 +1192,69 @@ func auditListParams(opts AuditListOptions) string {
 		params.Set("cursor", opts.Cursor)
 	}
 	return params.Encode()
+}
+
+func auditExportParams(opts AuditListOptions) url.Values {
+	return auditFilterParams(opts)
+}
+
+func auditFilterParams(opts AuditListOptions) url.Values {
+	params := url.Values{}
+	if opts.Scope != "" {
+		params.Set("scope", string(opts.Scope))
+	}
+	if opts.CompanySlug != "" {
+		params.Set("companySlug", opts.CompanySlug)
+	}
+	if opts.AffectedTenantSlug != "" {
+		params.Set("affectedTenantSlug", opts.AffectedTenantSlug)
+	}
+	if opts.Since != "" {
+		params.Set("since", opts.Since)
+	}
+	if opts.Until != "" {
+		params.Set("until", opts.Until)
+	}
+	if opts.ActorKind != "" {
+		params.Set("actorKind", opts.ActorKind)
+	}
+	if opts.ActorReference != "" {
+		params.Set("actorReference", opts.ActorReference)
+	}
+	if opts.Action != "" {
+		params.Set("action", opts.Action)
+	}
+	if opts.ResourceType != "" {
+		params.Set("resourceType", opts.ResourceType)
+	}
+	if opts.ResourceID != "" {
+		params.Set("resourceId", opts.ResourceID)
+	}
+	if opts.Outcome != "" {
+		params.Set("outcome", string(opts.Outcome))
+	}
+	if opts.CorrelationID != "" {
+		params.Set("correlationId", opts.CorrelationID)
+	}
+	return params
+}
+
+func auditLookupParams(opts AuditListOptions) string {
+	params := url.Values{}
+	if opts.Scope != "" {
+		params.Set("scope", string(opts.Scope))
+	}
+	if opts.CompanySlug != "" {
+		params.Set("companySlug", opts.CompanySlug)
+	}
+	return params.Encode()
+}
+
+var auditEventUUIDPattern = regexp.MustCompile(`(?i)^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`)
+
+func validateAuditEventUUID(value string) error {
+	if !auditEventUUIDPattern.MatchString(value) {
+		return fmt.Errorf("custd: audit event eventId must be a UUID")
+	}
+	return nil
 }

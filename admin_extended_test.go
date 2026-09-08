@@ -167,7 +167,7 @@ func TestStorageAlertAdminClientLifecycle(t *testing.T) {
 }
 
 func TestAuditAdminClientLifecycle(t *testing.T) {
-	doer := newCaptureDoer(http.StatusOK, `{"events":[{"eventId":"ev-1","action":"create","actorId":"u-1","actorKind":"user","resourceType":"producer","resourceId":"prod-1","ipAddress":"10.0.0.1","createdAt":"2026-07-23T12:00:00Z"}],"nextCursor":{"cursor":"next"}}`)
+	doer := newCaptureDoer(http.StatusOK, `{"events":[{"eventId":"01957abc-0000-7000-8000-000000000001","tenantSlug":"acme","action":"tenant.create","actorId":"private-user-id","actorReference":"actor-0123456789ab","actorKind":"user","actorDisplayName":"Admin User","actorRoles":["tenant-admin"],"resourceType":"tenant","resourceId":"acme","outcome":"success","correlationId":"req-1","operationId":"op-1","changes":[{"field":"enabled","before":false,"after":true}],"details":{"safe":"value"},"network":{"ipAddress":"10.0.0.1","ipAddressState":"available","userAgentState":"redacted"},"ipAddress":"legacy-sensitive","metadata":"sensitive","createdAt":"2026-07-23T12:00:00Z"}],"nextCursor":{"cursor":"next"},"coverageBeginsAt":"2026-07-01T00:00:00Z","retention":{"eventMaxAgeSeconds":31536000,"ipAddressMaxAgeSeconds":15552000,"userAgentMaxAgeSeconds":7776000}}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080/")
 
 	list, err := client.Admin.Audit.ListEvents(context.Background(), AuditListOptions{
@@ -178,29 +178,78 @@ func TestAuditAdminClientLifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ListEvents error: %v", err)
 	}
-	if len(list.Events) != 1 || list.NextCursor == nil || list.NextCursor.Cursor != "next" {
+	if len(list.Events) != 1 || list.NextCursor.Cursor != "next" {
 		t.Fatalf("events = %+v cursor = %+v", list.Events, list.NextCursor)
+	}
+	if list.Events[0].TenantSlug != "acme" || list.Events[0].ActorReference != "actor-0123456789ab" || list.Events[0].ActorDisplayName != "Admin User" ||
+		list.Events[0].ActorRoles[0] != "tenant-admin" || list.Events[0].Outcome != AuditOutcomeSuccess ||
+		list.Events[0].CorrelationID != "req-1" || list.Events[0].OperationID != "op-1" ||
+		list.Events[0].Changes[0].Field != "enabled" || list.Events[0].Network.IPAddressState != AuditDisclosureAvailable ||
+		list.Events[0].Details["safe"] != "value" {
+		t.Fatalf("safe event = %+v", list.Events[0])
+	}
+	if list.CoverageBeginsAt != "2026-07-01T00:00:00Z" || list.Retention.EventMaxAgeSeconds != 31536000 {
+		t.Fatalf("audit disclosures = %+v", list)
 	}
 	if doer.requests[0].URL != "http://localhost:8080/api/v1/admin/audit/events?limit=50&resourceId=prod-1&resourceType=producer" {
 		t.Fatalf("ListEvents URL = %s", doer.requests[0].URL)
 	}
 
-	doer.body = `{"eventId":"ev-1","action":"create","actorId":"u-1","actorKind":"user","resourceType":"producer","resourceId":"prod-1","ipAddress":"10.0.0.1","createdAt":"2026-07-23T12:00:00Z"}`
-	got, err := client.Admin.Audit.GetEvent(context.Background(), "ev-1")
+	doer.body = `{"eventId":"01957abc-0000-7000-8000-000000000001","tenantSlug":"acme","action":"tenant.create","actorReference":"actor-0123456789ab","actorKind":"user","actorDisplayName":"Admin User","actorRoles":["tenant-admin"],"resourceType":"tenant","resourceId":"acme","outcome":"success","correlationId":"req-1","operationId":"op-1","changes":[{"field":"enabled","before":false,"after":true}],"details":{"safe":"value"},"network":{"ipAddressState":"redacted","userAgent":"Mozilla/5.0","userAgentState":"available"},"ipAddress":"legacy-sensitive","metadata":"sensitive","createdAt":"2026-07-23T12:00:00Z"}`
+	got, err := client.Admin.Audit.GetEvent(context.Background(), "01957abc-0000-7000-8000-000000000001")
 	if err != nil {
 		t.Fatalf("GetEvent error: %v", err)
 	}
-	if got.EventID != "ev-1" {
+	if got.EventID != "01957abc-0000-7000-8000-000000000001" || got.ActorReference != "actor-0123456789ab" {
 		t.Fatalf("GetEvent = %+v", got)
 	}
+	if got.TenantSlug != "acme" || got.Outcome != AuditOutcomeSuccess || got.Network.UserAgentState != AuditDisclosureAvailable {
+		t.Fatalf("safe detail = %+v", got)
+	}
 
-	doer.body = `{"events":[{"action":"draft_created","actorId":"u-1","resourceType":"reporting_pack","resourceId":"42","packKey":"security","createdAt":"2026-07-23T12:00:00Z"}]}`
-	rpEvents, err := client.Admin.Audit.ListReportingPackEvents(context.Background())
+	doer.headers = map[string]string{"Content-Type": "text/csv; charset=utf-8"}
+	doer.body = "eventId,tenantSlug\n01957abc-0000-7000-8000-000000000001,acme\n"
+	export, err := client.Admin.Audit.ExportEvents(context.Background(), AuditListOptions{
+		Scope:              AuditScopeGlobal,
+		AffectedTenantSlug: "acme",
+		Since:              "2026-07-01T00:00:00Z",
+		Until:              "2026-08-01T00:00:00Z",
+		ActorKind:          "user",
+		ActorReference:     "actor-0123456789ab",
+		Action:             "tenant.create",
+		ResourceType:       "tenant",
+		ResourceID:         "acme",
+		Outcome:            AuditOutcomeSuccess,
+		CorrelationID:      "req-1",
+	}, "csv")
+	if err != nil {
+		t.Fatalf("ExportEvents error: %v", err)
+	}
+	if string(export.Body) != "eventId,tenantSlug\n01957abc-0000-7000-8000-000000000001,acme\n" || export.ContentType != "text/csv; charset=utf-8" {
+		t.Fatalf("export = %+v", export)
+	}
+	if doer.requests[2].URL != "http://localhost:8080/api/v1/admin/audit/events/export?action=tenant.create&actorKind=user&actorReference=actor-0123456789ab&affectedTenantSlug=acme&correlationId=req-1&format=csv&outcome=success&resourceId=acme&resourceType=tenant&scope=global&since=2026-07-01T00%3A00%3A00Z&until=2026-08-01T00%3A00%3A00Z" {
+		t.Fatalf("ExportEvents URL = %s", doer.requests[2].URL)
+	}
+
+	doer.body = `{"events":[{"action":"draft_created","actorId":"private-user-id","actorReference":"actor-0123456789ab","actorDisplayName":"Admin User","resourceType":"reporting_pack","resourceId":"42","packKey":"security","createdAt":"2026-07-23T12:00:00Z"}]}`
+	rpEvents, err := client.Admin.Audit.ListReportingPackEvents(context.Background(), "security")
 	if err != nil {
 		t.Fatalf("ListReportingPackEvents error: %v", err)
 	}
-	if len(rpEvents.Events) != 1 || rpEvents.Events[0].PackKey != "security" {
+	if len(rpEvents.Events) != 1 || rpEvents.Events[0].PackKey != "security" ||
+		rpEvents.Events[0].ActorReference != "actor-0123456789ab" || rpEvents.Events[0].ActorDisplayName != "Admin User" ||
+		doer.requests[3].URL != "http://localhost:8080/api/v1/admin/reporting-packs/audit-events?packKey=security" {
 		t.Fatalf("rpEvents = %+v", rpEvents)
+	}
+}
+
+func TestAuditAdminClientRejectsNonUUIDEventID(t *testing.T) {
+	doer := newCaptureDoer(http.StatusOK, `{"events":[{"eventId":"ev-1"}],"nextCursor":{"cursor":""}}`)
+	client := newAdminTestClient(t, doer, "http://localhost:8080/")
+
+	if _, err := client.Admin.Audit.ListEvents(context.Background(), AuditListOptions{}); err == nil {
+		t.Fatal("ListEvents accepted a non-UUID eventId")
 	}
 }
 

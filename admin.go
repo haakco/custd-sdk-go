@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -386,6 +387,55 @@ func (c *AdminClient) requestNonAdmin(ctx context.Context, method string, path s
 		return err
 	}
 	return decodeAdminResponse(respBody, out)
+}
+
+const maxAdminBinaryResponseBytes = 64 << 20
+
+func (c *AdminClient) requestBytes(ctx context.Context, method, path string) ([]byte, map[string]string, error) {
+	if c.client.config.HTTPClient != nil {
+		resp, err := c.client.config.HTTPClient.Do(&HTTPRequest{
+			Method: method, URL: c.endpoint(path), Headers: c.client.headers(false),
+		})
+		if err != nil {
+			return nil, nil, fmt.Errorf("custd: admin request failed: %w", err)
+		}
+		if err := c.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
+			return nil, nil, err
+		}
+		if len(resp.Body) > maxAdminBinaryResponseBytes {
+			return nil, nil, fmt.Errorf("custd: admin response exceeds 64 MiB")
+		}
+		return resp.Body, resp.Headers, nil
+	}
+	req, err := http.NewRequestWithContext(ctx, method, c.endpoint(path), nil)
+	if err != nil {
+		return nil, nil, fmt.Errorf("custd: create admin request: %w", err)
+	}
+	for key, value := range c.client.headers(false) {
+		req.Header.Set(key, value)
+	}
+	resp, err := c.client.httpClient.Do(req)
+	if err != nil {
+		return nil, nil, fmt.Errorf("custd: admin request failed: %w", err)
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(io.LimitReader(resp.Body, maxAdminBinaryResponseBytes+1))
+	if err != nil {
+		return nil, nil, fmt.Errorf("custd: read admin response: %w", err)
+	}
+	if err := c.client.checkStatus(resp.StatusCode, body); err != nil {
+		return nil, nil, err
+	}
+	if len(body) > maxAdminBinaryResponseBytes {
+		return nil, nil, fmt.Errorf("custd: admin response exceeds 64 MiB")
+	}
+	headers := make(map[string]string, len(resp.Header))
+	for key, values := range resp.Header {
+		if len(values) > 0 {
+			headers[key] = values[0]
+		}
+	}
+	return body, headers, nil
 }
 
 func decodeAdminResponse(body []byte, out any) error {

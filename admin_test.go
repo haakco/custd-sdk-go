@@ -12,11 +12,12 @@ type captureDoer struct {
 	requests []*HTTPRequest
 	status   int
 	body     string
+	headers  map[string]string
 }
 
 func (d *captureDoer) Do(req *HTTPRequest) (*HTTPResponse, error) {
 	d.requests = append(d.requests, req)
-	return &HTTPResponse{StatusCode: d.status, Body: []byte(d.body)}, nil
+	return &HTTPResponse{StatusCode: d.status, Body: []byte(d.body), Headers: d.headers}, nil
 }
 
 func TestAdminTenantsCreateUsesAdminAPI(t *testing.T) {
