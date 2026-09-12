@@ -123,6 +123,31 @@ func (c *ProducerProvisioningClient) RotateSecret(
 	return &producer, err
 }
 
+// ProducerEnvironmentUpdateRequest sets the environment recorded for a producer.
+// It is the authenticated default for events that do not declare their own
+// environment, not a requirement: one producer credential is expected to carry
+// every environment unless an operator deliberately restricts it.
+type ProducerEnvironmentUpdateRequest struct {
+	Environment string `json:"environment"`
+}
+
+// UpdateEnvironment changes the source environment recorded for a producer.
+func (c *ProducerProvisioningClient) UpdateEnvironment(
+	ctx context.Context,
+	clientID string,
+	environment string,
+) (*ProducerProvisionPublicClient, error) {
+	var producer ProducerProvisionPublicClient
+	err := c.provisioning.request(
+		ctx,
+		http.MethodPatch,
+		"/producer-provisioning/"+url.PathEscape(clientID)+"/environment",
+		ProducerEnvironmentUpdateRequest{Environment: environment},
+		&producer,
+	)
+	return &producer, err
+}
+
 func (c *ProducerProvisioningClient) Revoke(ctx context.Context, clientID string) error {
 	return c.provisioning.request(ctx, http.MethodDelete, "/producer-provisioning/"+url.PathEscape(clientID), nil, nil)
 }

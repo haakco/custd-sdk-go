@@ -22,6 +22,9 @@ func ValidateEvent(event *EventEnvelope) error {
 	if len(missing) != 0 {
 		return fmt.Errorf("custd: missing required fields: %s", strings.Join(missing, ", "))
 	}
+	if err := validateEnvironmentValue(event.Environment); err != nil {
+		return err
+	}
 	return validateEventLabels(event.Labels)
 }
 

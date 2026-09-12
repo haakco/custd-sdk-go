@@ -73,6 +73,7 @@ func (c *CustdClient) Track(ctx context.Context, event *EventEnvelope) error {
 	if err := ValidateEvent(event); err != nil {
 		return err
 	}
+	applyEnvironmentLabel(event, c.config.Environment)
 	queueLen := c.q.enqueue(event)
 	if queueLen >= c.config.BatchSize {
 		return c.Flush(ctx)

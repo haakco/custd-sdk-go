@@ -80,6 +80,15 @@ func TestProvisioningProducersUsePublicAPIAndKeepSecretExplicit(t *testing.T) {
 	if rotated.ClientSecret != "next" {
 		t.Fatalf("rotated = %+v", rotated)
 	}
+	doer.status = http.StatusOK
+	doer.body = `{"clientId":"custd-agency-store-001-webhook","companySlug":"agency-store-001","producerSlug":"webhook","environment":"staging"}`
+	updated, err := client.Provisioning.Producers.UpdateEnvironment(context.Background(), "custd/agency store", "staging")
+	if err != nil {
+		t.Fatalf("UpdateEnvironment returned error: %v", err)
+	}
+	if updated.Environment != "staging" {
+		t.Fatalf("updated = %+v", updated)
+	}
 	doer.status = http.StatusNoContent
 	doer.body = ""
 	if err := client.Provisioning.Producers.Revoke(context.Background(), "custd/agency store"); err != nil {
@@ -89,6 +98,7 @@ func TestProvisioningProducersUsePublicAPIAndKeepSecretExplicit(t *testing.T) {
 		"POST http://localhost:8080/api/v1/producer-provisioning",
 		"GET http://localhost:8080/api/v1/producer-provisioning?companySlug=agency-store-001",
 		"POST http://localhost:8080/api/v1/producer-provisioning/custd%2Fagency%20store/rotate-secret",
+		"PATCH http://localhost:8080/api/v1/producer-provisioning/custd%2Fagency%20store/environment",
 		"DELETE http://localhost:8080/api/v1/producer-provisioning/custd%2Fagency%20store",
 	})
 }

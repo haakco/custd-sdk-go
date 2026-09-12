@@ -15,13 +15,18 @@ type RetryConfig struct {
 
 // ClientConfig holds all configuration for a CustdClient.
 type ClientConfig struct {
-	BaseURL       string
-	APIKey        string
-	ClientID      string
-	ClientSecret  string
-	TokenURL      string
-	Audience      string
-	Scopes        []string
+	BaseURL      string
+	APIKey       string
+	ClientID     string
+	ClientSecret string
+	TokenURL     string
+	Audience     string
+	Scopes       []string
+	// Environment is the environment this process sends from. It is the
+	// authenticated default for events that do not declare their own; a
+	// credential is expected to carry every environment unless an operator
+	// deliberately restricts it.
+	Environment   string
 	BatchSize     int
 	FlushInterval time.Duration
 	MaxRetries    int

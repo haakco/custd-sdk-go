@@ -21,9 +21,14 @@ func main() {
 		fail(err)
 	}
 
+	// A process-level default is enough: one credential serves every
+	// environment, so sending from dev needs no extra provisioning. Override it
+	// with CUSTD_DEV_ENVIRONMENT, or per event with EventEnvelope.Environment.
+	environment := envOrDefault("CUSTD_DEV_ENVIRONMENT", "dev")
 	client := custd.NewClient(&custd.ClientConfig{
 		BaseURL:       envOrDefault("CUSTD_DEV_BASE_URL", "http://localhost:8087"),
 		APIKey:        token,
+		Environment:   environment,
 		BatchSize:     1,
 		FlushInterval: time.Hour,
 	})
@@ -49,7 +54,7 @@ func main() {
 		fail(fmt.Errorf("custd sdk go smoke failed: %w", err))
 	}
 
-	fmt.Println("custd sdk go smoke OK")
+	fmt.Printf("custd sdk go smoke OK environment=%s\n", environment)
 }
 
 func devToken(ctx context.Context) (string, error) {
