@@ -64,7 +64,7 @@ func TestProvisioningProducersUsePublicAPIAndKeepSecretExplicit(t *testing.T) {
 		t.Fatalf("clientSecret = %q", created.ClientSecret)
 	}
 	doer.status = http.StatusOK
-	doer.body = `[{"clientId":"custd-agency-store-001-webhook","companySlug":"agency-store-001","producerSlug":"webhook","scopes":["events.write"]}]`
+	doer.body = `{"producers":[{"clientId":"custd-agency-store-001-webhook","companySlug":"agency-store-001","producerSlug":"webhook","scopes":["events.write"]}]}`
 	producers, err := client.Provisioning.Producers.List(context.Background(), "agency-store-001")
 	if err != nil {
 		t.Fatalf("List returned error: %v", err)

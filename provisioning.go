@@ -103,9 +103,11 @@ func (c *ProducerProvisioningClient) List(
 	if companySlug != "" {
 		path += "?companySlug=" + url.QueryEscape(companySlug)
 	}
-	var producers []ProducerProvisionPublicClient
-	err := c.provisioning.request(ctx, http.MethodGet, path, nil, &producers)
-	return producers, err
+	var response struct {
+		Producers []ProducerProvisionPublicClient `json:"producers"`
+	}
+	err := c.provisioning.request(ctx, http.MethodGet, path, nil, &response)
+	return response.Producers, err
 }
 
 func (c *ProducerProvisioningClient) RotateSecret(
