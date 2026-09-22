@@ -4,20 +4,31 @@ type AdminOAuthClientCreate struct {
 	ClientID    string   `json:"clientId"`
 	CompanySlug string   `json:"companySlug"`
 	Scopes      []string `json:"scopes"`
+	// PurposeProfile lets Custd derive the least-privilege scope set and the
+	// matching client profile, so a caller states intent rather than scopes.
+	Environment    string `json:"environment,omitempty"`
+	Profile        string `json:"profile,omitempty"`
+	PurposeProfile string `json:"purposeProfile,omitempty"`
 }
 
 type AdminOAuthClient struct {
-	ClientID     string   `json:"clientId"`
-	CompanySlug  string   `json:"companySlug"`
-	Scopes       []string `json:"scopes"`
-	ClientSecret string   `json:"clientSecret,omitempty"`
+	ClientID       string   `json:"clientId"`
+	CompanySlug    string   `json:"companySlug"`
+	Scopes         []string `json:"scopes"`
+	Environment    string   `json:"environment,omitempty"`
+	Profile        string   `json:"profile,omitempty"`
+	PurposeProfile string   `json:"purposeProfile,omitempty"`
+	ClientSecret   string   `json:"clientSecret,omitempty"`
 }
 
 type AdminOAuthClientCreateResponse struct {
-	ClientID     string   `json:"clientId"`
-	CompanySlug  string   `json:"companySlug"`
-	Scopes       []string `json:"scopes"`
-	ClientSecret string   `json:"clientSecret"`
+	ClientID       string   `json:"clientId"`
+	CompanySlug    string   `json:"companySlug"`
+	Scopes         []string `json:"scopes"`
+	Environment    string   `json:"environment,omitempty"`
+	Profile        string   `json:"profile,omitempty"`
+	PurposeProfile string   `json:"purposeProfile,omitempty"`
+	ClientSecret   string   `json:"clientSecret"`
 }
 
 type AdminOAuthClientList struct {
