@@ -1,0 +1,64 @@
+{
+  "runUuid": "8f6b1c2e-0000-7000-8000-000000000020",
+  "workflowKey": "hosting.reconcile",
+  "externalRunId": "op-20260923-07",
+  "state": "running",
+  "allowOverlap": false,
+  "generatedAt": "2026-09-23T09:12:00Z",
+  "run": {
+    "seriesKey": "workflow_run",
+    "attempt": 0,
+    "state": "ready",
+    "baselineMs": 1800000,
+    "sampleCount": 24,
+    "method": "shrinkage_toward_baseline",
+    "methodVersion": "shrinkage.v1",
+    "inputHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "generatedAt": "2026-09-23T09:12:00Z",
+    "evidenceWindowStart": "2026-08-24T09:12:00Z",
+    "warnings": [],
+    "expectedMs": 1716000,
+    "conservativeLowMs": 1540800,
+    "conservativeHighMs": 1891200,
+    "predictionVersionUuid": "8f6b1c2e-0000-7000-8000-000000000003"
+  },
+  "steps": [
+    {
+      "seriesKey": "workflow_run",
+      "stepKey": "foundation",
+      "attempt": 1,
+      "state": "ready",
+      "baselineMs": 600000,
+      "sampleCount": 24,
+      "method": "shrinkage_toward_baseline",
+      "methodVersion": "shrinkage.v1",
+      "inputHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "generatedAt": "2026-09-23T09:12:00Z",
+      "evidenceWindowStart": "2026-08-24T09:12:00Z",
+      "warnings": [],
+      "expectedMs": 576000,
+      "conservativeLowMs": 540000,
+      "conservativeHighMs": 612000,
+      "predictionVersionUuid": "8f6b1c2e-0000-7000-8000-000000000003"
+    },
+    {
+      "seriesKey": "workflow_run",
+      "stepKey": "database",
+      "attempt": 1,
+      "state": "sparse",
+      "baselineMs": 900000,
+      "sampleCount": 3,
+      "method": "shrinkage_toward_baseline",
+      "methodVersion": "shrinkage.v1",
+      "inputHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "generatedAt": "2026-09-23T09:12:00Z",
+      "evidenceWindowStart": "2026-08-24T09:12:00Z",
+      "warnings": [
+        "sparse_history"
+      ],
+      "expectedMs": 882000,
+      "conservativeLowMs": 810000,
+      "conservativeHighMs": 954000
+    }
+  ]
+}

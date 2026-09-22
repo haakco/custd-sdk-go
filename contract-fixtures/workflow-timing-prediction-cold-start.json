@@ -1,0 +1,73 @@
+{
+  "runUuid": "8f6b1c2e-0000-7000-8000-000000000010",
+  "workflowKey": "hosting.reconcile",
+  "externalRunId": "op-20260922-42",
+  "state": "running",
+  "allowOverlap": false,
+  "generatedAt": "2026-09-22T10:05:05Z",
+  "run": {
+    "seriesKey": "workflow_run",
+    "attempt": 0,
+    "state": "cold_start",
+    "baselineMs": 600000,
+    "sampleCount": 0,
+    "method": "nominal",
+    "methodVersion": "nominal.v1",
+    "inputHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "generatedAt": "2026-09-22T10:05:05Z",
+    "evidenceWindowStart": "2026-09-22T10:05:05Z",
+    "warnings": [
+      "cold_start"
+    ]
+  },
+  "steps": [
+    {
+      "seriesKey": "workflow_run",
+      "stepKey": "foundation",
+      "attempt": 1,
+      "state": "cold_start",
+      "baselineMs": 600000,
+      "sampleCount": 0,
+      "method": "nominal",
+      "methodVersion": "nominal.v1",
+      "inputHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "generatedAt": "2026-09-22T10:05:05Z",
+      "evidenceWindowStart": "2026-09-22T10:05:05Z",
+      "warnings": [
+        "cold_start"
+      ]
+    },
+    {
+      "seriesKey": "workflow_run",
+      "stepKey": "database",
+      "attempt": 1,
+      "state": "cold_start",
+      "baselineMs": 900000,
+      "sampleCount": 0,
+      "method": "nominal",
+      "methodVersion": "nominal.v1",
+      "inputHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "generatedAt": "2026-09-22T10:05:05Z",
+      "evidenceWindowStart": "2026-09-22T10:05:05Z",
+      "warnings": [
+        "cold_start"
+      ]
+    },
+    {
+      "seriesKey": "workflow_run",
+      "stepKey": "deploy",
+      "attempt": 1,
+      "state": "cold_start",
+      "baselineMs": 300000,
+      "sampleCount": 0,
+      "method": "nominal",
+      "methodVersion": "nominal.v1",
+      "inputHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "generatedAt": "2026-09-22T10:05:05Z",
+      "evidenceWindowStart": "2026-09-22T10:05:05Z",
+      "warnings": [
+        "cold_start"
+      ]
+    }
+  ]
+}

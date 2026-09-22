@@ -1,0 +1,37 @@
+{
+  "results": [
+    {
+      "index": 0,
+      "accepted": true,
+      "duplicate": false,
+      "workflowKey": "hosting.reconcile",
+      "externalRunId": "op-20260922-42",
+      "idempotencyKey": "workflow-timing:hosting.reconcile:op-20260922-42:run_started",
+      "runUuid": "8f6b1c2e-0000-7000-8000-000000000010",
+      "factUuid": "8f6b1c2e-0000-7000-8000-000000000011"
+    },
+    {
+      "index": 1,
+      "accepted": false,
+      "duplicate": false,
+      "workflowKey": "hosting.reconcile",
+      "externalRunId": "op-20260922-42",
+      "idempotencyKey": "workflow-timing:hosting.reconcile:op-20260922-42:step_started:nope:1",
+      "errorCode": "workflow_step_unknown",
+      "errorMessage": "workflow timings: step \"nope\" is not declared by the definition"
+    },
+    {
+      "index": 2,
+      "accepted": true,
+      "duplicate": true,
+      "workflowKey": "hosting.reconcile",
+      "externalRunId": "op-20260922-42",
+      "idempotencyKey": "workflow-timing:hosting.reconcile:op-20260922-42:run_finished",
+      "runUuid": "8f6b1c2e-0000-7000-8000-000000000010",
+      "factUuid": "8f6b1c2e-0000-7000-8000-000000000012"
+    }
+  ],
+  "accepted": 2,
+  "rejected": 1,
+  "duplicates": 1
+}

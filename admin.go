@@ -14,24 +14,25 @@ import (
 const adminEndpoint = "/api/v1/admin"
 
 type AdminClient struct {
-	Tenants        *TenantAdminClient
-	OAuthClients   *OAuthClientAdminClient
-	Sites          *SiteAdminClient
-	Schemas        *SchemaAdminClient
-	Measurement    *MeasurementAdminClient
-	Predictions    *PredictionAdminClient
-	Privacy        *PrivacyAdminClient
-	Retention      *RetentionAdminClient
-	StorageAlerts  *StorageAlertAdminClient
-	Audit          *AuditAdminClient
-	Offboarding    *OffboardingAdminClient
-	ReportingPacks *ReportingPacksAdminClient
-	TenantStorage  *TenantStorageAdminClient
-	SubjectExports *SubjectExportAdminClient
-	Erasures       *PrivacyErasureAdminClient
-	DataLabels     *DataLabelAdminClient
-	TimePlans      *TimePlanAdminClient
-	client         *CustdClient
+	Tenants         *TenantAdminClient
+	OAuthClients    *OAuthClientAdminClient
+	Sites           *SiteAdminClient
+	Schemas         *SchemaAdminClient
+	Measurement     *MeasurementAdminClient
+	Predictions     *PredictionAdminClient
+	WorkflowTimings *WorkflowTimingAdminClient
+	Privacy         *PrivacyAdminClient
+	Retention       *RetentionAdminClient
+	StorageAlerts   *StorageAlertAdminClient
+	Audit           *AuditAdminClient
+	Offboarding     *OffboardingAdminClient
+	ReportingPacks  *ReportingPacksAdminClient
+	TenantStorage   *TenantStorageAdminClient
+	SubjectExports  *SubjectExportAdminClient
+	Erasures        *PrivacyErasureAdminClient
+	DataLabels      *DataLabelAdminClient
+	TimePlans       *TimePlanAdminClient
+	client          *CustdClient
 }
 
 type TenantAdminClient struct {
@@ -58,6 +59,7 @@ func newAdminClient(client *CustdClient) *AdminClient {
 	admin.Schemas = &SchemaAdminClient{admin: admin}
 	admin.Measurement = newMeasurementAdminClient(admin)
 	admin.Predictions = &PredictionAdminClient{admin: admin}
+	admin.WorkflowTimings = &WorkflowTimingAdminClient{admin: admin}
 	admin.Privacy = &PrivacyAdminClient{admin: admin}
 	admin.Retention = &RetentionAdminClient{admin: admin}
 	admin.StorageAlerts = &StorageAlertAdminClient{admin: admin}

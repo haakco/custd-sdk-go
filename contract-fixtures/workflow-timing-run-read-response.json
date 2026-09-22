@@ -1,0 +1,43 @@
+{
+  "runUuid": "8f6b1c2e-0000-7000-8000-000000000010",
+  "workflowKey": "hosting.reconcile",
+  "workflowUuid": "8f6b1c2e-0000-7000-8000-000000000001",
+  "revisionUuid": "8f6b1c2e-0000-7000-8000-000000000002",
+  "revisionNumber": 2,
+  "revisionHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "externalRunId": "op-20260922-42",
+  "state": "running",
+  "startedAt": "2026-09-22T10:00:00Z",
+  "sourceOccurredAt": "2026-09-22T10:05:00Z",
+  "receiptAt": "2026-09-22T10:00:02Z",
+  "dimensions": {
+    "cluster": "fsn1-a"
+  },
+  "attempts": [
+    {
+      "stepKey": "foundation",
+      "attempt": 1,
+      "state": "completed",
+      "startedAt": "2026-09-22T10:00:00Z",
+      "finishedAt": "2026-09-22T10:05:00Z",
+      "occurredAt": "2026-09-22T10:05:00Z",
+      "receiptAt": "2026-09-22T10:00:02Z"
+    },
+    {
+      "stepKey": "database",
+      "attempt": 1,
+      "state": "running",
+      "startedAt": "2026-09-22T10:05:00Z",
+      "occurredAt": "2026-09-22T10:05:01Z",
+      "receiptAt": "2026-09-22T10:00:02Z"
+    }
+  ],
+  "projectionStatus": {
+    "state": "behind",
+    "projectedLedgerId": 3,
+    "latestLedgerId": 4,
+    "pendingFacts": 1,
+    "healthy": false,
+    "nextAction": "rebuild"
+  }
+}
