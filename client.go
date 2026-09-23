@@ -331,6 +331,7 @@ func (c *CustdClient) batchEndpoint() string {
 func (c *CustdClient) headers(gzipped bool) map[string]string {
 	headers := map[string]string{
 		"Content-Type": "application/json",
+		"X-Custd-Sdk":  sdkIdentity,
 	}
 	if gzipped {
 		headers["Content-Encoding"] = "gzip"

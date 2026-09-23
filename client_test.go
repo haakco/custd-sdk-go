@@ -50,6 +50,26 @@ func TestOAuthClientCredentialsAttachBearerToken(t *testing.T) {
 	assertOAuthTokenRequest(t, tokenForm)
 }
 
+// Custd learns which release a caller runs from this header, so a consumer on an
+// old version is visible without grepping repositories.
+func TestClientIdentifiesItsVersionOnEveryRequest(t *testing.T) {
+	var gotIdentity string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotIdentity = r.Header.Get("X-Custd-Sdk")
+		_ = json.NewEncoder(w).Encode(eventBatchResponse{Success: true})
+	}))
+	defer server.Close()
+	client := NewClient(&ClientConfig{BaseURL: server.URL, APIKey: "identity-key"})
+	defer func() { _ = client.Close(context.Background()) }()
+
+	enqueueN(client, validEvent(), 1)
+	flushClient(t, client)
+
+	if want := "go/" + Version; gotIdentity != want {
+		t.Fatalf("X-Custd-Sdk = %q, want %q", gotIdentity, want)
+	}
+}
+
 func flushClient(t *testing.T, client *CustdClient) {
 	t.Helper()
 	if err := client.Flush(context.Background()); err != nil {
