@@ -33,6 +33,7 @@ type AdminClient struct {
 	DataLabels      *DataLabelAdminClient
 	TimePlans       *TimePlanAdminClient
 	Usage           *UsageAdminClient
+	AuthProjects    *AuthProjectAdminClient
 	client          *CustdClient
 }
 
@@ -73,6 +74,7 @@ func newAdminClient(client *CustdClient) *AdminClient {
 	admin.DataLabels = &DataLabelAdminClient{admin: admin}
 	admin.TimePlans = &TimePlanAdminClient{admin: admin}
 	admin.Usage = &UsageAdminClient{admin: admin}
+	admin.AuthProjects = &AuthProjectAdminClient{admin: admin}
 	return admin
 }
 

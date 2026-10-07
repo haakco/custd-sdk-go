@@ -268,6 +268,40 @@ before a request is sent.
 
 A runnable example lives at `sdk-go/examples/usage-report`.
 
+## Auth-project admin helpers
+
+`client.Admin.AuthProjects` manages Custd projects, their environments, and the
+application principals a directory holds, through `/api/v1/admin/auth-projects`:
+
+- `CreateProject` / `ListProjects` (pass the previous `NextAfter` as the `after` cursor)
+- `CreateEnvironment`
+- `ListPrincipalSessions`, `RevokePrincipalSession`, `RevokePrincipalSessions`
+- `RevokePrincipalMembership`
+
+Every call takes a `custd.AuthProjectRequestOptions`. A machine credential must
+name the platform user it acts for in `OwningUserUUID`, sent as
+`X-Custd-Owning-User-UUID`; Custd validates the named user as a live member of
+the machine's own company. A human administrator's own token subject is the actor
+and leaves it empty. The operations Custd makes retry-safe (`CreateProject`,
+`RevokePrincipalSession`, `RevokePrincipalSessions`) require `IdempotencyKey` and
+reject an empty value before a request is sent.
+
+```go
+creation, err := client.Admin.AuthProjects.CreateProject(ctx, custd.AuthProjectCreateRequest{
+    Slug:            "hosting-eu",
+    Name:            "Hosting EU",
+    EnvironmentSlug: "production",
+    IdentityMode:    custd.AuthProjectIdentityIsolated,
+}, custd.AuthProjectRequestOptions{
+    OwningUserUUID: owningUserUUID,
+    IdempotencyKey: "create-hosting-eu",
+})
+```
+
+Responses are typed: `AuthProjectCreation`, `AuthProjectListResponse`,
+`ApplicationSessionInventory`, `ApplicationSessionRevocation` and
+`ApplicationMembershipRevocation`.
+
 ## Analytics range query
 
 `client.Analytics.QueryRange` reads a tenant's own events across an inclusive
