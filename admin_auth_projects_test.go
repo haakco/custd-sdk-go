@@ -273,7 +273,7 @@ func TestAuthProjectsRevokeMembershipPinsRequest(t *testing.T) {
 
 	revocation, err := client.Admin.AuthProjects.RevokePrincipalMembership(
 		context.Background(), "project-1", "environment-1", "directory-1", "subject-1",
-		ApplicationMembershipRevokeRequest{OrganisationID: "organisation-1", Reason: "offboarded"},
+		ApplicationMembershipRevokeRequest{OrganisationID: "organisation-1"},
 		AuthProjectRequestOptions{OwningUserUUID: authProjectOwningUser},
 	)
 	if err != nil {
@@ -285,7 +285,7 @@ func TestAuthProjectsRevokeMembershipPinsRequest(t *testing.T) {
 			"/directories/directory-1/principals/subject-1/memberships/revoke",
 		authProjectOwningUser, "")
 	body := decodeAuthProjectBody(t, doer.requests[0])
-	if body["organisationId"] != "organisation-1" || body["reason"] != "offboarded" {
+	if body["organisationId"] != "organisation-1" {
 		t.Fatalf("body = %+v", body)
 	}
 	if !revocation.Removed || revocation.OrganisationID != "organisation-1" {

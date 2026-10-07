@@ -139,7 +139,6 @@ type ApplicationSessionsRevokeAllRequest struct {
 // names only the organisation.
 type ApplicationMembershipRevokeRequest struct {
 	OrganisationID string `json:"organisationId"`
-	Reason         string `json:"reason,omitempty"`
 }
 
 // ApplicationMembershipRevocation is the response to ending a membership. The
