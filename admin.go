@@ -32,6 +32,7 @@ type AdminClient struct {
 	Erasures        *PrivacyErasureAdminClient
 	DataLabels      *DataLabelAdminClient
 	TimePlans       *TimePlanAdminClient
+	Usage           *UsageAdminClient
 	client          *CustdClient
 }
 
@@ -71,6 +72,7 @@ func newAdminClient(client *CustdClient) *AdminClient {
 	admin.Erasures = &PrivacyErasureAdminClient{admin: admin}
 	admin.DataLabels = &DataLabelAdminClient{admin: admin}
 	admin.TimePlans = &TimePlanAdminClient{admin: admin}
+	admin.Usage = &UsageAdminClient{admin: admin}
 	return admin
 }
 

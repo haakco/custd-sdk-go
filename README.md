@@ -242,5 +242,50 @@ plan, err := client.Admin.TimePlans.Create(ctx, "acme", custd.TimePlanDraftReque
 
 The typed clients are available in `v1.8.25` and later.
 
+## Usage reporting
+
+`client.Admin.Usage` reads the attributed usage for the authenticated tenant
+through `GET /api/v1/admin/usage/me`. The tenant comes from the credential, so
+the call never names a company slug. The system-admin `/usage` and `/usage/export`
+surfaces are deliberately not exposed.
+
+```go
+report, err := client.Admin.Usage.Get(ctx, custd.UsageQuery{
+    MeterSlug: "events.ingested",
+    Start:     time.Now().UTC().AddDate(0, 0, -30),
+    End:       time.Now().UTC(),
+    Limit:     200,
+})
+```
+
+`UsageReport.Totals` carries the per-meter totals and `UsageReport.Rows` the
+per-window detail. `ContainsProvisional` and `ContainsIncomplete` are the
+server's own assessment, so a caller deciding whether a number is settled reads
+them rather than assuming every row is final. An omitted `Start`/`End` uses the
+service default (the trailing 30 days) and an omitted `Limit` uses
+`custd.UsageDefaultLimit`; a limit outside `1..custd.UsageMaxLimit` is rejected
+before a request is sent.
+
+A runnable example lives at `sdk-go/examples/usage-report`.
+
+## Analytics range query
+
+`client.Analytics.QueryRange` reads a tenant's own events across an inclusive
+date range of at most `custd.AnalyticsMaxRangeDays` days, with
+`groupBy: "day"`. `Buckets` carries each day's `count`/`source`/`complete` and
+`Rows` the capped detail. The per-day completeness is the server's assessment
+and is surfaced unchanged.
+
+```go
+response, err := client.Analytics.QueryRange(ctx, custd.AnalyticsEventRangeQueryRequest{
+    From:      "2026-02-23",
+    To:        "2026-05-23",
+    EventType: "page-view",
+    Limit:     10000,
+    Source:    custd.AnalyticsRangeSourceAuto,
+    GroupBy:   custd.AnalyticsRangeGroupByDay,
+})
+```
+
 SDKs never log signed URLs, raw personal data, export bytes, or
 subject identifiers outside opaque IDs.
