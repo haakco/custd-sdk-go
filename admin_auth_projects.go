@@ -434,7 +434,7 @@ func (c *AuthProjectAdminClient) ApplyEnvironmentDesiredState(
 	}
 	var out AuthProjectOperation
 	if err := c.admin.requestWithHeaders(
-		ctx, http.MethodPost, environmentDesiredStatePath(projectID, environmentID)+"/apply",
+		ctx, http.MethodPost, authProjectEnvironmentPath(projectID, environmentID)+"/apply",
 		req, &out, authProjectHeaders(options),
 	); err != nil {
 		return nil, err
@@ -453,7 +453,7 @@ func (c *AuthProjectAdminClient) PreviewEnvironmentDesiredState(
 ) (*AuthProjectPreview, error) {
 	var out AuthProjectPreview
 	if err := c.admin.requestWithHeaders(
-		ctx, http.MethodPost, environmentDesiredStatePath(projectID, environmentID)+"/preview",
+		ctx, http.MethodPost, authProjectEnvironmentPath(projectID, environmentID)+"/preview",
 		req, &out, authProjectHeaders(options),
 	); err != nil {
 		return nil, err
@@ -473,7 +473,7 @@ func (c *AuthProjectAdminClient) GetEnvironmentStatus(
 ) (*AuthProjectStatus, error) {
 	var out AuthProjectStatus
 	if err := c.admin.requestWithHeaders(
-		ctx, http.MethodGet, environmentDesiredStatePath(projectID, environmentID)+"/status",
+		ctx, http.MethodGet, authProjectEnvironmentPath(projectID, environmentID)+"/status",
 		nil, &out, authProjectHeaders(options),
 	); err != nil {
 		return nil, err
@@ -481,9 +481,9 @@ func (c *AuthProjectAdminClient) GetEnvironmentStatus(
 	return &out, nil
 }
 
-// environmentDesiredStatePath addresses one environment under one project. Every
+// authProjectEnvironmentPath addresses one environment under one project. Every
 // segment is escaped so a caller-supplied identifier cannot reshape the path.
-func environmentDesiredStatePath(projectID, environmentID string) string {
+func authProjectEnvironmentPath(projectID, environmentID string) string {
 	return "/auth-projects/" + url.PathEscape(projectID) +
 		"/environments/" + url.PathEscape(environmentID)
 }
