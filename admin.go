@@ -34,7 +34,6 @@ type AdminClient struct {
 	TimePlans       *TimePlanAdminClient
 	Usage           *UsageAdminClient
 	AuthProjects    *AuthProjectAdminClient
-	DataScopes      *DataScopeAdminClient
 	client          *CustdClient
 }
 
@@ -76,7 +75,6 @@ func newAdminClient(client *CustdClient) *AdminClient {
 	admin.TimePlans = &TimePlanAdminClient{admin: admin}
 	admin.Usage = &UsageAdminClient{admin: admin}
 	admin.AuthProjects = &AuthProjectAdminClient{admin: admin}
-	admin.DataScopes = newDataScopeAdminClient(admin)
 	return admin
 }
 

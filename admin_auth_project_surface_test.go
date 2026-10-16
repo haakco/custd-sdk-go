@@ -189,7 +189,12 @@ func TestAuthProjectListInvitationsDecodesViews(t *testing.T) {
 			"invitationId": "inv-1", "email": "person@example.com", "membershipRole": "member",
 			"poolId": "pool-1", "organisationId": "org-1",
 			"expiresAt": "2026-10-20T00:00:00Z", "createdAt": "2026-10-16T00:00:00Z",
-			"state": "open"
+			"state": "open", "acceptedPrincipalId": null
+		}, {
+			"invitationId": "inv-accepted", "email": "person@example.com", "membershipRole": "member",
+			"poolId": "pool-1", "organisationId": "org-1",
+			"expiresAt": "2026-10-20T00:00:00Z", "createdAt": "2026-10-16T00:00:00Z",
+			"state": "accepted", "acceptedPrincipalId": "017f22e2-79b0-7f4a-8f90-ec7c7c502334"
 		}]
 	}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
@@ -205,9 +210,12 @@ func TestAuthProjectListInvitationsDecodesViews(t *testing.T) {
 	assertAuthProjectRequest(t, doer.requests[0], http.MethodGet,
 		"http://localhost:8080/api/v1/admin/auth-projects/project-1/environments/environment-1/invitations",
 		authProjectOwningUser, "")
-	if len(list.Invitations) != 1 || list.Invitations[0].State != "open" ||
-		list.Invitations[0].InvitationID != "inv-1" {
+	if len(list.Invitations) != 2 || list.Invitations[0].State != "open" ||
+		list.Invitations[0].InvitationID != "inv-1" || list.Invitations[0].AcceptedPrincipalID != nil {
 		t.Fatalf("invitations = %+v", list.Invitations)
+	}
+	if principal := list.Invitations[1].AcceptedPrincipalID; principal == nil || *principal != "017f22e2-79b0-7f4a-8f90-ec7c7c502334" {
+		t.Fatal("accepted invitation must retain its exact server-recorded principal")
 	}
 }
 

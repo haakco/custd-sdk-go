@@ -46,21 +46,27 @@ type AuthProjectRequestOptions struct {
 // creates the named owning user's project ownership, identity pool and first
 // paused environment atomically.
 type AuthProjectCreateRequest struct {
-	Slug            string                  `json:"slug"`
-	Name            string                  `json:"name"`
-	EnvironmentSlug string                  `json:"environmentSlug"`
-	IdentityMode    AuthProjectIdentityMode `json:"identityMode"`
+	Slug                    string                  `json:"slug"`
+	Name                    string                  `json:"name"`
+	EnvironmentSlug         string                  `json:"environmentSlug"`
+	IdentityMode            AuthProjectIdentityMode `json:"identityMode"`
+	AudienceEntitlementMode string                  `json:"audienceEntitlementMode"`
 }
 
 // AuthProjectEnvironmentCreateRequest is the body of
 // POST /api/v1/admin/auth-projects/{projectId}/environments.
 type AuthProjectEnvironmentCreateRequest struct {
-	Slug         string                  `json:"slug"`
-	Name         string                  `json:"name"`
-	IdentityMode AuthProjectIdentityMode `json:"identityMode"`
+	Slug                    string                  `json:"slug"`
+	Name                    string                  `json:"name"`
+	IdentityMode            AuthProjectIdentityMode `json:"identityMode"`
+	AudienceEntitlementMode string                  `json:"audienceEntitlementMode"`
 }
 
 // AuthProjectSummary is one project and the environment the call is scoped to.
+//
+// CompanyUUID is the company the project is persisted against. Nil means the
+// project is explicitly unbound; a caller must never infer it from a slug, an
+// email or its own company.
 type AuthProjectSummary struct {
 	ProjectID       string                  `json:"projectId"`
 	Slug            string                  `json:"slug"`
@@ -68,6 +74,15 @@ type AuthProjectSummary struct {
 	EnvironmentID   string                  `json:"environmentId"`
 	EnvironmentSlug string                  `json:"environmentSlug"`
 	IdentityMode    AuthProjectIdentityMode `json:"identityMode"`
+	CompanyUUID     *string                 `json:"companyUuid"`
+}
+
+// AuthProjectCompanyBinding is the result of binding an explicitly unbound project
+// to the authenticated human owner's company. It carries the persisted company
+// identity a consumer stores.
+type AuthProjectCompanyBinding struct {
+	ProjectID   string `json:"projectId"`
+	CompanyUUID string `json:"companyUuid"`
 }
 
 // AuthProjectCreation is the response to creating a project. Replayed reports
@@ -262,6 +277,9 @@ type AuthProjectStatus struct {
 	LoginReady    bool                    `json:"loginReady"`
 	LoginNote     string                  `json:"loginNote"`
 	ClientSync    *AuthProjectClientSync  `json:"clientSync,omitempty"`
+	// CompanyUUID is the persisted company of this environment's project; nil
+	// means explicitly unbound, never inferred.
+	CompanyUUID *string `json:"companyUuid"`
 }
 
 // AuthProjectAdminClient manages Custd projects, their environments, and the
@@ -313,6 +331,26 @@ func (c *AuthProjectAdminClient) CreateProject(
 
 // CreateEnvironment adds a further environment to an existing project. The new
 // environment starts paused and invite-only.
+// BindProjectCompany records the authenticated human owner's company on an
+// explicitly unbound historical project. It is the actionable step a
+// company_binding_required refusal names: the body is empty, Custd refuses a
+// machine credential and a foreign rebind, and repeating it for the same company
+// is safe, so it carries no idempotency key.
+func (c *AuthProjectAdminClient) BindProjectCompany(
+	ctx context.Context,
+	projectID string,
+	options AuthProjectRequestOptions,
+) (*AuthProjectCompanyBinding, error) {
+	var out AuthProjectCompanyBinding
+	path := "/auth-projects/" + url.PathEscape(projectID) + "/company-binding"
+	if err := c.admin.requestWithHeaders(
+		ctx, http.MethodPost, path, nil, &out, authProjectHeaders(options),
+	); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 func (c *AuthProjectAdminClient) CreateEnvironment(
 	ctx context.Context,
 	projectID string,

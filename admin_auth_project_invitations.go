@@ -21,6 +21,9 @@ type AuthProjectInvitation struct {
 	// Delivered reports whether the link reached the delivery owner. It is only
 	// meaningful on the response to issuing an invitation and absent elsewhere.
 	Delivered bool `json:"delivered,omitempty"`
+	// AcceptedPrincipalID is the server-recorded acceptance linkage, never an
+	// address match. Nil means unavailable, including historical accepted rows.
+	AcceptedPrincipalID *string `json:"acceptedPrincipalId"`
 }
 
 // AuthProjectInvitationIssueRequest invites one address into a directory. It

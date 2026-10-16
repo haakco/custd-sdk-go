@@ -100,7 +100,8 @@ func TestAuthProjectsListProjectsSendsCursorAndOwningUser(t *testing.T) {
 			"name": "Hosting EU",
 			"environmentId": "01957abc-0000-7000-8000-000000000002",
 			"environmentSlug": "production",
-			"identityMode": "shared"
+			"identityMode": "shared",
+			"companyUuid": "01957abc-0000-7000-8000-0000000000aa"
 		}],
 		"nextAfter": "01957abc-0000-7000-8000-000000000003"
 	}`)
@@ -122,6 +123,9 @@ func TestAuthProjectsListProjectsSendsCursorAndOwningUser(t *testing.T) {
 	}
 	if page.Projects[0].IdentityMode != AuthProjectIdentityShared {
 		t.Fatalf("identity mode = %q", page.Projects[0].IdentityMode)
+	}
+	if page.Projects[0].CompanyUUID == nil || *page.Projects[0].CompanyUUID != "01957abc-0000-7000-8000-0000000000aa" {
+		t.Fatalf("company uuid = %v", page.Projects[0].CompanyUUID)
 	}
 	if page.NextAfter != "01957abc-0000-7000-8000-000000000003" {
 		t.Fatalf("nextAfter = %q", page.NextAfter)
