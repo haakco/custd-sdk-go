@@ -305,3 +305,70 @@ func TestAnalyticsQueryRangeRejectsRetiredSourcesBeforeSending(t *testing.T) {
 		})
 	}
 }
+
+// TestAnalyticsQuerySerialisesLogDimensionFilters verifies the promoted
+// log-dimension filters travel on the day query's flat wire fields. An unset
+// filter is omitted so it never narrows the query.
+func TestAnalyticsQuerySerialisesLogDimensionFilters(t *testing.T) {
+	doer := newCaptureDoer(http.StatusOK, analyticsQueryResponseFixture)
+	client := newAdminTestClient(t, doer, "http://localhost:8080")
+
+	_, err := client.Analytics.Query(context.Background(), AnalyticsEventQueryRequest{
+		Date:      "2026-09-14",
+		Severity:  "error",
+		Service:   "checkout-api",
+		SubClient: "acme-store",
+		Resource:  "srv-1",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var body map[string]json.RawMessage
+	if err := json.Unmarshal(doer.requests[0].Body, &body); err != nil {
+		t.Fatal(err)
+	}
+	want := map[string]string{
+		"severity": `"error"`, "service": `"checkout-api"`,
+		"subClient": `"acme-store"`, "resource": `"srv-1"`,
+	}
+	for key, value := range want {
+		if string(body[key]) != value {
+			t.Fatalf("field %s = %s, want %s", key, body[key], value)
+		}
+	}
+}
+
+func TestAnalyticsQueryOmitsUnsetLogDimensionFilters(t *testing.T) {
+	body, err := json.Marshal(AnalyticsEventQueryRequest{Date: "2026-09-14"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := string(body); got != `{"date":"2026-09-14"}` {
+		t.Fatalf("body = %s", got)
+	}
+}
+
+func TestAnalyticsQueryRangeSerialisesLogDimensionFilters(t *testing.T) {
+	doer := newCaptureDoer(http.StatusOK, analyticsRangeQueryResponseFixture)
+	client := newAdminTestClient(t, doer, "http://localhost:8080")
+
+	_, err := client.Analytics.QueryRange(context.Background(), AnalyticsEventRangeQueryRequest{
+		From:      "2026-09-14",
+		To:        "2026-09-15",
+		Severity:  "error",
+		SubClient: "acme-store",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var body map[string]json.RawMessage
+	if err := json.Unmarshal(doer.requests[0].Body, &body); err != nil {
+		t.Fatal(err)
+	}
+	if string(body["severity"]) != `"error"` || string(body["subClient"]) != `"acme-store"` {
+		t.Fatalf("body = %s", doer.requests[0].Body)
+	}
+	if _, ok := body["service"]; ok {
+		t.Fatalf("unset service must be omitted: %s", doer.requests[0].Body)
+	}
+}
