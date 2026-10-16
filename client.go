@@ -33,6 +33,7 @@ type CustdClient struct {
 	Admin        *AdminClient
 	Analytics    *AnalyticsEventClient
 	Measurement  *MeasurementClient
+	Parsers      *ParserClient
 	Provisioning *ProvisioningClient
 	Reporting    *ReportingClient
 	config       ClientConfig
@@ -63,6 +64,7 @@ func NewClient(config *ClientConfig) *CustdClient {
 	c.Admin = newAdminClient(c)
 	c.Analytics = newAnalyticsEventClient(c)
 	c.Measurement = newMeasurementClient(c)
+	c.Parsers = newParserClient(c)
 	c.Provisioning = newProvisioningClient(c)
 	c.Reporting = newReportingClient(c)
 	c.startFlusher()

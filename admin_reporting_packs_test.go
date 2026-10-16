@@ -180,3 +180,40 @@ func TestProducerReservationsClientLifecycle(t *testing.T) {
 		t.Fatalf("Release URL = %s", doer.requests[3].URL)
 	}
 }
+
+func TestReportingPacksAdminClientSetupTemplates(t *testing.T) {
+	definition := `{"key":"log_observability","displayName":"Log observability","owner":"platform","version":1,` +
+		`"enabled":true,"eventTypes":["log_event"],"metrics":[],"dimensions":[],"templates":[],` +
+		`"trust":{"safeFields":[],"redactionGuard":[]},` +
+		`"proof":{"key":"log_observability_proof","templates":[],"safeMetadataFields":[],"forbiddenFields":[],"outputLayout":"summary"}}`
+	doer := newCaptureDoer(http.StatusOK, `{"templates":[{"kind":"log_observability","displayName":"Log observability","definition":`+definition+`,"bindings":[{"key":"eventType","label":"Log event type","required":true}]}]}`)
+	client := newAdminTestClient(t, doer, "http://localhost:8080/")
+
+	list, err := client.Admin.ReportingPacks.ListSetupTemplates(context.Background())
+	if err != nil {
+		t.Fatalf("ListSetupTemplates error: %v", err)
+	}
+	if len(list.Templates) != 1 || list.Templates[0].Kind != "log_observability" || len(list.Templates[0].Bindings) != 1 {
+		t.Fatalf("templates = %+v", list.Templates)
+	}
+	if list.Templates[0].Bindings[0].Key != "eventType" || !list.Templates[0].Bindings[0].Required {
+		t.Fatalf("binding = %+v", list.Templates[0].Bindings[0])
+	}
+	if doer.requests[0].URL != "http://localhost:8080/api/v1/admin/reporting-packs/setup-templates" {
+		t.Fatalf("ListSetupTemplates URL = %s", doer.requests[0].URL)
+	}
+
+	doer.body = `{"kind":"log_observability","definition":` + definition + `}`
+	bound, err := client.Admin.ReportingPacks.BindSetupTemplate(context.Background(), "log_observability", ReportingPackSetupTemplateBindRequest{
+		Bindings: LogObservabilityBindings{EventType: "client.log", SeverityField: "level", ResourceField: "host"},
+	})
+	if err != nil {
+		t.Fatalf("BindSetupTemplate error: %v", err)
+	}
+	if bound.Kind != "log_observability" || bound.Definition.Key != "log_observability" {
+		t.Fatalf("bound = %+v", bound)
+	}
+	if doer.requests[1].URL != "http://localhost:8080/api/v1/admin/reporting-packs/setup-templates/log_observability/bind" {
+		t.Fatalf("BindSetupTemplate URL = %s", doer.requests[1].URL)
+	}
+}

@@ -73,6 +73,13 @@ type AnalyticsEventQueryRequest struct {
 	Source AnalyticsQuerySource `json:"source,omitempty"`
 	// LabelFilters accepts at most MaxAnalyticsLabelFilters entries.
 	LabelFilters []AnalyticsLabelFilter `json:"labelFilters,omitempty"`
+	// The promoted log-dimension filters are exact equality matches against the
+	// matching typed column. An empty value is omitted from the wire so an unset
+	// filter never narrows the query.
+	Severity  string `json:"severity,omitempty"`
+	Service   string `json:"service,omitempty"`
+	SubClient string `json:"subClient,omitempty"`
+	Resource  string `json:"resource,omitempty"`
 }
 
 // AnalyticsEventRow is one tenant event.
@@ -138,6 +145,13 @@ type AnalyticsEventRangeQueryRequest struct {
 	GroupBy string `json:"groupBy,omitempty"`
 	// LabelFilters accepts at most MaxAnalyticsLabelFilters entries.
 	LabelFilters []AnalyticsLabelFilter `json:"labelFilters,omitempty"`
+	// The promoted log-dimension filters are exact equality matches against the
+	// matching typed column. An empty value is omitted from the wire so an unset
+	// filter never narrows the query.
+	Severity  string `json:"severity,omitempty"`
+	Service   string `json:"service,omitempty"`
+	SubClient string `json:"subClient,omitempty"`
+	Resource  string `json:"resource,omitempty"`
 }
 
 // AnalyticsEventRangeBucket is one day's coverage inside a range query.

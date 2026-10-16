@@ -21,7 +21,7 @@ import (
 	"os"
 	"time"
 
-	custd "github.com/haakco/custd-sdk-go/v2"
+	custd "github.com/haakco/custd-sdk-go/v3"
 )
 
 // reconcileWorkflow is the declared shape. Every key is provider-neutral: the

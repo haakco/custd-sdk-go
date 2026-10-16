@@ -11,41 +11,41 @@ alias or deprecation window.
 
 ## Install
 
-Consume the Go module from its dedicated mirror `github.com/haakco/custd-sdk-go/v2`
+Consume the Go module from its dedicated mirror `github.com/haakco/custd-sdk-go/v3`
 (tagged `vX.Y.Z`):
 
 ```bash
-go get github.com/haakco/custd-sdk-go/v2@latest
+go get github.com/haakco/custd-sdk-go/v3@latest
 ```
 
 ```go
-import custd "github.com/haakco/custd-sdk-go/v2"
+import custd "github.com/haakco/custd-sdk-go/v3"
 ```
 
 > This module is developed in the [`custd-sdk`](https://github.com/haakco/custd-sdk)
 > monorepo under `sdk-go/` and published to the read-only `custd-sdk-go` mirror on
 > each release. Import the mirror path above, not the monorepo subdir.
 
-## Migrating from `github.com/haakco/custd-sdk/sdk-go`
+## Migrating to `v3`
 
-The module path **changed in `v1.3.2`** (breaking). Versions up to and including
-`sdk-go/v1.3.1` were imported from the monorepo subdir path
-`github.com/haakco/custd-sdk/sdk-go`; that path is now frozen and will not receive
-further releases.
+The module path is major-versioned. The current line is
+`github.com/haakco/custd-sdk-go/v3`; the previous line served `.../v2`, and the original unversioned
+`github.com/haakco/custd-sdk-go` path was frozen at v1 and receives no further releases.
 
-To move to `v1.3.2`+:
+To move from `v2` to `v3`:
 
 ```bash
 # 1. Update import paths in your code
-#    github.com/haakco/custd-sdk/sdk-go  ->  github.com/haakco/custd-sdk-go
-# 2. Pull the renamed module
-go get github.com/haakco/custd-sdk-go@v1.3.2
+#    github.com/haakco/custd-sdk-go/v2  ->  github.com/haakco/custd-sdk-go/v3
+# 2. Pull the new major
+#    go get github.com/haakco/custd-sdk-go/v3@v3.0.0
 # 3. Drop the now-unused old module
-go mod tidy
+#    go mod tidy
 ```
 
-The package name (`custd`) and every exported symbol are unchanged — only the
-module/import path moves, so it is a mechanical find-and-replace.
+The package name (`custd`) is unchanged, so the move is a mechanical find-and-replace. v3 also reshapes
+the reporting-pack types to the canonical contract; the breaking list is in the release changelog under
+`docs/changelog/`.
 
 ## Usage
 
@@ -140,7 +140,7 @@ mise exec -- just check
 Create the tenant-bound OAuth2 producer client and print env snippets:
 
 ```bash
-go run github.com/haakco/custd-sdk-go/v2/cmd/custd-sdk-setup@latest \
+go run github.com/haakco/custd-sdk-go/v3/cmd/custd-sdk-setup@latest \
   --base-url=https://custd.com \
   --admin-url=https://custd.com \
   --admin-token="$CUSTD_ADMIN_TOKEN" \

@@ -6,45 +6,11 @@ import (
 	"net/url"
 )
 
-// ReportingPacksAdminClient owns the admin-owned reporting-pack lifecycle. The
-// authority model is company_id; the SDK sends no TenantSlug on these
-// surfaces, matching the Stage 1 frozen contract.
+// ReportingPacksAdminClient owns the admin-owned reporting-pack lifecycle and
+// the reviewed setup templates. The authority model is company_id; the SDK
+// sends no TenantSlug on these surfaces, matching the frozen contract.
 type ReportingPacksAdminClient struct {
 	admin *AdminClient
-}
-
-type Pack struct {
-	Key         string          `json:"key"`
-	DisplayName string          `json:"displayName"`
-	Owner       string          `json:"owner,omitempty"`
-	Enabled     bool            `json:"enabled"`
-	EventTypes  []string        `json:"eventTypes"`
-	Metrics     []PackMetric    `json:"metrics"`
-	Dimensions  []PackDimension `json:"dimensions"`
-	Dashboards  []PackDashboard `json:"dashboards"`
-}
-
-type PackMetric struct {
-	Key         string   `json:"key"`
-	DisplayName string   `json:"displayName"`
-	Template    string   `json:"template"`
-	Metrics     []string `json:"metrics"`
-	Dimensions  []string `json:"dimensions"`
-}
-
-type PackDimension struct {
-	Key         string `json:"key"`
-	DisplayName string `json:"displayName"`
-}
-
-type PackDashboard struct {
-	Key            string            `json:"key"`
-	Title          string            `json:"title"`
-	Hidden         bool              `json:"hidden"`
-	DefaultRange   string            `json:"defaultRange"`
-	RefreshSeconds int               `json:"refreshSeconds"`
-	RequiredScopes []string          `json:"requiredScopes"`
-	Widgets        []ReportingWidget `json:"widgets"`
 }
 
 type ReportingPackDraft struct {
@@ -130,6 +96,47 @@ type ReportingPackMaterializationProvenance struct {
 	Status                string `json:"status"`
 	DefinitionFingerprint string `json:"definitionFingerprint"`
 	SourceCoverageCount   int64  `json:"sourceCoverageCount"`
+}
+
+// ReportingPackSetupBindingField describes one client-selectable binding a
+// setup template renders. The value and its validation belong to the backend.
+type ReportingPackSetupBindingField struct {
+	Key      string `json:"key"`
+	Label    string `json:"label"`
+	Required bool   `json:"required"`
+}
+
+// ReportingPackSetupTemplate is one reviewed setup template: its canonical
+// definition plus the client-selectable bindings the client renders.
+type ReportingPackSetupTemplate struct {
+	Kind        string                           `json:"kind"`
+	DisplayName string                           `json:"displayName"`
+	Definition  Pack                             `json:"definition"`
+	Bindings    []ReportingPackSetupBindingField `json:"bindings"`
+}
+
+// ReportingPackSetupTemplateListResponse is the public list contract for the
+// reviewed setup templates.
+type ReportingPackSetupTemplateListResponse struct {
+	Templates []ReportingPackSetupTemplate `json:"templates"`
+}
+
+// LogObservabilityBindings is the typed log-observability binding a client
+// selects. The backend owns the metric, dimension, template and widget keys and
+// the validation; it is never an untyped dictionary.
+type LogObservabilityBindings struct {
+	EventType     string `json:"eventType"`
+	SeverityField string `json:"severityField"`
+	ResourceField string `json:"resourceField"`
+}
+
+type ReportingPackSetupTemplateBindRequest struct {
+	Bindings LogObservabilityBindings `json:"bindings"`
+}
+
+type ReportingPackSetupTemplateBindResponse struct {
+	Kind       string `json:"kind"`
+	Definition Pack   `json:"definition"`
 }
 
 func (c *ReportingPacksAdminClient) ListDrafts(ctx context.Context) (*ReportingPackDraftListResponse, error) {
@@ -249,6 +256,34 @@ func (c *ReportingPacksAdminClient) GetRollupProvenance(
 		http.MethodGet,
 		"/reporting-packs/generations/"+url.PathEscape(generationID)+"/rollup-provenance",
 		nil,
+		&out,
+	)
+	return &out, err
+}
+
+// ListSetupTemplates lists the reviewed setup templates, each with its canonical
+// definition and the client-selectable bindings it renders.
+func (c *ReportingPacksAdminClient) ListSetupTemplates(ctx context.Context) (*ReportingPackSetupTemplateListResponse, error) {
+	var out ReportingPackSetupTemplateListResponse
+	err := c.admin.request(ctx, http.MethodGet, "/reporting-packs/setup-templates", nil, &out)
+	return &out, err
+}
+
+// BindSetupTemplate applies typed bindings to one reviewed setup template and
+// returns the server-built, validated definition. It is a pure build: it creates
+// no data and grants no scope, so its result must be posted through CreateDraft
+// or Preview only when the caller intends to.
+func (c *ReportingPacksAdminClient) BindSetupTemplate(
+	ctx context.Context,
+	kind string,
+	req ReportingPackSetupTemplateBindRequest,
+) (*ReportingPackSetupTemplateBindResponse, error) {
+	var out ReportingPackSetupTemplateBindResponse
+	err := c.admin.request(
+		ctx,
+		http.MethodPost,
+		"/reporting-packs/setup-templates/"+url.PathEscape(kind)+"/bind",
+		req,
 		&out,
 	)
 	return &out, err
