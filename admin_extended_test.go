@@ -13,31 +13,37 @@ import (
 // logged request fields either, so we verify the body is sent verbatim and the
 // response side returns no ExternalID.
 func TestPrivacyAdminClientLifecycle(t *testing.T) {
-	doer := newCaptureDoer(http.StatusOK, `{"tenantSlug":"acme","purposes":["analytics"],"hardDeleteAfterDays":30}`)
+	doer := newCaptureDoer(http.StatusOK,
+		`{"companySlug":"acme","applyMode":"at_ingestion","enabled":true,`+
+			`"rules":[{"fieldPath":"payload.email","action":"hash","enabled":true}]}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080/")
 
-	rules, err := client.Admin.Privacy.GetRules(context.Background())
+	rules, err := client.Admin.Privacy.GetRules(context.Background(), "acme")
 	if err != nil {
 		t.Fatalf("GetRules error: %v", err)
 	}
-	if rules.TenantSlug != "acme" {
-		t.Fatalf("rules.TenantSlug = %q", rules.TenantSlug)
+	if rules.CompanySlug != "acme" || rules.ApplyMode != "at_ingestion" || !rules.Enabled {
+		t.Fatalf("rules = %+v", rules)
+	}
+	if len(rules.Rules) != 1 || rules.Rules[0].FieldPath != "payload.email" {
+		t.Fatalf("rules.Rules = %+v", rules.Rules)
 	}
 	if doer.requests[0].Method != http.MethodGet ||
-		doer.requests[0].URL != "http://localhost:8080/api/v1/admin/privacy/rules" {
+		doer.requests[0].URL != "http://localhost:8080/api/v1/admin/privacy/rules?companySlug=acme" {
 		t.Fatalf("GetRules request = %+v", doer.requests[0])
 	}
 
-	doer.body = `{"tenantSlug":"acme","purposes":["analytics","product_improvement"],"hardDeleteAfterDays":60}`
-	updated, err := client.Admin.Privacy.SetRules(context.Background(), PrivacyRuleUpdate{
-		Purposes:            []string{"analytics", "product_improvement"},
-		HardDeleteAfterDays: 60,
+	doer.body = `{"companySlug":"acme","applyMode":"at_ingestion","enabled":true,` +
+		`"rules":[{"fieldPath":"payload.email","action":"remove","enabled":true}]}`
+	updated, err := client.Admin.Privacy.SetRules(context.Background(), PrivacyRules{
+		CompanySlug: "acme", ApplyMode: "at_ingestion", Enabled: true,
+		Rules: []PrivacyRule{{FieldPath: "payload.email", Action: "remove", Enabled: true}},
 	})
 	if err != nil {
 		t.Fatalf("SetRules error: %v", err)
 	}
-	if updated.HardDeleteAfterDays != 60 {
-		t.Fatalf("updated HardDeleteAfterDays = %d", updated.HardDeleteAfterDays)
+	if len(updated.Rules) != 1 || updated.Rules[0].Action != "remove" {
+		t.Fatalf("updated = %+v", updated)
 	}
 	if doer.requests[1].Method != http.MethodPut ||
 		doer.requests[1].URL != "http://localhost:8080/api/v1/admin/privacy/rules" {

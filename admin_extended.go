@@ -280,21 +280,25 @@ type PrivacyAdminClient struct {
 	admin *AdminClient
 }
 
+// PrivacyRule is one field's ingestion-time treatment. Action is one of keep, hash, truncate, remove,
+// strip_query or origin; TruncateLength is required and positive for truncate.
 type PrivacyRule struct {
-	TenantSlug          string   `json:"tenantSlug,omitempty"`
-	Purposes            []string `json:"purposes"`
-	HardDeleteAfterDays int      `json:"hardDeleteAfterDays,omitempty"`
+	FieldPath      string `json:"fieldPath"`
+	Action         string `json:"action"`
+	TruncateLength *int   `json:"truncateLength,omitempty"`
+	Enabled        bool   `json:"enabled"`
 }
 
-type PrivacyRuleUpdate struct {
-	Purposes            []string `json:"purposes"`
-	HardDeleteAfterDays int      `json:"hardDeleteAfterDays,omitempty"`
-}
-
-type PrivacyRulesResponse struct {
-	TenantSlug          string   `json:"tenantSlug"`
-	Purposes            []string `json:"purposes"`
-	HardDeleteAfterDays int      `json:"hardDeleteAfterDays"`
+// PrivacyRules is a tenant's ingestion privacy configuration.
+//
+// The route this models takes `{companySlug, applyMode, enabled, rules`. An earlier version of this
+// type described purposes and a hard-delete window, which the route does not accept or return: a
+// caller could set both fields, have them silently ignored, and be told the update succeeded.
+type PrivacyRules struct {
+	CompanySlug string        `json:"companySlug"`
+	ApplyMode   string        `json:"applyMode"`
+	Enabled     bool          `json:"enabled"`
+	Rules       []PrivacyRule `json:"rules"`
 }
 
 type PrivacyIdentifierMapRequest struct {
@@ -312,16 +316,20 @@ type PrivacyIdentifierMapping struct {
 	CreatedAt            string `json:"createdAt,omitempty"`
 }
 
-// GetRules returns the privacy rules attached to the effective tenant.
-func (c *PrivacyAdminClient) GetRules(ctx context.Context) (*PrivacyRulesResponse, error) {
-	var out PrivacyRulesResponse
-	err := c.admin.request(ctx, http.MethodGet, "/privacy/rules", nil, &out)
+// GetRules returns the tenant's ingestion privacy configuration. An empty companySlug reads the
+// configuration for the caller's own tenant.
+func (c *PrivacyAdminClient) GetRules(ctx context.Context, companySlug string) (*PrivacyRules, error) {
+	var out PrivacyRules
+	err := c.admin.request(
+		ctx, http.MethodGet, "/privacy/rules"+optionalCompanySlug(companySlug), nil, &out,
+	)
 	return &out, err
 }
 
-// SetRules replaces the privacy rules for the effective tenant.
-func (c *PrivacyAdminClient) SetRules(ctx context.Context, req PrivacyRuleUpdate) (*PrivacyRulesResponse, error) {
-	var out PrivacyRulesResponse
+// SetRules replaces the tenant's ingestion privacy configuration. The server requires applyMode to be
+// at_ingestion and refuses a truncate rule without a positive TruncateLength.
+func (c *PrivacyAdminClient) SetRules(ctx context.Context, req PrivacyRules) (*PrivacyRules, error) {
+	var out PrivacyRules
 	err := c.admin.request(ctx, http.MethodPut, "/privacy/rules", req, &out)
 	return &out, err
 }
