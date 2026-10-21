@@ -371,6 +371,14 @@ func (c *CustdClient) headers(gzipped bool) map[string]string {
 	if c.config.APIKey != "" {
 		headers["Authorization"] = "Bearer " + c.config.APIKey
 	}
+	// The audit labels belong to every request this client makes, not only the admin
+	// ones: the server credits an operator action from whichever route it arrives on.
+	if c.config.ClientLabel != "" {
+		headers[clientLabelHeader] = c.config.ClientLabel
+	}
+	if c.config.CommandLabel != "" {
+		headers[commandLabelHeader] = c.config.CommandLabel
+	}
 	return headers
 }
 

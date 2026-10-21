@@ -225,12 +225,12 @@ func (c *ProvisioningClient) request(ctx context.Context, method string, path st
 		}
 	}
 	if c.client.config.HTTPClient != nil {
-		return c.requestViaDoer(method, path, body, out)
+		return c.requestViaDoer(ctx, method, path, body, out)
 	}
 	return c.requestViaHTTP(ctx, method, path, body, out)
 }
 
-func (c *ProvisioningClient) requestViaDoer(method string, path string, body []byte, out any) error {
+func (c *ProvisioningClient) requestViaDoer(ctx context.Context, method, path string, body []byte, out any) error {
 	resp, err := c.client.config.HTTPClient.Do(&HTTPRequest{
 		Method:  method,
 		URL:     c.endpoint(path),
@@ -243,6 +243,7 @@ func (c *ProvisioningClient) requestViaDoer(method string, path string, body []b
 	if err := c.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
 		return err
 	}
+	recordMetadata(ctx, responseHeader(resp.Headers, requestIDHeader))
 	return decodeAdminResponse(resp.Body, out)
 }
 
@@ -263,6 +264,7 @@ func (c *ProvisioningClient) requestViaHTTP(ctx context.Context, method string, 
 	if err := c.client.checkStatus(resp.StatusCode, respBody); err != nil {
 		return err
 	}
+	recordMetadata(ctx, resp.Header.Get(requestIDHeader))
 	return decodeAdminResponse(respBody, out)
 }
 
