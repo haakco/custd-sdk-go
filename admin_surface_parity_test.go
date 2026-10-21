@@ -396,3 +396,34 @@ func TestAdminUserEnableSendsTheRoles(t *testing.T) {
 		t.Fatalf("body = %s, want the roles", string(request.Body))
 	}
 }
+
+// TestPasswordResetReportsTheNotificationNotAPassword proves the reset surface models
+// what the server actually answers. It never returns a credential; it reports the
+// one-time message it queued and the deliveries it made.
+func TestPasswordResetReportsTheNotificationNotAPassword(t *testing.T) {
+	client, _ := newSurfaceClient(t, http.StatusOK,
+		`{"messageUuid":"msg-1","deliveryUuids":["del-1","del-2"]}`)
+
+	reset, _, err := client.Admin.AdminUsers.ResetPassword(context.Background(), "user-1")
+	if err != nil {
+		t.Fatalf("ResetPassword returned error: %v", err)
+	}
+	if reset.MessageUUID != "msg-1" || len(reset.DeliveryUUIDs) != 2 {
+		t.Fatalf("reset = %#v, want the queued notification", reset)
+	}
+}
+
+// TestRolesCarryTheSlugACallerSubmits proves the role list reports the value a caller
+// sends, not a field the server never returns.
+func TestRolesCarryTheSlugACallerSubmits(t *testing.T) {
+	client, _ := newSurfaceClient(t, http.StatusOK,
+		`{"roles":[{"slug":"tenant_admin","name":"Tenant admin","description":"Manages one tenant"}]}`)
+
+	roles, _, err := client.Admin.AdminUsers.ListRoles(context.Background())
+	if err != nil {
+		t.Fatalf("ListRoles returned error: %v", err)
+	}
+	if len(roles.Roles) != 1 || roles.Roles[0].Slug != "tenant_admin" || roles.Roles[0].Name != "Tenant admin" {
+		t.Fatalf("roles = %#v", roles)
+	}
+}

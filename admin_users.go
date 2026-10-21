@@ -57,10 +57,12 @@ type AdminUserMembershipCreateRequest struct {
 	Roles       []string `json:"roles,omitempty"`
 }
 
-// AdminUserPasswordReset carries a replacement password. The value is sensitive
-// and must not be logged.
+// AdminUserPasswordReset is the notification a reset queued — not a password. The
+// server never returns the credential; it creates a one-time message and reports which
+// deliveries it made, so the operator can see the reset reached the user.
 type AdminUserPasswordReset struct {
-	Password string `json:"password"`
+	MessageUUID   string   `json:"messageUuid"`
+	DeliveryUUIDs []string `json:"deliveryUuids"`
 }
 
 // AdminUserListResponse is the body for GET /users. The list is a named
@@ -85,10 +87,12 @@ type AdminUserRemovalRequest struct {
 	Reason string `json:"reason"`
 }
 
-// AdminUserRole is one assignable role.
+// AdminUserRole is one assignable role. Slug is the value a caller submits; Name and
+// Description are for a person.
 type AdminUserRole struct {
-	Role        string `json:"role"`
-	Description string `json:"description,omitempty"`
+	Slug        string `json:"slug"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 // AdminUserRoleListResponse lists assignable roles.
