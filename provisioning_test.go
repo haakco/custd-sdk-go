@@ -82,7 +82,9 @@ func TestProvisioningProducersUsePublicAPIAndKeepSecretExplicit(t *testing.T) {
 	}
 	doer.status = http.StatusOK
 	doer.body = `{"clientId":"custd-agency-store-001-webhook","companySlug":"agency-store-001","producerSlug":"webhook","environment":"staging"}`
-	updated, err := client.Provisioning.Producers.UpdateEnvironment(context.Background(), "custd/agency store", "staging")
+	updated, err := client.Provisioning.Producers.UpdateEnvironment(
+		context.Background(), "custd/agency store", ProducerEnvironmentUpdateRequest{Environment: "staging"},
+	)
 	if err != nil {
 		t.Fatalf("UpdateEnvironment returned error: %v", err)
 	}

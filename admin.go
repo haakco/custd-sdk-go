@@ -282,10 +282,17 @@ func (c *SiteAdminClient) RotateWriteKey(
 	return &key, err
 }
 
-func (c *SchemaAdminClient) Register(ctx context.Context, req AdminSchemaRegister) (*AdminSchema, error) {
+// Register registers one schema version for a tenant's event type. The route names both
+// the tenant and the event type, so the body cannot disagree with the path.
+func (c *SchemaAdminClient) Register(
+	ctx context.Context, tenantSlug, eventTypeSlug string, req AdminSchemaRegister,
+) (*AdminSchema, error) {
 	var schema AdminSchema
-	err := c.admin.request(ctx, http.MethodPost, "/schemas", req, &schema)
-	return &schema, err
+	path := "/schema/" + url.PathEscape(tenantSlug) + "/" + url.PathEscape(eventTypeSlug) + "/register"
+	if err := c.admin.request(ctx, http.MethodPost, path, req, &schema); err != nil {
+		return nil, err
+	}
+	return &schema, nil
 }
 
 func (c *SchemaAdminClient) List(ctx context.Context) (*AdminSchemaList, error) {

@@ -19,6 +19,21 @@ type AdminOAuthClient struct {
 	Profile        string   `json:"profile,omitempty"`
 	PurposeProfile string   `json:"purposeProfile,omitempty"`
 	ClientSecret   string   `json:"clientSecret,omitempty"`
+	// LoginSetup is present instead of ClientSecret when a login client is created: a
+	// public client has no secret, and the caller needs the values to configure itself.
+	LoginSetup *OAuthClientLoginSetup `json:"loginSetup,omitempty"`
+}
+
+// OAuthClientLoginSetup is what a login client must be configured with. It carries no
+// secret by construction, because a public client has none.
+type OAuthClientLoginSetup struct {
+	Profile       string `json:"profile,omitempty"`
+	APIURL        string `json:"apiUrl,omitempty"`
+	IssuerURL     string `json:"issuerUrl,omitempty"`
+	ClientID      string `json:"clientId,omitempty"`
+	Audience      string `json:"audience,omitempty"`
+	Scope         string `json:"scope,omitempty"`
+	ConfigCommand string `json:"configCommand,omitempty"`
 }
 
 type AdminOAuthClientCreateResponse struct {

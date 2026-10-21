@@ -131,20 +131,23 @@ func (c *ProducerProvisioningClient) RotateSecret(
 // every environment unless an operator deliberately restricts it.
 type ProducerEnvironmentUpdateRequest struct {
 	Environment string `json:"environment"`
+	// AllowedEnvironments replaces the producer's optional restriction. An empty
+	// list allows every environment; a nil leaves it unchanged.
+	AllowedEnvironments *[]string `json:"allowedEnvironments,omitempty"`
 }
 
 // UpdateEnvironment changes the source environment recorded for a producer.
 func (c *ProducerProvisioningClient) UpdateEnvironment(
 	ctx context.Context,
 	clientID string,
-	environment string,
+	req ProducerEnvironmentUpdateRequest,
 ) (*ProducerProvisionPublicClient, error) {
 	var producer ProducerProvisionPublicClient
 	err := c.provisioning.request(
 		ctx,
 		http.MethodPatch,
 		"/producer-provisioning/"+url.PathEscape(clientID)+"/environment",
-		ProducerEnvironmentUpdateRequest{Environment: environment},
+		req,
 		&producer,
 	)
 	return &producer, err

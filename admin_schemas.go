@@ -1,9 +1,15 @@
 package custd
 
 type AdminSchemaRegister struct {
-	EventTypeSlug string         `json:"eventTypeSlug"`
-	Version       string         `json:"version"`
-	JSONSchema    map[string]any `json:"jsonSchema"`
+	TenantSlug    string `json:"tenantSlug"`
+	EventTypeSlug string `json:"eventTypeSlug"`
+	Version       string `json:"version"`
+	// SchemaJSON is the schema document as text. The server validates and stores the
+	// text, so sending a decoded object would be a different contract.
+	SchemaJSON string `json:"schemaJson"`
+	Dialect    string `json:"dialect"`
+	Checksum   string `json:"checksum"`
+	Enabled    bool   `json:"enabled"`
 }
 
 type AdminSchemaVersionCreate struct {

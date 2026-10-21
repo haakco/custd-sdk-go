@@ -159,7 +159,7 @@ func TestSetupProducerRegistersSchemasFromDirectory(t *testing.T) {
 	if len(doer.requests) != 2 {
 		t.Fatalf("expected schema and oauth requests, got %d", len(doer.requests))
 	}
-	if doer.requests[0].path != "/api/v1/admin/schemas" {
+	if doer.requests[0].path != "/api/v1/admin/schema/acme/courib.delivery.created/register" {
 		t.Fatalf("first path = %q", doer.requests[0].path)
 	}
 	if doer.requests[1].path != "/api/v1/admin/oauth-clients" {
@@ -197,7 +197,8 @@ func TestSetupProducerDoesNotCreateOAuthClientWhenSchemaRegistrationFails(t *tes
 	if err == nil || !strings.Contains(err.Error(), "register schema") {
 		t.Fatalf("expected register schema error, got %v", err)
 	}
-	if len(doer.requests) != 1 || doer.requests[0].path != "/api/v1/admin/schemas" {
+	if len(doer.requests) != 1 ||
+		doer.requests[0].path != "/api/v1/admin/schema/acme/courib.delivery.created/register" {
 		t.Fatalf("expected only schema request before failure, got %+v", doer.requests)
 	}
 }
@@ -270,6 +271,11 @@ func (d *capturingSetupDoer) Do(req *HTTPRequest) (*HTTPResponse, error) {
 			"scopes":       body["scopes"],
 			"clientSecret": "created-secret",
 		})
+	case "/api/v1/admin/schema/acme/courib.delivery.created/register":
+		if d.schemaStatus != 0 {
+			return problemResponse(d.schemaStatus, "service_unavailable", "Service Unavailable", "schema unavailable", "")
+		}
+		return jsonResponse(201, body)
 	case "/api/v1/admin/schemas":
 		if d.schemaStatus != 0 {
 			return problemResponse(d.schemaStatus, "service_unavailable", "Service Unavailable", "schema unavailable", "")

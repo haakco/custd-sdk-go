@@ -2,6 +2,8 @@ package custd
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -126,6 +128,9 @@ func SetupProducer(
 			return nil, fmt.Errorf("custd: create tenant: %w", err)
 		}
 	}
+	for index := range schemas {
+		schemas[index].TenantSlug = req.TenantSlug
+	}
 	if len(schemas) > 0 {
 		if err := RegisterSchemas(ctx, admin, schemas); err != nil {
 			return nil, err
@@ -177,8 +182,8 @@ func LoadSchemaRegistrationsFromDir(dir string) ([]AdminSchemaRegister, error) {
 		if err != nil {
 			return nil, fmt.Errorf("custd: read schema %s: %w", path, err)
 		}
-		var schema AdminSchemaRegister
-		if err := json.Unmarshal(raw, &schema); err != nil {
+		schema, err := decodeSchemaRegistration(raw)
+		if err != nil {
 			return nil, fmt.Errorf("custd: decode schema %s: %w", path, err)
 		}
 		schemas = append(schemas, schema)
@@ -186,9 +191,53 @@ func LoadSchemaRegistrationsFromDir(dir string) ([]AdminSchemaRegister, error) {
 	return schemas, nil
 }
 
+// schemaRegistrationFile is the on-disk schema registration a producer ships. The schema
+// document is written as JSON rather than as an escaped string, because that is what a
+// human authors and reviews.
+type schemaRegistrationFile struct {
+	EventTypeSlug string          `json:"eventTypeSlug"`
+	Version       string          `json:"version"`
+	JSONSchema    json.RawMessage `json:"jsonSchema"`
+	Dialect       string          `json:"dialect,omitempty"`
+	Checksum      string          `json:"checksum,omitempty"`
+	Enabled       *bool           `json:"enabled,omitempty"`
+}
+
+// decodeSchemaRegistration converts the on-disk registration into the wire contract,
+// which carries the schema as text plus its dialect and checksum. The tenant is not part
+// of a schema file; the caller states it once for the whole directory.
+func decodeSchemaRegistration(raw []byte) (AdminSchemaRegister, error) {
+	var file schemaRegistrationFile
+	if err := json.Unmarshal(raw, &file); err != nil {
+		return AdminSchemaRegister{}, err
+	}
+	schemaJSON := string(file.JSONSchema)
+	dialect := file.Dialect
+	if dialect == "" {
+		dialect = "jsonschema"
+	}
+	checksum := file.Checksum
+	if checksum == "" {
+		sum := sha256.Sum256([]byte(schemaJSON))
+		checksum = hex.EncodeToString(sum[:])
+	}
+	enabled := true
+	if file.Enabled != nil {
+		enabled = *file.Enabled
+	}
+	return AdminSchemaRegister{
+		EventTypeSlug: file.EventTypeSlug,
+		Version:       file.Version,
+		SchemaJSON:    schemaJSON,
+		Dialect:       dialect,
+		Checksum:      checksum,
+		Enabled:       enabled,
+	}, nil
+}
+
 func RegisterSchemas(ctx context.Context, admin *CustdClient, schemas []AdminSchemaRegister) error {
 	for _, schema := range schemas {
-		if _, err := admin.Admin.Schemas.Register(ctx, schema); err != nil {
+		if _, err := admin.Admin.Schemas.Register(ctx, schema.TenantSlug, schema.EventTypeSlug, schema); err != nil {
 			return fmt.Errorf("custd: register schema %s: %w", schema.EventTypeSlug, err)
 		}
 	}

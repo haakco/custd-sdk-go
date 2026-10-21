@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 )
@@ -146,11 +147,17 @@ func TestAdminSchemasRegisterAndVersionSchemas(t *testing.T) {
 	}
 	doer.status = http.StatusCreated
 	doer.body = `{"eventTypeSlug":"courib.delivery.created","version":"1.0.0","jsonSchema":{"type":"object"}}`
-	registered, err := client.Admin.Schemas.Register(context.Background(), AdminSchemaRegister{
-		EventTypeSlug: "courib.delivery.created",
-		Version:       "1.0.0",
-		JSONSchema:    map[string]any{"type": "object"},
-	})
+	registered, err := client.Admin.Schemas.Register(
+		context.Background(), "acme", "courib.delivery.created", AdminSchemaRegister{
+			TenantSlug:    "acme",
+			EventTypeSlug: "courib.delivery.created",
+			Version:       "1.0.0",
+			SchemaJSON:    `{"type":"object"}`,
+			Dialect:       "jsonschema",
+			Checksum:      strings.Repeat("a", 64),
+			Enabled:       true,
+		},
+	)
 	if err != nil {
 		t.Fatalf("Register returned error: %v", err)
 	}
@@ -167,7 +174,7 @@ func TestAdminSchemasRegisterAndVersionSchemas(t *testing.T) {
 	}
 	assertSiteRequests(t, doer.requests, []string{
 		"GET http://localhost:8080/api/v1/admin/schemas",
-		"POST http://localhost:8080/api/v1/admin/schemas",
+		"POST http://localhost:8080/api/v1/admin/schema/acme/courib.delivery.created/register",
 		"POST http://localhost:8080/api/v1/admin/schemas/courib.delivery.created/versions",
 	})
 }
