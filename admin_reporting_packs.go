@@ -288,3 +288,28 @@ func (c *ReportingPacksAdminClient) BindSetupTemplate(
 	)
 	return &out, err
 }
+
+// ReportingPackGenerationValidity states whether one published generation can still serve
+// reads, and names why not when it cannot.
+type ReportingPackGenerationValidity struct {
+	ID               int64  `json:"id"`
+	PackKey          string `json:"packKey"`
+	GenerationNumber int    `json:"generationNumber"`
+	State            string `json:"state"`
+	ValidationError  string `json:"validationError,omitempty"`
+}
+
+// ReportingPackGenerationValidityListResponse is the named collection the route answers with.
+type ReportingPackGenerationValidityListResponse struct {
+	Generations []ReportingPackGenerationValidity `json:"generations"`
+}
+
+// ListGenerationValidity reports every generation's usability in one read, so a doctor can
+// find a pack whose published generation no longer serves without checking them one by one.
+func (c *ReportingPacksAdminClient) ListGenerationValidity(
+	ctx context.Context,
+) (*ReportingPackGenerationValidityListResponse, error) {
+	var out ReportingPackGenerationValidityListResponse
+	err := c.admin.request(ctx, http.MethodGet, "/reporting-packs/generation-validity", nil, &out)
+	return &out, err
+}
