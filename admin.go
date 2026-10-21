@@ -242,6 +242,21 @@ func (c *SiteAdminClient) Get(ctx context.Context, siteUUID string) (*AdminSite,
 	return adminGetByID[AdminSite](ctx, c.admin, "/sites/", siteUUID)
 }
 
+// Update replaces one site's recording configuration.
+func (c *SiteAdminClient) Update(
+	ctx context.Context, siteUUID string, req AdminSiteUpdate,
+) (*AdminSite, error) {
+	if req.AllowedEnvironments == nil {
+		req.AllowedEnvironments = []string{}
+	}
+	var site AdminSite
+	path := "/sites/" + url.PathEscape(siteUUID)
+	if err := c.admin.request(ctx, http.MethodPatch, path, req, &site); err != nil {
+		return nil, err
+	}
+	return &site, nil
+}
+
 func (c *SiteAdminClient) Delete(ctx context.Context, siteUUID string) error {
 	return c.admin.request(ctx, http.MethodDelete, "/sites/"+url.PathEscape(siteUUID), nil, nil)
 }

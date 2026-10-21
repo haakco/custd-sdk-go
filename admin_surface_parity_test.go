@@ -2,6 +2,7 @@ package custd
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"strings"
 	"testing"
@@ -425,5 +426,36 @@ func TestRolesCarryTheSlugACallerSubmits(t *testing.T) {
 	}
 	if len(roles.Roles) != 1 || roles.Roles[0].Slug != "tenant_admin" || roles.Roles[0].Name != "Tenant admin" {
 		t.Fatalf("roles = %#v", roles)
+	}
+}
+
+// TestSiteUpdateSendsEveryRestriction proves a site update always states its
+// AllowedEnvironments, because an omitted field must never silently widen a restriction,
+// and carries the environment the CLI names.
+func TestSiteUpdateSendsEveryRestriction(t *testing.T) {
+	client, doer := newSurfaceClient(t, http.StatusOK, `{"siteUuid":"site-1","environment":"prod"}`)
+
+	site, err := client.Admin.Sites.Update(context.Background(), "site-1", AdminSiteUpdate{
+		IdentityMode: "anonymous", Environment: "prod", AllowedOrigins: []string{"https://a.test"},
+	})
+	if err != nil {
+		t.Fatalf("Update returned error: %v", err)
+	}
+	if site.Environment != "prod" {
+		t.Fatalf("site = %#v, want the environment carried", site)
+	}
+	request := doer.requests[0]
+	if request.Method != http.MethodPatch || !strings.HasSuffix(request.URL, "/sites/site-1") {
+		t.Fatalf("request = %s %s", request.Method, request.URL)
+	}
+	var body map[string]any
+	if err := json.Unmarshal(request.Body, &body); err != nil {
+		t.Fatalf("decode body: %v", err)
+	}
+	if body["environment"] != "prod" || body["identityMode"] != "anonymous" {
+		t.Fatalf("body = %#v", body)
+	}
+	if _, present := body["allowedEnvironments"]; !present {
+		t.Fatalf("body = %#v, want allowedEnvironments stated", body)
 	}
 }
