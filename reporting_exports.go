@@ -105,20 +105,53 @@ func (r *ReportingClient) CancelExport(ctx context.Context, exportID, reason str
 	return &out, err
 }
 
+// ReportExportDownload is a downloaded artifact together with the integrity metadata the server
+// declares beside it. Without the checksum a caller can store bytes it cannot verify later, which
+// is the difference between a durable artifact and a hopeful one.
+type ReportExportDownload struct {
+	Body      []byte
+	MediaType string
+	SHA256    string
+}
+
+// artifactChecksumHeader carries the server's SHA-256 of the artifact body.
+const artifactChecksumHeader = "X-Content-Sha256"
+
+// DownloadExport returns only the artifact bytes.
 func (r *ReportingClient) DownloadExport(ctx context.Context, exportID, artifactID string) ([]byte, error) {
+	artifact, err := r.DownloadExportArtifact(ctx, exportID, artifactID)
+	if err != nil {
+		return nil, err
+	}
+	return artifact.Body, nil
+}
+
+// DownloadExportArtifact returns the artifact bytes with the media type and checksum the server
+// declared, so the caller can record and re-verify what it stored.
+func (r *ReportingClient) DownloadExportArtifact(
+	ctx context.Context, exportID, artifactID string,
+) (*ReportExportDownload, error) {
 	if !preparedDataUUIDPattern.MatchString(exportID) || !preparedDataUUIDPattern.MatchString(artifactID) {
 		return nil, fmt.Errorf("custd: exportId and artifactId must be UUIDs")
 	}
 	path := "/exports/" + url.PathEscape(exportID) + "/artifacts/" + url.PathEscape(artifactID)
 	if r.client.config.HTTPClient != nil {
-		resp, err := r.client.config.HTTPClient.Do(&HTTPRequest{Method: http.MethodGet, URL: r.endpoint(path), Headers: r.client.headers(false)})
+		resp, err := r.client.config.HTTPClient.Do(&HTTPRequest{
+			Method: http.MethodGet, URL: r.endpoint(path), Headers: r.client.headers(false),
+		})
 		if err != nil {
 			return nil, fmt.Errorf("custd: report export download failed: %w", err)
 		}
 		if err := r.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
 			return nil, err
 		}
-		return boundedReportExportBytes(resp.Body)
+		body, err := boundedReportExportBytes(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		return &ReportExportDownload{
+			Body: body, MediaType: resp.Headers["Content-Type"], SHA256: resp.Headers[artifactChecksumHeader],
+		}, nil
 	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, r.endpoint(path), nil)
 	if err != nil {
@@ -139,7 +172,15 @@ func (r *ReportingClient) DownloadExport(ctx context.Context, exportID, artifact
 	if err := r.client.checkStatus(resp.StatusCode, body); err != nil {
 		return nil, err
 	}
-	return boundedReportExportBytes(body)
+	bounded, err := boundedReportExportBytes(body)
+	if err != nil {
+		return nil, err
+	}
+	return &ReportExportDownload{
+		Body:      bounded,
+		MediaType: resp.Header.Get("Content-Type"),
+		SHA256:    resp.Header.Get(artifactChecksumHeader),
+	}, nil
 }
 
 func boundedReportExportBytes(body []byte) ([]byte, error) {
