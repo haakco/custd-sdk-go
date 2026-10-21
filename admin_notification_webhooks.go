@@ -47,12 +47,20 @@ type NotificationWebhookCreateRequest struct {
 }
 
 // NotificationDeliveryStatus is one delivery attempt's state.
+//
+// AttemptCount, LastErrorClass, FailureReason and NextAction are part of the
+// contract, not decoration: a caller polling a delivery needs the failure class
+// and the server's next action to decide whether to wait, retry or report.
 type NotificationDeliveryStatus struct {
-	MessageUUID  string `json:"messageUuid"`
-	DeliveryUUID string `json:"deliveryUuid"`
-	TemplateID   string `json:"templateId"`
-	Channel      string `json:"channel"`
-	State        string `json:"state"`
+	MessageUUID    string `json:"messageUuid"`
+	DeliveryUUID   string `json:"deliveryUuid"`
+	TemplateID     string `json:"templateId"`
+	Channel        string `json:"channel"`
+	State          string `json:"state"`
+	AttemptCount   int    `json:"attemptCount"`
+	LastErrorClass string `json:"lastErrorClass,omitempty"`
+	FailureReason  string `json:"failureReason,omitempty"`
+	NextAction     string `json:"nextAction,omitempty"`
 }
 
 const (

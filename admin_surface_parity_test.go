@@ -180,3 +180,29 @@ func TestTenantManifestApplySendsIdempotencyKey(t *testing.T) {
 		t.Fatalf("Idempotency-Key = %q", got)
 	}
 }
+
+// TestDeliveryStatusCarriesTheFailureDetail proves the polling surface carries what a
+// caller needs to decide between waiting, retrying and reporting. Dropping these four
+// fields turns a diagnosable delivery into a bare state string.
+func TestDeliveryStatusCarriesTheFailureDetail(t *testing.T) {
+	client, _ := newSurfaceClient(t, http.StatusOK, `{
+		"messageUuid": "msg-1",
+		"deliveryUuid": "del-1",
+		"templateId": "welcome",
+		"channel": "email",
+		"state": "failed",
+		"attemptCount": 3,
+		"lastErrorClass": "transport",
+		"failureReason": "connection refused",
+		"nextAction": "retry"
+	}`)
+
+	status, _, err := client.Admin.Webhooks.GetDelivery(context.Background(), "acme", "del-1")
+	if err != nil {
+		t.Fatalf("GetDelivery returned error: %v", err)
+	}
+	if status.AttemptCount != 3 || status.LastErrorClass != "transport" ||
+		status.FailureReason != "connection refused" || status.NextAction != "retry" {
+		t.Fatalf("status = %#v, want the failure detail carried", status)
+	}
+}
