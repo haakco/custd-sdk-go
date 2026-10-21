@@ -138,12 +138,19 @@ func (c *AdminUsersAdminClient) Create(
 }
 
 // Get reads one user.
+// Get reads one user. IncludeEnded keeps removed memberships in the answer so an
+// operator can audit them.
 func (c *AdminUsersAdminClient) Get(
 	ctx context.Context,
 	userUUID string,
+	includeEnded bool,
 ) (*AdminUser, ResponseMetadata, error) {
 	var out AdminUser
-	metadata, err := c.admin.requestWithMetadata(ctx, http.MethodGet, adminUserPath(userUUID), nil, &out)
+	path := adminUserPath(userUUID)
+	if includeEnded {
+		path += "?includeEnded=true"
+	}
+	metadata, err := c.admin.requestWithMetadata(ctx, http.MethodGet, path, nil, &out)
 	return &out, metadata, err
 }
 
@@ -151,8 +158,12 @@ func (c *AdminUsersAdminClient) Get(
 func (c *AdminUsersAdminClient) Update(
 	ctx context.Context,
 	userUUID string,
-	req AdminUserUpdateRequest,
+	roles []string,
 ) (*AdminUser, ResponseMetadata, error) {
+	if roles == nil {
+		roles = []string{}
+	}
+	req := AdminUserUpdateRequest{Roles: roles}
 	var out AdminUser
 	metadata, err := c.admin.requestWithMetadata(
 		ctx, http.MethodPut, adminUserPath(userUUID), req, &out,
@@ -161,19 +172,39 @@ func (c *AdminUsersAdminClient) Update(
 }
 
 // Disable turns a user's global access off without removing them.
+// Disable turns a user's access off. Reason is optional and lands in the tenant's audit
+// stream; GlobalUser disables the identity rather than one membership.
 func (c *AdminUsersAdminClient) Disable(
 	ctx context.Context,
 	userUUID string,
-) (*AdminUser, ResponseMetadata, error) {
-	return c.userAction(ctx, userUUID, "/disable")
+	reason string,
+	globalUser bool,
+) (ResponseMetadata, error) {
+	var body any
+	if reason != "" {
+		body = AdminUserRemovalRequest{Reason: reason}
+	}
+	return c.admin.requestWithMetadata(
+		ctx, http.MethodPost, adminUserActionPath(userUUID, "/disable", globalUser), body, nil,
+	)
 }
 
 // Enable restores a disabled user's global access.
+// Enable re-establishes a user's access. Roles are required to reopen a membership: it
+// cannot be reopened without saying what authority it carries.
 func (c *AdminUsersAdminClient) Enable(
 	ctx context.Context,
 	userUUID string,
-) (*AdminUser, ResponseMetadata, error) {
-	return c.userAction(ctx, userUUID, "/enable")
+	roles []string,
+	globalUser bool,
+) (ResponseMetadata, error) {
+	if roles == nil {
+		roles = []string{}
+	}
+	body := AdminUserEnableRequest{Roles: roles}
+	return c.admin.requestWithMetadata(
+		ctx, http.MethodPost, adminUserActionPath(userUUID, "/enable", globalUser), body, nil,
+	)
 }
 
 // Remove applies a removal action to one user and records the reason on the
@@ -211,14 +242,17 @@ func (c *AdminUsersAdminClient) AddMembership(
 
 // ResetPassword sets a new password. There is no body to carry the request
 // identifier, so both are returned.
+// ResetPassword queues a reset notification and returns the notification it queued, not
+// a password.
 func (c *AdminUsersAdminClient) ResetPassword(
 	ctx context.Context,
 	userUUID string,
-	req AdminUserPasswordReset,
-) (ResponseMetadata, error) {
-	return c.admin.requestWithMetadata(
-		ctx, http.MethodPost, adminUserPath(userUUID)+"/reset-password", req, nil,
+) (*AdminUserPasswordReset, ResponseMetadata, error) {
+	var out AdminUserPasswordReset
+	metadata, err := c.admin.requestWithMetadata(
+		ctx, http.MethodPost, adminUserPath(userUUID)+"/reset-password", nil, &out,
 	)
+	return &out, metadata, err
 }
 
 // RetryWelcome re-sends the welcome notification for one company.
@@ -257,6 +291,22 @@ func (c *AdminUsersAdminClient) userAction(
 		ctx, http.MethodPost, adminUserPath(userUUID)+action, nil, &out,
 	)
 	return &out, metadata, err
+}
+
+// AdminUserEnableRequest is the body for an enable: the roles the membership reopens
+// with.
+type AdminUserEnableRequest struct {
+	Roles []string `json:"roles"`
+}
+
+// adminUserActionPath builds an action route, adding globalUser when the action is on the
+// identity rather than one membership.
+func adminUserActionPath(userUUID, action string, globalUser bool) string {
+	path := adminUserPath(userUUID) + action
+	if globalUser {
+		path += "?globalUser=true"
+	}
+	return path
 }
 
 func adminUserPath(userUUID string) string {

@@ -78,8 +78,7 @@ func TestNewSurfacesSendTheirDocumentedRoute(t *testing.T) {
 			name: "admin user reset password",
 			body: ``,
 			call: func(c *CustdClient) error {
-				_, err := c.Admin.AdminUsers.ResetPassword(context.Background(), "user-1",
-					AdminUserPasswordReset{Password: "x"})
+				_, _, err := c.Admin.AdminUsers.ResetPassword(context.Background(), "user-1")
 				return err
 			},
 			method: http.MethodPost, path: "/api/v1/admin/users/user-1/reset-password",
@@ -129,8 +128,7 @@ func TestNewSurfacesSendTheirDocumentedRoute(t *testing.T) {
 func TestSurfacesReportTheServerRequestID(t *testing.T) {
 	client, _ := newSurfaceClient(t, http.StatusOK, `{"status":"ok"}`)
 
-	metadata, err := client.Admin.AdminUsers.ResetPassword(context.Background(), "user-1",
-		AdminUserPasswordReset{Password: "x"})
+	_, metadata, err := client.Admin.AdminUsers.ResetPassword(context.Background(), "user-1")
 	if err != nil {
 		t.Fatalf("ResetPassword returned error: %v", err)
 	}
@@ -355,5 +353,46 @@ func TestActingCompanyDoesNotDuplicateAnExistingQuery(t *testing.T) {
 	}
 	if got := strings.Count(doer.requests[0].URL, "companySlug="); got != 1 {
 		t.Fatalf("url = %s, want exactly one companySlug", doer.requests[0].URL)
+	}
+}
+
+// TestAdminUserDisableSendsReasonAndScope proves the disable action carries the reason
+// that lands in the tenant's audit stream and the globalUser scope that decides whether
+// the identity or one membership is affected.
+func TestAdminUserDisableSendsReasonAndScope(t *testing.T) {
+	client, doer := newSurfaceClient(t, http.StatusOK, `{}`)
+
+	if _, err := client.Admin.AdminUsers.Disable(
+		context.Background(), "user-1", "left the company", true,
+	); err != nil {
+		t.Fatalf("Disable returned error: %v", err)
+	}
+	request := doer.requests[0]
+	for _, want := range []string{"/users/user-1/disable", "globalUser=true"} {
+		if !strings.Contains(request.URL, want) {
+			t.Fatalf("url = %s, want it to contain %s", request.URL, want)
+		}
+	}
+	if !strings.Contains(string(request.Body), "left the company") {
+		t.Fatalf("body = %s, want the reason", string(request.Body))
+	}
+}
+
+// TestAdminUserEnableSendsTheRoles proves a membership is never reopened without saying
+// what authority it carries.
+func TestAdminUserEnableSendsTheRoles(t *testing.T) {
+	client, doer := newSurfaceClient(t, http.StatusOK, `{}`)
+
+	if _, err := client.Admin.AdminUsers.Enable(
+		context.Background(), "user-1", []string{"tenant_admin"}, false,
+	); err != nil {
+		t.Fatalf("Enable returned error: %v", err)
+	}
+	request := doer.requests[0]
+	if strings.Contains(request.URL, "globalUser=") {
+		t.Fatalf("url = %s, want no globalUser for a membership enable", request.URL)
+	}
+	if !strings.Contains(string(request.Body), "tenant_admin") {
+		t.Fatalf("body = %s, want the roles", string(request.Body))
 	}
 }
