@@ -2,6 +2,7 @@ package custd
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/url"
 	"time"
@@ -167,8 +168,11 @@ func (c *PredictionAdminClient) EvaluateDurationHistory(
 	ctx context.Context,
 	companySlug string,
 	definitionUUID string,
-	req DurationEvaluationRequest,
+	req *DurationEvaluationRequest,
 ) (*DurationEvaluationResponse, ResponseMetadata, error) {
+	if req == nil {
+		return nil, ResponseMetadata{}, fmt.Errorf("custd: duration evaluation request is required")
+	}
 	var out DurationEvaluationResponse
 	path := predictionResourcePath(
 		companySlug, "/definitions/"+url.PathEscape(definitionUUID)+"/duration-evaluations",

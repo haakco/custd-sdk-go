@@ -110,7 +110,7 @@ func TestPredictionEvaluateDurationHistoryUsesTypedScopedRoute(t *testing.T) {
 			client := newAdminTestClient(t, doer, "http://localhost:8080")
 
 			response, metadata, err := client.Admin.Predictions.EvaluateDurationHistory(
-				context.Background(), "acme co", test.definitionUUID, DurationEvaluationRequest{
+				context.Background(), "acme co", test.definitionUUID, &DurationEvaluationRequest{
 					PlanUUID:              "plan-1",
 					SemanticKey:           "build_step",
 					PredictionVersionUUID: "version-1",

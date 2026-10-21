@@ -17,23 +17,42 @@ type PredictionAdminClient struct {
 	admin *AdminClient
 }
 
+// ProjectKind is the measurement project-kind vocabulary a prediction
+// definition is classified by. It mirrors the Admin API's measurement project
+// kinds so a caller can name a kind instead of repeating a raw slug.
+type ProjectKind string
+
+const (
+	ProjectKindDeadlineForecast ProjectKind = "deadline_forecast"
+	ProjectKindRunwayForecast   ProjectKind = "runway_forecast"
+	ProjectKindDecisionAnalysis ProjectKind = "decision_analysis"
+	ProjectKindCalibration      ProjectKind = "calibration"
+	ProjectKindDuration         ProjectKind = "duration"
+	ProjectKindEventProbability ProjectKind = "event_probability"
+)
+
 type PredictionDefinition struct {
-	UUID                  string    `json:"uuid"`
-	DefinitionKey         string    `json:"definition_key"`
-	DisplayName           string    `json:"display_name"`
-	Description           string    `json:"description,omitempty"`
-	Status                string    `json:"status"`
-	ScheduleKind          string    `json:"schedule_kind"`
-	DefaultHorizonSeconds int       `json:"default_horizon_seconds,omitempty"`
-	IsPaused              bool      `json:"is_paused"`
-	CreatedAt             time.Time `json:"created_at"`
-	UpdatedAt             time.Time `json:"updated_at"`
+	UUID                  string     `json:"uuid"`
+	ProjectKind           ProjectKind `json:"project_kind"`
+	DefinitionKey         string     `json:"definition_key"`
+	DisplayName           string     `json:"display_name"`
+	Description           string     `json:"description,omitempty"`
+	Status                string     `json:"status"`
+	ScheduleKind          string     `json:"schedule_kind"`
+	DefaultHorizonSeconds int        `json:"default_horizon_seconds,omitempty"`
+	IsPaused              bool       `json:"is_paused"`
+	ActiveVersionUUID     string     `json:"active_version_uuid,omitempty"`
+	CandidateVersionUUID  string     `json:"candidate_version_uuid,omitempty"`
+	CandidateVersionCount int        `json:"candidate_version_count,omitempty"`
+	CreatedAt             time.Time  `json:"created_at"`
+	UpdatedAt             time.Time  `json:"updated_at"`
 }
 
 type PredictionDefinitionCreateRequest struct {
-	DefinitionKey string `json:"definition_key"`
-	DisplayName   string `json:"display_name"`
-	Description   string `json:"description,omitempty"`
+	ProjectKind   ProjectKind `json:"project_kind,omitempty"`
+	DefinitionKey string      `json:"definition_key"`
+	DisplayName   string      `json:"display_name"`
+	Description   string      `json:"description,omitempty"`
 }
 
 type PredictionDefinitionUpdateRequest struct {
@@ -68,6 +87,7 @@ type PredictionVersionPublishRequest struct {
 
 type PredictionActivateRequest struct {
 	VersionUUID string `json:"version_uuid"`
+	Reason      string `json:"reason,omitempty"`
 }
 
 type PredictionRollbackRequest struct {
