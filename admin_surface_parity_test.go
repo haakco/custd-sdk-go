@@ -290,3 +290,33 @@ func TestMetadataRecorderCapturesTheRequestID(t *testing.T) {
 		t.Fatalf("requestId = %q, want req-123", recorder.RequestID)
 	}
 }
+
+// TestAdminUserListSendsTheFilters proves the list surface carries the route the server
+// has: a named collection, narrowed by tenant, optionally including ended memberships.
+func TestAdminUserListSendsTheFilters(t *testing.T) {
+	client, doer := newSurfaceClient(t, http.StatusOK, `{"users":[{"userUuid":"user-1","email":"a@b.c"}]}`)
+
+	page, err := fetchAdminUserPage(client, "acme", true)
+	if err != nil {
+		t.Fatalf("List returned error: %v", err)
+	}
+	if len(page.Users) != 1 || page.Users[0].UserUUID != "user-1" {
+		t.Fatalf("page = %#v", page)
+	}
+	request := doer.requests[0]
+	if request.Method != http.MethodGet {
+		t.Fatalf("method = %s, want GET", request.Method)
+	}
+	for _, want := range []string{"/users", "companySlug=acme", "includeEnded=true"} {
+		if !strings.Contains(request.URL, want) {
+			t.Fatalf("url = %s, want it to contain %s", request.URL, want)
+		}
+	}
+}
+
+// fetchAdminUserPage keeps the assertion above inside the statement budget.
+func fetchAdminUserPage(
+	client *CustdClient, company string, includeEnded bool,
+) (*AdminUserListResponse, error) {
+	return client.Admin.AdminUsers.List(context.Background(), company, includeEnded)
+}

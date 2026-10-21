@@ -63,6 +63,12 @@ type AdminUserPasswordReset struct {
 	Password string `json:"password"`
 }
 
+// AdminUserListResponse is the body for GET /users. The list is a named
+// collection, not a bare array, so the wrapper field is part of the contract.
+type AdminUserListResponse struct {
+	Users []AdminUser `json:"users"`
+}
+
 // AdminUserRemoval is the removal action applied to a user. Soft-delete removes the
 // user's access while keeping the record; restore reverses it. They are different
 // operations, not a boolean, because the server records which one happened.
@@ -94,6 +100,32 @@ const (
 	adminUsersPath     = "/users"
 	adminUserRolesPath = "/user-roles"
 )
+
+// List returns the users visible to the caller. CompanySlug narrows the answer to one
+// tenant; IncludeEnded keeps removed memberships in the result so an operator can audit
+// them.
+func (c *AdminUsersAdminClient) List(
+	ctx context.Context,
+	companySlug string,
+	includeEnded bool,
+) (*AdminUserListResponse, error) {
+	query := url.Values{}
+	if companySlug != "" {
+		query.Set(companySlugQueryParameter, companySlug)
+	}
+	if includeEnded {
+		query.Set("includeEnded", "true")
+	}
+	path := adminUsersPath
+	if encoded := query.Encode(); encoded != "" {
+		path += "?" + encoded
+	}
+	var out AdminUserListResponse
+	if err := c.admin.request(ctx, http.MethodGet, path, nil, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
 
 // Create adds a user.
 func (c *AdminUsersAdminClient) Create(
