@@ -32,20 +32,20 @@ const (
 )
 
 type PredictionDefinition struct {
-	UUID                  string     `json:"uuid"`
+	UUID                  string      `json:"uuid"`
 	ProjectKind           ProjectKind `json:"project_kind"`
-	DefinitionKey         string     `json:"definition_key"`
-	DisplayName           string     `json:"display_name"`
-	Description           string     `json:"description,omitempty"`
-	Status                string     `json:"status"`
-	ScheduleKind          string     `json:"schedule_kind"`
-	DefaultHorizonSeconds int        `json:"default_horizon_seconds,omitempty"`
-	IsPaused              bool       `json:"is_paused"`
-	ActiveVersionUUID     string     `json:"active_version_uuid,omitempty"`
-	CandidateVersionUUID  string     `json:"candidate_version_uuid,omitempty"`
-	CandidateVersionCount int        `json:"candidate_version_count,omitempty"`
-	CreatedAt             time.Time  `json:"created_at"`
-	UpdatedAt             time.Time  `json:"updated_at"`
+	DefinitionKey         string      `json:"definition_key"`
+	DisplayName           string      `json:"display_name"`
+	Description           string      `json:"description,omitempty"`
+	Status                string      `json:"status"`
+	ScheduleKind          string      `json:"schedule_kind"`
+	DefaultHorizonSeconds int         `json:"default_horizon_seconds,omitempty"`
+	IsPaused              bool        `json:"is_paused"`
+	ActiveVersionUUID     string      `json:"active_version_uuid,omitempty"`
+	CandidateVersionUUID  string      `json:"candidate_version_uuid,omitempty"`
+	CandidateVersionCount int         `json:"candidate_version_count,omitempty"`
+	CreatedAt             time.Time   `json:"created_at"`
+	UpdatedAt             time.Time   `json:"updated_at"`
 }
 
 type PredictionDefinitionCreateRequest struct {
