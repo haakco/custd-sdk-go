@@ -330,6 +330,36 @@ func (c *CustdClient) batchEndpoint() string {
 
 // headers returns the default request headers. When gzipped is true it sets
 // Content-Encoding: gzip to signal a compressed body to the ingest API.
+// MetadataRecorder captures the server's request identifier for calls made with a
+// context that carries it.
+//
+// It exists so a caller can keep its own one-document contract — quoting the request
+// the server logged — without every SDK method having to return metadata.
+type MetadataRecorder struct {
+	RequestID string
+}
+
+type metadataRecorderKey struct{}
+
+// WithMetadataRecorder returns a context that records the request identifier of every
+// answer made under it. A nil recorder leaves the context unchanged.
+func WithMetadataRecorder(ctx context.Context, recorder *MetadataRecorder) context.Context {
+	if recorder == nil {
+		return ctx
+	}
+	return context.WithValue(ctx, metadataRecorderKey{}, recorder)
+}
+
+// recordMetadata stores an answer's request identifier on the context's recorder.
+func recordMetadata(ctx context.Context, requestID string) {
+	if ctx == nil || requestID == "" {
+		return
+	}
+	if recorder, ok := ctx.Value(metadataRecorderKey{}).(*MetadataRecorder); ok && recorder != nil {
+		recorder.RequestID = requestID
+	}
+}
+
 func (c *CustdClient) headers(gzipped bool) map[string]string {
 	headers := map[string]string{
 		"Content-Type": "application/json",

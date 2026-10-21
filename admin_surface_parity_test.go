@@ -244,3 +244,49 @@ func TestAdminUserRemovalRefusesAnUnknownAction(t *testing.T) {
 		t.Fatalf("requests = %d, want 0", len(doer.requests))
 	}
 }
+
+// TestActingCompanyIsSentOnAdminRequests proves a system administrator can work on a
+// tenant's behalf: the server reads this header to decide which company the request
+// acts for, and without it the CLI's cross-tenant commands cannot be expressed.
+func TestActingCompanyIsSentOnAdminRequests(t *testing.T) {
+	doer := newCaptureDoer(http.StatusOK, `{"scopes":[]}`)
+	client := newAdminTestClient(t, doer, "http://localhost:8080")
+	client.config.ActingCompanySlug = "awthy"
+
+	if _, err := client.Admin.DataScopes.ListScopes(context.Background(), false); err != nil {
+		t.Fatalf("ListScopes returned error: %v", err)
+	}
+	if got := doer.requests[0].Headers[actingCompanyHeader]; got != "awthy" {
+		t.Fatalf("%s = %q, want awthy", actingCompanyHeader, got)
+	}
+}
+
+// TestActingCompanyIsOmittedWhenUnset proves an ordinary tenant command does not claim to
+// act for anyone: an empty setting must leave the header off entirely.
+func TestActingCompanyIsOmittedWhenUnset(t *testing.T) {
+	doer := newCaptureDoer(http.StatusOK, `{"scopes":[]}`)
+	client := newAdminTestClient(t, doer, "http://localhost:8080")
+
+	if _, err := client.Admin.DataScopes.ListScopes(context.Background(), false); err != nil {
+		t.Fatalf("ListScopes returned error: %v", err)
+	}
+	if got, present := doer.requests[0].Headers[actingCompanyHeader]; present {
+		t.Fatalf("%s = %q, want it absent", actingCompanyHeader, got)
+	}
+}
+
+// TestMetadataRecorderCapturesTheRequestID proves a caller can quote the request the
+// server logged without any method returning metadata: the recorder travels on the
+// context, so none of the 171 signatures change.
+func TestMetadataRecorderCapturesTheRequestID(t *testing.T) {
+	client, _ := newSurfaceClient(t, http.StatusOK, `{"scopes":[]}`)
+
+	var recorder MetadataRecorder
+	ctx := WithMetadataRecorder(context.Background(), &recorder)
+	if _, err := client.Admin.DataScopes.ListScopes(ctx, false); err != nil {
+		t.Fatalf("ListScopes returned error: %v", err)
+	}
+	if recorder.RequestID != "req-123" {
+		t.Fatalf("requestId = %q, want req-123", recorder.RequestID)
+	}
+}

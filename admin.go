@@ -13,6 +13,17 @@ import (
 
 const adminEndpoint = "/api/v1/admin"
 
+// actingCompanyHeader is how the server is told which client company an operator is
+// acting for. A system administrator sets it to work on a tenant's behalf.
+const actingCompanyHeader = "X-Custd-Effective-Company"
+
+// applyActingCompany adds the acting-company header when one is configured.
+func (c *AdminClient) applyActingCompany(headers map[string]string) {
+	if company := c.client.config.ActingCompanySlug; company != "" {
+		headers[actingCompanyHeader] = company
+	}
+}
+
 type AdminClient struct {
 	Tenants         *TenantAdminClient
 	OAuthClients    *OAuthClientAdminClient
@@ -307,18 +318,19 @@ func (c *AdminClient) requestWithHeaders(
 		}
 	}
 	if c.client.config.HTTPClient != nil {
-		return c.requestViaDoer(method, path, body, out, headers)
+		return c.requestViaDoer(ctx, method, path, body, out, headers)
 	}
 	return c.requestViaHTTP(ctx, method, path, body, out, headers)
 }
 
 func (c *AdminClient) requestViaDoer(
-	method, path string, body []byte, out any, extraHeaders map[string]string,
+	ctx context.Context, method, path string, body []byte, out any, extraHeaders map[string]string,
 ) error {
 	headers := c.client.headers(false)
 	for key, value := range extraHeaders {
 		headers[key] = value
 	}
+	c.applyActingCompany(headers)
 	resp, err := c.client.config.HTTPClient.Do(&HTTPRequest{
 		Method:  method,
 		URL:     c.endpoint(path),
@@ -328,6 +340,7 @@ func (c *AdminClient) requestViaDoer(
 	if err != nil {
 		return fmt.Errorf("custd: admin request failed: %w", err)
 	}
+	recordMetadata(ctx, responseHeader(resp.Headers, requestIDHeader))
 	if err := c.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
 		return err
 	}
@@ -355,6 +368,7 @@ func (c *AdminClient) requestViaHTTP(
 	if bodyErr != nil {
 		return fmt.Errorf("custd: read admin response: %w", bodyErr)
 	}
+	recordMetadata(ctx, resp.Header.Get(requestIDHeader))
 	if err := c.client.checkStatus(resp.StatusCode, respBody); err != nil {
 		return err
 	}

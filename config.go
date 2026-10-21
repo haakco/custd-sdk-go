@@ -15,7 +15,13 @@ type RetryConfig struct {
 
 // ClientConfig holds all configuration for a CustdClient.
 type ClientConfig struct {
-	BaseURL      string
+	BaseURL string
+
+	// ActingCompanySlug makes admin requests act for one client company. A system
+	// administrator sets it to work on a tenant's behalf; ordinary tenant commands
+	// leave it empty and the server uses the credential's own company.
+	ActingCompanySlug string
+
 	APIKey       string
 	ClientID     string
 	ClientSecret string
