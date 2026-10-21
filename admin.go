@@ -17,6 +17,43 @@ const adminEndpoint = "/api/v1/admin"
 // acting for. A system administrator sets it to work on a tenant's behalf.
 const actingCompanyHeader = "X-Custd-Effective-Company"
 
+// actingCompanyPath adds the tenant query parameter the admin routes actually read.
+//
+// The header alone is not enough: admin routes resolve the tenant from
+// `?companySlug=` and validate it, so a system administrator naming a company through
+// this config must also send it where the route looks. Both are sent, matching what the
+// CLI does for its own cross-tenant commands.
+func (c *AdminClient) actingCompanyPath(path string) string {
+	company := c.client.config.ActingCompanySlug
+	if company == "" {
+		return path
+	}
+	parsed, err := url.Parse(path)
+	if err != nil {
+		return path
+	}
+	query := parsed.Query()
+	if query.Get(companySlugQueryParameter) != "" {
+		return path
+	}
+	query.Set(companySlugQueryParameter, company)
+	parsed.RawQuery = query.Encode()
+	return parsed.String()
+}
+
+// withActingCompanyHeader returns headers carrying the acting company, without mutating
+// the caller's map.
+func withActingCompanyHeader(company string, headers map[string]string) map[string]string {
+	merged := make(map[string]string, len(headers)+1)
+	for key, value := range headers {
+		merged[key] = value
+	}
+	if company != "" {
+		merged[actingCompanyHeader] = company
+	}
+	return merged
+}
+
 // applyActingCompany adds the acting-company header when one is configured.
 func (c *AdminClient) applyActingCompany(headers map[string]string) {
 	if company := c.client.config.ActingCompanySlug; company != "" {
@@ -317,6 +354,7 @@ func (c *AdminClient) requestWithHeaders(
 			return fmt.Errorf("custd: marshal admin request: %w", err)
 		}
 	}
+	path = c.actingCompanyPath(path)
 	if c.client.config.HTTPClient != nil {
 		return c.requestViaDoer(ctx, method, path, body, out, headers)
 	}
@@ -414,6 +452,8 @@ func (c *AdminClient) requestWithMetadataHeaders(
 		}
 		body = encoded
 	}
+	path = c.actingCompanyPath(path)
+	headers = withActingCompanyHeader(c.client.config.ActingCompanySlug, headers)
 	if c.client.config.HTTPClient != nil {
 		merged := c.client.headers(false)
 		for key, value := range headers {
@@ -440,6 +480,9 @@ func (c *AdminClient) requestWithMetadataHeaders(
 	}
 	for key, value := range headers {
 		req.Header.Set(key, value)
+	}
+	if company := c.client.config.ActingCompanySlug; company != "" {
+		req.Header.Set(actingCompanyHeader, company)
 	}
 	resp, err := c.client.httpClient.Do(req)
 	if err != nil {

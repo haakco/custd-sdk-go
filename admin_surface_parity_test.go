@@ -320,3 +320,40 @@ func fetchAdminUserPage(
 ) (*AdminUserListResponse, error) {
 	return client.Admin.AdminUsers.List(context.Background(), company, includeEnded)
 }
+
+// TestActingCompanyReachesTheRouteNotJustTheHeader proves the tenant travels where the
+// route actually reads it. Admin routes resolve the tenant from ?companySlug= and
+// validate it, so sending only the header made a system administrator's cross-tenant
+// call fail with "valid companySlug is required" — a bug the stubbed tests could not see
+// because a stub accepts any request.
+func TestActingCompanyReachesTheRouteNotJustTheHeader(t *testing.T) {
+	doer := newCaptureDoer(http.StatusOK, `{"scopes":[]}`)
+	client := newAdminTestClient(t, doer, "http://localhost:8080")
+	client.config.ActingCompanySlug = "awthy"
+
+	if _, err := client.Admin.DataScopes.ListScopes(context.Background(), false); err != nil {
+		t.Fatalf("ListScopes returned error: %v", err)
+	}
+	request := doer.requests[0]
+	if got := request.Headers[actingCompanyHeader]; got != "awthy" {
+		t.Fatalf("%s = %q, want awthy", actingCompanyHeader, got)
+	}
+	if !strings.Contains(request.URL, "companySlug=awthy") {
+		t.Fatalf("url = %s, want the tenant query parameter", request.URL)
+	}
+}
+
+// TestActingCompanyDoesNotDuplicateAnExistingQuery proves a call that already names a
+// company keeps its own value rather than gaining a second one.
+func TestActingCompanyDoesNotDuplicateAnExistingQuery(t *testing.T) {
+	doer := newCaptureDoer(http.StatusOK, `{"grants":[]}`)
+	client := newAdminTestClient(t, doer, "http://localhost:8080")
+	client.config.ActingCompanySlug = "awthy"
+
+	if _, _, err := client.Admin.SupportAccess.List(context.Background()); err != nil {
+		t.Fatalf("List returned error: %v", err)
+	}
+	if got := strings.Count(doer.requests[0].URL, "companySlug="); got != 1 {
+		t.Fatalf("url = %s, want exactly one companySlug", doer.requests[0].URL)
+	}
+}
