@@ -74,12 +74,12 @@ func TestSchemaAdminClientValidateEnableDryRunAudit(t *testing.T) {
 		t.Fatalf("DryRun = %+v", dry)
 	}
 
-	doer.body = `{"entries":[{"eventId":"ev-1","eventTypeSlug":"courib.delivery.created","version":"1.0.0","action":"registered","registeredAt":"2026-07-23T12:00:00Z","registeredBy":"u-1"}]}`
-	audit, err := client.Admin.Schemas.Audit(context.Background())
+	doer.body = `{"schemas":[{"tenantSlug":"acme","eventTypeSlug":"courib.delivery.created","version":"1.0.0","class":"compatible","recommendedAction":"none"}],"summary":{"total":1,"compatible":1}}`
+	audit, err := client.Admin.Schemas.Audit(context.Background(), "acme")
 	if err != nil {
 		t.Fatalf("Audit error: %v", err)
 	}
-	if len(audit.Entries) != 1 || audit.Entries[0].Version != "1.0.0" {
+	if len(audit.Schemas) != 1 || audit.Schemas[0].Version != "1.0.0" || audit.Summary.Compatible != 1 {
 		t.Fatalf("Audit = %+v", audit)
 	}
 }

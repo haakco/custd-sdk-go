@@ -438,11 +438,19 @@ func (c *SchemaAdminClient) DryRun(
 	return &out, err
 }
 
-// Audit returns schema registrations scoped to the effective tenant.
-func (c *SchemaAdminClient) Audit(ctx context.Context) (*AdminSchemaAuditListResponse, error) {
-	var out AdminSchemaAuditListResponse
-	err := c.admin.request(ctx, http.MethodGet, "/schema/audit", nil, &out)
-	return &out, err
+// Audit reports whether each registered schema still compiles and validates, scoped to the
+// named company. The route reads the company from the query, so a system administrator has to
+// name it explicitly rather than relying on the credential's own tenant.
+func (c *SchemaAdminClient) Audit(ctx context.Context, tenantSlug string) (*SchemaAuditResponse, error) {
+	if strings.TrimSpace(tenantSlug) == "" {
+		return nil, fmt.Errorf("custd: schema audit requires a company slug")
+	}
+	var out SchemaAuditResponse
+	path := "/schema/audit?" + url.Values{"tenantSlug": {tenantSlug}}.Encode()
+	if err := c.admin.request(ctx, http.MethodGet, path, nil, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
 }
 
 func (c *AdminClient) request(ctx context.Context, method string, path string, payload any, out any) error {

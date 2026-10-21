@@ -72,17 +72,48 @@ type AdminSchemaDryRunResult struct {
 	Issues []AdminSchemaIssue `json:"issues"`
 }
 
-// AdminSchemaAudit is the company-scoped schema audit result returned by
-// auditSchemas (Stage 1 contract). One row per version registration.
-type AdminSchemaAuditEntry struct {
-	EventID       string `json:"eventId"`
-	EventTypeSlug string `json:"eventTypeSlug"`
-	Version       string `json:"version"`
-	Action        string `json:"action"`
-	RegisteredAt  string `json:"registeredAt"`
-	RegisteredBy  string `json:"registeredBy"`
+// The schema audit answers a compatibility question, not an audit log: for every
+// registered schema it reports how the stored JSON Schema compiles under both dialects and
+// how the recorded examples validate, then summarises the counts. The SDK cannot import the
+// reporting library, so these mirror libs/go/operatorapi field for field.
+type SchemaCompileResult struct {
+	Valid  bool     `json:"valid"`
+	Issues []string `json:"issues"`
 }
 
-type AdminSchemaAuditListResponse struct {
-	Entries []AdminSchemaAuditEntry `json:"entries"`
+type SchemaExampleValidationSummary struct {
+	Discovered int      `json:"discovered"`
+	Run        int      `json:"run"`
+	SameAccept int      `json:"sameAccept"`
+	SameReject int      `json:"sameReject"`
+	Deltas     int      `json:"deltas"`
+	IssueCodes []string `json:"issueCodes"`
+}
+
+// SchemaAuditResult is one registered schema's audit outcome. Class names the verdict and
+// RecommendedAction says what an operator should do about it.
+type SchemaAuditResult struct {
+	TenantSlug        string                         `json:"tenantSlug"`
+	EventTypeSlug     string                         `json:"eventTypeSlug"`
+	Version           string                         `json:"version"`
+	SchemaChecksum    string                         `json:"schemaChecksum"`
+	Dialect           string                         `json:"dialect"`
+	LegacyCompile     SchemaCompileResult            `json:"legacyCompile"`
+	SharedCompile     SchemaCompileResult            `json:"sharedCompile"`
+	ExampleValidation SchemaExampleValidationSummary `json:"exampleValidation"`
+	Class             string                         `json:"class"`
+	IssueCodes        []string                       `json:"issueCodes"`
+	RecommendedAction string                         `json:"recommendedAction"`
+}
+
+type SchemaAuditSummary struct {
+	Total          int `json:"total"`
+	Compatible     int `json:"compatible"`
+	NeedsMigration int `json:"needsMigration"`
+	Blocked        int `json:"blocked"`
+}
+
+type SchemaAuditResponse struct {
+	Schemas []SchemaAuditResult `json:"schemas"`
+	Summary SchemaAuditSummary  `json:"summary"`
 }
