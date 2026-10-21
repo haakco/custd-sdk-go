@@ -27,13 +27,16 @@ type AdminOAuthClient struct {
 // OAuthClientLoginSetup is what a login client must be configured with. It carries no
 // secret by construction, because a public client has none.
 type OAuthClientLoginSetup struct {
-	Profile       string `json:"profile,omitempty"`
-	APIURL        string `json:"apiUrl,omitempty"`
-	IssuerURL     string `json:"issuerUrl,omitempty"`
-	ClientID      string `json:"clientId,omitempty"`
-	Audience      string `json:"audience,omitempty"`
-	Scope         string `json:"scope,omitempty"`
-	ConfigCommand string `json:"configCommand,omitempty"`
+	ClientID     string   `json:"clientId"`
+	ProfileName  string   `json:"profileName"`
+	APIURL       string   `json:"apiUrl"`
+	IssuerURL    string   `json:"issuerUrl"`
+	Audience     string   `json:"audience"`
+	Scopes       []string `json:"scopes"`
+	RedirectURIs []string `json:"redirectUris"`
+	// ConfigInitCommand is the ready-to-run configuration line. It carries every value the
+	// client needs, so nothing has to be filled in by hand.
+	ConfigInitCommand string `json:"configInitCommand"`
 }
 
 type AdminOAuthClientCreateResponse struct {
