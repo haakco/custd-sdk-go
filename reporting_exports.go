@@ -82,9 +82,18 @@ func (r *ReportingClient) ListExports(ctx context.Context, limit int) ([]ReportE
 	if limit < 1 || limit > 100 {
 		return nil, fmt.Errorf("custd: report export limit must be between 1 and 100")
 	}
-	var out []ReportExportJob
-	err := r.request(ctx, http.MethodGet, "/exports?limit="+url.QueryEscape(fmt.Sprint(limit)), nil, &out)
-	return out, err
+	// The route wraps the list in an envelope rather than answering a bare array, so decoding
+	// into a slice fails outright with "cannot unmarshal object into Go value of type []...".
+	var out ReportExportJobList
+	if err := r.request(ctx, http.MethodGet, "/exports?limit="+url.QueryEscape(fmt.Sprint(limit)), nil, &out); err != nil {
+		return nil, err
+	}
+	return out.Exports, nil
+}
+
+// ReportExportJobList is the envelope the export list route answers with.
+type ReportExportJobList struct {
+	Exports []ReportExportJob `json:"exports"`
 }
 
 func (r *ReportingClient) GetExport(ctx context.Context, exportID string) (*ReportExportJob, error) {
