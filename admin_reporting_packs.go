@@ -14,11 +14,13 @@ type ReportingPacksAdminClient struct {
 }
 
 type ReportingPackDraft struct {
-	ID         int64  `json:"id"`
-	Revision   int64  `json:"revision"`
-	Definition Pack   `json:"definition"`
-	CreatedAt  string `json:"createdAt,omitempty"`
-	UpdatedAt  string `json:"updatedAt,omitempty"`
+	ID         int64 `json:"id"`
+	Revision   int64 `json:"revision"`
+	Definition Pack  `json:"definition"`
+	// ValidationError names why a stored draft cannot be published, and is empty when it can.
+	ValidationError string `json:"validationError,omitempty"`
+	CreatedAt       string `json:"createdAt,omitempty"`
+	UpdatedAt       string `json:"updatedAt,omitempty"`
 }
 
 type ReportingPackDraftCreate struct {
