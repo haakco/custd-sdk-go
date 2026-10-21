@@ -35,7 +35,18 @@ type AdminClient struct {
 	Usage           *UsageAdminClient
 	AuthProjects    *AuthProjectAdminClient
 	DataScopes      *DataScopeAdminClient
-	client          *CustdClient
+
+	// Surfaces added for custdctl parity (M6.2). Each returns
+	// ResponseMetadata so a caller can quote the server's request identifier.
+	SupportAccess     *SupportAccessAdminClient
+	Impersonation     *ImpersonationAdminClient
+	Webhooks          *NotificationWebhookAdminClient
+	EnvironmentPolicy *EnvironmentPolicyAdminClient
+	TenantManifest    *TenantManifestAdminClient
+	AdminUsers        *AdminUsersAdminClient
+	System            *SystemAdminClient
+
+	client *CustdClient
 }
 
 type TenantAdminClient struct {
@@ -77,6 +88,13 @@ func newAdminClient(client *CustdClient) *AdminClient {
 	admin.Usage = &UsageAdminClient{admin: admin}
 	admin.AuthProjects = &AuthProjectAdminClient{admin: admin}
 	admin.DataScopes = newDataScopeAdminClient(admin)
+	admin.SupportAccess = &SupportAccessAdminClient{admin: admin}
+	admin.Impersonation = &ImpersonationAdminClient{admin: admin}
+	admin.Webhooks = &NotificationWebhookAdminClient{admin: admin}
+	admin.EnvironmentPolicy = &EnvironmentPolicyAdminClient{admin: admin}
+	admin.TenantManifest = &TenantManifestAdminClient{admin: admin}
+	admin.AdminUsers = &AdminUsersAdminClient{admin: admin}
+	admin.System = &SystemAdminClient{admin: admin}
 	return admin
 }
 
@@ -341,6 +359,88 @@ func (c *AdminClient) requestViaHTTP(
 		return err
 	}
 	return decodeAdminResponse(respBody, out)
+}
+
+// ResponseMetadata carries the server-side identifiers for one call. RequestID
+// is the value a client quotes in a support request; it is empty when the
+// server did not answer at all.
+type ResponseMetadata struct {
+	RequestID string
+}
+
+// requestIDHeader is the response header carrying the server's request
+// identifier.
+const requestIDHeader = "X-Request-Id"
+
+// requestWithMetadata issues an admin request that may carry a body and reports
+// the answer's metadata alongside the decoded body.
+//
+// It exists so a caller can report the request identifier the server logged
+// without keeping a second HTTP client of its own. The identifier is returned
+// even when the call is refused, because a refusal is exactly when the caller
+// needs to quote it.
+func (c *AdminClient) requestWithMetadata(
+	ctx context.Context, method, path string, payload, out any,
+) (ResponseMetadata, error) {
+	return c.requestWithMetadataHeaders(ctx, method, path, payload, out, nil)
+}
+
+// requestWithMetadataHeaders is requestWithMetadata plus extra request headers,
+// for a call that must carry an idempotency key. The server rejects a
+// credential-issuing or reconciling request that arrives without one, so the
+// header is part of the contract rather than an optimisation.
+func (c *AdminClient) requestWithMetadataHeaders(
+	ctx context.Context, method, path string, payload, out any, headers map[string]string,
+) (ResponseMetadata, error) {
+	var body []byte
+	if payload != nil {
+		encoded, err := json.Marshal(payload)
+		if err != nil {
+			return ResponseMetadata{}, fmt.Errorf("custd: marshal admin request: %w", err)
+		}
+		body = encoded
+	}
+	if c.client.config.HTTPClient != nil {
+		merged := c.client.headers(false)
+		for key, value := range headers {
+			merged[key] = value
+		}
+		resp, err := c.client.config.HTTPClient.Do(&HTTPRequest{
+			Method: method, URL: c.endpoint(path), Headers: merged, Body: body,
+		})
+		if err != nil {
+			return ResponseMetadata{}, fmt.Errorf("custd: admin request failed: %w", err)
+		}
+		metadata := ResponseMetadata{RequestID: responseHeader(resp.Headers, requestIDHeader)}
+		if err := c.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
+			return metadata, err
+		}
+		return metadata, decodeAdminResponse(resp.Body, out)
+	}
+	req, err := http.NewRequestWithContext(ctx, method, c.endpoint(path), bytes.NewReader(body))
+	if err != nil {
+		return ResponseMetadata{}, fmt.Errorf("custd: create admin request: %w", err)
+	}
+	for key, value := range c.client.headers(false) {
+		req.Header.Set(key, value)
+	}
+	for key, value := range headers {
+		req.Header.Set(key, value)
+	}
+	resp, err := c.client.httpClient.Do(req)
+	if err != nil {
+		return ResponseMetadata{}, fmt.Errorf("custd: admin request failed: %w", err)
+	}
+	defer resp.Body.Close()
+	respBody, err := readResponseBody(resp.Body)
+	if err != nil {
+		return ResponseMetadata{}, fmt.Errorf("custd: read admin response: %w", err)
+	}
+	metadata := ResponseMetadata{RequestID: resp.Header.Get(requestIDHeader)}
+	if err := c.client.checkStatus(resp.StatusCode, respBody); err != nil {
+		return metadata, err
+	}
+	return metadata, decodeAdminResponse(respBody, out)
 }
 
 func (c *AdminClient) endpoint(path string) string {
