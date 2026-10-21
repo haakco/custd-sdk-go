@@ -47,6 +47,9 @@ type AdminOAuthClientCreateResponse struct {
 	Profile        string   `json:"profile,omitempty"`
 	PurposeProfile string   `json:"purposeProfile,omitempty"`
 	ClientSecret   string   `json:"clientSecret"`
+	// LoginSetup is present instead of ClientSecret for a public login client: it has no
+	// secret, and what the caller needs is the configuration to run.
+	LoginSetup *OAuthClientLoginSetup `json:"loginSetup,omitempty"`
 }
 
 type AdminOAuthClientList struct {
