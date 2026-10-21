@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -193,6 +194,13 @@ func (c *UsageAdminClient) ExportUsage(
 	if err != nil {
 		return nil, err
 	}
+	// The route serves JSON by default and CSV only when asked, so the format is part of the
+	// request rather than a header negotiation.
+	if strings.Contains(path, "?") {
+		path += "&format=csv"
+	} else {
+		path += "?format=csv"
+	}
 	return c.openUsageExport(ctx, path)
 }
 
@@ -320,6 +328,7 @@ func (c *UsageAdminClient) openUsageExport(ctx context.Context, path string) (*U
 	for key, value := range c.admin.client.headers(false) {
 		req.Header.Set(key, value)
 	}
+	req.Header.Set("Accept", usageExportAccept)
 	resp, err := c.admin.client.httpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("custd: usage export failed: %w", err)
@@ -332,8 +341,10 @@ func (c *UsageAdminClient) openUsageExport(ctx context.Context, path string) (*U
 func (c *UsageAdminClient) openUsageExportViaDoer(
 	ctx context.Context, path string,
 ) (*UsageExport, error) {
+	headers := c.admin.client.headers(false)
+	headers["Accept"] = usageExportAccept
 	resp, err := c.admin.client.config.HTTPClient.Do(&HTTPRequest{
-		Method: http.MethodGet, URL: c.admin.endpoint(path), Headers: c.admin.client.headers(false),
+		Method: http.MethodGet, URL: c.admin.endpoint(path), Headers: headers,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("custd: usage export failed: %w", err)
@@ -369,3 +380,7 @@ func (c *UsageAdminClient) streamUsageExport(
 	recordMetadata(ctx, requestID)
 	return &UsageExport{Body: resp.Body, Metadata: ResponseMetadata{RequestID: requestID}}, nil
 }
+
+// usageExportAccept asks for the CSV the export route serves while still accepting a problem
+// document, so a refusal is readable rather than an unparsed body.
+const usageExportAccept = "text/csv, application/problem+json"
