@@ -22,6 +22,16 @@ type ClientConfig struct {
 	// leave it empty and the server uses the credential's own company.
 	ActingCompanySlug string
 
+	// CommandLabel names the operation the caller is performing, sent as
+	// `X-Custd-Command`. The server uses it, together with `X-Custd-Client`, to label an
+	// operator action's audit row with the command that caused it. Empty leaves the
+	// header off, so a non-CLI caller never claims to be one.
+	CommandLabel string
+
+	// ClientLabel identifies the calling program, sent as `X-Custd-Client`. The server
+	// only credits a command label from a client it recognises.
+	ClientLabel string
+
 	APIKey       string
 	ClientID     string
 	ClientSecret string

@@ -17,6 +17,14 @@ const adminEndpoint = "/api/v1/admin"
 // acting for. A system administrator sets it to work on a tenant's behalf.
 const actingCompanyHeader = "X-Custd-Effective-Company"
 
+const (
+	// commandLabelHeader names the operation the caller is performing, for audit
+	// attribution.
+	commandLabelHeader = "X-Custd-Command"
+	// clientLabelHeader names the calling program.
+	clientLabelHeader = "X-Custd-Client"
+)
+
 // actingCompanyPath adds the tenant query parameter the admin routes actually read.
 //
 // The header alone is not enough: admin routes resolve the tenant from
@@ -41,16 +49,14 @@ func (c *AdminClient) actingCompanyPath(path string) string {
 	return parsed.String()
 }
 
-// withActingCompanyHeader returns headers carrying the acting company, without mutating
-// the caller's map.
-func withActingCompanyHeader(company string, headers map[string]string) map[string]string {
-	merged := make(map[string]string, len(headers)+1)
+// withRequestLabels returns headers carrying the acting company and the audit labels,
+// without mutating the caller's map.
+func (c *AdminClient) withRequestLabels(headers map[string]string) map[string]string {
+	merged := make(map[string]string, len(headers)+3)
 	for key, value := range headers {
 		merged[key] = value
 	}
-	if company != "" {
-		merged[actingCompanyHeader] = company
-	}
+	c.applyActingCompany(merged)
 	return merged
 }
 
@@ -58,6 +64,12 @@ func withActingCompanyHeader(company string, headers map[string]string) map[stri
 func (c *AdminClient) applyActingCompany(headers map[string]string) {
 	if company := c.client.config.ActingCompanySlug; company != "" {
 		headers[actingCompanyHeader] = company
+	}
+	if label := c.client.config.ClientLabel; label != "" {
+		headers[clientLabelHeader] = label
+	}
+	if label := c.client.config.CommandLabel; label != "" {
+		headers[commandLabelHeader] = label
 	}
 }
 
@@ -468,7 +480,7 @@ func (c *AdminClient) requestWithMetadataHeaders(
 		body = encoded
 	}
 	path = c.actingCompanyPath(path)
-	headers = withActingCompanyHeader(c.client.config.ActingCompanySlug, headers)
+	headers = c.withRequestLabels(headers)
 	if c.client.config.HTTPClient != nil {
 		merged := c.client.headers(false)
 		for key, value := range headers {

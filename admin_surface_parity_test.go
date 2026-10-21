@@ -459,3 +459,36 @@ func TestSiteUpdateSendsEveryRestriction(t *testing.T) {
 		t.Fatalf("body = %#v, want allowedEnvironments stated", body)
 	}
 }
+
+// TestAuditLabelsReachTheServer proves a CLI call can still be attributed. The server
+// credits `source: custdctl` and the command name only when both labels arrive, so
+// dropping them during a client migration silently downgrades every operator action to
+// unattributed.
+func TestAuditLabelsReachTheServer(t *testing.T) {
+	doer := newCaptureDoer(http.StatusOK, `{}`)
+	client := newAdminTestClient(t, doer, "http://localhost:8080")
+	client.config.ClientLabel = "custdctl"
+	client.config.CommandLabel = "sites update"
+
+	if err := client.Admin.Sites.Delete(context.Background(), "site-1"); err != nil {
+		t.Fatalf("Delete returned error: %v", err)
+	}
+	headers := doer.requests[0].Headers
+	if headers[clientLabelHeader] != "custdctl" || headers[commandLabelHeader] != "sites update" {
+		t.Fatalf("headers = %#v, want both audit labels", headers)
+	}
+}
+
+// TestAuditLabelsAreOmittedWhenUnset proves a non-CLI caller never claims to be one.
+func TestAuditLabelsAreOmittedWhenUnset(t *testing.T) {
+	doer := newCaptureDoer(http.StatusOK, `{}`)
+	client := newAdminTestClient(t, doer, "http://localhost:8080")
+
+	if err := client.Admin.Sites.Delete(context.Background(), "site-1"); err != nil {
+		t.Fatalf("Delete returned error: %v", err)
+	}
+	headers := doer.requests[0].Headers
+	if _, present := headers[clientLabelHeader]; present {
+		t.Fatalf("client label present: %#v", headers)
+	}
+}
