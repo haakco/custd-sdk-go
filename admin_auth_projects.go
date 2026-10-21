@@ -195,11 +195,19 @@ type AuthProjectProfileField struct {
 // carry the rest. The legal scalar vocabularies are read from the capability
 // operation Custd exposes for the environment, not fixed here.
 type AuthProjectDesiredState struct {
-	IdentityMode       AuthProjectIdentityMode      `json:"identityMode"`
-	RegistrationPolicy string                       `json:"registrationPolicy"`
-	LoginPaused        bool                         `json:"loginPaused"`
-	Audiences          []AuthProjectAudienceBinding `json:"audiences"`
-	ProfileFields      []AuthProjectProfileField    `json:"profileFields"`
+	IdentityMode       AuthProjectIdentityMode `json:"identityMode"`
+	RegistrationPolicy string                  `json:"registrationPolicy"`
+	LoginPaused        bool                    `json:"loginPaused"`
+	// EntryPath is the realm's public entry path, empty when it has none. A configured path is
+	// validated and globally unique, so a taken path is refused rather than silently moved.
+	EntryPath string `json:"entryPath"`
+	// BrandAccent is the realm's optional sign-in accent as #rrggbb, empty for the shared default.
+	BrandAccent string `json:"brandAccent"`
+	// SignInMethods narrows the methods the realm offers to a non-empty subset of the closed set.
+	// Empty means no narrowing.
+	SignInMethods []string                     `json:"signInMethods"`
+	Audiences     []AuthProjectAudienceBinding `json:"audiences"`
+	ProfileFields []AuthProjectProfileField    `json:"profileFields"`
 }
 
 // AuthProjectDesiredStateRequest is the body of both the apply and preview
