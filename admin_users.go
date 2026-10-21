@@ -2,6 +2,7 @@ package custd
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/url"
 )
@@ -60,6 +61,22 @@ type AdminUserMembershipCreateRequest struct {
 // and must not be logged.
 type AdminUserPasswordReset struct {
 	Password string `json:"password"`
+}
+
+// AdminUserRemoval is the removal action applied to a user. Soft-delete removes the
+// user's access while keeping the record; restore reverses it. They are different
+// operations, not a boolean, because the server records which one happened.
+type AdminUserRemoval string
+
+const (
+	AdminUserRemovalSoftDelete AdminUserRemoval = "soft-delete"
+	AdminUserRemovalRestore    AdminUserRemoval = "restore"
+)
+
+// AdminUserRemovalRequest carries the reason the operator typed. It lands in the
+// tenant's audit stream, so it is part of the contract rather than decoration.
+type AdminUserRemovalRequest struct {
+	Reason string `json:"reason"`
 }
 
 // AdminUserRole is one assignable role.
@@ -127,12 +144,24 @@ func (c *AdminUsersAdminClient) Enable(
 	return c.userAction(ctx, userUUID, "/enable")
 }
 
-// Remove deletes a user and records the attribution on the representation.
+// Remove applies a removal action to one user and records the reason on the
+// representation. CompanySlug is required because the route is tenant-scoped.
 func (c *AdminUsersAdminClient) Remove(
 	ctx context.Context,
 	userUUID string,
+	removal AdminUserRemoval,
+	companySlug string,
+	reason string,
 ) (*AdminUser, ResponseMetadata, error) {
-	return c.userAction(ctx, userUUID, "/remove")
+	if removal != AdminUserRemovalSoftDelete && removal != AdminUserRemovalRestore {
+		return nil, ResponseMetadata{}, errors.New("custd: admin user removal must be soft-delete or restore")
+	}
+	var out AdminUser
+	query := url.Values{companySlugQueryParameter: {companySlug}}
+	path := adminUserPath(userUUID) + "/" + string(removal) + "?" + query.Encode()
+	body := AdminUserRemovalRequest{Reason: reason}
+	metadata, err := c.admin.requestWithMetadata(ctx, http.MethodPost, path, body, &out)
+	return &out, metadata, err
 }
 
 // AddMembership adds an existing user to a company with the given roles.

@@ -206,3 +206,41 @@ func TestDeliveryStatusCarriesTheFailureDetail(t *testing.T) {
 		t.Fatalf("status = %#v, want the failure detail carried", status)
 	}
 }
+
+// TestAdminUserRemovalSendsTheActionAndReason proves the removal surface models the
+// operation the server has: a named action on a tenant-scoped route, with the reason
+// that lands in the tenant's audit stream.
+func TestAdminUserRemovalSendsTheActionAndReason(t *testing.T) {
+	client, doer := newSurfaceClient(t, http.StatusOK, `{"userUuid":"user-1"}`)
+
+	if _, _, err := client.Admin.AdminUsers.Remove(
+		context.Background(), "user-1", AdminUserRemovalSoftDelete, "acme", "left the company",
+	); err != nil {
+		t.Fatalf("Remove returned error: %v", err)
+	}
+	request := doer.requests[0]
+	if !strings.Contains(request.URL, "/users/user-1/soft-delete") {
+		t.Fatalf("url = %s, want the soft-delete route", request.URL)
+	}
+	if !strings.Contains(request.URL, "companySlug=acme") {
+		t.Fatalf("url = %s, want the tenant query", request.URL)
+	}
+	if !strings.Contains(string(request.Body), "left the company") {
+		t.Fatalf("body = %s, want the reason carried", string(request.Body))
+	}
+}
+
+// TestAdminUserRemovalRefusesAnUnknownAction proves the client refuses locally what the
+// server would refuse anyway, rather than posting a route that does not exist.
+func TestAdminUserRemovalRefusesAnUnknownAction(t *testing.T) {
+	client, doer := newSurfaceClient(t, http.StatusOK, `{}`)
+
+	if _, _, err := client.Admin.AdminUsers.Remove(
+		context.Background(), "user-1", AdminUserRemoval("delete"), "acme", "x",
+	); err == nil {
+		t.Fatal("Remove accepted an unknown removal action")
+	}
+	if len(doer.requests) != 0 {
+		t.Fatalf("requests = %d, want 0", len(doer.requests))
+	}
+}
