@@ -36,8 +36,12 @@ type ReportingPackDraftListResponse struct {
 	Drafts []ReportingPackDraft `json:"drafts"`
 }
 
+// ReportingPackValidateResponse reports whether a definition validates, and why not when it does
+// not. The issues and warnings are the only actionable part of a refusal.
 type ReportingPackValidateResponse struct {
-	Valid bool `json:"valid"`
+	Valid    bool     `json:"valid"`
+	Issues   []string `json:"issues,omitempty"`
+	Warnings []string `json:"warnings,omitempty"`
 }
 
 type ReportingPackPreviewRequest struct {

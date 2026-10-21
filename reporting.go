@@ -68,6 +68,10 @@ type SubjectInsightResponse struct {
 }
 
 type PreparedDataStatus struct {
+	// ReceiptUUID and OutputUUID name the artifact this status describes. Without them a caller
+	// holding a status cannot reach the receipt or output it reports on.
+	ReceiptUUID     string                 `json:"receiptUuid,omitempty"`
+	OutputUUID      string                 `json:"outputUuid,omitempty"`
 	TenantSlug      string                 `json:"tenantSlug"`
 	ProcessingState string                 `json:"processingState"`
 	Availability    string                 `json:"availability"`

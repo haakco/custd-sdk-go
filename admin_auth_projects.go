@@ -68,13 +68,14 @@ type AuthProjectEnvironmentCreateRequest struct {
 // project is explicitly unbound; a caller must never infer it from a slug, an
 // email or its own company.
 type AuthProjectSummary struct {
-	ProjectID       string                  `json:"projectId"`
-	Slug            string                  `json:"slug"`
-	Name            string                  `json:"name"`
-	EnvironmentID   string                  `json:"environmentId"`
-	EnvironmentSlug string                  `json:"environmentSlug"`
-	IdentityMode    AuthProjectIdentityMode `json:"identityMode"`
-	CompanyUUID     *string                 `json:"companyUuid"`
+	ProjectID               string                  `json:"projectId"`
+	Slug                    string                  `json:"slug"`
+	Name                    string                  `json:"name"`
+	EnvironmentID           string                  `json:"environmentId"`
+	EnvironmentSlug         string                  `json:"environmentSlug"`
+	IdentityMode            AuthProjectIdentityMode `json:"identityMode"`
+	CompanyUUID             *string                 `json:"companyUuid"`
+	AudienceEntitlementMode string                  `json:"audienceEntitlementMode"`
 }
 
 // AuthProjectCompanyBinding is the result of binding an explicitly unbound project
