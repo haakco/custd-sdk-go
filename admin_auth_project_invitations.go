@@ -2,7 +2,9 @@ package custd
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"net/url"
 )
 
 // AuthProjectInvitation is one invitation as a caller sees it. It never carries
@@ -62,6 +64,109 @@ type AuthProjectInvitationRevocationRequest struct {
 // one, so a caller never chooses where a person is sent.
 type AuthProjectInvitationRedeliveryRequest struct {
 	InvitationID string `json:"invitationId"`
+}
+
+// The two by-id invitation writes. Each addresses one invitation and changes
+// it; the verb names the route and the answer's shape.
+const (
+	// AuthProjectInvitationVerbRevoke withdraws a live invitation.
+	AuthProjectInvitationVerbRevoke = "revoke"
+	// AuthProjectInvitationVerbRedeliver replaces one invitation's link.
+	AuthProjectInvitationVerbRedeliver = "redeliver"
+)
+
+// AuthProjectInvitationByIDTarget addresses one invitation by id. The
+// addressed project, environment and invitation id are the whole address: the
+// body carries only the invitation id, and the retry identity travels in the
+// request options.
+type AuthProjectInvitationByIDTarget struct {
+	// Verb is AuthProjectInvitationVerbRevoke or
+	// AuthProjectInvitationVerbRedeliver.
+	Verb          string
+	ProjectID     string
+	EnvironmentID string
+	InvitationID  string
+}
+
+// AuthProjectInvitationByIDResult is the answer to one by-id invitation
+// write.
+//
+// The two verbs answer with different shapes: a revocation answers with the
+// withdrawn invitation, and a redelivery answers with the invitation and its
+// fresh link. One envelope carries both, so InviteURL and Replayed are
+// meaningful only for a redelivery.
+type AuthProjectInvitationByIDResult struct {
+	Invitation AuthProjectInvitation `json:"invitation"`
+	InviteURL  string                `json:"inviteUrl,omitempty"`
+	Replayed   bool                  `json:"replayed,omitempty"`
+}
+
+// InvitationByID sends one by-id invitation write: withdrawing a live
+// invitation, or replacing its link so an address whose link never arrived can
+// still be admitted.
+//
+// Custd makes both writes retry-safe per Idempotency-Key, so the key is
+// required and a repeated attempt is answered as a replay rather than a second
+// change.
+func (c *AuthProjectAdminClient) InvitationByID(
+	ctx context.Context,
+	target AuthProjectInvitationByIDTarget,
+	options AuthProjectRequestOptions,
+) (*AuthProjectInvitationByIDResult, ResponseMetadata, error) {
+	if target.Verb != AuthProjectInvitationVerbRevoke && target.Verb != AuthProjectInvitationVerbRedeliver {
+		return nil, ResponseMetadata{}, fmt.Errorf("custd: unknown auth project invitation verb %q", target.Verb)
+	}
+	if err := requireAuthProjectIdempotencyKey(options); err != nil {
+		return nil, ResponseMetadata{}, err
+	}
+	path := authProjectEnvironmentPath(target.ProjectID, target.EnvironmentID) +
+		"/invitations/" + url.PathEscape(target.Verb)
+	if target.Verb == AuthProjectInvitationVerbRevoke {
+		return c.revokeInvitationByID(ctx, path, target.InvitationID, options)
+	}
+	return c.redeliverInvitationByID(ctx, path, target.InvitationID, options)
+}
+
+// revokeInvitationByID withdraws one invitation and reports the withdrawn
+// invitation the server returns.
+func (c *AuthProjectAdminClient) revokeInvitationByID(
+	ctx context.Context,
+	path string,
+	invitationID string,
+	options AuthProjectRequestOptions,
+) (*AuthProjectInvitationByIDResult, ResponseMetadata, error) {
+	var view AuthProjectInvitation
+	req := AuthProjectInvitationRevocationRequest{InvitationID: invitationID}
+	metadata, err := c.admin.requestWithMetadataHeaders(
+		ctx, http.MethodPost, path, req, &view, authProjectHeaders(options),
+	)
+	if err != nil {
+		return nil, metadata, err
+	}
+	return &AuthProjectInvitationByIDResult{Invitation: view}, metadata, nil
+}
+
+// redeliverInvitationByID replaces one invitation's link and reports the
+// fresh link, which is carried here and nowhere else.
+func (c *AuthProjectAdminClient) redeliverInvitationByID(
+	ctx context.Context,
+	path string,
+	invitationID string,
+	options AuthProjectRequestOptions,
+) (*AuthProjectInvitationByIDResult, ResponseMetadata, error) {
+	var issued AuthProjectInvitationIssued
+	req := AuthProjectInvitationRedeliveryRequest{InvitationID: invitationID}
+	metadata, err := c.admin.requestWithMetadataHeaders(
+		ctx, http.MethodPost, path, req, &issued, authProjectHeaders(options),
+	)
+	if err != nil {
+		return nil, metadata, err
+	}
+	return &AuthProjectInvitationByIDResult{
+		Invitation: issued.Invitation,
+		InviteURL:  issued.InviteURL,
+		Replayed:   issued.Replayed,
+	}, metadata, nil
 }
 
 // ListInvitations reports the environment's invitations.

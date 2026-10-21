@@ -40,7 +40,7 @@ type ReportExportJob struct {
 	SnapshotSHA256     string                 `json:"snapshotSha256,omitempty"`
 	State              string                 `json:"state"`
 	ProgressStage      string                 `json:"progressStage"`
-	ProgressCounters   map[string]int64       `json:"progressCounters,omitempty"`
+	ProgressCounters   []ProgressCounter      `json:"progressCounters,omitempty"`
 	QueuedAt           string                 `json:"queuedAt"`
 	StartedAt          *string                `json:"startedAt,omitempty"`
 	FinishedAt         *string                `json:"finishedAt,omitempty"`
@@ -134,4 +134,10 @@ func boundedReportExportBytes(body []byte) ([]byte, error) {
 		return nil, fmt.Errorf("custd: report export download exceeds 64 MiB")
 	}
 	return body, nil
+} // ProgressCounter reports one bounded lifecycle counter by name. The server sends a sorted
+// list, not a map, so the order is part of the answer and a map would both lose it and fail
+// to decode the document at all.
+type ProgressCounter struct {
+	Key   string `json:"key"`
+	Count int64  `json:"count"`
 }

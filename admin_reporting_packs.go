@@ -51,11 +51,32 @@ type ReportingPackPreviewResponse struct {
 	Value   RenderedMetricValue    `json:"value"`
 }
 
+// QueryHint mirrors the reporting contract's browser-supplied query. The SDK cannot import
+// the reporting library, so the shape is restated here field for field.
+//
+// Every field matters on the wire: the server validates the query before any SQL runs and
+// rejects a hint without a positive maxRows, so an omitted field is a refused preview rather
+// than a defaulted one.
 type QueryHint struct {
-	Template   string   `json:"template"`
-	Metrics    []string `json:"metrics"`
-	Dimensions []string `json:"dimensions"`
-	RangeDays  int      `json:"rangeDays,omitempty"`
+	DashboardKey string            `json:"dashboardKey,omitempty"`
+	WidgetKey    string            `json:"widgetKey,omitempty"`
+	Template     string            `json:"template"`
+	Metrics      []string          `json:"metrics"`
+	Dimensions   []string          `json:"dimensions,omitempty"`
+	Filters      []RequestedFilter `json:"filters,omitempty"`
+	From         string            `json:"from,omitempty"`
+	To           string            `json:"to,omitempty"`
+	RangeDays    int               `json:"rangeDays,omitempty"`
+	MaxRows      int               `json:"maxRows,omitempty"`
+	CountOnly    bool              `json:"countOnly,omitempty"`
+	Comparison   string            `json:"comparison,omitempty"`
+}
+
+// RequestedFilter is one exact predicate on a query dimension.
+type RequestedFilter struct {
+	Dimension string `json:"dimension"`
+	Operator  string `json:"operator"`
+	Value     string `json:"value,omitempty"`
 }
 
 type ReportingPackGeneration struct {
