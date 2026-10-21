@@ -46,9 +46,71 @@ type ReportingPackPreviewRequest struct {
 	Query      QueryHint `json:"query"`
 }
 
+// ReportingPackPreviewResponse is the preview envelope. The route answers `data`, and optionally
+// `executive` and `presentation`; it is deliberately aggregate-only, with no raw rows.
+//
+// Modelling the buckets at the top level was wrong in a way that decoded to zero values and still
+// exited successfully, so an operator saw a plausible but empty preview. The shape is restated here
+// field for field because the SDK cannot import the reporting library.
 type ReportingPackPreviewResponse struct {
-	Buckets []RenderedWidgetBucket `json:"buckets"`
-	Value   RenderedMetricValue    `json:"value"`
+	Data         RenderedWidgetData  `json:"data"`
+	Executive    *ExecutiveReport    `json:"executive,omitempty"`
+	Presentation *PresentationPreset `json:"presentation,omitempty"`
+}
+
+// ExecutiveReport is the optional executive view of the same preview.
+type ExecutiveReport struct {
+	Recipe            string                    `json:"recipe"`
+	TenantDisplayName string                    `json:"tenantDisplayName"`
+	Title             string                    `json:"title"`
+	Period            ExecutivePeriod           `json:"period"`
+	GeneratedAt       string                    `json:"generatedAt"`
+	AsOf              string                    `json:"asOf"`
+	Primary           ExecutivePrimaryResult    `json:"primary"`
+	Comparison        ExecutiveComparisonResult `json:"comparison"`
+	Confidence        ExecutiveConfidence       `json:"confidence"`
+	Findings          []string                  `json:"findings,omitempty"`
+	Actions           []string                  `json:"actions,omitempty"`
+	SupportingWidgets []string                  `json:"supportingWidgets,omitempty"`
+}
+
+type ExecutivePeriod struct {
+	From  string `json:"from,omitempty"`
+	To    string `json:"to,omitempty"`
+	Label string `json:"label"`
+}
+
+type ExecutivePrimaryResult struct {
+	Label       string              `json:"label"`
+	Unit        string              `json:"unit"`
+	Scope       string              `json:"scope"`
+	Value       RenderedMetricValue `json:"value"`
+	PeriodTotal RenderedMetricValue `json:"periodTotal"`
+}
+
+type ExecutiveComparisonResult struct {
+	Basis         string               `json:"basis"`
+	Label         string               `json:"label"`
+	Available     bool                 `json:"available"`
+	Value         *RenderedMetricValue `json:"value,omitempty"`
+	PercentChange *float64             `json:"percentChange,omitempty"`
+	TargetValue   *float64             `json:"targetValue,omitempty"`
+}
+
+type ExecutiveConfidence struct {
+	Status       string   `json:"status"`
+	Coverage     string   `json:"coverage"`
+	Completeness string   `json:"completeness"`
+	Freshness    string   `json:"freshness"`
+	Warnings     []string `json:"warnings,omitempty"`
+}
+
+// PresentationPreset names the presentation choice the preview was rendered with.
+type PresentationPreset struct {
+	PresetID          string `json:"presetId"`
+	Version           int    `json:"version"`
+	NonColorEncoding  string `json:"nonColorEncoding"`
+	SummaryTemplateID string `json:"summaryTemplateId"`
 }
 
 // QueryHint mirrors the reporting contract's browser-supplied query. The SDK cannot import

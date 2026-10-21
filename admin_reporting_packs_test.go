@@ -63,7 +63,8 @@ func TestReportingPacksAdminClientLifecycle(t *testing.T) {
 		t.Fatalf("Validate = %+v", val)
 	}
 
-	doer.body = `{"buckets":[{"date":"2026-07-23","value":{"value":1.0,"unit":"count","sampleCount":1,"dataSufficiency":"complete","complete":true},"source":"preview","queryDurationMs":10}],"value":{"value":1.0,"unit":"count","sampleCount":1,"dataSufficiency":"complete","complete":true}}`
+	// The route answers a `data` envelope, optionally with executive and presentation sections.
+	doer.body = `{"data":{"buckets":[{"date":"2026-07-23","value":{"value":1.0,"unit":"count","sampleCount":1,"dataSufficiency":"complete","complete":true},"source":"preview","queryDurationMs":10}],"queryDurationMs":10,"snapshotAgeMs":0,"eventLagP95Ms":0,"value":{"value":1.0,"unit":"count","sampleCount":1,"dataSufficiency":"complete","complete":true}}}`
 	prev, err := client.Admin.ReportingPacks.Preview(context.Background(), ReportingPackPreviewRequest{
 		Definition: Pack{Key: "security", DisplayName: "Security"},
 		TenantSlug: "acme",
@@ -72,7 +73,7 @@ func TestReportingPacksAdminClientLifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Preview error: %v", err)
 	}
-	if len(prev.Buckets) != 1 {
+	if len(prev.Data.Buckets) != 1 {
 		t.Fatalf("prev = %+v", prev)
 	}
 
