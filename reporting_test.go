@@ -16,7 +16,7 @@ func TestReportingExportLifecycleUsesAuthenticatedRoutes(t *testing.T) {
 	uuid := "123e4567-e89b-42d3-a456-426614174000"
 	doer := newCaptureDoer(http.StatusOK, `{"id":"`+uuid+`","state":"queued","queuedAt":"2026-08-13T00:00:00Z","attemptCount":0,"cleanupState":"pending","cleanupAttempts":0}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
-	if _, err := client.Reporting.CreateExport(context.Background(), ReportExportCreateRequest{DashboardKey: "executive", Formats: []string{"csv"}, Parameters: map[string]interface{}{}}); err != nil {
+	if _, err := client.Reporting.CreateExport(context.Background(), ReportExportCreateRequest{DashboardKey: "executive", Formats: []string{"csv"}, Parameters: ReportExportParameters{}}); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := client.Reporting.GetExport(context.Background(), uuid); err != nil {
