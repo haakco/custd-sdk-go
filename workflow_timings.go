@@ -506,11 +506,20 @@ func (c *WorkflowTimingAdminClient) Correct(
 }
 
 // ListRuns lists the tenant's observed runs, newest first.
+// ListRuns lists observed runs, optionally for one workflow.
+//
+// The workflow selector travels to the server rather than being applied to the answer, because the
+// server filters before it orders and limits. Filtering a limited page client-side reports "no runs"
+// for a quiet workflow whose runs fall outside the newest page.
 func (c *WorkflowTimingAdminClient) ListRuns(
-	ctx context.Context, companySlug string, limit int,
+	ctx context.Context, companySlug, workflowKey string, limit int,
 ) (*WorkflowTimingRunList, error) {
 	var out WorkflowTimingRunList
-	err := c.admin.request(ctx, http.MethodGet, workflowTimingPath(companySlug, "/runs", limit), nil, &out)
+	path := workflowTimingPath(companySlug, "/runs", limit)
+	if trimmed := strings.TrimSpace(workflowKey); trimmed != "" {
+		path += "&workflowKey=" + url.QueryEscape(trimmed)
+	}
+	err := c.admin.request(ctx, http.MethodGet, path, nil, &out)
 	return &out, err
 }
 
