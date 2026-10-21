@@ -571,10 +571,39 @@ func (c *WorkflowTimingAdminClient) Evaluation(
 
 // Rebuild deterministically rebuilds one run's projections from its ledger. It is
 // the supported repair path when a run's projection status reports pending facts.
-func (c *WorkflowTimingAdminClient) Rebuild(ctx context.Context, companySlug, runUUID string) error {
-	return c.admin.request(ctx, http.MethodPost, workflowTimingResourcePath(
+// Rebuild re-derives one run's projection and reports what the rebuild produced.
+//
+// The route answers a body — facts, observations written and the resulting projection — and a caller
+// repairing a run needs those counts. Declaring the call bodyless made the result unreachable.
+func (c *WorkflowTimingAdminClient) Rebuild(
+	ctx context.Context, companySlug, runUUID string,
+) (*WorkflowTimingRebuildResult, error) {
+	var out WorkflowTimingRebuildResult
+	err := c.admin.request(ctx, http.MethodPost, workflowTimingResourcePath(
 		companySlug, "/runs/"+url.PathEscape(runUUID)+"/rebuild",
-	), nil, nil)
+	), nil, &out)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// WorkflowTimingRebuildResult reports one bounded, deterministic projection rebuild.
+type WorkflowTimingRebuildResult struct {
+	RunUUID             string `json:"runUuid"`
+	WorkflowKey         string `json:"workflowKey"`
+	ExternalRunID       string `json:"externalRunId"`
+	Facts               int    `json:"facts"`
+	Status              string `json:"status"`
+	ObservationsWritten int    `json:"observationsWritten"`
+	Projection          struct {
+		Facts   int `json:"facts"`
+		Pending int `json:"pending"`
+	} `json:"projection"`
+	Durations struct {
+		Observations int `json:"observations"`
+		Pending      int `json:"pending"`
+	} `json:"durations"`
 }
 
 type workflowTimingObservationRequest struct {

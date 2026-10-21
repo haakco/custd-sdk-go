@@ -321,14 +321,24 @@ func (c *ReportingPacksAdminClient) GetGenerationStatus(ctx context.Context, gen
 	return &out, err
 }
 
-func (c *ReportingPacksAdminClient) RollbackGeneration(ctx context.Context, generationID string) error {
-	return c.admin.request(
+// RollbackGeneration rolls back to an earlier generation and reports the generation it created.
+//
+// The route answers 202 with that generation, so a caller can follow the rollback it just started.
+// Declaring the call bodyless discarded the only identifier it returns.
+func (c *ReportingPacksAdminClient) RollbackGeneration(
+	ctx context.Context, generationID string,
+) (*ReportingPackGeneration, error) {
+	var out ReportingPackGeneration
+	if err := c.admin.request(
 		ctx,
 		http.MethodPost,
 		"/reporting-packs/generations/"+url.PathEscape(generationID)+"/rollback",
 		nil,
-		nil,
-	)
+		&out,
+	); err != nil {
+		return nil, err
+	}
+	return &out, nil
 }
 
 func (c *ReportingPacksAdminClient) GetRollupProvenance(

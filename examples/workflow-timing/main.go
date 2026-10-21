@@ -101,9 +101,12 @@ func run() error {
 	)
 	if run.ProjectionStatus.Behind() {
 		// The supported repair path, and it needs no SQL.
-		if err := timings.Rebuild(ctx, companySlug, runUUID); err != nil {
+		rebuilt, err := timings.Rebuild(ctx, companySlug, runUUID)
+		if err != nil {
 			return fmt.Errorf("rebuild: %w", err)
 		}
+		fmt.Printf("rebuilt run %s: %d facts, %d observations written\n",
+			rebuilt.RunUUID, rebuilt.Facts, rebuilt.ObservationsWritten)
 		fmt.Println("projection was behind; rebuilt from the ledger")
 	}
 

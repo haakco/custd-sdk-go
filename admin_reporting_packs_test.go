@@ -115,8 +115,9 @@ func TestReportingPacksAdminClientLifecycle(t *testing.T) {
 		t.Fatalf("status = %+v", status)
 	}
 
-	doer.status = http.StatusNoContent
-	if err := client.Admin.ReportingPacks.RollbackGeneration(context.Background(), "99"); err != nil {
+	doer.status = http.StatusAccepted
+	doer.body = `{"id":100,"revision":1,"generationNumber":8,"sourceDraftId":43,"definition":{},"state":"active"}`
+	if _, err := client.Admin.ReportingPacks.RollbackGeneration(context.Background(), "99"); err != nil {
 		t.Fatalf("RollbackGeneration error: %v", err)
 	}
 
