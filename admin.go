@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 )
 
@@ -168,6 +169,38 @@ func (c *TenantAdminClient) List(ctx context.Context) (*AdminTenantList, error) 
 	var tenants AdminTenantList
 	err := c.admin.request(ctx, http.MethodGet, "/tenants", nil, &tenants)
 	return &tenants, err
+}
+
+// Finalize commits a tenant's provisioning once its company identifier is known. The
+// identifier travels as a query parameter, which is what the route reads.
+func (c *TenantAdminClient) Finalize(ctx context.Context, slug string, companyID int64) error {
+	if companyID <= 0 {
+		return fmt.Errorf("custd: company id must be a positive integer")
+	}
+	path := "/tenants/" + url.PathEscape(slug) + "/finalize?companyId=" + strconv.FormatInt(companyID, 10)
+	return c.admin.request(ctx, http.MethodPost, path, nil, nil)
+}
+
+// DataSpaceEntitlement reports the tenant's data-space limits and current usage.
+func (c *TenantAdminClient) DataSpaceEntitlement(
+	ctx context.Context, slug string,
+) (*DataSpaceEntitlementState, error) {
+	var out DataSpaceEntitlementState
+	err := c.admin.request(
+		ctx, http.MethodGet, "/tenants/"+url.PathEscape(slug)+"/data-space-entitlement", nil, &out,
+	)
+	return &out, err
+}
+
+// UpdateDataSpaceEntitlement replaces the tenant's data-space limits.
+func (c *TenantAdminClient) UpdateDataSpaceEntitlement(
+	ctx context.Context, slug string, req DataSpaceEntitlementUpdateRequest,
+) (*DataSpaceEntitlementState, error) {
+	var out DataSpaceEntitlementState
+	err := c.admin.request(
+		ctx, http.MethodPut, "/tenants/"+url.PathEscape(slug)+"/data-space-entitlement", req, &out,
+	)
+	return &out, err
 }
 
 func (c *TenantAdminClient) Get(ctx context.Context, slug string) (*AdminTenant, error) {

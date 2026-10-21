@@ -84,6 +84,13 @@ type DataSpace struct {
 	Enabled           bool   `json:"enabled"`
 }
 
+// DataSpaceEntitlementUpdateRequest replaces a tenant's data-space limits.
+type DataSpaceEntitlementUpdateRequest struct {
+	Enabled                        bool `json:"enabled"`
+	MaxActiveDataSpaces            int  `json:"maxActiveDataSpaces"`
+	MaxActiveProducersPerDataSpace int  `json:"maxActiveProducersPerDataSpace"`
+}
+
 type DataSpaceEntitlementState struct {
 	Enabled                        bool `json:"enabled"`
 	ActiveDataSpaces               int  `json:"activeDataSpaces"`
