@@ -47,7 +47,7 @@ type JWKS struct {
 // it publishes.
 type IssuerInspection struct {
 	Metadata AuthorizationServerMetadata `json:"metadata"`
-	JWKS     JWKS                         `json:"jwks"`
+	JWKS     JWKS                        `json:"jwks"`
 }
 
 // GetHealth reads the API's liveness answer.
@@ -158,7 +158,14 @@ func trustedIssuerEndpoint(raw, issuer string) (string, error) {
 	if !isSecureOrLocalHTTP(parsed.String()) {
 		return "", errors.New("custd: issuer endpoint must use https unless it targets localhost")
 	}
-	if !strings.EqualFold(parsed.Scheme, issuer[:strings.Index(issuer, "://")+3][:strings.Index(issuer, "://")]) {
+	origin, err := url.Parse(issuer)
+	if err != nil || origin.Host == "" {
+		return "", errors.New("custd: issuer must be a trusted HTTPS origin")
+	}
+	// Compare the whole origin, not just the scheme. A discovery document is untrusted input,
+	// so an endpoint on a different host would let it redirect the key fetch to keys of its own
+	// choosing while still looking like a well-formed https URL.
+	if !strings.EqualFold(parsed.Scheme, origin.Scheme) || !strings.EqualFold(parsed.Host, origin.Host) {
 		return "", errors.New("custd: issuer endpoint must be on the issuer origin")
 	}
 	return parsed.String(), nil
