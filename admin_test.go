@@ -225,9 +225,13 @@ func newAdminTestClient(t *testing.T, doer *captureDoer, baseURL string) *CustdC
 }
 
 func createAcmeOAuthClient(client *CustdClient) (*AdminOAuthClientCreateResponse, error) {
+	key, err := NewIdempotencyKey()
+	if err != nil {
+		return nil, err
+	}
 	return client.Admin.OAuthClients.Create(context.Background(), AdminOAuthClientCreate{
 		ClientID:    "custd-acme",
 		CompanySlug: "acme",
 		Scopes:      []string{"events.write"},
-	})
+	}, OAuthClientRequestOptions{IdempotencyKey: key})
 }

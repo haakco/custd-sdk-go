@@ -136,11 +136,15 @@ func SetupProducer(
 			return nil, err
 		}
 	}
+	idempotencyKey, err := NewIdempotencyKey()
+	if err != nil {
+		return nil, err
+	}
 	created, err := admin.Admin.OAuthClients.Create(ctx, AdminOAuthClientCreate{
 		ClientID:    req.ClientID,
 		CompanySlug: req.TenantSlug,
 		Scopes:      normalizeScopes(req.Scopes),
-	})
+	}, OAuthClientRequestOptions{IdempotencyKey: idempotencyKey})
 	if err != nil {
 		return nil, fmt.Errorf("custd: create oauth client: %w", err)
 	}

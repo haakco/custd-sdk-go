@@ -492,3 +492,51 @@ func TestAuditLabelsAreOmittedWhenUnset(t *testing.T) {
 		t.Fatalf("client label present: %#v", headers)
 	}
 }
+
+// TestOAuthMutationsCarryTheIdempotencyKey proves the retry identity reaches the header.
+// The server refuses creation and secret rotation without one, and validates that it is a
+// canonical UUIDv7, so a client that silently omits it cannot be used to create anything.
+func TestOAuthMutationsCarryTheIdempotencyKey(t *testing.T) {
+	key, err := NewIdempotencyKey()
+	if err != nil {
+		t.Fatalf("NewIdempotencyKey: %v", err)
+	}
+	// A canonical UUIDv7 is 36 characters and has version 7 and the RFC 4122 variant.
+	if len(key) != 36 || key[14] != '7' {
+		t.Fatalf("key = %q, want a canonical UUIDv7", key)
+	}
+
+	doer := newCaptureDoer(http.StatusOK, `{"clientId":"c","clientSecret":"s"}`)
+	client := newAdminTestClient(t, doer, "http://localhost:8080")
+	options := OAuthClientRequestOptions{IdempotencyKey: key}
+
+	if _, err := client.Admin.OAuthClients.Create(
+		context.Background(), AdminOAuthClientCreate{ClientID: "c"}, options,
+	); err != nil {
+		t.Fatalf("Create returned error: %v", err)
+	}
+	if _, err := client.Admin.OAuthClients.RotateSecret(context.Background(), "c", options); err != nil {
+		t.Fatalf("RotateSecret returned error: %v", err)
+	}
+	for _, request := range doer.requests {
+		if request.Headers["Idempotency-Key"] != key {
+			t.Fatalf("%s headers = %#v, want the idempotency key", request.URL, request.Headers)
+		}
+	}
+}
+
+// TestOAuthMutationRefusesAnEmptyKey proves a misuse fails at the caller with one clear
+// error instead of becoming a service 400.
+func TestOAuthMutationRefusesAnEmptyKey(t *testing.T) {
+	doer := newCaptureDoer(http.StatusOK, `{}`)
+	client := newAdminTestClient(t, doer, "http://localhost:8080")
+
+	if _, err := client.Admin.OAuthClients.Create(
+		context.Background(), AdminOAuthClientCreate{ClientID: "c"}, OAuthClientRequestOptions{},
+	); err == nil {
+		t.Fatal("Create accepted an empty idempotency key")
+	}
+	if len(doer.requests) != 0 {
+		t.Fatalf("a refused call still made %d requests", len(doer.requests))
+	}
+}

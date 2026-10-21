@@ -178,13 +178,45 @@ func (c *TenantAdminClient) Delete(ctx context.Context, slug string) error {
 	return c.admin.request(ctx, http.MethodDelete, "/tenants/"+url.PathEscape(slug), nil, nil)
 }
 
+// OAuthClientRequestOptions carries the retry identity a mutating OAuth client route
+// requires. Custd makes creation and secret rotation retry-safe per Idempotency-Key, so an
+// empty key is refused by the server rather than defaulted.
+type OAuthClientRequestOptions struct {
+	IdempotencyKey string
+}
+
+// headers states the retry identity so a repeated call is recognised rather than
+// duplicating the mutation.
+func (o OAuthClientRequestOptions) headers() map[string]string {
+	key := strings.TrimSpace(o.IdempotencyKey)
+	if key == "" {
+		return nil
+	}
+	return map[string]string{"Idempotency-Key": key}
+}
+
+// CreateOAuthClient requires an idempotency key, because the server refuses the mutation
+// without one.
 func (c *OAuthClientAdminClient) Create(
 	ctx context.Context,
 	req AdminOAuthClientCreate,
+	options OAuthClientRequestOptions,
 ) (*AdminOAuthClientCreateResponse, error) {
+	if err := options.requireIdempotencyKey(); err != nil {
+		return nil, err
+	}
 	var client AdminOAuthClientCreateResponse
-	err := c.admin.request(ctx, http.MethodPost, "/oauth-clients", req, &client)
+	err := c.admin.requestWithHeaders(ctx, http.MethodPost, "/oauth-clients", req, &client, options.headers())
 	return &client, err
+}
+
+// requireIdempotencyKey refuses an empty key at the caller, so a misuse fails with one
+// clear error instead of a service 400.
+func (o OAuthClientRequestOptions) requireIdempotencyKey() error {
+	if strings.TrimSpace(o.IdempotencyKey) == "" {
+		return fmt.Errorf("custd: oauth client idempotency key is required")
+	}
+	return nil
 }
 
 func (c *OAuthClientAdminClient) List(ctx context.Context) (*AdminOAuthClientList, error) {
@@ -213,9 +245,16 @@ func (c *OAuthClientAdminClient) Delete(ctx context.Context, clientID string) er
 func (c *OAuthClientAdminClient) RotateSecret(
 	ctx context.Context,
 	clientID string,
+	options OAuthClientRequestOptions,
 ) (*AdminOAuthClientSecretResponse, error) {
+	if err := options.requireIdempotencyKey(); err != nil {
+		return nil, err
+	}
 	var secret AdminOAuthClientSecretResponse
-	err := c.admin.request(ctx, http.MethodPost, "/oauth-clients/"+url.PathEscape(clientID)+"/rotate-secret", nil, &secret)
+	err := c.admin.requestWithHeaders(
+		ctx, http.MethodPost, "/oauth-clients/"+url.PathEscape(clientID)+"/rotate-secret", nil, &secret,
+		options.headers(),
+	)
 	return &secret, err
 }
 
