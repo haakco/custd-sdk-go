@@ -1,7 +1,0 @@
-{
-  "template": "web_events",
-  "metrics": ["page_views"],
-  "dimensions": ["path"],
-  "rangeDays": 7,
-  "maxRows": 50
-}

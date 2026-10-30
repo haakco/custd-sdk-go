@@ -1,8 +1,0 @@
-{
-  "data": {
-    "buckets": [],
-    "queryDurationMs": 12,
-    "snapshotAgeMs": 1500,
-    "eventLagP95Ms": 320
-  }
-}

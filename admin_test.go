@@ -103,6 +103,68 @@ func TestAdminSitesManageBrowserSites(t *testing.T) {
 	}
 }
 
+// TestAdminSitesCarryTheTypedIngestTarget proves a site create states the one
+// destination it writes to using the UUIDs the server validates, that the server's
+// resolved codes are read back, and that an update omitting the target leaves the
+// existing destination alone instead of clearing it.
+func TestAdminSitesCarryTheTypedIngestTarget(t *testing.T) {
+	const (
+		scopeUUID    = "11111111-1111-4111-8111-111111111111"
+		resourceUUID = "22222222-2222-4222-8222-222222222222"
+	)
+	doer := newCaptureDoer(http.StatusCreated, `{"siteUuid":"site-123","companySlug":"acme","name":"Docs","identityMode":"cookieless","ingestTarget":{"scopeUuid":"`+scopeUUID+`","resourceUuid":"`+resourceUUID+`","scopeCode":"acme-store","resourceCode":"srv-01"},"writeKey":"site_pk_test"}`)
+	client := newAdminTestClient(t, doer, "http://localhost:8080")
+
+	created, err := client.Admin.Sites.Create(context.Background(), AdminSiteCreate{
+		CompanySlug:    "acme",
+		Name:           "Docs",
+		IdentityMode:   "cookieless",
+		Environment:    "prod",
+		AllowedOrigins: []string{"https://example.com"},
+		IngestTarget: &AdminSiteIngestTarget{
+			ScopeUUID:    scopeUUID,
+			ResourceUUID: resourceUUID,
+		},
+	})
+	if err != nil {
+		t.Fatalf("Create returned error: %v", err)
+	}
+	if created.IngestTarget == nil ||
+		created.IngestTarget.ScopeCode != "acme-store" || created.IngestTarget.ResourceCode != "srv-01" {
+		t.Fatalf("ingestTarget = %#v, want the codes the server resolved", created.IngestTarget)
+	}
+	createBody := decodeSiteRequestBody(t, doer.requests[0])
+	target, ok := createBody["ingestTarget"].(map[string]any)
+	if !ok || target["scopeUuid"] != scopeUUID || target["resourceUuid"] != resourceUUID {
+		t.Fatalf("create body = %#v, want the typed ingest target", createBody)
+	}
+	if _, present := target["scopeCode"]; present {
+		t.Fatalf("create body = %#v, want codes resolved by the server, not the caller", createBody)
+	}
+
+	doer.status = http.StatusOK
+	doer.body = `{"siteUuid":"site-123","environment":"prod"}`
+	if _, err := client.Admin.Sites.Update(context.Background(), "site-123", AdminSiteUpdate{
+		IdentityMode:   "cookieless",
+		Environment:    "prod",
+		AllowedOrigins: []string{"https://example.com"},
+	}); err != nil {
+		t.Fatalf("Update returned error: %v", err)
+	}
+	if updateBody := decodeSiteRequestBody(t, doer.requests[1]); updateBody["ingestTarget"] != nil {
+		t.Fatalf("update body = %#v, want no ingestTarget so the destination is unchanged", updateBody)
+	}
+}
+
+func decodeSiteRequestBody(t *testing.T, request *HTTPRequest) map[string]any {
+	t.Helper()
+	var body map[string]any
+	if err := json.Unmarshal(request.Body, &body); err != nil {
+		t.Fatalf("decode %s %s body: %v", request.Method, request.URL, err)
+	}
+	return body
+}
+
 func TestAdminSitesListGetDeleteDoNotExposeWriteKeys(t *testing.T) {
 	doer := newCaptureDoer(http.StatusOK, `{"sites":[{"siteUuid":"site-123","companySlug":"acme","name":"Docs","identityMode":"cookieless","allowedOrigins":["https://example.com"],"rateLimitPerMinute":600,"retentionDays":365,"enabled":true}]}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
