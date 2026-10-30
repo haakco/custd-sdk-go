@@ -6,7 +6,7 @@ package custd
 //
 // scripts/check-sdk-version-identity.sh asserts it equals VERSION and
 // scripts/bump-version.sh updates it, so a release cannot leave it behind.
-const Version = "3.34.2"
+const Version = "3.34.3"
 
 // sdkIdentity is the X-Custd-Sdk value for this SDK.
 const sdkIdentity = "go/" + Version
