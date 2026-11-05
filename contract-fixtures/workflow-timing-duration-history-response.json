@@ -1,0 +1,63 @@
+{
+  "workflowKey": "hosting.reconcile",
+  "workflowUuid": "8f6b1c2e-0000-7000-8000-000000000001",
+  "entries": [
+    {
+      "runUuid": "8f6b1c2e-0000-7000-8000-000000000010",
+      "stepKey": "foundation",
+      "valueMs": 29000,
+      "baselineMs": 600000,
+      "revisionUuid": "8f6b1c2e-0000-7000-8000-000000000002",
+      "revisionNumber": 2,
+      "outcome": "completed",
+      "corrected": false,
+      "observedAt": "2026-09-22T10:05:00Z"
+    },
+    {
+      "runUuid": "8f6b1c2e-0000-7000-8000-000000000020",
+      "stepKey": "foundation",
+      "valueMs": 27600,
+      "baselineMs": 600000,
+      "revisionUuid": "8f6b1c2e-0000-7000-8000-000000000002",
+      "revisionNumber": 2,
+      "outcome": "completed",
+      "corrected": true,
+      "observedAt": "2026-09-23T09:11:00Z"
+    }
+  ],
+  "outcomes": {
+    "completedRuns": 2,
+    "failedRuns": 1,
+    "cancelledRuns": 0,
+    "runningRuns": 1,
+    "completedSteps": 6,
+    "failedAttempts": 1,
+    "skippedAttempts": 0,
+    "cancelledSteps": 0,
+    "openAttempts": 1,
+    "retries": 0
+  },
+  "contributions": [
+    {
+      "stepKey": "foundation",
+      "attempts": 2,
+      "totalMs": 56600,
+      "baselineMs": 600000,
+      "contributionPermille": 662
+    },
+    {
+      "stepKey": "database",
+      "attempts": 1,
+      "totalMs": 28800,
+      "baselineMs": 900000,
+      "contributionPermille": 338
+    }
+  ],
+  "latestCompletedRun": {
+    "runUuid": "8f6b1c2e-0000-7000-8000-000000000020",
+    "wallClockMs": 95000,
+    "activeMs": 85400,
+    "waitMs": 9600,
+    "nominalMs": 1800000
+  }
+}

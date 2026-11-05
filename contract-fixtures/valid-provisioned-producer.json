@@ -1,0 +1,11 @@
+{
+  "baseUrl": "https://custd.example.test",
+  "tokenUrl": "https://auth.example.test/oauth2/token",
+  "audience": "custd",
+  "companySlug": "awthy",
+  "clientId": "custd-awthy-awthy-store-123",
+  "clientSecret": "created-secret",
+  "scopes": ["events.write", "managed_audit.redact"],
+  "environment": "production",
+  "metadata": { "storeId": "store_123", "sourceSystem": "awthy" }
+}

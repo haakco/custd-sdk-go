@@ -1,0 +1,78 @@
+{
+  "observations": [
+    {
+      "workflowKey": "hosting.reconcile",
+      "externalRunId": "op-20260922-42",
+      "idempotencyKey": "workflow-timing:hosting.reconcile:op-20260922-42:run_started",
+      "provenance": {
+        "actorKind": "machine",
+        "actorRef": "hosting-worker-7",
+        "collector": "hosting-worker"
+      },
+      "fact": {
+        "kind": "run_started",
+        "occurredAt": "2026-09-22T10:00:00Z",
+        "dimensions": {
+          "cluster": "fsn1-a"
+        },
+        "run": {
+          "state": "running"
+        }
+      }
+    },
+    {
+      "workflowKey": "hosting.reconcile",
+      "externalRunId": "op-20260922-42",
+      "idempotencyKey": "workflow-timing:hosting.reconcile:op-20260922-42:step_finished:foundation:1",
+      "provenance": {
+        "actorKind": "machine",
+        "actorRef": "hosting-worker-7"
+      },
+      "fact": {
+        "kind": "step_finished",
+        "occurredAt": "2026-09-22T10:05:00Z",
+        "step": {
+          "stepKey": "foundation",
+          "attempt": 1,
+          "state": "completed"
+        }
+      }
+    },
+    {
+      "workflowKey": "hosting.reconcile",
+      "externalRunId": "op-20260922-42",
+      "idempotencyKey": "workflow-timing:hosting.reconcile:op-20260922-42:run_finished",
+      "provenance": {
+        "actorKind": "machine",
+        "actorRef": "hosting-worker-7"
+      },
+      "fact": {
+        "kind": "run_finished",
+        "occurredAt": "2026-09-22T10:15:00Z",
+        "run": {
+          "state": "completed"
+        }
+      }
+    },
+    {
+      "workflowKey": "hosting.reconcile",
+      "externalRunId": "op-20260922-43",
+      "idempotencyKey": "workflow-timing:hosting.reconcile:op-20260922-43:step_finished:deploy:1",
+      "supersedesFactUuid": "3f8f2a10-0000-7000-8000-0000000000aa",
+      "provenance": {
+        "actorKind": "machine",
+        "actorRef": "hosting-worker-8"
+      },
+      "fact": {
+        "kind": "step_finished",
+        "occurredAt": "2026-09-22T11:02:00Z",
+        "step": {
+          "stepKey": "deploy",
+          "attempt": 1,
+          "state": "failed",
+          "errorClass": "timeout"
+        }
+      }
+    }
+  ]
+}

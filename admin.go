@@ -75,27 +75,28 @@ func (c *AdminClient) applyActingCompany(headers map[string]string) {
 }
 
 type AdminClient struct {
-	Tenants         *TenantAdminClient
-	OAuthClients    *OAuthClientAdminClient
-	Sites           *SiteAdminClient
-	Schemas         *SchemaAdminClient
-	Measurement     *MeasurementAdminClient
-	Predictions     *PredictionAdminClient
-	WorkflowTimings *WorkflowTimingAdminClient
-	Privacy         *PrivacyAdminClient
-	Retention       *RetentionAdminClient
-	StorageAlerts   *StorageAlertAdminClient
-	Audit           *AuditAdminClient
-	Offboarding     *OffboardingAdminClient
-	ReportingPacks  *ReportingPacksAdminClient
-	TenantStorage   *TenantStorageAdminClient
-	SubjectExports  *SubjectExportAdminClient
-	Erasures        *PrivacyErasureAdminClient
-	DataLabels      *DataLabelAdminClient
-	TimePlans       *TimePlanAdminClient
-	Usage           *UsageAdminClient
-	AuthProjects    *AuthProjectAdminClient
-	DataScopes      *DataScopeAdminClient
+	Tenants               *TenantAdminClient
+	OAuthClients          *OAuthClientAdminClient
+	OAuthClientAdmissions *OAuthClientAdmissionAdminClient
+	Sites                 *SiteAdminClient
+	Schemas               *SchemaAdminClient
+	Measurement           *MeasurementAdminClient
+	Predictions           *PredictionAdminClient
+	WorkflowTimings       *WorkflowTimingAdminClient
+	Privacy               *PrivacyAdminClient
+	Retention             *RetentionAdminClient
+	StorageAlerts         *StorageAlertAdminClient
+	Audit                 *AuditAdminClient
+	Offboarding           *OffboardingAdminClient
+	ReportingPacks        *ReportingPacksAdminClient
+	TenantStorage         *TenantStorageAdminClient
+	SubjectExports        *SubjectExportAdminClient
+	Erasures              *PrivacyErasureAdminClient
+	DataLabels            *DataLabelAdminClient
+	TimePlans             *TimePlanAdminClient
+	Usage                 *UsageAdminClient
+	AuthProjects          *AuthProjectAdminClient
+	DataScopes            *DataScopeAdminClient
 
 	// Surfaces added for custdctl parity (M6.2). Each returns
 	// ResponseMetadata so a caller can quote the server's request identifier.
@@ -130,6 +131,7 @@ func newAdminClient(client *CustdClient) *AdminClient {
 	admin := &AdminClient{client: client}
 	admin.Tenants = &TenantAdminClient{admin: admin}
 	admin.OAuthClients = &OAuthClientAdminClient{admin: admin}
+	admin.OAuthClientAdmissions = &OAuthClientAdmissionAdminClient{admin: admin}
 	admin.Sites = &SiteAdminClient{admin: admin}
 	admin.Schemas = &SchemaAdminClient{admin: admin}
 	admin.Measurement = newMeasurementAdminClient(admin)

@@ -1,0 +1,6 @@
+{
+  "template": "security_events",
+  "metrics": ["event_count"],
+  "dimensions": ["severity"],
+  "rangeDays": 7
+}

@@ -1,0 +1,21 @@
+{
+  "importId": "018f4a10-2f0d-7d99-8a7b-68b1fddfd900",
+  "accepted": 1,
+  "rejected": 1,
+  "results": [
+    {
+      "rowIndex": 1,
+      "success": true,
+      "status": 202,
+      "observationUuid": "018f4a10-2f0d-7d99-8a7b-68b1fddfd901"
+    },
+    {
+      "rowIndex": 2,
+      "success": false,
+      "status": 422,
+      "type": "https://custd.dev/problems/measurement-invalid-observation",
+      "title": "Invalid measurement observation",
+      "detail": "observedAt must be an RFC3339 timestamp"
+    }
+  ]
+}

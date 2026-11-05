@@ -285,18 +285,6 @@ func (c *AdminUsersAdminClient) ListRoles(
 	return &out, metadata, err
 }
 
-func (c *AdminUsersAdminClient) userAction(
-	ctx context.Context,
-	userUUID string,
-	action string,
-) (*AdminUser, ResponseMetadata, error) {
-	var out AdminUser
-	metadata, err := c.admin.requestWithMetadata(
-		ctx, http.MethodPost, adminUserPath(userUUID)+action, nil, &out,
-	)
-	return &out, metadata, err
-}
-
 // AdminUserEnableRequest is the body for an enable: the roles the membership reopens
 // with.
 type AdminUserEnableRequest struct {

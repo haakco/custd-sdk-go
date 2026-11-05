@@ -1,0 +1,14 @@
+{
+  "requestId": "se_01J5K7N4Y8X9Z2B6V3D1M0Q7RJ",
+  "tenantSlug": "acme",
+  "subject": {
+    "type": "userUuid",
+    "value": "01J5K7N4Y8X9Z2B6V3D1M0Q7RJ"
+  },
+  "scope": "portability",
+  "state": "ready",
+  "createdAt": "2026-07-31T08:00:00Z",
+  "expiresAt": "2026-08-07T08:00:00Z",
+  "checksum": "sha256:7d38c3b1c2f40a7e0d8e8b6c1c0e9f2a5b7d8e0f1a2b3c4d5e6f7a8b9c0d1e2f",
+  "artifactSize": 1048576
+}

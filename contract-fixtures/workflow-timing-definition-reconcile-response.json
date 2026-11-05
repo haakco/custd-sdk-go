@@ -1,0 +1,45 @@
+{
+  "definition": {
+    "uuid": "8f6b1c2e-0000-7000-8000-000000000001",
+    "workflowKey": "hosting.reconcile",
+    "name": "Hosting reconcile",
+    "description": "Observed hosting provisioning phases.",
+    "status": "active",
+    "revisionCount": 2,
+    "currentRevision": {
+      "uuid": "8f6b1c2e-0000-7000-8000-000000000002",
+      "number": 2,
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "allowOverlap": false,
+      "predictionVersionUuid": "8f6b1c2e-0000-7000-8000-000000000003",
+      "dimensions": [
+        {
+          "dimensionKey": "cluster",
+          "maxValueBytes": 64
+        }
+      ],
+      "steps": [
+        {
+          "stepKey": "foundation",
+          "name": "Foundation",
+          "sequence": 1,
+          "nominalMs": 600000
+        },
+        {
+          "stepKey": "database",
+          "name": "Database",
+          "sequence": 2,
+          "nominalMs": 900000
+        },
+        {
+          "stepKey": "deploy",
+          "name": "Deploy",
+          "sequence": 3,
+          "nominalMs": 300000
+        }
+      ]
+    }
+  },
+  "created": false,
+  "revisionChanged": true
+}

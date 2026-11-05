@@ -1,0 +1,30 @@
+{
+  "data": {
+    "buckets": [
+      {
+        "date": "2026-06-01",
+        "value": {
+          "value": 2,
+          "unit": "count",
+          "sampleCount": 2,
+          "dataSufficiency": "sufficient",
+          "complete": true,
+          "truncated": false
+        },
+        "source": "postgres",
+        "queryDurationMs": 12
+      }
+    ],
+    "value": {
+      "value": 2,
+      "unit": "count",
+      "sampleCount": 2,
+      "dataSufficiency": "sufficient",
+      "complete": true,
+      "truncated": false
+    },
+    "queryDurationMs": 12,
+    "snapshotAgeMs": 1500,
+    "eventLagP95Ms": 320
+  }
+}

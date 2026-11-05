@@ -1,0 +1,10 @@
+{
+  "tenantSlug": "acme",
+  "scope": "tenant",
+  "retentionClass": "operational",
+  "maxAgeSeconds": 7776000,
+  "precedence": 100,
+  "legalHold": false,
+  "effectiveAt": "2026-08-01T00:00:00Z",
+  "expiresAt": null
+}

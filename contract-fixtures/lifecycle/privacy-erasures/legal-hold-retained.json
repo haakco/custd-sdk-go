@@ -1,0 +1,9 @@
+{
+  "requestUuid": "pe_01J5K7N4Y8X9Z2B6V3D1M0Q7RJ",
+  "tenantSlug": "acme",
+  "state": "partial",
+  "perStoreProgress": [
+    {"store": "postgres_events", "state": "complete", "deletedCount": 1247},
+    {"store": "legal_hold", "state": "retained", "deletedCount": 0, "reason": "legal_hold"}
+  ]
+}
