@@ -51,7 +51,7 @@ func TestWorkflowTimingConformanceDeclaresTheWorkflowShape(t *testing.T) {
 }
 
 func TestWorkflowTimingConformanceSendsEveryFactShape(t *testing.T) {
-	doer := newCaptureDoer(http.StatusOK, `{"results":[],"accepted":0,"rejected":0,"duplicates":0}`)
+	doer := newCaptureDoer(http.StatusOK, `{"results":[{"index":0,"accepted":true},{"index":1,"accepted":true},{"index":2,"accepted":true},{"index":3,"accepted":true}],"accepted":4,"rejected":0,"duplicates":0}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080/")
 
 	var batch WorkflowTimingObservationBatch

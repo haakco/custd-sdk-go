@@ -102,6 +102,24 @@ Dogfood producers can use `NewDogfoodEvent` to build the canonical event shape
 with `sourceSystem`, `sourceCompany`, `environment`, `schemaVersion`, and
 `correlationId` in the payload while keeping `companySlug` on the envelope.
 
+## Workflow timing imports
+
+With a client configured for the Admin API and an authorized tenant credential:
+
+```go
+result, err := client.Admin.WorkflowTimings.AppendBatch(ctx, "acme", observations)
+if err != nil {
+    return err
+}
+return result.RequireAccepted()
+```
+
+Pass the complete import, including histories larger than 512 facts. The SDK
+splits requests at 10,000 observations or 1 MiB of encoded JSON, whichever comes
+first, and keeps result indexes relative to the original input. Each chunk
+commits independently. If a request fails, replay with the same idempotency keys;
+do not regenerate keys or discard already-observed history.
+
 ## Declaring an environment
 
 One credential serves every environment, so sending from `dev`, a preview build,

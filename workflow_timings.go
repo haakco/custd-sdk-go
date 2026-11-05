@@ -2,6 +2,7 @@ package custd
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -478,18 +479,86 @@ func (c *WorkflowTimingAdminClient) Append(
 	return &out, err
 }
 
-// AppendBatch records a bounded batch. The server returns one result per input,
-// so a partially applied batch is visible rather than mistaken for success.
+// AppendBatch splits an import into requests bounded by 10,000 facts and 1 MiB
+// of JSON. Results retain their original input indexes. Each request commits
+// independently; after a transport error, replay with the same idempotency keys.
+// Call RequireAccepted to detect per-item rejections, including in later chunks.
 func (c *WorkflowTimingAdminClient) AppendBatch(
 	ctx context.Context, companySlug string, observations []WorkflowTimingObservation,
 ) (*WorkflowTimingBatchResult, error) {
+	chunks, err := workflowTimingChunks(observations)
+	if err != nil {
+		return nil, err
+	}
+	out := &WorkflowTimingBatchResult{}
+	offset := 0
+	for _, chunk := range chunks {
+		var result WorkflowTimingBatchResult
+		err := c.admin.request(ctx, http.MethodPost, workflowTimingPath(companySlug, "/observations:batch", 0),
+			WorkflowTimingObservationBatch{Observations: chunk}, &result)
+		if err == nil {
+			err = validateWorkflowTimingBatchResult(&result, len(chunk))
+		}
+		if err != nil {
+			return out, fmt.Errorf("custd: workflow timing batch at input %d: %w; earlier chunks may have committed; replay with the same idempotency keys", offset, err)
+		}
+		for index := range result.Results {
+			result.Results[index].Index += offset
+		}
+		out.Results = append(out.Results, result.Results...)
+		out.Accepted += result.Accepted
+		out.Rejected += result.Rejected
+		out.Duplicates += result.Duplicates
+		offset += len(chunk)
+	}
+	return out, nil
+}
+
+func workflowTimingChunks(observations []WorkflowTimingObservation) ([][]WorkflowTimingObservation, error) {
 	if len(observations) == 0 {
 		return nil, errors.New("custd: at least one workflow timing observation is required")
 	}
-	var out WorkflowTimingBatchResult
-	err := c.admin.request(ctx, http.MethodPost, workflowTimingPath(companySlug, "/observations:batch", 0),
-		WorkflowTimingObservationBatch{Observations: observations}, &out)
-	return &out, err
+	const maxFacts, maxBytes = 10000, 1 << 20
+	const envelopeBytes = len(`{"observations":[]}`)
+	var chunks [][]WorkflowTimingObservation
+	start, size := 0, envelopeBytes
+	for index := range observations {
+		encoded, err := json.Marshal(observations[index])
+		if err != nil {
+			return nil, fmt.Errorf("custd: encode workflow timing observation %d: %w", index, err)
+		}
+		itemBytes := len(encoded) + 1 // Include a comma; the first item's spare byte is harmless.
+		if envelopeBytes+itemBytes > maxBytes {
+			return nil, fmt.Errorf("custd: workflow timing observation %d exceeds the 1 MiB request limit", index)
+		}
+		if size+itemBytes > maxBytes || index-start == maxFacts {
+			chunks = append(chunks, observations[start:index])
+			start, size = index, envelopeBytes
+		}
+		size += itemBytes
+	}
+	return append(chunks, observations[start:]), nil
+}
+
+func validateWorkflowTimingBatchResult(result *WorkflowTimingBatchResult, count int) error {
+	accepted, rejected, duplicates := 0, 0, 0
+	for index, item := range result.Results {
+		if item.Index != index {
+			return errors.New("workflow timing response has invalid item indexes")
+		}
+		if item.Accepted {
+			accepted++
+		} else {
+			rejected++
+		}
+		if item.Duplicate {
+			duplicates++
+		}
+	}
+	if len(result.Results) != count || result.Accepted != accepted || result.Rejected != rejected || result.Duplicates != duplicates {
+		return errors.New("workflow timing response does not account for every input")
+	}
+	return nil
 }
 
 // Correct appends a superseding fact for an accepted observation.
