@@ -89,7 +89,7 @@ func (c *AdminClient) GetAccount(ctx context.Context) (*Account, ResponseMetadat
 	}
 	url := strings.TrimRight(c.client.config.BaseURL, "/") + "/api/v1/account/me"
 	headers := c.client.headers(false)
-	c.applyActingCompany(headers)
+	c.applyRequestLabels(headers)
 	metadata, body, err := c.requestOutsideAdmin(ctx, http.MethodGet, url, headers, nil)
 	if err != nil {
 		return nil, metadata, err

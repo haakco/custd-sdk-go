@@ -14,10 +14,6 @@ import (
 
 const adminEndpoint = "/api/v1/admin"
 
-// actingCompanyHeader is how the server is told which client company an operator is
-// acting for. A system administrator sets it to work on a tenant's behalf.
-const actingCompanyHeader = "X-Custd-Effective-Company"
-
 const (
 	// commandLabelHeader names the operation the caller is performing, for audit
 	// attribution.
@@ -28,10 +24,10 @@ const (
 
 // actingCompanyPath adds the tenant query parameter the admin routes actually read.
 //
-// The header alone is not enough: admin routes resolve the tenant from
-// `?companySlug=` and validate it, so a system administrator naming a company through
-// this config must also send it where the route looks. Both are sent, matching what the
-// CLI does for its own cross-tenant commands.
+// Admin routes resolve the tenant from `?companySlug=` and validate it, so a system
+// administrator naming a company through this config must send it where the route
+// looks. This is ordinary tenant selection, not support context, so it never
+// synthesizes the grant-backed effective-company header.
 func (c *AdminClient) actingCompanyPath(path string) string {
 	company := c.client.config.ActingCompanySlug
 	if company == "" {
@@ -50,22 +46,21 @@ func (c *AdminClient) actingCompanyPath(path string) string {
 	return parsed.String()
 }
 
-// withRequestLabels returns headers carrying the acting company and the audit labels,
-// without mutating the caller's map.
+// withRequestLabels returns the caller's headers plus the audit labels, without
+// mutating the caller's map.
 func (c *AdminClient) withRequestLabels(headers map[string]string) map[string]string {
-	merged := make(map[string]string, len(headers)+3)
+	merged := make(map[string]string, len(headers)+2)
 	for key, value := range headers {
 		merged[key] = value
 	}
-	c.applyActingCompany(merged)
+	c.applyRequestLabels(merged)
 	return merged
 }
 
-// applyActingCompany adds the acting-company header when one is configured.
-func (c *AdminClient) applyActingCompany(headers map[string]string) {
-	if company := c.client.config.ActingCompanySlug; company != "" {
-		headers[actingCompanyHeader] = company
-	}
+// applyRequestLabels adds the client and command audit labels when they are
+// configured. It deliberately leaves headers the caller supplied, including an
+// explicit support-context header, untouched.
+func (c *AdminClient) applyRequestLabels(headers map[string]string) {
 	if label := c.client.config.ClientLabel; label != "" {
 		headers[clientLabelHeader] = label
 	}
@@ -484,7 +479,7 @@ func (c *AdminClient) requestViaDoer(
 	for key, value := range extraHeaders {
 		headers[key] = value
 	}
-	c.applyActingCompany(headers)
+	c.applyRequestLabels(headers)
 	resp, err := c.client.config.HTTPClient.Do(&HTTPRequest{
 		Method:  method,
 		URL:     c.endpoint(path),
@@ -596,9 +591,6 @@ func (c *AdminClient) requestWithMetadataHeaders(
 	}
 	for key, value := range headers {
 		req.Header.Set(key, value)
-	}
-	if company := c.client.config.ActingCompanySlug; company != "" {
-		req.Header.Set(actingCompanyHeader, company)
 	}
 	resp, err := c.client.httpClient.Do(req)
 	if err != nil {

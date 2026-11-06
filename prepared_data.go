@@ -162,7 +162,7 @@ func (c *PreparedDataClient) QueryPreparedDataOutput(
 // the admin namespace.
 //
 // The admin request helper always prefixes /api/v1/admin and rewrites the
-// acting-company query parameter, so it cannot address these roots. The path
+// acting-company tenant query parameter, so it cannot address these roots. The path
 // is therefore built in full and requested against the configured base URL
 // with the same credential and audit labels the admin client sends.
 func (c *PreparedDataClient) requestAtRoot(
@@ -170,7 +170,7 @@ func (c *PreparedDataClient) requestAtRoot(
 ) (ResponseMetadata, error) {
 	endpoint := strings.TrimRight(c.admin.client.config.BaseURL, "/") + path
 	headers := c.admin.client.headers(false)
-	c.admin.applyActingCompany(headers)
+	c.admin.applyRequestLabels(headers)
 	metadata, body, err := c.admin.requestOutsideAdmin(ctx, method, endpoint, headers, payload)
 	if err != nil {
 		return metadata, err

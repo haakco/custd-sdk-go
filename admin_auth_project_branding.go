@@ -87,7 +87,7 @@ func authProjectBrandLogoBody(filename string, data []byte) ([]byte, string, err
 // already encoded, so a multipart upload can carry the bytes the route reads.
 //
 // It behaves like the admin request helpers the other project-auth methods
-// use: the same acting-company and audit labels, the same status handling,
+// use: the same tenant targeting and audit labels, the same status handling,
 // and the same request identifier in the answer's metadata.
 func sendAuthProjectRawRequest(
 	ctx context.Context,

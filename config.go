@@ -17,9 +17,12 @@ type RetryConfig struct {
 type ClientConfig struct {
 	BaseURL string
 
-	// ActingCompanySlug makes admin requests act for one client company. A system
-	// administrator sets it to work on a tenant's behalf; ordinary tenant commands
-	// leave it empty and the server uses the credential's own company.
+	// ActingCompanySlug names the client company a system administrator's admin requests
+	// target, sent as the `companySlug` query parameter the admin routes read and
+	// validate. It is ordinary tenant selection: it never requests grant-backed support
+	// context, so a caller using it still needs only the authority it already has.
+	// Ordinary tenant commands leave it empty and the server uses the credential's own
+	// company.
 	ActingCompanySlug string
 
 	// CommandLabel names the operation the caller is performing, sent as

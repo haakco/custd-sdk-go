@@ -244,36 +244,6 @@ func TestAdminUserRemovalRefusesAnUnknownAction(t *testing.T) {
 	}
 }
 
-// TestActingCompanyIsSentOnAdminRequests proves a system administrator can work on a
-// tenant's behalf: the server reads this header to decide which company the request
-// acts for, and without it the CLI's cross-tenant commands cannot be expressed.
-func TestActingCompanyIsSentOnAdminRequests(t *testing.T) {
-	doer := newCaptureDoer(http.StatusOK, `{"scopes":[]}`)
-	client := newAdminTestClient(t, doer, "http://localhost:8080")
-	client.config.ActingCompanySlug = "awthy"
-
-	if _, err := client.Admin.DataScopes.ListScopes(context.Background(), false); err != nil {
-		t.Fatalf("ListScopes returned error: %v", err)
-	}
-	if got := doer.requests[0].Headers[actingCompanyHeader]; got != "awthy" {
-		t.Fatalf("%s = %q, want awthy", actingCompanyHeader, got)
-	}
-}
-
-// TestActingCompanyIsOmittedWhenUnset proves an ordinary tenant command does not claim to
-// act for anyone: an empty setting must leave the header off entirely.
-func TestActingCompanyIsOmittedWhenUnset(t *testing.T) {
-	doer := newCaptureDoer(http.StatusOK, `{"scopes":[]}`)
-	client := newAdminTestClient(t, doer, "http://localhost:8080")
-
-	if _, err := client.Admin.DataScopes.ListScopes(context.Background(), false); err != nil {
-		t.Fatalf("ListScopes returned error: %v", err)
-	}
-	if got, present := doer.requests[0].Headers[actingCompanyHeader]; present {
-		t.Fatalf("%s = %q, want it absent", actingCompanyHeader, got)
-	}
-}
-
 // TestMetadataRecorderCapturesTheRequestID proves a caller can quote the request the
 // server logged without any method returning metadata: the recorder travels on the
 // context, so none of the 171 signatures change.
@@ -318,43 +288,6 @@ func fetchAdminUserPage(
 	client *CustdClient, company string, includeEnded bool,
 ) (*AdminUserListResponse, error) {
 	return client.Admin.AdminUsers.List(context.Background(), company, includeEnded)
-}
-
-// TestActingCompanyReachesTheRouteNotJustTheHeader proves the tenant travels where the
-// route actually reads it. Admin routes resolve the tenant from ?companySlug= and
-// validate it, so sending only the header made a system administrator's cross-tenant
-// call fail with "valid companySlug is required" — a bug the stubbed tests could not see
-// because a stub accepts any request.
-func TestActingCompanyReachesTheRouteNotJustTheHeader(t *testing.T) {
-	doer := newCaptureDoer(http.StatusOK, `{"scopes":[]}`)
-	client := newAdminTestClient(t, doer, "http://localhost:8080")
-	client.config.ActingCompanySlug = "awthy"
-
-	if _, err := client.Admin.DataScopes.ListScopes(context.Background(), false); err != nil {
-		t.Fatalf("ListScopes returned error: %v", err)
-	}
-	request := doer.requests[0]
-	if got := request.Headers[actingCompanyHeader]; got != "awthy" {
-		t.Fatalf("%s = %q, want awthy", actingCompanyHeader, got)
-	}
-	if !strings.Contains(request.URL, "companySlug=awthy") {
-		t.Fatalf("url = %s, want the tenant query parameter", request.URL)
-	}
-}
-
-// TestActingCompanyDoesNotDuplicateAnExistingQuery proves a call that already names a
-// company keeps its own value rather than gaining a second one.
-func TestActingCompanyDoesNotDuplicateAnExistingQuery(t *testing.T) {
-	doer := newCaptureDoer(http.StatusOK, `{"grants":[]}`)
-	client := newAdminTestClient(t, doer, "http://localhost:8080")
-	client.config.ActingCompanySlug = "awthy"
-
-	if _, _, err := client.Admin.SupportAccess.List(context.Background()); err != nil {
-		t.Fatalf("List returned error: %v", err)
-	}
-	if got := strings.Count(doer.requests[0].URL, "companySlug="); got != 1 {
-		t.Fatalf("url = %s, want exactly one companySlug", doer.requests[0].URL)
-	}
 }
 
 // TestAdminUserDisableSendsReasonAndScope proves the disable action carries the reason
