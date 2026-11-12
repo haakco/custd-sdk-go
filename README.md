@@ -200,6 +200,17 @@ home page GET a minute) or `AdminSiteCheckModePaused` (no requests at all; set
 it when you stop a site, so nothing wakes it). `ListIncidents` returns the
 domain's recent outages.
 
+Search performance comes from the client's own Google Search Console and Bing
+Webmaster Tools properties. `GetSearchAccount` says which providers this
+deployment can import from and the Google service account email to add as a
+(Restricted) user on the property. `ConnectSearch` connects a domain to
+`AdminSiteSearchProviderGoogle` or `AdminSiteSearchProviderBing` (Bing also takes
+the client's `APIKey`, which is never returned); a provider the deployment cannot
+import from returns a 409 with `SiteSearchNotConfiguredCode`.
+`GetSearchPerformance(ctx, domainUUID, days)` returns each connection's import
+state, per-provider totals and the top pages and queries (`days` 0 means 28).
+`DisconnectSearch` removes a connection and its imported numbers.
+
 ## Schema Admin Helpers
 
 Use `CustdClient.Admin.Schemas` from setup code:
