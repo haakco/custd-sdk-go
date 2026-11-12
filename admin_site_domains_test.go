@@ -54,6 +54,26 @@ func TestSiteDomainOperationsSendTheirRoutesWithActingCompany(t *testing.T) {
 	})
 }
 
+// A site-bound credential names no Site: neither the body nor the query carries one.
+func TestSiteBoundCredentialOmitsItsSite(t *testing.T) {
+	doer := newCaptureDoer(http.StatusOK, siteDomainFixture)
+	domains := newAdminTestClient(t, doer, "http://localhost:8080").Admin.SiteDomains
+	ctx := context.Background()
+
+	if _, err := domains.Create(ctx, AdminSiteDomainCreate{Host: "shop.example.com"}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := domains.List(ctx, ""); err != nil {
+		t.Fatal(err)
+	}
+	if got := string(doer.requests[0].Body); got != `{"host":"shop.example.com"}` {
+		t.Fatalf("create body = %s", got)
+	}
+	assertSiteRequests(t, doer.requests, []string{
+		"POST http://localhost:8080/api/v1/site-domains", "GET http://localhost:8080/api/v1/site-domains",
+	})
+}
+
 func TestSiteDomainResponsesDecode(t *testing.T) {
 	doer := newCaptureDoer(http.StatusOK, siteDomainFixture)
 	client := newAdminTestClient(t, doer, "http://localhost:8080")

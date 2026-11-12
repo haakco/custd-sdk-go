@@ -25,9 +25,10 @@ const (
 	AdminSiteFindingStateAll   AdminSiteFindingState = "all"
 )
 
-// AdminSiteDomainCreate claims a host for one of the tenant's sites.
+// AdminSiteDomainCreate claims a host for one of the tenant's sites. A site-bound credential
+// (site_domains.manage) may leave SiteUUID empty and gets its own Site.
 type AdminSiteDomainCreate struct {
-	SiteUUID string `json:"siteUuid"`
+	SiteUUID string `json:"siteUuid,omitempty"`
 	Host     string `json:"host"`
 }
 
@@ -127,10 +128,14 @@ func (c *SiteDomainAdminClient) Create(ctx context.Context, req AdminSiteDomainC
 	return &domain, err
 }
 
-// List returns one site's domains.
+// List returns one site's domains. A site-bound credential (site_domains.manage) may pass an
+// empty siteUUID and gets its own Site's domains; naming another Site is a not-found error.
 func (c *SiteDomainAdminClient) List(ctx context.Context, siteUUID string) (*AdminSiteDomainList, error) {
 	var domains AdminSiteDomainList
-	path := siteDomainsPath + "?" + url.Values{"siteUuid": {siteUUID}}.Encode()
+	path := siteDomainsPath
+	if siteUUID != "" {
+		path += "?" + url.Values{"siteUuid": {siteUUID}}.Encode()
+	}
 	err := c.request(ctx, http.MethodGet, path, nil, &domains)
 	return &domains, err
 }

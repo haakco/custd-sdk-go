@@ -9,7 +9,12 @@ type AdminOAuthClientCreate struct {
 	Environment    string `json:"environment,omitempty"`
 	Profile        string `json:"profile,omitempty"`
 	PurposeProfile string `json:"purposeProfile,omitempty"`
+	// SiteUUID is the Site a PurposeSiteInsights credential manages; only that purpose takes it.
+	SiteUUID string `json:"siteUuid,omitempty"`
 }
+
+// PurposeSiteInsights mints a credential that manages one existing Site's Site Insights domains.
+const PurposeSiteInsights = "site_insights"
 
 type AdminOAuthClient struct {
 	ClientID       string   `json:"clientId"`

@@ -103,6 +103,11 @@ type DataSpaceList struct {
 	Entitlement DataSpaceEntitlementState `json:"entitlement"`
 }
 
+// ScopeTemplateSiteInsights provisions a site-bound Site Insights credential: Custd creates a
+// Site for it, and the credential manages only that Site's domains. Revoking the producer removes
+// the Site and its domains.
+const ScopeTemplateSiteInsights = "site-insights"
+
 type ProducerProvisionRequest struct {
 	CompanySlug   string            `json:"companySlug"`
 	ProducerSlug  string            `json:"producerSlug"`
