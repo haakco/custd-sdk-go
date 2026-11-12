@@ -184,6 +184,15 @@ return `AdminSite` metadata without the write key. `RotateWriteKey` returns the
 replacement write key once; update browser tracker config and stop using the old
 key after rotation.
 
+## Site Domain Admin Helpers
+
+Use `CustdClient.Admin.SiteDomains` to claim a host for a Site (`Create`),
+prove control of it (`Verify`), ask for an audit (`RequestAudit`), read its
+findings (`ListFindings`), and remove it (`Delete`). `Create` returns the DNS
+TXT record and well-known file instructions. Auditing an unverified domain
+returns a `*RequestError` whose `Problem.Code` is `SiteDomainNotVerifiedCode`.
+A system administrator names the tenant with `ClientConfig.ActingCompanySlug`.
+
 ## Schema Admin Helpers
 
 Use `CustdClient.Admin.Schemas` from setup code:
