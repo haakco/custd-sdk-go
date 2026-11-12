@@ -193,6 +193,13 @@ TXT record and well-known file instructions. Auditing an unverified domain
 returns a `*RequestError` whose `Problem.Code` is `SiteDomainNotVerifiedCode`.
 A system administrator names the tenant with `ClientConfig.ActingCompanySlug`.
 
+Each domain also carries `Checks`: its uptime status, last check, certificate
+expiry and warming measurements, and any open outage. `SetCheckMode` chooses
+`AdminSiteCheckModeUptime` (the default), `AdminSiteCheckModeWarm` (adds one
+home page GET a minute) or `AdminSiteCheckModePaused` (no requests at all; set
+it when you stop a site, so nothing wakes it). `ListIncidents` returns the
+domain's recent outages.
+
 ## Schema Admin Helpers
 
 Use `CustdClient.Admin.Schemas` from setup code:

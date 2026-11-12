@@ -70,13 +70,15 @@ type AdminSiteDomainAudit struct {
 }
 
 // AdminSiteDomain is a host a site has claimed, whether its tenant has proven
-// control, and its latest audit. Only a verified domain is audited.
+// control, its latest audit and its uptime, certificate and warming checks. Only a
+// verified domain is audited or checked.
 type AdminSiteDomain struct {
 	DomainUUID string                   `json:"domainUuid"`
 	SiteUUID   string                   `json:"siteUuid"`
 	Host       string                   `json:"host"`
 	Ownership  AdminSiteDomainOwnership `json:"ownership"`
 	Audit      AdminSiteDomainAudit     `json:"audit"`
+	Checks     AdminSiteDomainChecks    `json:"checks"`
 	CreatedAt  time.Time                `json:"createdAt"`
 }
 
