@@ -115,3 +115,23 @@ func TestSiteDomainAuditOfUnverifiedDomainSurfacesProblemCode(t *testing.T) {
 		t.Fatalf("err = %#v", err)
 	}
 }
+
+// A reseller sets and clears one Site's alert address; a site-bound credential names no Site.
+func TestSiteAlertDestinationRoutes(t *testing.T) {
+	doer := newCaptureDoer(http.StatusOK, `{"siteUuid":"s-1","emailRecipient":"owner@customer.example"}`)
+	domains := newAdminTestClient(t, doer, "http://localhost:8080").Admin.SiteDomains
+	ctx := context.Background()
+
+	set, err := domains.SetAlertDestination(ctx, "s-1", "owner@customer.example")
+	if err != nil || set.EmailRecipient != "owner@customer.example" {
+		t.Fatalf("set = %+v err=%v", set, err)
+	}
+	if _, err := domains.GetAlertDestination(ctx, ""); err != nil {
+		t.Fatal(err)
+	}
+	if got := string(doer.requests[0].Body); got != `{"emailRecipient":"owner@customer.example"}` {
+		t.Fatalf("set body = %s", got)
+	}
+	base := "http://localhost:8080/api/v1/site-domains/alert-destination"
+	assertSiteRequests(t, doer.requests, []string{"PUT " + base + "?siteUuid=s-1", "GET " + base})
+}
