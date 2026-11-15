@@ -53,9 +53,16 @@ func TestErrorCaptureSanitizesAndValidatesRelay(t *testing.T) {
 	if result = client.CaptureEvent(context.Background(), event); result.Outcome != ErrorCaptureAccepted {
 		t.Fatalf("%+v", result)
 	}
-	event.Frames[0].Filename = "/private/user/screen.js"
-	if result = client.CaptureEvent(context.Background(), event); result.Outcome != ErrorCaptureRejected {
-		t.Fatalf("unsafe relay: %+v", result)
+	for _, location := range []string{`"+Page.tsx"`, `"[id].tsx"`, `"colno":6301494`} {
+		if !strings.Contains(body, location) {
+			t.Fatalf("relay dropped code location %q", location)
+		}
+	}
+	for _, unsafe := range []string{"/private/user/screen.js", `private\screen.tsx`, "[id].tsx?token=secret", "user@host.tsx", "%5Bid%5D.tsx"} {
+		event.Frames[0].Filename = unsafe
+		if result = client.CaptureEvent(context.Background(), event); result.Outcome != ErrorCaptureRejected {
+			t.Fatalf("unsafe relay: %+v", result)
+		}
 	}
 	if requests.Load() != 2 {
 		t.Fatal("unsafe relay reached collector")

@@ -1,7 +1,23 @@
 {
   "platform": "javascript",
   "exceptionType": "TypeError",
-  "frames": [{ "filename": "index.android.bundle", "lineno": 1, "colno": 6301494 }],
+  "frames": [
+    {
+      "filename": "+Page.tsx",
+      "lineno": 12,
+      "colno": 4
+    },
+    {
+      "filename": "[id].tsx",
+      "lineno": 1,
+      "colno": 6301494
+    },
+    {
+      "filename": "index.android.bundle",
+      "lineno": 1,
+      "colno": 6301494
+    }
+  ],
   "mode": "unhandled",
   "environment": "production",
   "release": "1.0.0"
