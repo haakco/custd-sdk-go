@@ -56,16 +56,18 @@ type eventBatchRequest struct {
 	Events []EventEnvelope `json:"events"`
 }
 
-// eventResult is the per-event outcome the ingest API returns in a batch
+// EventIngestResult is the per-event outcome the ingest API returns in a batch
 // response. On a partial failure the top-level success is false and the
 // rejected events are identifiable here. Error carries the RFC 9457 problem
 // detail for a rejected event and is absent for accepted events.
-type eventResult struct {
+type EventIngestResult struct {
 	EventUUID string   `json:"eventUuid"`
 	Success   bool     `json:"success"`
 	Status    int      `json:"status"`
 	Error     *Problem `json:"error,omitempty"`
 }
+
+type eventResult = EventIngestResult
 
 type eventBatchResponse struct {
 	Success bool          `json:"success"`

@@ -1,5 +1,0 @@
-{
-  "error": "Cannot confirm destructive offboarding while a related erasure request is not in terminal complete state.",
-  "code": "erasure_incomplete",
-  "safe_next_action": "retry_erasure"
-}

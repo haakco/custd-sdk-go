@@ -368,3 +368,97 @@ response, err := client.Analytics.QueryRange(ctx, custd.AnalyticsEventRangeQuery
 
 SDKs never log signed URLs, raw personal data, export bytes, or
 subject identifiers outside opaque IDs.
+
+## Native error capture
+
+Error capture sends only exception types and bounded code filenames/line numbers
+straight to Custd. Messages, arguments, absolute paths, users, request bodies and
+headers are excluded before transport. Keep local operational logs; optional
+capture is never the only copy of an operational failure.
+
+```go
+reporter, err := custd.NewErrorReporter(custd.ErrorCaptureConfig{
+    BaseURL:     "https://custd.example.com",
+    WriteKey:    os.Getenv("CUSTD_ERROR_WRITE_KEY"),
+    Environment: "production",
+    Release:     "vorrent@1.0.0",
+})
+if err == nil {
+    // Admission is nonblocking. True means admitted, not delivered.
+    reporter.Report(ctx, custd.CaptureExceptionRequest{
+        Error: operationErr, Mode: custd.ErrorCaptureHandled,
+    })
+    // At shutdown use a bounded context; Close refuses new reports and drains sends.
+    _ = reporter.Close(shutdownCtx)
+}
+// Invalid/missing configuration leaves capture off; record a safe warning locally.
+```
+
+Own one reporter per process and Site. It snapshots the calling stack before its
+asynchronous handoff, admits at most four in-flight sends and has no pending queue,
+persistence or retries. Each admitted action uses a fresh request-scoped capture
+client, so a long-running process does not stop reporting after twenty errors.
+`Stats()` returns accepted, rejected, unavailable, limited and in-flight counts;
+these are delivery outcomes, not raw event data. Shutdown cancellation and a
+two-second transport timeout bound sends. The supplied HTTP client is cloned,
+with redirects and cookie jars disabled, so the caller's client is not changed.
+
+For request-scoped synchronous capture use `NewErrorCaptureClient(config)` and
+`CaptureException(ctx, request)`. Its typed result distinguishes `accepted`,
+`rejected`, `unavailable` and `limited`; each client permits twenty captures and
+four concurrent sends. Envelopes are capped at 16 KiB and 24 frames. Capture never
+reads `Error.Error()` or panic string content. `SnapshotError(request)` freezes a
+safe Go event at the call site when another component owns the handoff; set its
+environment/release before `CaptureEvent`.
+
+Mobile apps must send the SDK's `ErrorCaptureEvent` DTO to their own authenticated
+application relay, never contain a server Site key. `CaptureEvent` and
+`ReportEvent` revalidate that DTO and construct a new envelope with the relay's
+Site key. Reject unknown JSON fields at the application HTTP boundary and enforce
+its authentication and request-size limits. The DTO contains only optional
+32-hex `eventId`, required `platform` (`javascript` or `go`), `exceptionType`,
+`frames` (`filename`, `lineno`, optional `colno`), `mode` (`handled` or `unhandled`),
+`environment`, optional `release` and optional application ULID `correlationId`.
+The client generates an event ID when absent. Server and browser Sites use
+different keys; never publish an originless server key in browser/mobile config.
+
+For an authenticated application error relay, use
+`reporter.CaptureEvent(ctx, event)` to return a **confirmed** collector result to
+the mobile client. It shares the same four-send ceiling as asynchronous reports
+and returns `limited` immediately when busy. Never acknowledge a queued/admitted
+report as delivered. The separate diagnostic HTTP request may wait up to the
+two-second send limit; the mobile UI operation must not wait for diagnostics.
+
+## Confirmed event batches for application relays
+
+An authenticated mobile analytics relay needs confirmed **per-event** acceptance,
+not a successful enqueue or an HTTP 202 alone:
+
+```go
+result, err := client.SendEvents(ctx, custd.SendEventsRequest{Events: events})
+if err != nil {
+    // Acknowledge nothing: the outcome may be unknown.
+    return err
+}
+acceptedIDs := result.AcceptedEventIDs
+```
+
+`SendEvents` sends once through the SDK's existing OAuth/authentication and gzip
+transport, without the local queue or automatic retry. It accepts 1–1,000 events
+with caller-supplied stable event UUIDs and the normal producer envelope fields.
+The application relay supplies its authorized tenant and validates/allowlists
+mobile data before sending. Do not regenerate a mobile queue's event UUIDs.
+
+A partial batch response is returned with `Results` (typed `EventIngestResult`
+values including each rejection's problem) and `AcceptedEventIDs`, in submission
+order. Only explicitly successful 2xx results are acknowledged. Missing,
+duplicate, unknown or inconsistent result IDs/statuses produce an error and no
+acknowledgements. A transport failure can mean acceptance is unknown; keep the
+original IDs for caller-controlled retry. A collector-supplied
+`acceptedEventIds` field is never trusted. `Track` and `Flush` retain their
+existing asynchronous queue contract and should not be used to acknowledge
+mobile queue entries.
+
+Caller deadlines also bound OAuth token acquisition and refresh. Valid producer
+tokens are reused, and a slow refresh never holds another request behind a cache
+mutex. Token endpoint redirects are refused.

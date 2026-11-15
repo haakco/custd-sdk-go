@@ -145,10 +145,11 @@ func (c *CustdClient) sendBatch(ctx context.Context, events []EventEnvelope) err
 	if err != nil {
 		return err
 	}
-	if c.config.HTTPClient != nil {
-		return c.sendBatchViaDoer(body, gzipped, len(events))
+	response, err := c.sendBatchRequest(ctx, body, gzipped)
+	if err != nil {
+		return err
 	}
-	return c.sendBatchViaHTTP(ctx, body, gzipped, len(events))
+	return c.checkBatchResponse(response.StatusCode, response.Body, len(events))
 }
 
 // maybeCompress gzip-compresses the body when compression is enabled and the
@@ -170,36 +171,31 @@ func (c *CustdClient) maybeCompress(body []byte) ([]byte, bool, error) {
 	return buf.Bytes(), true, nil
 }
 
-func (c *CustdClient) sendBatchViaDoer(body []byte, gzipped bool, eventCount int) error {
-	resp, err := c.config.HTTPClient.Do(&HTTPRequest{
-		Method:  http.MethodPost,
-		URL:     c.batchEndpoint(),
-		Headers: c.headers(gzipped),
-		Body:    body,
-	})
-	if err != nil {
-		return newRetryableTransportError(err)
+// sendBatchRequest is the one authenticated batch transport for queued and confirmed sends.
+func (c *CustdClient) sendBatchRequest(ctx context.Context, body []byte, gzipped bool) (*HTTPResponse, error) {
+	if c.config.HTTPClient != nil {
+		response, err := c.config.HTTPClient.Do(&HTTPRequest{Method: http.MethodPost, URL: c.batchEndpoint(), Headers: c.headers(gzipped), Body: body})
+		if err != nil {
+			return nil, newRetryableTransportError(err)
+		}
+		return response, nil
 	}
-	return c.checkBatchResponse(resp.StatusCode, resp.Body, eventCount)
-}
-
-func (c *CustdClient) sendBatchViaHTTP(ctx context.Context, body []byte, gzipped bool, eventCount int) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.batchEndpoint(), bytes.NewReader(body))
 	if err != nil {
-		return fmt.Errorf("custd: create request: %w", err)
+		return nil, err
 	}
-	for k, v := range c.headers(gzipped) {
-		req.Header.Set(k, v)
+	for key, value := range c.headers(gzipped) {
+		req.Header.Set(key, value)
 	}
-	resp, err := c.httpClient.Do(req)
+	response, err := c.httpClient.Do(req)
 	if err != nil {
-		return newRetryableTransportError(err)
+		return nil, newRetryableTransportError(err)
 	}
-	responseBody, bodyErr := readResponseBody(resp.Body)
-	if bodyErr != nil {
-		return fmt.Errorf("custd: read batch response: %w", bodyErr)
+	responseBody, err := readResponseBody(response.Body)
+	if err != nil {
+		return nil, fmt.Errorf("custd: read batch response: %w", err)
 	}
-	return c.checkBatchResponse(resp.StatusCode, responseBody, eventCount)
+	return &HTTPResponse{StatusCode: response.StatusCode, Body: responseBody}, nil
 }
 
 // checkStatus returns a retryable or non-retryable error for non-2xx status
@@ -445,9 +441,7 @@ func buildHTTPClient(cfg *ClientConfig) *http.Client {
 	if cfg.Audience != "" {
 		oauthCfg.EndpointParams = url.Values{"audience": {cfg.Audience}}
 	}
-	client := oauthCfg.Client(context.Background())
-	client.Timeout = defaultHTTPTimeout
-	return client
+	return &http.Client{Timeout: defaultHTTPTimeout, Transport: &clientCredentialsTransport{config: oauthCfg}}
 }
 
 func isSecureOrLocalHTTP(raw string) bool {
