@@ -1,7 +1,7 @@
 {
   "platform": "javascript",
   "exceptionType": "TypeError",
-  "frames": [{ "filename": "index.android.bundle", "lineno": 1, "colno": 12345 }],
+  "frames": [{ "filename": "index.android.bundle", "lineno": 1, "colno": 6301494 }],
   "mode": "unhandled",
   "environment": "production",
   "release": "1.0.0"

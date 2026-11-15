@@ -170,8 +170,10 @@ func (c *TenantAdminClient) List(ctx context.Context) (*AdminTenantList, error) 
 	return &tenants, err
 }
 
-// Finalize commits a tenant's provisioning once its company identifier is known. The
-// identifier travels as a query parameter, which is what the route reads.
+// Finalize permanently removes an already soft-deleted tenant after its deletion
+// prerequisites are ready. It is not a provisioning or onboarding operation.
+// The positive company identifier travels as companyId; the server refuses an
+// unready tenant with a conflict rather than bypassing the deletion safeguards.
 func (c *TenantAdminClient) Finalize(ctx context.Context, slug string, companyID int64) error {
 	if companyID <= 0 {
 		return fmt.Errorf("custd: company id must be a positive integer")

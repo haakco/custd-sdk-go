@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -46,10 +45,7 @@ func TestErrorCaptureSanitizesAndValidatesRelay(t *testing.T) {
 	if !strings.Contains(body, "error_capture_test.go") || !strings.Contains(body, `"platform":"go"`) {
 		t.Error("missing origin stack/platform")
 	}
-	fixture, err := os.ReadFile("../contract-fixtures/error-capture-relay.json")
-	if err != nil {
-		t.Fatal(err)
-	}
+	fixture := readContractFixture(t, "error-capture-relay.json")
 	var event ErrorCaptureEvent
 	if err := json.Unmarshal(fixture, &event); err != nil {
 		t.Fatal(err)
@@ -63,6 +59,23 @@ func TestErrorCaptureSanitizesAndValidatesRelay(t *testing.T) {
 	}
 	if requests.Load() != 2 {
 		t.Fatal("unsafe relay reached collector")
+	}
+}
+
+func TestErrorCaptureFrameBounds(t *testing.T) {
+	event := ErrorCaptureEvent{Platform: ErrorPlatformJavaScript, ExceptionType: "Error", Mode: ErrorCaptureHandled, Environment: "test", Frames: []ErrorCaptureFrame{{Filename: "index.android.bundle", Lineno: 1, Colno: 2147483647}}}
+	if !validErrorCaptureEvent(event) {
+		t.Fatal("maximum signed-32-bit column rejected")
+	}
+	event.Frames[0].Lineno = 1000001
+	if validErrorCaptureEvent(event) {
+		t.Fatal("line limit removed")
+	}
+	event.Frames[0].Lineno = 1
+	outsideColumn := int64(2147483648)
+	event.Frames[0].Colno = int(outsideColumn)
+	if validErrorCaptureEvent(event) {
+		t.Fatal("column beyond signed-32-bit bound accepted")
 	}
 }
 

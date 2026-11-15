@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -166,7 +167,7 @@ func validErrorCaptureEvent(event ErrorCaptureEvent) bool {
 		return false
 	}
 	for _, frame := range event.Frames {
-		if !captureFilenamePattern.MatchString(frame.Filename) || frame.Lineno < 1 || frame.Lineno > 1000000 || frame.Colno < 0 || frame.Colno > 1000000 {
+		if !captureFilenamePattern.MatchString(frame.Filename) || frame.Lineno < 1 || frame.Lineno > 1000000 || frame.Colno < 0 || frame.Colno > math.MaxInt32 {
 			return false
 		}
 	}
