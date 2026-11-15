@@ -1,0 +1,23 @@
+{
+  "eventUuid": "01957abc-0000-0000-0000-000000000021",
+  "eventTypeSlug": "dogfood.producer.metric",
+  "schemaVersion": "1.0.0",
+  "timestamp": "2026-01-23T12:00:00.000Z",
+  "sessionId": "01957abc-0000-0000-0000-000000000022",
+  "anonymousId": "01957abc-0000-0000-0000-000000000023",
+  "companySlug": "haakco",
+  "context": {
+    "device": {
+      "type": "server"
+    }
+  },
+  "payload": {
+    "sourceSystem": "vorrent",
+    "sourceCompany": "haakco",
+    "environment": "production",
+    "schemaVersion": "1.0.0",
+    "correlationId": "run-123",
+    "metric": "media_cache.queue_depth",
+    "value": 7
+  }
+}

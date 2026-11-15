@@ -1,0 +1,5 @@
+{
+  "error": "tenant_mismatch",
+  "message": "Request tenant slug does not match authenticated tenant scope.",
+  "requestId": "req_8f3b2c1a"
+}

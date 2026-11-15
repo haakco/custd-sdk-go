@@ -30,7 +30,7 @@ func TestErrorCaptureSanitizesAndValidatesRelay(t *testing.T) {
 		w.WriteHeader(http.StatusAccepted)
 	}))
 	defer server.Close()
-	client, err := NewErrorCaptureClient(ErrorCaptureConfig{BaseURL: server.URL, WriteKey: "site_pk_" + strings.Repeat("a", 48), Environment: "test", Release: "vorrent@1.0.0"})
+	client, err := NewErrorCaptureClient(ErrorCaptureConfig{BaseURL: server.URL, WriteKey: "site_pk_" + strings.Repeat("Az_-", 12), Environment: "test", Release: "vorrent@1.0.0"})
 	if err != nil {
 		t.Fatal(err)
 	}

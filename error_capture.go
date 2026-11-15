@@ -75,7 +75,7 @@ type ErrorCaptureConfig struct {
 }
 
 var (
-	captureKeyPattern         = regexp.MustCompile(`^site_pk_[a-f0-9]{32,128}$`)
+	captureKeyPattern         = regexp.MustCompile(`^site_pk_[A-Za-z0-9_-]{32,128}$`)
 	captureEnvironmentPattern = regexp.MustCompile(`^[a-zA-Z0-9._-]{1,64}$`)
 	captureReleasePattern     = regexp.MustCompile(`^[a-zA-Z0-9@._+-]{1,200}$`)
 	captureTypePattern        = regexp.MustCompile(`^[A-Za-z_$][A-Za-z0-9_$.]{0,127}$`)

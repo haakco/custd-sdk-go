@@ -1,0 +1,39 @@
+{
+  "buckets": [
+    {
+      "date": "2026-07-06",
+      "count": 50,
+      "source": "auto",
+      "complete": true,
+      "queryDurationMs": 42,
+      "parquetUriCount": 1,
+      "message": "event_count",
+      "secondaryCount": 50
+    }
+  ],
+  "count": 2,
+  "complete": true,
+  "truncated": false,
+  "queryDurationMs": 42,
+  "parquetUriCount": 1,
+  "snapshotAgeMs": 120000,
+  "eventLagP95Ms": 8000,
+  "deltaCount": 1,
+  "deltaPercent": 100,
+  "deltaLabel": "vs previous period",
+  "secondaryLabel": "reviewed events",
+  "trust": {
+    "status": "healthy",
+    "dataFreshness": "snapshot_age_ms:120000",
+    "schemaVersion": "security-event/1.0.0",
+    "contractVersion": "managed-reporting/1.0",
+    "rollupState": "healthy",
+    "queryWarnings": [],
+    "coverage": "complete",
+    "permissionClass": "reporting.read",
+    "dataSufficiency": "sufficient",
+    "captureState": "enabled",
+    "consentState": "present",
+    "exportState": "received"
+  }
+}

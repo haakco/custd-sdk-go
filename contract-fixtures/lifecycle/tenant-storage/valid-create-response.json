@@ -1,0 +1,9 @@
+{
+  "id": "loc_acme_warehouse",
+  "tenantSlug": "acme",
+  "clientLocation": "s3://acme-prod-warehouse/events/",
+  "serverAssignedPrefix": "raw/acme/2026-07-31/",
+  "status": "active",
+  "createdAt": "2026-07-31T08:00:00Z",
+  "expiresAt": "2027-07-31T08:00:00Z"
+}

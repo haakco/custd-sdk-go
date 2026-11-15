@@ -1,0 +1,58 @@
+{
+  "eventTypeSlug": "awthy-audit-event",
+  "schemaVersion": "1.1.0",
+  "timestamp": "2026-07-01T12:00:00Z",
+  "companySlug": "tenant-acme",
+  "context": {
+    "device": {
+      "type": "server"
+    }
+  },
+  "payload": {
+    "sourceSystem": "awthy",
+    "schemaVersion": "1.1.0",
+    "storeId": "store-123",
+    "storeHostnameHash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "localAuditEventId": "evt-local-1",
+    "localAuditEventUuid": "01957abc-0000-0000-0000-000000000001",
+    "eventType": "woocommerce_checkout_payment_failed",
+    "actor": {
+      "type": "customer",
+      "wordpressUserIdHash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "anonymized": true
+    },
+    "action": "woocommerce_checkout_payment_failed",
+    "target": {
+      "type": "woocommerce_order",
+      "referenceHash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "anonymized": true
+    },
+    "outcome": "failure",
+    "source": "woocommerce_checkout",
+    "reasonCategory": "checkout",
+    "stream": "woocommerce_checkout",
+    "severity": "warning",
+    "correlationId": "export-job-1",
+    "occurredAt": "2026-07-01T12:00:00Z",
+    "sanitizedContext": {},
+    "targets": [],
+    "correlations": [
+      {
+        "type": "woocommerce_order",
+        "referenceHash": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+      }
+    ],
+    "flow": {
+      "family": "secure_checkout",
+      "step": "checkout_payment_failed",
+      "correlationHash": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "sequence": 30
+    },
+    "woocommerce": {
+      "checkoutFlow": "classic",
+      "orderStatus": "failed",
+      "paymentGatewayHash": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "cartHash": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+    }
+  }
+}

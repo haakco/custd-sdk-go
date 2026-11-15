@@ -1,0 +1,4 @@
+{
+  "tenantSlug": "acme",
+  "clientLocation": "s3://acme-prod-warehouse/events/"
+}

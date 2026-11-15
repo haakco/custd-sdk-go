@@ -1,0 +1,41 @@
+{
+  "eventTypeSlug": "awthy-audit-event",
+  "schemaVersion": "1.1.0",
+  "timestamp": "2026-06-10T00:00:00Z",
+  "companySlug": "tenant-acme",
+  "context": {
+    "device": {
+      "type": "server"
+    }
+  },
+  "payload": {
+    "sourceSystem": "awthy",
+    "schemaVersion": "1.1.0",
+    "storeId": "store-123",
+    "storeHostnameHash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "localAuditEventId": "evt-local-1",
+    "localAuditEventUuid": "01957abc-0000-0000-0000-000000000001",
+    "eventType": "totp_enabled",
+    "actor": {
+      "type": "admin",
+      "wordpressUserIdHash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "anonymized": true
+    },
+    "action": "totp_enabled",
+    "target": {
+      "type": "wordpress_user",
+      "referenceHash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "anonymized": true
+    },
+    "outcome": "success",
+    "source": "wpauth",
+    "reasonCategory": "account_security",
+    "stream": "interactive",
+    "severity": "info",
+    "correlationId": "export-job-1",
+    "occurredAt": "2026-06-10T00:00:00Z",
+    "sanitizedContext": {},
+    "targets": [],
+    "correlations": []
+  }
+}

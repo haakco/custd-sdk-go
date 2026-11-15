@@ -1,0 +1,24 @@
+{
+  "eventUuid": "01957abc-0000-0000-0000-000000000021",
+  "eventTypeSlug": "page-view",
+  "schemaVersion": "2.0.0",
+  "timestamp": "2026-01-23T12:00:00.000Z",
+  "sessionId": "01957abc-0000-0000-0000-000000000022",
+  "anonymousId": "01957abc-0000-0000-0000-000000000023",
+  "companySlug": "test-company",
+  "context": {
+    "page": {
+      "url": "https://example.com",
+      "path": "/"
+    },
+    "device": {
+      "type": "desktop"
+    },
+    "locale": "en-US",
+    "timezone": "UTC",
+    "ip": "127.0.0.1"
+  },
+  "payload": {
+    "bar": "baz"
+  }
+}

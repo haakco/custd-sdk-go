@@ -1,0 +1,9 @@
+{
+  "type": "https://custd.io/problems/reporting-unavailable",
+  "title": "Reporting unavailable",
+  "status": 503,
+  "detail": "Reporting is temporarily unavailable.",
+  "code": "reporting_unavailable",
+  "retryability": "bounded",
+  "nextAction": {"action": "retry", "maxRetries": 2}
+}
