@@ -164,9 +164,13 @@
         "severity": "high",
         "title": "Page has no title",
         "url": "https://example.com/about",
-        "evidence": "\u003ctitle\u003e absent",
-        "fix": "Add a unique \u003ctitle\u003e element.",
+        "evidence": "<title> absent",
+        "fix": "Add a unique <title> element.",
         "source": "https://developers.google.com/search/docs/appearance/title-link",
+        "remedy": {
+          "kind": "content",
+          "element": "<title>"
+        },
         "history": {
           "firstSeenAt": "2026-11-10T09:10:00Z",
           "lastSeenAt": "2026-11-17T06:10:00Z",
@@ -182,6 +186,10 @@
         "evidence": "connection refused",
         "fix": "Restore the server.",
         "source": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status",
+        "remedy": {
+          "kind": "server",
+          "element": "the web server"
+        },
         "history": {
           "firstSeenAt": "2026-11-12T01:05:00Z",
           "lastSeenAt": "2026-11-12T01:20:00Z",

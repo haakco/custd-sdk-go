@@ -161,3 +161,72 @@ func (c *SiteDomainAdminClient) DisconnectSearch(
 func siteSearchConnectionPath(domainUUID string, provider AdminSiteSearchProvider) string {
 	return siteDomainPath(domainUUID) + "/search/" + url.PathEscape(string(provider))
 }
+
+// The dimensions AdminSiteSearchRowsQuery.Dimension reads.
+const (
+	AdminSiteSearchDimensionPage    = "page"
+	AdminSiteSearchDimensionQuery   = "query"
+	AdminSiteSearchDimensionCountry = "country"
+	AdminSiteSearchDimensionDevice  = "device"
+)
+
+// AdminSiteSearchRowsQuery pages through one dimension of a domain's imported search rows. Zero
+// values let the server default: the query dimension, every provider, 28 days, offset 0 and 100
+// rows (Limit at most 1000).
+type AdminSiteSearchRowsQuery struct {
+	Dimension string
+	Provider  AdminSiteSearchProvider
+	Days      int
+	Offset    int
+	Limit     int
+}
+
+func (q AdminSiteSearchRowsQuery) values() url.Values {
+	values := url.Values{}
+	if q.Dimension != "" {
+		values.Set("dimension", q.Dimension)
+	}
+	if q.Provider != "" {
+		values.Set("provider", string(q.Provider))
+	}
+	for name, value := range map[string]int{"days": q.Days, "offset": q.Offset, "limit": q.Limit} {
+		if value > 0 {
+			values.Set(name, strconv.Itoa(value))
+		}
+	}
+	return values
+}
+
+// AdminSiteSearchUnavailable names a provider that cannot report the dimension at all, so its
+// missing rows are not zero traffic.
+type AdminSiteSearchUnavailable struct {
+	Provider AdminSiteSearchProvider `json:"provider"`
+	Reason   string                  `json:"reason"`
+}
+
+// AdminSiteSearchRowPage is one page of a dimension's rows. Total counts the rows before paging;
+// Provider is empty when every provider was read.
+type AdminSiteSearchRowPage struct {
+	DomainUUID  string                       `json:"domainUuid"`
+	Dimension   string                       `json:"dimension"`
+	Provider    AdminSiteSearchProvider      `json:"provider,omitempty"`
+	Days        int                          `json:"days"`
+	Offset      int                          `json:"offset"`
+	Limit       int                          `json:"limit"`
+	Total       int                          `json:"total"`
+	Rows        []AdminSiteSearchRow         `json:"rows"`
+	Unavailable []AdminSiteSearchUnavailable `json:"unavailable"`
+}
+
+// ListSearchRows reads one page of a domain's imported rows for one dimension.
+func (c *SiteDomainAdminClient) ListSearchRows(
+	ctx context.Context, domainUUID string, query AdminSiteSearchRowsQuery,
+) (*AdminSiteSearchRowPage, error) {
+	var page AdminSiteSearchRowPage
+	path := siteDomainPath(domainUUID) + "/search/rows"
+	if values := query.values(); len(values) > 0 {
+		path += "?" + values.Encode()
+	}
+	err := c.request(ctx, http.MethodGet, path, nil, &page)
+	return &page, err
+}

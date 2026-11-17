@@ -120,6 +120,7 @@ type AdminSiteFinding struct {
 	Evidence    string                  `json:"evidence"`
 	Fix         string                  `json:"fix"`
 	Source      string                  `json:"source"`
+	Remedy      AdminSiteRemedy         `json:"remedy"`
 	History     AdminSiteFindingHistory `json:"history"`
 }
 

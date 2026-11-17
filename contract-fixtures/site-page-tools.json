@@ -1,0 +1,524 @@
+{
+  "findingWithGeneratedFix": {
+    "findingUuid": "0198a3b2-0000-7000-8000-000000000030",
+    "rule": "canonical.missing",
+    "severity": "medium",
+    "title": "Page has no canonical link",
+    "url": "https://example.com/plans",
+    "evidence": "no <link rel=canonical>",
+    "fix": "Add a canonical link.",
+    "source": "https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls",
+    "remedy": {
+      "kind": "markup",
+      "element": "<link rel=\"canonical\">",
+      "generated": {
+        "format": "html",
+        "code": "<link rel=\"canonical\" href=\"https://example.com/plans\">"
+      }
+    },
+    "history": {
+      "firstSeenAt": "2026-11-10T09:10:00Z",
+      "lastSeenAt": "2026-11-17T06:10:00Z",
+      "fixed": false
+    }
+  },
+  "pageCheck": {
+    "page": {
+      "url": "https://example.com/plans",
+      "observedAt": "2026-11-17T08:00:00Z",
+      "status": 200,
+      "lang": "en",
+      "title": "Hosting plans for small teams",
+      "description": "Pick a hosting plan that fits a small team, with backups and support included.",
+      "canonical": "",
+      "robots": {
+        "noindex": false,
+        "nofollow": false,
+        "header": ""
+      },
+      "openGraph": {
+        "title": "Hosting plans",
+        "description": "Plans for small teams.",
+        "image": "",
+        "url": "",
+        "type": "",
+        "siteName": ""
+      },
+      "twitter": {
+        "card": "",
+        "title": "",
+        "description": "",
+        "image": "",
+        "site": ""
+      },
+      "hreflang": [
+        {
+          "code": "en-za",
+          "href": "https://example.com/plans"
+        }
+      ],
+      "headings": [
+        {
+          "level": 1,
+          "text": "Hosting plans"
+        },
+        {
+          "level": 2,
+          "text": "Backups"
+        }
+      ],
+      "wordCount": 13,
+      "readability": {
+        "sentences": 2,
+        "wordsPerSentence": 6.5,
+        "readingTimeSeconds": 4,
+        "fleschReadingEase": 57.1
+      }
+    },
+    "findings": [
+      {
+        "rule": "ai.js-required",
+        "severity": "high",
+        "title": "Page has almost no text without JavaScript",
+        "url": "https://example.com/plans",
+        "evidence": "13 words of text in the HTML before JavaScript runs",
+        "fix": "Pre-render or server-render the page so its content is in the HTML; most AI crawlers do not run JavaScript. Mark sign-in and app-only pages noindex instead.",
+        "source": "https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics",
+        "remedy": {
+          "kind": "server",
+          "element": "page rendering"
+        }
+      },
+      {
+        "rule": "canonical.missing",
+        "severity": "medium",
+        "title": "No canonical URL",
+        "url": "https://example.com/plans",
+        "evidence": "no <link rel=\"canonical\">",
+        "fix": "Add <link rel=\"canonical\" href=\"https://…\"> with the page's absolute URL.",
+        "source": "https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls",
+        "remedy": {
+          "kind": "markup",
+          "element": "<link rel=\"canonical\">",
+          "generated": {
+            "format": "html",
+            "code": "<link rel=\"canonical\" href=\"https://example.com/plans\">"
+          }
+        }
+      },
+      {
+        "rule": "jsonld.missing",
+        "severity": "medium",
+        "title": "No structured data",
+        "url": "https://example.com/plans",
+        "evidence": "1 of 1 pages have no JSON-LD: https://example.com/plans",
+        "fix": "Add JSON-LD describing the organisation and the page (Organization, WebSite, Service, Article…).",
+        "source": "https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data",
+        "remedy": {
+          "kind": "markup",
+          "element": "<script type=\"application/ld+json\">",
+          "generated": {
+            "format": "html",
+            "code": "<script type=\"application/ld+json\">\n{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"WebPage\",\n  \"description\": \"Pick a hosting plan that fits a small team, with backups and support included.\",\n  \"name\": \"Hosting plans for small teams\",\n  \"url\": \"https://example.com/plans\"\n}\n</script>"
+          }
+        }
+      },
+      {
+        "rule": "og.image-missing",
+        "severity": "medium",
+        "title": "No link preview image",
+        "url": "https://example.com/plans",
+        "evidence": "no og:image meta tag",
+        "fix": "Add <meta property=\"og:image\" content=\"https://…\"> with an absolute URL of an image at least 1200×630 pixels, such as the page's featured image.",
+        "source": "https://ogp.me/",
+        "remedy": {
+          "kind": "markup",
+          "element": "<meta property=\"og:image\">"
+        }
+      },
+      {
+        "rule": "twitter.card-missing",
+        "severity": "low",
+        "title": "No X (Twitter) card tag",
+        "url": "https://example.com/plans",
+        "evidence": "1 of 1 pages have no twitter:card tag: https://example.com/plans",
+        "fix": "Add <meta name=\"twitter:card\" content=\"summary_large_image\">; X reads title, description and image from the og: tags, but shows no card without twitter:card.",
+        "source": "https://developer.x.com/en/docs/x-for-websites/cards/overview/markup",
+        "remedy": {
+          "kind": "markup",
+          "element": "<meta name=\"twitter:card\">",
+          "generated": {
+            "format": "html",
+            "code": "<meta name=\"twitter:card\" content=\"summary\">"
+          }
+        }
+      },
+      {
+        "rule": "hreflang.missing-x-default",
+        "severity": "info",
+        "title": "No x-default language version",
+        "url": "https://example.com/plans",
+        "evidence": "1 of 1 pages with hreflang have no x-default: https://example.com/plans",
+        "fix": "Optional: add hreflang=\"x-default\" pointing at the page for visitors whose language is not listed.",
+        "source": "https://developers.google.com/search/docs/specialty/international/localized-versions",
+        "remedy": {
+          "kind": "markup",
+          "element": "<link rel=\"alternate\" hreflang>"
+        }
+      }
+    ]
+  },
+  "pageCheckRequest": {
+    "url": "https://example.com/plans",
+    "html": "<!doctype html><html lang=\"en\"><head><title>Hosting plans for small teams</title><meta name=\"description\" content=\"Pick a hosting plan that fits a small team, with backups and support included.\"><meta property=\"og:title\" content=\"Hosting plans\"><meta property=\"og:description\" content=\"Plans for small teams.\"><link rel=\"alternate\" hreflang=\"en-za\" href=\"https://example.com/plans\"></head><body><h1>Hosting plans</h1><h2>Backups</h2><p>Every plan keeps daily backups. Support answers within a day.</p></body></html>"
+  },
+  "pageFacts": {
+    "url": "https://example.com/plans",
+    "observedAt": "2026-11-17T08:00:00Z",
+    "status": 200,
+    "lang": "en",
+    "title": "Hosting plans for small teams",
+    "description": "Pick a hosting plan that fits a small team, with backups and support included.",
+    "canonical": "",
+    "robots": {
+      "noindex": false,
+      "nofollow": false,
+      "header": ""
+    },
+    "openGraph": {
+      "title": "Hosting plans",
+      "description": "Plans for small teams.",
+      "image": "",
+      "url": "",
+      "type": "",
+      "siteName": ""
+    },
+    "twitter": {
+      "card": "",
+      "title": "",
+      "description": "",
+      "image": "",
+      "site": ""
+    },
+    "hreflang": [
+      {
+        "code": "en-za",
+        "href": "https://example.com/plans"
+      }
+    ],
+    "headings": [
+      {
+        "level": 1,
+        "text": "Hosting plans"
+      },
+      {
+        "level": 2,
+        "text": "Backups"
+      }
+    ],
+    "wordCount": 13,
+    "readability": {
+      "sentences": 2,
+      "wordsPerSentence": 6.5,
+      "readingTimeSeconds": 4,
+      "fleschReadingEase": 57.1
+    }
+  },
+  "pageFactsWithoutReadingEase": {
+    "url": "https://example.com/af/planne",
+    "observedAt": "2026-11-17T08:00:00Z",
+    "status": 200,
+    "lang": "af",
+    "title": "Planne",
+    "description": "",
+    "canonical": "",
+    "robots": {
+      "noindex": false,
+      "nofollow": false,
+      "header": ""
+    },
+    "openGraph": {
+      "title": "",
+      "description": "",
+      "image": "",
+      "url": "",
+      "type": "",
+      "siteName": ""
+    },
+    "twitter": {
+      "card": "",
+      "title": "",
+      "description": "",
+      "image": "",
+      "site": ""
+    },
+    "hreflang": [],
+    "headings": [
+      {
+        "level": 1,
+        "text": "Planne"
+      }
+    ],
+    "wordCount": 1,
+    "readability": {
+      "sentences": 1,
+      "wordsPerSentence": 1,
+      "readingTimeSeconds": 1
+    }
+  },
+  "pageNotOnDomainProblem": {
+    "type": "invalid",
+    "title": "Invalid Request",
+    "status": 400,
+    "detail": "site page: url must be on the domain's own host, without a port",
+    "code": "site_page_not_on_domain",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  },
+  "pageRecheckChecked": {
+    "recheckUuid": "0198a3b2-0000-7000-8000-000000000040",
+    "url": "https://example.com/plans",
+    "state": "checked",
+    "requestedAt": "2026-11-17T08:00:00Z",
+    "checkedAt": "2026-11-17T08:01:00Z",
+    "openRules": [
+      "canonical.missing"
+    ],
+    "fixedRules": [
+      "title.missing"
+    ]
+  },
+  "pageRecheckFailed": {
+    "recheckUuid": "0198a3b2-0000-7000-8000-000000000041",
+    "url": "https://example.com/gone",
+    "state": "failed",
+    "requestedAt": "2026-11-17T08:00:00Z",
+    "checkedAt": "2026-11-17T08:01:00Z",
+    "failure": "the page answered HTTP 503",
+    "openRules": [],
+    "fixedRules": []
+  },
+  "pageRecheckLimitProblem": {
+    "type": "rate_limited",
+    "title": "Too Many Requests",
+    "status": 429,
+    "detail": "site page: the domain's hourly page rechecks are used up",
+    "code": "site_page_recheck_limit",
+    "retryability": "bounded",
+    "nextAction": {
+      "action": "retry",
+      "maxRetries": 3
+    }
+  },
+  "pageRecheckQueued": {
+    "recheckUuid": "0198a3b2-0000-7000-8000-000000000040",
+    "url": "https://example.com/plans",
+    "state": "queued",
+    "requestedAt": "2026-11-17T08:00:00Z",
+    "openRules": [],
+    "fixedRules": []
+  },
+  "pageRecheckRequest": {
+    "url": "https://example.com/plans"
+  },
+  "projectContext": {
+    "siteUuid": "0198a3b2-0000-7000-8000-000000000002",
+    "brandNames": [
+      "Example Hosting"
+    ],
+    "competitorDomains": [
+      "competitor.example"
+    ],
+    "markets": [
+      {
+        "country": "ZA",
+        "language": "en"
+      }
+    ],
+    "updatedAt": "2026-11-17T08:00:00Z"
+  },
+  "projectContextEmpty": {
+    "siteUuid": "0198a3b2-0000-7000-8000-000000000002",
+    "brandNames": [],
+    "competitorDomains": [],
+    "markets": []
+  },
+  "projectContextRequest": {
+    "brandNames": [
+      "Example Hosting"
+    ],
+    "competitorDomains": [
+      "competitor.example"
+    ],
+    "markets": [
+      {
+        "country": "ZA",
+        "language": "en"
+      }
+    ]
+  },
+  "remedyUnknownRule": {
+    "kind": "",
+    "element": ""
+  },
+  "robotsTest": {
+    "allowed": false,
+    "userAgent": "Googlebot",
+    "path": "/private/report?id=1",
+    "source": "pasted",
+    "groups": [
+      "*"
+    ],
+    "rule": {
+      "line": 2,
+      "directive": "disallow",
+      "pattern": "/private/"
+    }
+  },
+  "robotsTestLiveMissing": {
+    "allowed": true,
+    "userAgent": "GPTBot",
+    "path": "/",
+    "source": "live",
+    "robotsStatus": 404,
+    "groups": [],
+    "note": "robots.txt is missing, so every URL is allowed"
+  },
+  "robotsTestRequest": {
+    "url": "/private/report?id=1",
+    "userAgent": "Googlebot",
+    "robotsTxt": "User-agent: *\nDisallow: /private/\nAllow: /private/public\n\nSitemap: https://example.com/sitemap.xml\n"
+  },
+  "searchInspectionLimitProblem": {
+    "type": "rate_limited",
+    "title": "Too Many Requests",
+    "status": 429,
+    "detail": "site search: the daily URL inspection limit is reached; try again tomorrow",
+    "code": "site_search_inspection_limit",
+    "retryability": "bounded",
+    "nextAction": {
+      "action": "retry",
+      "maxRetries": 3
+    }
+  },
+  "searchInspectionList": {
+    "inspections": [
+      {
+        "inspectionUuid": "0198a3b2-0000-7000-8000-000000000050",
+        "url": "https://example.com/plans",
+        "status": "done",
+        "requestedAt": "2026-11-17T08:00:00Z",
+        "inspectedAt": "2026-11-17T08:05:00Z",
+        "verdict": "PASS",
+        "coverageState": "Submitted and indexed",
+        "indexingState": "INDEXING_ALLOWED",
+        "robotsTxtState": "ALLOWED",
+        "pageFetchState": "SUCCESSFUL",
+        "lastCrawlAt": "2026-11-15T03:00:00Z",
+        "googleCanonical": "https://example.com/plans",
+        "userCanonical": "https://example.com/plans",
+        "crawledAs": "MOBILE",
+        "resultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:example.com"
+      },
+      {
+        "inspectionUuid": "0198a3b2-0000-7000-8000-000000000051",
+        "url": "https://example.com/new",
+        "status": "done",
+        "requestedAt": "2026-11-17T08:00:00Z",
+        "inspectedAt": "2026-11-17T08:05:00Z",
+        "verdict": "NEUTRAL",
+        "coverageState": "URL is unknown to Google"
+      },
+      {
+        "inspectionUuid": "0198a3b2-0000-7000-8000-000000000052",
+        "url": "https://example.com/old",
+        "status": "failed",
+        "requestedAt": "2026-11-17T08:00:00Z",
+        "inspectedAt": "2026-11-17T08:05:00Z",
+        "failure": "Google answered HTTP 403"
+      }
+    ],
+    "dailyLimit": 200,
+    "usedToday": 3
+  },
+  "searchInspectionNotConnectedProblem": {
+    "type": "conflict",
+    "title": "Conflict",
+    "status": 409,
+    "detail": "site search: verify the domain and connect it to Google Search Console before inspecting a URL",
+    "code": "site_search_inspection_not_connected",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  },
+  "searchInspectionQueued": {
+    "inspectionUuid": "0198a3b2-0000-7000-8000-000000000050",
+    "url": "https://example.com/plans",
+    "status": "queued",
+    "requestedAt": "2026-11-17T08:00:00Z"
+  },
+  "searchInspectionRequest": {
+    "url": "https://example.com/plans"
+  },
+  "searchInspectionUrlInvalidProblem": {
+    "type": "invalid",
+    "title": "Invalid Request",
+    "status": 400,
+    "detail": "site search: url must be an http or https URL of at most 2048 bytes on the domain's own host",
+    "code": "site_search_inspection_url_invalid",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  },
+  "searchRows": {
+    "domainUuid": "0198a3b2-0000-7000-8000-000000000001",
+    "dimension": "country",
+    "days": 28,
+    "offset": 0,
+    "limit": 100,
+    "total": 1,
+    "rows": [
+      {
+        "provider": "google",
+        "key": "zaf",
+        "totals": {
+          "clicks": 12,
+          "impressions": 400,
+          "ctr": 0.03,
+          "position": 6.5
+        }
+      }
+    ],
+    "unavailable": [
+      {
+        "provider": "bing",
+        "reason": "Bing Webmaster Tools does not report traffic by country or device."
+      }
+    ]
+  },
+  "searchRowsNoPosition": {
+    "domainUuid": "0198a3b2-0000-7000-8000-000000000001",
+    "dimension": "query",
+    "provider": "bing",
+    "days": 7,
+    "offset": 100,
+    "limit": 50,
+    "total": 101,
+    "rows": [
+      {
+        "provider": "bing",
+        "key": "hosting",
+        "totals": {
+          "clicks": 0,
+          "impressions": 0,
+          "ctr": 0
+        }
+      }
+    ],
+    "unavailable": []
+  }
+}

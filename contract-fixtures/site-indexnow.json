@@ -1,0 +1,129 @@
+{
+  "disabled": {
+    "enabled": false,
+    "verified": false,
+    "dailyUrlLimit": 1000,
+    "urlsToday": 0,
+    "submissions": []
+  },
+  "domainUnverifiedProblem": {
+    "type": "conflict",
+    "title": "Conflict",
+    "status": 409,
+    "detail": "indexnow: verify the domain before enabling IndexNow",
+    "code": "site_indexnow_domain_unverified",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  },
+  "enabledUnverified": {
+    "enabled": true,
+    "key": "3f0c8a1d2b7e4c6f9a0b1c2d3e4f5a6b",
+    "keyLocation": "https://example.com/3f0c8a1d2b7e4c6f9a0b1c2d3e4f5a6b.txt",
+    "verified": false,
+    "lastCheckFailure": "the key file answered HTTP 404",
+    "dailyUrlLimit": 1000,
+    "urlsToday": 0,
+    "submissions": []
+  },
+  "keyUnverifiedProblem": {
+    "type": "conflict",
+    "title": "Conflict",
+    "status": 409,
+    "detail": "indexnow: host the key file and verify it before submitting URLs",
+    "code": "site_indexnow_key_unverified",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  },
+  "limitProblem": {
+    "type": "rate_limited",
+    "title": "Too Many Requests",
+    "status": 429,
+    "detail": "indexnow: the daily IndexNow URL limit is reached; try again tomorrow",
+    "code": "site_indexnow_limit",
+    "retryability": "bounded",
+    "nextAction": {
+      "action": "retry",
+      "maxRetries": 3
+    }
+  },
+  "notEnabledProblem": {
+    "type": "conflict",
+    "title": "Conflict",
+    "status": 409,
+    "detail": "indexnow: enable IndexNow for the domain first",
+    "code": "site_indexnow_not_enabled",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  },
+  "submissionQueued": {
+    "submissionUuid": "0198a3b2-0000-7000-8000-000000000060",
+    "status": "queued",
+    "urls": [
+      "https://example.com/plans",
+      "https://example.com/about"
+    ],
+    "requestedAt": "2026-11-17T08:00:00Z"
+  },
+  "submissionRequest": {
+    "urls": [
+      "https://example.com/plans",
+      "https://example.com/about"
+    ]
+  },
+  "urlsInvalidProblem": {
+    "type": "invalid",
+    "title": "Invalid Request",
+    "status": 400,
+    "detail": "indexnow: urls must be 1 to 100 distinct http or https URLs of at most 2048 bytes on the domain's own host",
+    "code": "site_indexnow_urls_invalid",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  },
+  "verified": {
+    "enabled": true,
+    "key": "3f0c8a1d2b7e4c6f9a0b1c2d3e4f5a6b",
+    "keyLocation": "https://example.com/3f0c8a1d2b7e4c6f9a0b1c2d3e4f5a6b.txt",
+    "verified": true,
+    "verifiedAt": "2026-11-17T07:00:00Z",
+    "dailyUrlLimit": 1000,
+    "urlsToday": 3,
+    "submissions": [
+      {
+        "submissionUuid": "0198a3b2-0000-7000-8000-000000000060",
+        "status": "queued",
+        "urls": [
+          "https://example.com/plans",
+          "https://example.com/about"
+        ],
+        "requestedAt": "2026-11-17T08:00:00Z"
+      },
+      {
+        "submissionUuid": "0198a3b2-0000-7000-8000-000000000061",
+        "status": "accepted",
+        "urls": [
+          "https://example.com/"
+        ],
+        "providerStatus": 202,
+        "requestedAt": "2026-11-17T07:10:00Z",
+        "submittedAt": "2026-11-17T07:11:00Z"
+      },
+      {
+        "submissionUuid": "0198a3b2-0000-7000-8000-000000000062",
+        "status": "failed",
+        "urls": [
+          "https://example.com/old"
+        ],
+        "failure": "IndexNow could not be reached after 3 attempts",
+        "requestedAt": "2026-11-17T06:10:00Z"
+      }
+    ]
+  }
+}

@@ -11,13 +11,19 @@ import (
 // contract-fixtures/site-insights.json, which Custd's siteaudit types encoded.
 func siteInsightsFixture(t *testing.T, key string) string {
 	t.Helper()
+	return recordedFixture(t, "site-insights.json", key)
+}
+
+// recordedFixture returns one recorded value from a shared contract fixture keyed by name.
+func recordedFixture(t *testing.T, name, key string) string {
+	t.Helper()
 	var recorded map[string]json.RawMessage
-	if err := json.Unmarshal(readContractFixture(t, "site-insights.json"), &recorded); err != nil {
+	if err := json.Unmarshal(readContractFixture(t, name), &recorded); err != nil {
 		t.Fatal(err)
 	}
 	body, ok := recorded[key]
 	if !ok {
-		t.Fatalf("site-insights.json has no %q", key)
+		t.Fatalf("%s has no %q", name, key)
 	}
 	return string(body)
 }
@@ -84,5 +90,10 @@ func TestSiteFindingRuleMatchesRuleConstant(t *testing.T) {
 	}
 	if findings.Findings[0].Rule != SiteRuleTitleMissing || findings.Findings[1].Rule != SiteRuleUptimeDown {
 		t.Fatalf("findings = %+v", findings.Findings)
+	}
+	title, uptime := findings.Findings[0].Remedy, findings.Findings[1].Remedy
+	if title != (AdminSiteRemedy{Kind: AdminSiteRemedyKindContent, Element: "<title>"}) ||
+		uptime.Kind != AdminSiteRemedyKindServer || uptime.Generated != nil {
+		t.Fatalf("remedies = %+v, %+v", title, uptime)
 	}
 }

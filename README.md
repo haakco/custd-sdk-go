@@ -220,6 +220,29 @@ state, per-provider totals with the previous period (`Previous`) and each day
 (`Daily`), the top pages and queries, and `StrikingDistance` queries averaging
 position 5 to 20 (`days` 0 means 28).
 `DisconnectSearch` removes a connection and its imported numbers.
+`ListSearchRows` pages through one dimension (page, query, country or device);
+`Unavailable` names providers that cannot report it, which is not zero traffic.
+`RequestSearchInspection` queues a Search Console URL Inspection (202) and
+`ListSearchInspections` returns the results and the tenant's daily use; refusals
+carry the `SiteSearchInspection*Code` constants.
+`GetIndexNow`, `EnableIndexNow` (returns the key to host), `VerifyIndexNowKey`,
+`DisableIndexNow` and `SubmitIndexNow` (202) push changed URLs to IndexNow;
+refusals carry the `SiteIndexNow*Code` constants.
+
+Each finding carries a `Remedy`: what the fix changes (`Kind`, `Element`) and,
+for some rules, `Generated` code to copy. The page tools work on one page:
+`GetPageFacts` returns what the last audit read, `RequestPageRecheck` queues a
+recheck (poll `GetPageRecheck`; `SitePageRecheckLimitCode` past the hourly
+allowance, `SitePageNotOnDomainCode` for another host), `CheckPage` checks draft
+HTML without storing it, and `TestRobots` answers whether a crawler may fetch a
+URL under a pasted or the live robots.txt. `GetProjectContext` and
+`SetProjectContext` read and replace a Site's brand names, competitors and
+markets.
+
+`GetReport`, `GetUptimeHistory` and `GetLighthouseHistory` read the client report
+and its history; `ListReportShares`, `CreateReportShare` (the token is returned
+once) and `RevokeReportShare` manage public report links. Measurements that were
+not taken decode as `nil`, never 0.
 
 ## Schema Admin Helpers
 
