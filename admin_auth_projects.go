@@ -209,6 +209,9 @@ type AuthProjectDesiredState struct {
 	SignInMethods []string                     `json:"signInMethods"`
 	Audiences     []AuthProjectAudienceBinding `json:"audiences"`
 	ProfileFields []AuthProjectProfileField    `json:"profileFields"`
+	// Hosting serves the environment as a hosted application. Leaving it nil
+	// keeps the stored section, so an apply cannot switch an app off by omission.
+	Hosting *AuthProjectHosting `json:"hosting,omitempty"`
 }
 
 // AuthProjectDesiredStateRequest is the body of both the apply and preview
@@ -289,6 +292,9 @@ type AuthProjectStatus struct {
 	// CompanyUUID is the persisted company of this environment's project; nil
 	// means explicitly unbound, never inferred.
 	CompanyUUID *string `json:"companyUuid"`
+	// Hosting is the derived serving identity of a hosted environment, nil when
+	// it is not served.
+	Hosting *AuthProjectHostingStatus `json:"hosting,omitempty"`
 }
 
 // AuthProjectAdminClient manages Custd projects, their environments, and the

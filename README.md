@@ -332,6 +332,14 @@ application principals a directory holds, through `/api/v1/admin/auth-projects`:
 - `CreateEnvironment`
 - `ListPrincipalSessions`, `RevokePrincipalSession`, `RevokePrincipalSessions`
 - `RevokePrincipalMembership`
+- Hosted app releases: `CreateAppRelease` (manifest files and routing),
+  `UploadAppReleaseFile` (one file's raw bytes, sent as `application/octet-stream`),
+  `VerifyAppRelease`, `PromoteAppRelease` and `ListAppReleases`
+
+An environment is served as a hosted app by the optional `Hosting` field of
+`AuthProjectDesiredState`; a nil value keeps the stored section.
+`AuthProjectStatus.Hosting` reports the derived host, origin and, with the
+`sign_in` capability, the sign-in client.
 
 Every call takes a `custd.AuthProjectRequestOptions`. A machine credential must
 name the platform user it acts for in `OwningUserUUID`, sent as
