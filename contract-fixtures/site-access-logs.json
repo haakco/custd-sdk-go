@@ -1,0 +1,220 @@
+{
+  "accessLogHourInvalidProblem": {
+    "type": "invalid",
+    "title": "Invalid Request",
+    "status": 400,
+    "detail": "hourStart must be the start of a finished UTC hour within the last 28 days, for example 2026-11-17T10:00:00Z",
+    "code": "access_log_hour_invalid",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  },
+  "accessLogHourReplay": {
+    "hourStart": "2026-11-17T10:00:00Z",
+    "previousStatus": "failed",
+    "requestedAt": "2026-11-17T12:03:04Z"
+  },
+  "accessLogHourReplayRequest": {
+    "hourStart": "2026-11-17T10:00:00Z"
+  },
+  "aiVisibility": {
+    "domainUuid": "8f14e45f-ceea-4e7b-9a37-2f1c5e0b7a11",
+    "siteUuid": "3c59dc04-8b0f-4a3e-8f2d-6b7c1e9a4d22",
+    "from": "2026-11-15",
+    "to": "2026-11-16",
+    "generatedAt": "2026-11-17T09:00:00Z",
+    "coverage": {
+      "hoursExpected": 48,
+      "hoursRead": 22,
+      "hoursPartial": 1,
+      "hoursFailed": 1,
+      "hoursMissing": 24,
+      "complete": false
+    },
+    "crawlers": [
+      {
+        "crawler": "claudebot",
+        "identity": "verified",
+        "ai": true,
+        "requests": 44,
+        "notFound": 2
+      },
+      {
+        "crawler": "gptbot",
+        "identity": "claims_to_be",
+        "ai": true,
+        "requests": 15,
+        "notFound": 0
+      }
+    ],
+    "assistants": [
+      {
+        "key": "chatgpt.com",
+        "requests": 40
+      }
+    ],
+    "pages": [
+      {
+        "path": "/pricing",
+        "verifiedCrawlerHits": 30,
+        "claimedCrawlerHits": 5,
+        "referralVisits": 25
+      },
+      {
+        "path": "(other)",
+        "verifiedCrawlerHits": 14,
+        "claimedCrawlerHits": 10,
+        "referralVisits": 15
+      }
+    ]
+  },
+  "traffic": {
+    "domainUuid": "8f14e45f-ceea-4e7b-9a37-2f1c5e0b7a11",
+    "from": "2026-11-15",
+    "to": "2026-11-16",
+    "generatedAt": "2026-11-17T09:00:00Z",
+    "coverage": {
+      "hoursExpected": 48,
+      "hoursRead": 22,
+      "hoursPartial": 1,
+      "hoursFailed": 1,
+      "hoursMissing": 24,
+      "complete": false
+    },
+    "totals": {
+      "requests": 5400,
+      "bytes": 81000000,
+      "notFound": 37,
+      "p95Ms": 750
+    },
+    "days": [
+      {
+        "date": "2026-11-15",
+        "coverage": "missing",
+        "hoursRead": 0,
+        "hoursPartial": 0,
+        "hoursFailed": 0,
+        "hoursMissing": 24
+      },
+      {
+        "date": "2026-11-16",
+        "coverage": "partial",
+        "hoursRead": 22,
+        "hoursPartial": 1,
+        "hoursFailed": 1,
+        "hoursMissing": 0,
+        "requests": 5400,
+        "bytes": 81000000,
+        "notFound": 0
+      }
+    ],
+    "statusClasses": [
+      {
+        "key": "2xx",
+        "requests": 5200
+      },
+      {
+        "key": "4xx",
+        "requests": 200
+      }
+    ],
+    "notFoundPaths": [
+      {
+        "key": "/old-page",
+        "requests": 30
+      },
+      {
+        "key": "(other)",
+        "requests": 7
+      }
+    ],
+    "slowPaths": [
+      {
+        "path": "/search",
+        "requests": 400,
+        "p95Ms": 1500,
+        "maxMs": 4100
+      }
+    ],
+    "countries": [
+      {
+        "key": "ZA",
+        "requests": 3000
+      },
+      {
+        "key": "US",
+        "requests": 2400
+      }
+    ],
+    "referrerClasses": [
+      {
+        "class": "search",
+        "requests": 900
+      },
+      {
+        "class": "ai",
+        "requests": 40
+      }
+    ],
+    "referrers": [
+      {
+        "class": "search",
+        "domain": "www.google.com",
+        "requests": 880
+      },
+      {
+        "class": "ai",
+        "domain": "chatgpt.com",
+        "requests": 40
+      }
+    ],
+    "crawlers": [
+      {
+        "crawler": "googlebot",
+        "identity": "verified",
+        "ai": false,
+        "requests": 600,
+        "notFound": 12
+      },
+      {
+        "crawler": "gptbot",
+        "identity": "claims_to_be",
+        "ai": true,
+        "requests": 15,
+        "notFound": 0
+      }
+    ]
+  },
+  "trafficEmpty": {
+    "domainUuid": "8f14e45f-ceea-4e7b-9a37-2f1c5e0b7a11",
+    "from": "2026-11-16",
+    "to": "2026-11-16",
+    "generatedAt": "2026-11-17T09:00:00Z",
+    "coverage": {
+      "hoursExpected": 24,
+      "hoursRead": 0,
+      "hoursPartial": 0,
+      "hoursFailed": 0,
+      "hoursMissing": 24,
+      "complete": false
+    },
+    "days": [
+      {
+        "date": "2026-11-16",
+        "coverage": "missing",
+        "hoursRead": 0,
+        "hoursPartial": 0,
+        "hoursFailed": 0,
+        "hoursMissing": 24
+      }
+    ],
+    "statusClasses": [],
+    "notFoundPaths": [],
+    "slowPaths": [],
+    "countries": [],
+    "referrerClasses": [],
+    "referrers": [],
+    "crawlers": []
+  }
+}

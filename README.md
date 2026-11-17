@@ -244,6 +244,35 @@ and its history; `ListReportShares`, `CreateReportShare` (the token is returned
 once) and `RevokeReportShare` manage public report links. Measurements that were
 not taken decode as `nil`, never 0.
 
+`GetReportWithOptions` picks the report template (`AdminSiteReportTemplateExecutive`
+or `AdminSiteReportTemplateFull`) and search days. `ListSavedReports`,
+`SaveReport`, `GetSavedReport`, `ReplaceSavedReport` and `DeleteSavedReport` keep
+up to 20 named reports per domain; set `ReportUUID` on
+`AdminSiteReportShareRequest` to share a saved report instead of the live one.
+`ListAuditPages` pages through the last audit's crawled URLs, `GetAuditDelta`
+returns the findings it opened, reopened and fixed, and `GetLighthousePages`,
+`SetLighthousePages` and `GetLighthousePageHistory` measure up to five extra
+pages beside the home page.
+
+Public web data is Site-scoped (an empty `siteUUID` means the credential's own
+Site): `GetWebDomains`, `ListWebPages`, `GetTopicTrends`, `GetContentGap`, and
+the keyword lists `ListKeywordLists`, `SaveKeywordList`, `DeleteKeywordList` and
+`GetKeywordClusters`. Access logs give `GetTraffic` and `GetAIVisibility` over
+`YYYY-MM-DD` UTC days; a system administrator queues one hour again with
+`ReplayAccessLogHour`. Rank tracking uses `GetRankings`, `TrackKeyword`,
+`UpdateTrackedKeyword` (a zero `NotifyPosition` keeps the stored alert position)
+and `UntrackKeyword`; a day the keyword did not rank has a `nil` `Position`.
+Refusals carry the matching `*Code` constants.
+
+`GetFindingSearchImpact` compares a fixed finding's page's search clicks before
+and after the fix; an insufficient period has `nil` numbers, never 0.
+`GetSearchValue(ctx, domainUUID, goals, days)` returns the top search pages with
+the analytics goals (1 to 5 event types) credited to them; `Landings` and
+`GoalConversions` are `nil` when goals were not measured.
+
+Custd 3.46.0 and earlier send no report `Template` (their reports are the full
+template) and no Lighthouse history `URL` or `Pages`; those decode as empty.
+
 ## Schema Admin Helpers
 
 Use `CustdClient.Admin.Schemas` from setup code:

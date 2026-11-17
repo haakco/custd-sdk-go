@@ -94,11 +94,15 @@ type AdminSiteLighthouseRun struct {
 	Metrics     AdminSiteLighthouseMetrics `json:"metrics"`
 }
 
-// AdminSiteLighthouseHistory is a domain's lab runs over the last Days days.
+// AdminSiteLighthouseHistory is a domain's lab runs of URL over the last Days days, with the
+// latest score of every measured page and profile in Pages. Servers before per-page Lighthouse
+// leave URL empty and Pages nil, meaning only the home page is measured.
 type AdminSiteLighthouseHistory struct {
-	DomainUUID string                   `json:"domainUuid"`
-	Days       int                      `json:"days"`
-	Runs       []AdminSiteLighthouseRun `json:"runs"`
+	DomainUUID string                              `json:"domainUuid"`
+	Days       int                                 `json:"days"`
+	URL        string                              `json:"url,omitempty"`
+	Runs       []AdminSiteLighthouseRun            `json:"runs"`
+	Pages      []AdminSiteLighthousePageComparison `json:"pages,omitempty"`
 }
 
 // AdminSiteReportUptime is the report's uptime: status, windows and ninety daily bars.
@@ -156,8 +160,11 @@ type AdminSiteReportAudit struct {
 
 // AdminSiteReport is a domain's client report, without verification or search connection details.
 type AdminSiteReport struct {
-	Host        string                     `json:"host"`
-	GeneratedAt time.Time                  `json:"generatedAt"`
+	Host        string    `json:"host"`
+	GeneratedAt time.Time `json:"generatedAt"`
+	// Template is an AdminSiteReportTemplate*; it is empty from servers before the template field,
+	// whose reports are the full template.
+	Template    string                     `json:"template,omitempty"`
 	Uptime      AdminSiteReportUptime      `json:"uptime"`
 	Certificate AdminSiteReportCertificate `json:"certificate"`
 	Speed       []AdminSiteReportSpeed     `json:"speed"`
@@ -166,10 +173,12 @@ type AdminSiteReport struct {
 }
 
 // AdminSiteReportShare is one live public share's metadata; its token is shown only on creation.
+// ReportUUID names the saved report it opens; empty means it opens the live report.
 type AdminSiteReportShare struct {
-	ShareUUID string    `json:"shareUuid"`
-	CreatedAt time.Time `json:"createdAt"`
-	ExpiresAt time.Time `json:"expiresAt"`
+	ShareUUID  string    `json:"shareUuid"`
+	ReportUUID string    `json:"reportUuid,omitempty"`
+	CreatedAt  time.Time `json:"createdAt"`
+	ExpiresAt  time.Time `json:"expiresAt"`
 }
 
 // AdminSiteReportShareList lists a domain's live report shares.
@@ -185,14 +194,27 @@ type AdminSiteReportShareCreated struct {
 }
 
 // AdminSiteReportShareRequest sets how many days (1..90) a share works; 0 uses the server's 30.
+// ReportUUID shares a saved report; empty shares the live report.
 type AdminSiteReportShareRequest struct {
-	ExpiresInDays int `json:"expiresInDays,omitempty"`
+	ExpiresInDays int    `json:"expiresInDays,omitempty"`
+	ReportUUID    string `json:"reportUuid,omitempty"`
 }
 
 // GetReport returns the domain's complete client report.
 func (c *SiteDomainAdminClient) GetReport(ctx context.Context, domainUUID string) (*AdminSiteReport, error) {
+	return c.GetReportWithOptions(ctx, domainUUID, AdminSiteReportOptions{})
+}
+
+// GetReportWithOptions returns the domain's client report built from one template over days days
+// of search numbers; zero options use the server's full template and 28 days.
+func (c *SiteDomainAdminClient) GetReportWithOptions(
+	ctx context.Context, domainUUID string, options AdminSiteReportOptions,
+) (*AdminSiteReport, error) {
 	var report AdminSiteReport
-	err := c.request(ctx, http.MethodGet, siteDomainPath(domainUUID)+"/report", nil, &report)
+	path := siteQueryPath(siteDomainPath(domainUUID)+"/report", url.Values{
+		"template": {options.Template}, "days": {sitePositiveInt(options.Days)},
+	})
+	err := c.request(ctx, http.MethodGet, path, nil, &report)
 	return &report, err
 }
 
@@ -207,13 +229,23 @@ func (c *SiteDomainAdminClient) GetUptimeHistory(
 	return &history, err
 }
 
-// GetLighthouseHistory returns scheduled desktop and mobile lab runs over days days (1..30); 0
-// uses the server's seven days.
+// GetLighthouseHistory returns the home page's scheduled desktop and mobile lab runs over days
+// days (1..30); 0 uses the server's seven days.
 func (c *SiteDomainAdminClient) GetLighthouseHistory(
 	ctx context.Context, domainUUID string, days int,
 ) (*AdminSiteLighthouseHistory, error) {
+	return c.GetLighthousePageHistory(ctx, domainUUID, days, "")
+}
+
+// GetLighthousePageHistory returns the lab runs of pageURL, one of the domain's extra Lighthouse
+// pages, over days days (1..30); an empty pageURL reads the home page and 0 days uses seven.
+func (c *SiteDomainAdminClient) GetLighthousePageHistory(
+	ctx context.Context, domainUUID string, days int, pageURL string,
+) (*AdminSiteLighthouseHistory, error) {
 	var history AdminSiteLighthouseHistory
-	path := siteDomainPath(domainUUID) + "/lighthouse" + siteDaysQuery("days", days)
+	path := siteQueryPath(siteDomainPath(domainUUID)+"/lighthouse", url.Values{
+		"days": {sitePositiveInt(days)}, "url": {pageURL},
+	})
 	err := c.request(ctx, http.MethodGet, path, nil, &history)
 	return &history, err
 }
@@ -250,4 +282,25 @@ func siteDaysQuery(name string, days int) string {
 		return ""
 	}
 	return "?" + url.Values{name: {strconv.Itoa(days)}}.Encode()
+}
+
+// siteQueryPath appends the non-empty values to path as one encoded query.
+func siteQueryPath(path string, values url.Values) string {
+	for name, value := range values {
+		if len(value) == 0 || value[0] == "" {
+			delete(values, name)
+		}
+	}
+	if len(values) == 0 {
+		return path
+	}
+	return path + "?" + values.Encode()
+}
+
+// sitePositiveInt formats n for a query, or returns "" so a non-positive n is omitted.
+func sitePositiveInt(n int) string {
+	if n <= 0 {
+		return ""
+	}
+	return strconv.Itoa(n)
 }

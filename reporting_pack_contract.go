@@ -212,6 +212,8 @@ const (
 	NumericUnitCelsius         NumericUnit = "Cel"
 	NumericUnitLitresPerSecond NumericUnit = "L/s"
 	NumericUnitCurrencyPerUnit NumericUnit = "currency_per_unit"
+	// NumericUnitScore is a unitless score, such as Cumulative Layout Shift.
+	NumericUnitScore NumericUnit = "score"
 )
 
 var numericUnitValues = map[NumericUnit]bool{
@@ -219,6 +221,7 @@ var numericUnitValues = map[NumericUnit]bool{
 	NumericUnitCurrency: true, NumericUnitWatt: true, NumericUnitKilowatt: true, NumericUnitWattHour: true,
 	NumericUnitKilowattHour: true, NumericUnitVolt: true, NumericUnitAmpere: true, NumericUnitLitre: true,
 	NumericUnitCelsius: true, NumericUnitLitresPerSecond: true, NumericUnitCurrencyPerUnit: true,
+	NumericUnitScore: true,
 }
 
 func (value *NumericUnit) UnmarshalJSON(raw []byte) error {

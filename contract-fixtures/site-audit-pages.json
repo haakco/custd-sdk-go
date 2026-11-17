@@ -1,0 +1,221 @@
+{
+  "auditDelta": {
+    "domainUuid": "8f14e45f-ceea-4e7b-9a37-2f1c5e0b7a11",
+    "run": "complete",
+    "auditedAt": "2026-11-17T06:00:00Z",
+    "new": [
+      {
+        "findingUuid": "f-new",
+        "rule": "crawl.broken-fragment",
+        "severity": "medium",
+        "title": "A link points to a missing anchor",
+        "url": "https://example.com/guide",
+        "evidence": "seen by the audit",
+        "fix": "follow the remedy",
+        "source": "https://developers.google.com/search/docs",
+        "remedy": {
+          "kind": "markup",
+          "element": "links between pages"
+        },
+        "history": {
+          "firstSeenAt": "2026-11-10T06:00:00Z",
+          "lastSeenAt": "2026-11-17T06:00:00Z",
+          "fixed": false
+        }
+      }
+    ],
+    "reopened": [
+      {
+        "findingUuid": "f-reopened",
+        "rule": "sitemap.blocked-url",
+        "severity": "high",
+        "title": "The sitemap lists a URL robots.txt blocks",
+        "url": "https://example.com/private",
+        "evidence": "seen by the audit",
+        "fix": "follow the remedy",
+        "source": "https://developers.google.com/search/docs",
+        "remedy": {
+          "kind": "setting",
+          "element": "sitemap.xml"
+        },
+        "history": {
+          "firstSeenAt": "2026-11-10T06:00:00Z",
+          "lastSeenAt": "2026-11-17T06:00:00Z",
+          "fixed": false
+        }
+      }
+    ],
+    "fixed": [
+      {
+        "findingUuid": "f-fixed",
+        "rule": "title.missing",
+        "severity": "high",
+        "title": "The page has no title",
+        "url": "https://example.com/about",
+        "evidence": "seen by the audit",
+        "fix": "follow the remedy",
+        "source": "https://developers.google.com/search/docs",
+        "remedy": {
+          "kind": "content",
+          "element": "\u003ctitle\u003e"
+        },
+        "history": {
+          "firstSeenAt": "2026-11-10T06:00:00Z",
+          "lastSeenAt": "2026-11-17T06:00:00Z",
+          "fixed": true,
+          "fixedAt": "2026-11-17T06:00:00Z"
+        }
+      }
+    ]
+  },
+  "auditDeltaFailed": {
+    "domainUuid": "8f14e45f-ceea-4e7b-9a37-2f1c5e0b7a11",
+    "run": "failed",
+    "auditedAt": "2026-11-17T06:00:00Z",
+    "failure": "the home page did not answer",
+    "new": [],
+    "reopened": [],
+    "fixed": []
+  },
+  "auditDeltaNotAudited": {
+    "domainUuid": "8f14e45f-ceea-4e7b-9a37-2f1c5e0b7a11",
+    "run": "not_audited",
+    "new": [],
+    "reopened": [],
+    "fixed": []
+  },
+  "auditPages": {
+    "domainUuid": "8f14e45f-ceea-4e7b-9a37-2f1c5e0b7a11",
+    "auditedAt": "2026-11-17T06:00:00Z",
+    "truncated": false,
+    "offset": 0,
+    "limit": 50,
+    "total": 3,
+    "pages": [
+      {
+        "url": "https://example.com/",
+        "status": 200,
+        "indexability": "indexable",
+        "depth": 0,
+        "inboundLinks": 2,
+        "openFindings": 1
+      },
+      {
+        "url": "https://example.com/old",
+        "finalUrl": "https://example.com/new",
+        "status": 301,
+        "indexability": "redirected",
+        "depth": 1,
+        "inboundLinks": 1,
+        "openFindings": 0
+      },
+      {
+        "url": "https://example.com/orphan",
+        "status": 200,
+        "indexability": "noindex",
+        "inboundLinks": 0,
+        "openFindings": 2
+      }
+    ]
+  },
+  "auditPagesNotAudited": {
+    "domainUuid": "8f14e45f-ceea-4e7b-9a37-2f1c5e0b7a11",
+    "truncated": false,
+    "offset": 0,
+    "limit": 50,
+    "total": 0,
+    "pages": []
+  },
+  "auditPagesTruncated": {
+    "domainUuid": "8f14e45f-ceea-4e7b-9a37-2f1c5e0b7a11",
+    "auditedAt": "2026-11-17T06:00:00Z",
+    "truncated": true,
+    "offset": 50,
+    "limit": 50,
+    "total": 51,
+    "pages": [
+      {
+        "url": "https://example.com/broken",
+        "status": 0,
+        "indexability": "error",
+        "openFindings": 0
+      }
+    ]
+  },
+  "lighthousePageHistory": {
+    "domainUuid": "8f14e45f-ceea-4e7b-9a37-2f1c5e0b7a11",
+    "days": 7,
+    "url": "https://example.com/pricing",
+    "runs": [
+      {
+        "profile": "mobile",
+        "observedAt": "2026-11-17T04:00:00Z",
+        "outcome": "success",
+        "url": "https://example.com/pricing",
+        "durationMs": 9100,
+        "toolVersion": "13.0.1",
+        "scores": {
+          "performance": 71,
+          "seo": 98
+        },
+        "metrics": {
+          "largestContentfulPaintMs": 2900,
+          "cumulativeLayoutShift": 0.02
+        }
+      }
+    ],
+    "pages": [
+      {
+        "url": "https://example.com/",
+        "profile": "desktop",
+        "latestAt": "2026-11-17T05:00:00Z",
+        "latestScore": 92,
+        "previousAt": "2026-11-17T04:00:00Z",
+        "previousScore": 95,
+        "regressionOpen": false
+      },
+      {
+        "url": "https://example.com/pricing",
+        "profile": "mobile",
+        "latestAt": "2026-11-17T04:00:00Z",
+        "latestScore": 71,
+        "regressionOpen": true
+      }
+    ]
+  },
+  "lighthousePageNotExtraProblem": {
+    "type": "invalid",
+    "title": "Invalid Request",
+    "status": 400,
+    "detail": "lighthouse pages: each page must be on the domain's host and not its home page",
+    "code": "site_lighthouse_page_not_extra",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  },
+  "lighthousePages": {
+    "domainUuid": "8f14e45f-ceea-4e7b-9a37-2f1c5e0b7a11",
+    "homePage": "https://example.com/",
+    "urls": [
+      "https://example.com/pricing",
+      "https://example.com/blog"
+    ],
+    "maxPages": 5
+  },
+  "lighthousePagesClearRequest": {
+    "urls": []
+  },
+  "lighthousePagesEmpty": {
+    "domainUuid": "8f14e45f-ceea-4e7b-9a37-2f1c5e0b7a11",
+    "homePage": "https://example.com/",
+    "urls": [],
+    "maxPages": 5
+  },
+  "lighthousePagesRequest": {
+    "urls": [
+      "https://example.com/pricing",
+      "https://example.com/blog"
+    ]
+  }
+}

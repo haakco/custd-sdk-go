@@ -1,0 +1,156 @@
+{
+  "findingImpact": {
+    "findingUuid": "f-fixed",
+    "rule": "title.missing",
+    "url": "https://example.com/about#team",
+    "pageUrl": "https://example.com/about",
+    "status": "measured",
+    "fixedAt": "2026-10-15T06:00:00Z",
+    "windowDays": 28,
+    "before": {
+      "from": "2026-09-17",
+      "to": "2026-10-14"
+    },
+    "after": {
+      "from": "2026-10-16",
+      "to": "2026-11-12"
+    },
+    "sources": [
+      {
+        "provider": "google",
+        "source": "search_console",
+        "granularity": "daily",
+        "status": "measured",
+        "before": {
+          "status": "measured",
+          "coveredDays": 28,
+          "expectedDays": 28,
+          "clicks": 40,
+          "impressions": 2000,
+          "ctr": 0.02
+        },
+        "after": {
+          "status": "measured",
+          "coveredDays": 28,
+          "expectedDays": 28,
+          "clicks": 0,
+          "impressions": 2100,
+          "ctr": 0
+        }
+      },
+      {
+        "provider": "bing",
+        "source": "bing_webmaster",
+        "granularity": "weekly",
+        "status": "insufficient",
+        "before": {
+          "status": "measured",
+          "coveredDays": 4,
+          "expectedDays": 4,
+          "clicks": 5,
+          "impressions": 300,
+          "ctr": 0.016666666666666666
+        },
+        "after": {
+          "status": "insufficient",
+          "coveredDays": 2,
+          "expectedDays": 4,
+          "reason": "the window has not ended or the import has not reached its last day"
+        }
+      }
+    ],
+    "note": "Search clicks and impressions for the finding's page in the days before and after an audit first saw it fixed. Other changes, seasonality and ranking updates also move these numbers, so the difference is an observation, not a measured effect of the fix."
+  },
+  "findingImpactOpen": {
+    "findingUuid": "f-open",
+    "rule": "crawl.broken-fragment",
+    "url": "https://example.com/guide",
+    "pageUrl": "https://example.com/guide",
+    "status": "open",
+    "windowDays": 28,
+    "sources": [],
+    "note": "Search clicks and impressions for the finding's page in the days before and after an audit first saw it fixed. Other changes, seasonality and ranking updates also move these numbers, so the difference is an observation, not a measured effect of the fix."
+  },
+  "searchValue": {
+    "domainUuid": "8f14e45f-ceea-4e7b-9a37-2f1c5e0b7a11",
+    "siteUuid": "3c59dc04-8b0f-4a3e-8f2d-6b7c1e9a4d22",
+    "days": 28,
+    "from": "2026-10-20",
+    "to": "2026-11-17",
+    "goals": [
+      "signup",
+      "purchase"
+    ],
+    "goalStatus": "partial",
+    "goalReason": "the analytics read stopped at its row bound",
+    "attribution": "Goals are the named Custd analytics events, each credited to the landing page of the same visitor's first page view on the Site in the window, then matched to a search page by its path. A visitor may have arrived from anywhere, not only search, and search queries cannot be tied to goals because the providers report pages and queries separately.",
+    "pages": [
+      {
+        "provider": "google",
+        "source": "search_console",
+        "pageUrl": "https://example.com/pricing",
+        "path": "/pricing",
+        "search": {
+          "clicks": 300,
+          "impressions": 9000,
+          "ctr": 0.03333333333333333,
+          "position": 4.2
+        },
+        "landings": 120,
+        "goalConversions": 9
+      },
+      {
+        "provider": "google",
+        "source": "search_console",
+        "pageUrl": "https://example.com/blog",
+        "path": "/blog",
+        "search": {
+          "clicks": 80,
+          "impressions": 5000,
+          "ctr": 0.016,
+          "position": 9.1
+        },
+        "landings": 120,
+        "goalConversions": 0
+      },
+      {
+        "provider": "bing",
+        "source": "bing_webmaster",
+        "pageUrl": "https://example.com/old",
+        "path": "/old",
+        "search": {
+          "clicks": 2,
+          "impressions": 90,
+          "ctr": 0.022222222222222223
+        }
+      }
+    ]
+  },
+  "searchValueUnavailable": {
+    "domainUuid": "8f14e45f-ceea-4e7b-9a37-2f1c5e0b7a11",
+    "siteUuid": "3c59dc04-8b0f-4a3e-8f2d-6b7c1e9a4d22",
+    "days": 7,
+    "from": "2026-11-10",
+    "to": "2026-11-17",
+    "goals": [
+      "signup"
+    ],
+    "goalStatus": "unavailable",
+    "goalReason": "the caller has no reporting access",
+    "attribution": "Goals are the named Custd analytics events, each credited to the landing page of the same visitor's first page view on the Site in the window, then matched to a search page by its path. A visitor may have arrived from anywhere, not only search, and search queries cannot be tied to goals because the providers report pages and queries separately.",
+    "pages": [
+      {
+        "provider": "google",
+        "source": "search_console",
+        "pageUrl": "https://example.com/pricing",
+        "path": "/pricing",
+        "search": {
+          "clicks": 30,
+          "impressions": 900,
+          "ctr": 0.03333333333333333,
+          "position": 5
+        }
+      }
+    ]
+  }
+}

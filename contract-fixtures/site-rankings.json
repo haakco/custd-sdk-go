@@ -1,0 +1,224 @@
+{
+  "rankings": {
+    "source": "active",
+    "from": "2026-11-13",
+    "to": "2026-11-15",
+    "maxKeywords": 50,
+    "keywords": [
+      {
+        "keywordUuid": "d3d94468-02a4-4b5e-8a6f-1c2b3d4e5f55",
+        "keyword": "pricing tool",
+        "country": "zaf",
+        "device": "mobile",
+        "status": "active",
+        "notifyPosition": 10,
+        "createdAt": "2026-11-12T10:00:00Z",
+        "latest": {
+          "day": "2026-11-15",
+          "state": "ranking",
+          "rankingUrl": "https://example.com/pricing",
+          "position": 7.4,
+          "clicks": 3,
+          "impressions": 120
+        },
+        "observations": [
+          {
+            "day": "2026-11-13",
+            "state": "no_data",
+            "clicks": 0,
+            "impressions": 0
+          },
+          {
+            "day": "2026-11-14",
+            "state": "not_ranking",
+            "clicks": 0,
+            "impressions": 0
+          },
+          {
+            "day": "2026-11-15",
+            "state": "ranking",
+            "rankingUrl": "https://example.com/pricing",
+            "position": 7.4,
+            "clicks": 3,
+            "impressions": 120
+          }
+        ]
+      },
+      {
+        "keywordUuid": "6512bd43-d9ca-46a1-b2c3-d4e5f6a7b866",
+        "keyword": "seo audit",
+        "country": "all",
+        "device": "all",
+        "status": "paused",
+        "notifyPosition": 20,
+        "createdAt": "2026-11-12T10:00:00Z",
+        "latest": {
+          "day": "2026-11-15",
+          "state": "no_data",
+          "clicks": 0,
+          "impressions": 0
+        },
+        "observations": [
+          {
+            "day": "2026-11-13",
+            "state": "no_data",
+            "clicks": 0,
+            "impressions": 0
+          },
+          {
+            "day": "2026-11-14",
+            "state": "no_data",
+            "clicks": 0,
+            "impressions": 0
+          },
+          {
+            "day": "2026-11-15",
+            "state": "no_data",
+            "clicks": 0,
+            "impressions": 0
+          }
+        ]
+      }
+    ]
+  },
+  "rankingsDaysInvalidProblem": {
+    "type": "invalid",
+    "title": "Invalid Request",
+    "status": 400,
+    "detail": "rank tracking: days must be 1 to 90",
+    "code": "site_rankings_days_invalid",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  },
+  "rankingsFailing": {
+    "source": "failing",
+    "sourceFailure": "Search Console refused the token",
+    "from": "2026-11-13",
+    "to": "2026-11-15",
+    "maxKeywords": 50,
+    "keywords": []
+  },
+  "rankingsNotConnected": {
+    "source": "not_connected",
+    "from": "2026-11-13",
+    "to": "2026-11-15",
+    "maxKeywords": 50,
+    "keywords": []
+  },
+  "trackKeywordRequest": {
+    "keyword": "Pricing Tool",
+    "country": "zaf",
+    "device": "mobile"
+  },
+  "trackedKeyword": {
+    "keywordUuid": "d3d94468-02a4-4b5e-8a6f-1c2b3d4e5f55",
+    "keyword": "pricing tool",
+    "country": "zaf",
+    "device": "mobile",
+    "status": "active",
+    "notifyPosition": 10,
+    "createdAt": "2026-11-17T10:00:00Z",
+    "latest": {
+      "day": "2026-11-15",
+      "state": "no_data",
+      "clicks": 0,
+      "impressions": 0
+    },
+    "observations": [
+      {
+        "day": "2026-11-15",
+        "state": "no_data",
+        "clicks": 0,
+        "impressions": 0
+      }
+    ]
+  },
+  "trackedKeywordDuplicateProblem": {
+    "type": "conflict",
+    "title": "Conflict",
+    "status": 409,
+    "detail": "rank tracking: the domain already tracks this keyword in this country and device",
+    "code": "site_tracked_keyword_duplicate",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  },
+  "trackedKeywordInvalidProblem": {
+    "type": "invalid",
+    "title": "Invalid Request",
+    "status": 400,
+    "detail": "rank tracking: keyword must be 1 to 100 characters; country \"all\" or an ISO 3166-1 alpha-3 code such as \"zaf\"; device \"all\", \"desktop\", \"mobile\" or \"tablet\"; notifyPosition 1 to 100",
+    "code": "site_tracked_keyword_invalid",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  },
+  "trackedKeywordLimitProblem": {
+    "type": "conflict",
+    "title": "Conflict",
+    "status": 409,
+    "detail": "rank tracking: a Site tracks at most 50 keywords; remove one first",
+    "code": "site_tracked_keyword_limit",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  },
+  "trackedKeywordNotFoundProblem": {
+    "type": "not_found",
+    "title": "Not Found",
+    "status": 404,
+    "detail": "rank tracking: the domain does not track this keyword",
+    "code": "site_tracked_keyword_not_found",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  },
+  "updateTrackedKeywordPauseRequest": {
+    "paused": true
+  },
+  "updateTrackedKeywordRequest": {
+    "paused": false,
+    "notifyPosition": 5
+  },
+  "updatedTrackedKeyword": {
+    "keywordUuid": "6512bd43-d9ca-46a1-b2c3-d4e5f6a7b866",
+    "keyword": "seo audit",
+    "country": "all",
+    "device": "all",
+    "status": "active",
+    "notifyPosition": 5,
+    "createdAt": "2026-11-12T10:00:00Z",
+    "latest": {
+      "day": "2026-11-15",
+      "state": "no_data",
+      "clicks": 0,
+      "impressions": 0
+    },
+    "observations": [
+      {
+        "day": "2026-11-13",
+        "state": "no_data",
+        "clicks": 0,
+        "impressions": 0
+      },
+      {
+        "day": "2026-11-14",
+        "state": "no_data",
+        "clicks": 0,
+        "impressions": 0
+      },
+      {
+        "day": "2026-11-15",
+        "state": "no_data",
+        "clicks": 0,
+        "impressions": 0
+      }
+    ]
+  }
+}

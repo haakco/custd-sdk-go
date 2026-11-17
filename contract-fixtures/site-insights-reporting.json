@@ -2,6 +2,7 @@
   "report": {
     "host": "example.com",
     "generatedAt": "2026-11-17T00:00:00Z",
+    "template": "full",
     "uptime": {
       "status": "unknown",
       "windows": {
@@ -151,6 +152,7 @@
   "lighthouse": {
     "domainUuid": "domain-1",
     "days": 7,
+    "url": "https://example.com/",
     "runs": [
       {
         "profile": "desktop",
@@ -179,7 +181,8 @@
         "metrics": {},
         "failure": "timeout"
       }
-    ]
+    ],
+    "pages": []
   },
   "shares": {
     "shares": [

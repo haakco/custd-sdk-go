@@ -75,4 +75,7 @@ const (
 	SiteRuleLighthouseMobileDrop       = "lighthouse.mobile-score-drop"
 	SiteRuleSearchLowCTR               = "search.low-ctr"
 	SiteRuleSearchPositionDrop         = "search.position-drop"
+	SiteRuleBrokenFragment             = "crawl.broken-fragment"
+	SiteRuleSitemapBlockedURL          = "sitemap.blocked-url"
+	SiteRuleLogsCrawlerNotFound        = "logs.crawler-not-found"
 )
