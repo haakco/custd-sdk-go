@@ -85,6 +85,17 @@ type AdminSiteSearchSource struct {
 	Days        int                     `json:"days"`
 	ImportedAt  *time.Time              `json:"importedAt,omitempty"`
 	Totals      AdminSiteSearchTotals   `json:"totals"`
+	// Previous are the totals for the same number of days before the window, when there are any.
+	Previous *AdminSiteSearchTotals `json:"previous,omitempty"`
+	// Daily is each imported day's totals, oldest first; Bing's are week buckets.
+	Daily []AdminSiteSearchDay `json:"daily"`
+}
+
+// AdminSiteSearchDay is one provider's totals for one imported day (YYYY-MM-DD).
+type AdminSiteSearchDay struct {
+	Day         string `json:"day"`
+	Clicks      int64  `json:"clicks"`
+	Impressions int64  `json:"impressions"`
 }
 
 // AdminSiteSearchRow is one page URL or query text and its totals.
@@ -102,6 +113,9 @@ type AdminSiteSearchPerformance struct {
 	Sources     []AdminSiteSearchSource     `json:"sources"`
 	TopPages    []AdminSiteSearchRow        `json:"topPages"`
 	TopQueries  []AdminSiteSearchRow        `json:"topQueries"`
+	// StrikingDistance are queries averaging position 5 to 20: already shown and close to the top
+	// results, so improving their page is the cheapest gain. Busiest first.
+	StrikingDistance []AdminSiteSearchRow `json:"strikingDistance"`
 }
 
 // GetSearchAccount returns which providers this Custd deployment can import from.

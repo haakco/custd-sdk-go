@@ -41,7 +41,14 @@ type AdminSiteDomainVerification struct {
 	FileContent    string `json:"fileContent"`
 }
 
-// AdminSiteDomainOwnership is the proof of control and what the last check saw.
+// AdminSiteDomainAttestation records which credential vouched for a domain, and when.
+type AdminSiteDomainAttestation struct {
+	ClientID   string    `json:"clientId"`
+	AttestedAt time.Time `json:"attestedAt"`
+}
+
+// AdminSiteDomainOwnership is the proof of control and what the last check saw. VerifiedBy is
+// "dns", "file", "attested", "parent" or "operator".
 type AdminSiteDomainOwnership struct {
 	Verified         bool                        `json:"verified"`
 	VerifiedAt       *time.Time                  `json:"verifiedAt,omitempty"`
@@ -49,6 +56,12 @@ type AdminSiteDomainOwnership struct {
 	LastCheckedAt    *time.Time                  `json:"lastCheckedAt,omitempty"`
 	LastCheckFailure string                      `json:"lastCheckFailure,omitempty"`
 	Instructions     AdminSiteDomainVerification `json:"instructions"`
+	// VerifiedViaDomainUUID is the parent domain whose verification covers this one, set only
+	// when VerifiedBy is "parent".
+	VerifiedViaDomainUUID string `json:"verifiedViaDomainUuid,omitempty"`
+	// Attestation is a broker's standing attestation of this domain. It verifies the domain
+	// unless the domain's own DNS or file proof already does.
+	Attestation *AdminSiteDomainAttestation `json:"attestation,omitempty"`
 }
 
 // AdminSiteAuditSummary counts the findings of one audit run by severity.
@@ -156,6 +169,23 @@ func (c *SiteDomainAdminClient) Verify(ctx context.Context, domainUUID string) (
 	return &domain, err
 }
 
+// Attest records that the calling credential has proven the tenant controls the domain, which
+// verifies it (VerifiedBy "attested") and its subdomains. Only a site-bound credential holding
+// site_domains.attest may attest, and only its own Site's domains.
+func (c *SiteDomainAdminClient) Attest(ctx context.Context, domainUUID string) (*AdminSiteDomain, error) {
+	var domain AdminSiteDomain
+	err := c.request(ctx, http.MethodPost, siteDomainAttestationPath(domainUUID), nil, &domain)
+	return &domain, err
+}
+
+// Unattest withdraws the calling credential's attestation. The domain stays verified only by its
+// own proof or a verified parent.
+func (c *SiteDomainAdminClient) Unattest(ctx context.Context, domainUUID string) (*AdminSiteDomain, error) {
+	var domain AdminSiteDomain
+	err := c.request(ctx, http.MethodDelete, siteDomainAttestationPath(domainUUID), nil, &domain)
+	return &domain, err
+}
+
 // RequestAudit asks for the domain to be audited on the scheduler's next tick. An
 // unverified domain is refused with a 409 carrying SiteDomainNotVerifiedCode.
 func (c *SiteDomainAdminClient) RequestAudit(ctx context.Context, domainUUID string) (*AdminSiteDomain, error) {
@@ -189,4 +219,8 @@ func (c *SiteDomainAdminClient) request(ctx context.Context, method, path string
 
 func siteDomainPath(domainUUID string) string {
 	return siteDomainsPath + "/" + url.PathEscape(domainUUID)
+}
+
+func siteDomainAttestationPath(domainUUID string) string {
+	return siteDomainPath(domainUUID) + "/attestation"
 }

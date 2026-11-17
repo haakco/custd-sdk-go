@@ -1,0 +1,370 @@
+{
+  "alertDestination": {
+    "siteUuid": "0198a3b2-0000-7000-8000-000000000100",
+    "emailRecipient": "owner@example.com"
+  },
+  "domain": {
+    "domainUuid": "0198a3b2-0000-7000-8000-000000000001",
+    "siteUuid": "0198a3b2-0000-7000-8000-000000000100",
+    "host": "example.com",
+    "ownership": {
+      "verified": true,
+      "verifiedAt": "2026-11-10T09:00:00Z",
+      "verifiedBy": "attested",
+      "lastCheckedAt": "2026-11-10T09:00:00Z",
+      "instructions": {
+        "dnsRecordName": "_custd-verification.example.com",
+        "dnsRecordValue": "custd-verification=8f1c2d",
+        "fileUrl": "https://example.com/.well-known/custd-verification.txt",
+        "fileContent": "custd-verification=8f1c2d"
+      },
+      "attestation": {
+        "clientId": "awthy-site-broker",
+        "attestedAt": "2026-11-10T09:00:00Z"
+      }
+    },
+    "audit": {
+      "requestedAt": "2026-11-17T06:00:00Z",
+      "lastAuditedAt": "2026-11-17T06:10:00Z",
+      "lastSummary": {
+        "high": 1,
+        "medium": 2,
+        "low": 3,
+        "info": 0,
+        "pagesChecked": 40,
+        "requests": 52,
+        "truncated": false
+      }
+    },
+    "checks": {
+      "mode": "warm",
+      "uptime": {
+        "status": "down",
+        "lastCheckedAt": "2026-11-16T08:10:00Z",
+        "lastFailure": "connection refused",
+        "consecutiveFailures": 3
+      },
+      "tls": {
+        "lastCheckedAt": "2026-11-16T06:00:00Z",
+        "validTo": "2027-01-30T00:00:00Z",
+        "issuer": "R11"
+      },
+      "warming": {
+        "lastWarmedAt": "2026-11-16T08:09:00Z",
+        "unwarmedResponseMs": 840,
+        "warmedResponseMs": 210
+      },
+      "openIncident": {
+        "incidentUuid": "0198a3b2-0000-7000-8000-00000000000a",
+        "startedAt": "2026-11-16T08:00:00Z",
+        "openedAt": "2026-11-16T08:05:00Z",
+        "cause": "connection refused",
+        "failedChecks": 3
+      }
+    },
+    "createdAt": "2026-11-10T08:55:00Z"
+  },
+  "domainList": {
+    "domains": [
+      {
+        "domainUuid": "0198a3b2-0000-7000-8000-000000000001",
+        "siteUuid": "0198a3b2-0000-7000-8000-000000000100",
+        "host": "example.com",
+        "ownership": {
+          "verified": true,
+          "verifiedAt": "2026-11-10T09:00:00Z",
+          "verifiedBy": "attested",
+          "lastCheckedAt": "2026-11-10T09:00:00Z",
+          "instructions": {
+            "dnsRecordName": "_custd-verification.example.com",
+            "dnsRecordValue": "custd-verification=8f1c2d",
+            "fileUrl": "https://example.com/.well-known/custd-verification.txt",
+            "fileContent": "custd-verification=8f1c2d"
+          },
+          "attestation": {
+            "clientId": "awthy-site-broker",
+            "attestedAt": "2026-11-10T09:00:00Z"
+          }
+        },
+        "audit": {
+          "requestedAt": "2026-11-17T06:00:00Z",
+          "lastAuditedAt": "2026-11-17T06:10:00Z",
+          "lastSummary": {
+            "high": 1,
+            "medium": 2,
+            "low": 3,
+            "info": 0,
+            "pagesChecked": 40,
+            "requests": 52,
+            "truncated": false
+          }
+        },
+        "checks": {
+          "mode": "warm",
+          "uptime": {
+            "status": "down",
+            "lastCheckedAt": "2026-11-16T08:10:00Z",
+            "lastFailure": "connection refused",
+            "consecutiveFailures": 3
+          },
+          "tls": {
+            "lastCheckedAt": "2026-11-16T06:00:00Z",
+            "validTo": "2027-01-30T00:00:00Z",
+            "issuer": "R11"
+          },
+          "warming": {
+            "lastWarmedAt": "2026-11-16T08:09:00Z",
+            "unwarmedResponseMs": 840,
+            "warmedResponseMs": 210
+          },
+          "openIncident": {
+            "incidentUuid": "0198a3b2-0000-7000-8000-00000000000a",
+            "startedAt": "2026-11-16T08:00:00Z",
+            "openedAt": "2026-11-16T08:05:00Z",
+            "cause": "connection refused",
+            "failedChecks": 3
+          }
+        },
+        "createdAt": "2026-11-10T08:55:00Z"
+      },
+      {
+        "domainUuid": "0198a3b2-0000-7000-8000-000000000002",
+        "siteUuid": "0198a3b2-0000-7000-8000-000000000100",
+        "host": "www.example.com",
+        "ownership": {
+          "verified": false,
+          "lastCheckedAt": "2026-11-17T07:00:00Z",
+          "lastCheckFailure": "no TXT record found",
+          "instructions": {
+            "dnsRecordName": "_custd-verification.example.com",
+            "dnsRecordValue": "custd-verification=8f1c2d",
+            "fileUrl": "https://example.com/.well-known/custd-verification.txt",
+            "fileContent": "custd-verification=8f1c2d"
+          }
+        },
+        "audit": {},
+        "checks": {
+          "mode": "uptime",
+          "uptime": {
+            "status": "unknown",
+            "consecutiveFailures": 0
+          },
+          "tls": {},
+          "warming": {}
+        },
+        "createdAt": "2026-11-17T06:59:00Z"
+      }
+    ]
+  },
+  "findingList": {
+    "findings": [
+      {
+        "findingUuid": "0198a3b2-0000-7000-8000-000000000020",
+        "rule": "title.missing",
+        "severity": "high",
+        "title": "Page has no title",
+        "url": "https://example.com/about",
+        "evidence": "\u003ctitle\u003e absent",
+        "fix": "Add a unique \u003ctitle\u003e element.",
+        "source": "https://developers.google.com/search/docs/appearance/title-link",
+        "history": {
+          "firstSeenAt": "2026-11-10T09:10:00Z",
+          "lastSeenAt": "2026-11-17T06:10:00Z",
+          "fixed": false
+        }
+      },
+      {
+        "findingUuid": "0198a3b2-0000-7000-8000-000000000021",
+        "rule": "uptime.down",
+        "severity": "high",
+        "title": "Site is down",
+        "url": "https://example.com/",
+        "evidence": "connection refused",
+        "fix": "Restore the server.",
+        "source": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status",
+        "history": {
+          "firstSeenAt": "2026-11-12T01:05:00Z",
+          "lastSeenAt": "2026-11-12T01:20:00Z",
+          "fixed": true,
+          "fixedAt": "2026-11-12T01:20:00Z"
+        }
+      }
+    ]
+  },
+  "incidentList": {
+    "incidents": [
+      {
+        "incidentUuid": "0198a3b2-0000-7000-8000-00000000000a",
+        "startedAt": "2026-11-16T08:00:00Z",
+        "openedAt": "2026-11-16T08:05:00Z",
+        "cause": "connection refused",
+        "failedChecks": 3
+      },
+      {
+        "incidentUuid": "0198a3b2-0000-7000-8000-000000000009",
+        "startedAt": "2026-11-12T01:00:00Z",
+        "openedAt": "2026-11-12T01:05:00Z",
+        "resolvedAt": "2026-11-12T01:20:00Z",
+        "cause": "status 503",
+        "failedChecks": 4
+      }
+    ]
+  },
+  "pendingDomain": {
+    "domainUuid": "0198a3b2-0000-7000-8000-000000000002",
+    "siteUuid": "0198a3b2-0000-7000-8000-000000000100",
+    "host": "www.example.com",
+    "ownership": {
+      "verified": false,
+      "lastCheckedAt": "2026-11-17T07:00:00Z",
+      "lastCheckFailure": "no TXT record found",
+      "instructions": {
+        "dnsRecordName": "_custd-verification.example.com",
+        "dnsRecordValue": "custd-verification=8f1c2d",
+        "fileUrl": "https://example.com/.well-known/custd-verification.txt",
+        "fileContent": "custd-verification=8f1c2d"
+      }
+    },
+    "audit": {},
+    "checks": {
+      "mode": "uptime",
+      "uptime": {
+        "status": "unknown",
+        "consecutiveFailures": 0
+      },
+      "tls": {},
+      "warming": {}
+    },
+    "createdAt": "2026-11-17T06:59:00Z"
+  },
+  "parentVerifiedDomain": {
+    "domainUuid": "0198a3b2-0000-7000-8000-000000000003",
+    "siteUuid": "0198a3b2-0000-7000-8000-000000000100",
+    "host": "shop.example.com",
+    "ownership": {
+      "verified": true,
+      "verifiedAt": "2026-11-10T09:00:00Z",
+      "verifiedBy": "parent",
+      "lastCheckedAt": "2026-11-10T09:00:00Z",
+      "instructions": {
+        "dnsRecordName": "_custd-verification.shop.example.com",
+        "dnsRecordValue": "custd-verification=8f1c2d",
+        "fileUrl": "https://shop.example.com/.well-known/custd-verification.txt",
+        "fileContent": "custd-verification=8f1c2d"
+      },
+      "verifiedViaDomainUuid": "0198a3b2-0000-7000-8000-000000000001"
+    },
+    "audit": {},
+    "checks": {
+      "mode": "uptime",
+      "uptime": {
+        "status": "unknown",
+        "consecutiveFailures": 0
+      },
+      "tls": {},
+      "warming": {}
+    },
+    "createdAt": "2026-11-10T08:58:00Z"
+  },
+  "searchAccount": {
+    "googleConfigured": true,
+    "googleServiceAccountEmail": "custd-search@custd.iam.gserviceaccount.com",
+    "bingConfigured": false
+  },
+  "searchConnection": {
+    "provider": "google",
+    "property": "sc-domain:example.com",
+    "status": "active",
+    "importedThrough": "2026-11-15",
+    "lastImportedAt": "2026-11-16T03:00:00Z"
+  },
+  "searchPerformance": {
+    "domainUuid": "0198a3b2-0000-7000-8000-000000000001",
+    "days": 28,
+    "connections": [
+      {
+        "provider": "google",
+        "property": "sc-domain:example.com",
+        "status": "active",
+        "importedThrough": "2026-11-15",
+        "lastImportedAt": "2026-11-16T03:00:00Z"
+      }
+    ],
+    "sources": [
+      {
+        "provider": "google",
+        "source": "Google Search Console",
+        "granularity": "daily",
+        "from": "2026-11-15",
+        "to": "2026-11-15",
+        "days": 1,
+        "importedAt": "2026-11-16T03:00:00Z",
+        "totals": {
+          "clicks": 4,
+          "impressions": 200,
+          "ctr": 0.02,
+          "position": 8.5
+        },
+        "previous": {
+          "clicks": 2,
+          "impressions": 100,
+          "ctr": 0.02
+        },
+        "daily": [
+          {
+            "day": "2026-11-15",
+            "clicks": 4,
+            "impressions": 200
+          }
+        ]
+      }
+    ],
+    "topPages": [
+      {
+        "provider": "google",
+        "key": "https://example.com/",
+        "totals": {
+          "clicks": 4,
+          "impressions": 200,
+          "ctr": 0.02,
+          "position": 8.5
+        }
+      }
+    ],
+    "topQueries": [
+      {
+        "provider": "google",
+        "key": "example widgets",
+        "totals": {
+          "clicks": 4,
+          "impressions": 200,
+          "ctr": 0.02,
+          "position": 8.5
+        }
+      }
+    ],
+    "strikingDistance": [
+      {
+        "provider": "google",
+        "key": "cheap widgets",
+        "totals": {
+          "clicks": 0,
+          "impressions": 40,
+          "ctr": 0,
+          "position": 11.2
+        }
+      }
+    ]
+  },
+  "notVerifiedProblem": {
+    "type": "conflict",
+    "title": "Conflict",
+    "status": 409,
+    "detail": "site domain: verify the domain before asking for an audit",
+    "code": "site_domain_not_verified",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  }
+}

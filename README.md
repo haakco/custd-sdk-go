@@ -193,6 +193,14 @@ TXT record and well-known file instructions. Auditing an unverified domain
 returns a `*RequestError` whose `Problem.Code` is `SiteDomainNotVerifiedCode`.
 A system administrator names the tenant with `ClientConfig.ActingCompanySlug`.
 
+`Ownership.VerifiedBy` says how control was proven: `dns`, `file`, `attested`,
+`parent` (a verified parent domain, named by `VerifiedViaDomainUUID`) or
+`operator`. A site-bound broker credential holding `site_domains.attest` that
+has proven control itself calls `Attest` to verify the domain and its
+subdomains, and `Unattest` to withdraw; `Ownership.Attestation` shows the
+standing attestation. A finding's `Rule` is one of the `SiteRule*` constants;
+key client-side fixes on those, never on the title.
+
 Each domain also carries `Checks`: its uptime status, last check, certificate
 expiry and warming measurements, and any open outage. `SetCheckMode` chooses
 `AdminSiteCheckModeUptime` (the default), `AdminSiteCheckModeWarm` (adds one
@@ -208,7 +216,9 @@ deployment can import from and the Google service account email to add as a
 the client's `APIKey`, which is never returned); a provider the deployment cannot
 import from returns a 409 with `SiteSearchNotConfiguredCode`.
 `GetSearchPerformance(ctx, domainUUID, days)` returns each connection's import
-state, per-provider totals and the top pages and queries (`days` 0 means 28).
+state, per-provider totals with the previous period (`Previous`) and each day
+(`Daily`), the top pages and queries, and `StrikingDistance` queries averaging
+position 5 to 20 (`days` 0 means 28).
 `DisconnectSearch` removes a connection and its imported numbers.
 
 ## Schema Admin Helpers
