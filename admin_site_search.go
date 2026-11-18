@@ -158,6 +158,21 @@ func (c *SiteDomainAdminClient) DisconnectSearch(
 	return c.request(ctx, http.MethodDelete, siteSearchConnectionPath(domainUUID, provider), nil, nil)
 }
 
+// SiteSearchRetryNotFailingCode is the problem code a 409 carries when RetrySearchImport names a
+// connection that is not failing: connect a revoked one again, and a pending or active one is
+// already due on schedule.
+const SiteSearchRetryNotFailingCode = "site_search_retry_not_failing"
+
+// RetrySearchImport makes a failing provider import due on the scheduler's next tick and returns
+// the connection as it stands.
+func (c *SiteDomainAdminClient) RetrySearchImport(
+	ctx context.Context, domainUUID string, provider AdminSiteSearchProvider,
+) (*AdminSiteSearchConnection, error) {
+	var connection AdminSiteSearchConnection
+	err := c.request(ctx, http.MethodPost, siteSearchConnectionPath(domainUUID, provider)+"/retry", nil, &connection)
+	return &connection, err
+}
+
 func siteSearchConnectionPath(domainUUID string, provider AdminSiteSearchProvider) string {
 	return siteDomainPath(domainUUID) + "/search/" + url.PathEscape(string(provider))
 }

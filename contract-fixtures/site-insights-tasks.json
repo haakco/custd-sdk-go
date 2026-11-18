@@ -1,0 +1,63 @@
+{
+  "retryNotFailingProblem": {
+    "type": "conflict",
+    "title": "Conflict",
+    "status": 409,
+    "detail": "site search: only a failing connection can be retried now; reconnect a revoked one",
+    "code": "site_search_retry_not_failing",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  },
+  "searchConnectionRetried": {
+    "provider": "google",
+    "property": "sc-domain:shop.example.com",
+    "status": "failing",
+    "importedThrough": "2026-11-14",
+    "lastImportedAt": "2026-11-17T04:00:00Z",
+    "lastFailure": "search console: quota exceeded"
+  },
+  "tasks": {
+    "generatedAt": "2026-11-18T12:00:00Z",
+    "tasks": [
+      {
+        "taskName": "site-checks",
+        "registered": true,
+        "enabled": true,
+        "nextRunAt": "2026-11-18T12:01:00Z",
+        "lastRunAt": "2026-11-18T12:00:00Z",
+        "lastRunStatus": "succeeded",
+        "backlog": [
+          {
+            "name": "due_checks",
+            "count": 3,
+            "meaning": "Domain checks due now."
+          }
+        ]
+      },
+      {
+        "taskName": "site-search-imports",
+        "registered": true,
+        "enabled": true,
+        "lastRunAt": "2026-11-18T11:00:00Z",
+        "lastRunStatus": "failed",
+        "lastFailureAt": "2026-11-18T11:00:00Z",
+        "lastFailure": "search console: quota exceeded",
+        "backlog": [
+          {
+            "name": "failing_connections",
+            "count": 1,
+            "meaning": "Search connections retrying after a failure."
+          }
+        ]
+      },
+      {
+        "taskName": "site-web-graph",
+        "registered": false,
+        "enabled": false,
+        "backlog": []
+      }
+    ]
+  }
+}

@@ -2,6 +2,7 @@ package custd
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"testing"
 )
@@ -17,16 +18,21 @@ func TestSiteSearchPoolSettingRoutesAndBodies(t *testing.T) {
 	ctx := context.Background()
 
 	setting, err := domains.GetSearchPool(ctx)
-	if err != nil || setting.Joined || setting.JoinedAt != nil || setting.MinContributors != AdminSiteSearchPoolMinContributors {
+	if err != nil || setting.Joined || setting.JoinedAt != nil || setting.MinContributors != AdminSiteSearchPoolMinContributors ||
+		setting.TermsVersion != AdminSiteSearchPoolTermsVersion || setting.AcceptedTermsVersion != "" {
 		t.Fatalf("setting = %+v, %v", setting, err)
 	}
+	if _, err := domains.SetSearchPool(ctx, true, " "); !errors.Is(err, ErrSearchPoolTermsVersionRequired) {
+		t.Fatalf("join without terms err = %v", err)
+	}
 	doer.body = siteSearchPoolFixture(t, "settingJoined")
-	joined, err := domains.SetSearchPool(ctx, true)
-	if err != nil || !joined.Joined || joined.JoinedAt == nil || joined.WindowDays != AdminSiteSearchPoolWindowDays {
+	joined, err := domains.SetSearchPool(ctx, true, setting.TermsVersion)
+	if err != nil || !joined.Joined || joined.JoinedAt == nil || joined.WindowDays != AdminSiteSearchPoolWindowDays ||
+		joined.AcceptedTermsVersion != AdminSiteSearchPoolTermsVersion {
 		t.Fatalf("joined = %+v, %v", joined, err)
 	}
 	doer.body = siteSearchPoolFixture(t, "settingNotJoined")
-	if _, err := domains.SetSearchPool(ctx, false); err != nil {
+	if _, err := domains.SetSearchPool(ctx, false, "ignored"); err != nil {
 		t.Fatal(err)
 	}
 	pool := siteDomainsTestBase + "/search-pool"
@@ -34,10 +40,10 @@ func TestSiteSearchPoolSettingRoutesAndBodies(t *testing.T) {
 	assertSiteBody(t, doer.requests[1], siteSearchPoolFixture(t, "joinRequest"))
 	assertSiteBody(t, doer.requests[2], siteSearchPoolFixture(t, "leaveRequest"))
 	doer.status, doer.body = http.StatusForbidden, siteSearchPoolFixture(t, "siteBoundProblem")
-	_, err = domains.SetSearchPool(ctx, true)
+	_, err = domains.SetSearchPool(ctx, true, AdminSiteSearchPoolTermsVersion)
 	assertSiteProblemCode(t, err, http.StatusForbidden, SiteSearchPoolSiteBoundCode)
 	doer.status, doer.body = http.StatusBadRequest, siteSearchPoolFixture(t, "settingInvalidProblem")
-	_, err = domains.SetSearchPool(ctx, true)
+	_, err = domains.SetSearchPool(ctx, true, AdminSiteSearchPoolTermsVersion)
 	assertSiteProblemCode(t, err, http.StatusBadRequest, SiteSearchPoolSettingInvalidCode)
 }
 

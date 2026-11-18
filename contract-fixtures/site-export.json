@@ -1,0 +1,688 @@
+{
+  "export": {
+    "schema": "custd.site-insights-export.v1",
+    "exportedAt": "2026-11-18T11:00:00Z",
+    "domain": {
+      "domainUuid": "0198a3b2-0000-7000-8000-000000000001",
+      "siteUuid": "0198a3b2-0000-7000-8000-000000000100",
+      "host": "example.com",
+      "ownership": {
+        "verified": true,
+        "verifiedAt": "2026-11-10T09:00:00Z",
+        "verifiedBy": "attested",
+        "lastCheckedAt": "2026-11-10T09:00:00Z",
+        "instructions": {
+          "dnsRecordName": "_custd-verification.example.com",
+          "dnsRecordValue": "custd-verification=8f1c2d",
+          "fileUrl": "https://example.com/.well-known/custd-verification.txt",
+          "fileContent": "custd-verification=8f1c2d"
+        },
+        "attestation": {
+          "clientId": "awthy-site-broker",
+          "attestedAt": "2026-11-10T09:00:00Z"
+        }
+      },
+      "audit": {
+        "requestedAt": "2026-11-17T06:00:00Z",
+        "lastAuditedAt": "2026-11-17T06:10:00Z",
+        "lastSummary": {
+          "high": 1,
+          "medium": 2,
+          "low": 3,
+          "info": 0,
+          "pagesChecked": 40,
+          "requests": 52,
+          "truncated": false
+        }
+      },
+      "checks": {
+        "mode": "warm",
+        "uptime": {
+          "status": "down",
+          "lastCheckedAt": "2026-11-16T08:10:00Z",
+          "lastFailure": "connection refused",
+          "consecutiveFailures": 3
+        },
+        "tls": {
+          "lastCheckedAt": "2026-11-16T06:00:00Z",
+          "validTo": "2027-01-30T00:00:00Z",
+          "issuer": "R11"
+        },
+        "warming": {
+          "lastWarmedAt": "2026-11-16T08:09:00Z",
+          "unwarmedResponseMs": 840,
+          "warmedResponseMs": 210
+        },
+        "openIncident": {
+          "incidentUuid": "0198a3b2-0000-7000-8000-00000000000a",
+          "startedAt": "2026-11-16T08:00:00Z",
+          "openedAt": "2026-11-16T08:05:00Z",
+          "cause": "connection refused",
+          "failedChecks": 3
+        }
+      },
+      "createdAt": "2026-11-10T08:55:00Z"
+    },
+    "monitoring": {
+      "findings": {
+        "findings": [
+          {
+            "findingUuid": "0198a3b2-0000-7000-8000-000000000020",
+            "rule": "title.missing",
+            "severity": "high",
+            "title": "Page has no title",
+            "url": "https://example.com/about",
+            "evidence": "<title> absent",
+            "fix": "Add a unique <title> element.",
+            "source": "https://developers.google.com/search/docs/appearance/title-link",
+            "remedy": {
+              "kind": "content",
+              "element": "<title>"
+            },
+            "history": {
+              "firstSeenAt": "2026-11-10T09:10:00Z",
+              "lastSeenAt": "2026-11-17T06:10:00Z",
+              "fixed": false
+            },
+            "recheckable": true
+          },
+          {
+            "findingUuid": "0198a3b2-0000-7000-8000-000000000021",
+            "rule": "uptime.down",
+            "severity": "high",
+            "title": "Site is down",
+            "url": "https://example.com/",
+            "evidence": "connection refused",
+            "fix": "Restore the server.",
+            "source": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status",
+            "remedy": {
+              "kind": "server",
+              "element": "the web server"
+            },
+            "history": {
+              "firstSeenAt": "2026-11-12T01:05:00Z",
+              "lastSeenAt": "2026-11-12T01:20:00Z",
+              "fixed": true,
+              "fixedAt": "2026-11-12T01:20:00Z"
+            },
+            "recheckable": false
+          }
+        ]
+      },
+      "findingRows": 2,
+      "incidents": {
+        "incidents": [
+          {
+            "incidentUuid": "0198a3b2-0000-7000-8000-00000000000a",
+            "startedAt": "2026-11-16T08:00:00Z",
+            "openedAt": "2026-11-16T08:05:00Z",
+            "cause": "connection refused",
+            "failedChecks": 3
+          },
+          {
+            "incidentUuid": "0198a3b2-0000-7000-8000-000000000009",
+            "startedAt": "2026-11-12T01:00:00Z",
+            "openedAt": "2026-11-12T01:05:00Z",
+            "resolvedAt": "2026-11-12T01:20:00Z",
+            "cause": "status 503",
+            "failedChecks": 4
+          }
+        ]
+      },
+      "uptime": {
+        "domainUuid": "domain-1",
+        "generatedAt": "2026-11-17T00:00:00Z",
+        "responseDays": 7,
+        "windows": {
+          "last24h": {
+            "checks": 0,
+            "upChecks": 0
+          },
+          "last7d": {
+            "checks": 10,
+            "upChecks": 9,
+            "upPercent": 90
+          },
+          "last30d": {
+            "checks": 0,
+            "upChecks": 0
+          }
+        },
+        "days": [
+          {
+            "date": "2026-11-12",
+            "checks": 0,
+            "upChecks": 0
+          }
+        ],
+        "hours": [
+          {
+            "hourStart": "2026-11-12T00:00:00Z",
+            "checks": 1,
+            "upChecks": 0
+          }
+        ]
+      },
+      "lighthouse": [
+        {
+          "domainUuid": "domain-1",
+          "days": 7,
+          "url": "https://example.com/",
+          "runs": [
+            {
+              "profile": "desktop",
+              "observedAt": "2026-11-15T00:00:00Z",
+              "outcome": "success",
+              "url": "https://example.com/",
+              "durationMs": 4200,
+              "toolVersion": "13",
+              "scores": {
+                "performance": 83,
+                "seo": 95
+              },
+              "metrics": {
+                "largestContentfulPaintMs": 1200,
+                "cumulativeLayoutShift": 0.01
+              }
+            },
+            {
+              "profile": "mobile",
+              "observedAt": "2026-11-15T00:00:00Z",
+              "outcome": "failed",
+              "failure": "timeout",
+              "url": "https://example.com/",
+              "durationMs": 4200,
+              "toolVersion": "13",
+              "scores": {},
+              "metrics": {}
+            }
+          ],
+          "pages": []
+        }
+      ]
+    },
+    "search": {
+      "rankings": {
+        "source": "active",
+        "pool": "joined",
+        "from": "2026-11-13",
+        "to": "2026-11-15",
+        "maxKeywords": 50,
+        "keywords": [
+          {
+            "keywordUuid": "d3d94468-02a4-4b5e-8a6f-1c2b3d4e5f55",
+            "keyword": "pricing tool",
+            "country": "zaf",
+            "device": "mobile",
+            "status": "active",
+            "notifyPosition": 10,
+            "createdAt": "2026-11-12T10:00:00Z",
+            "latest": {
+              "day": "2026-11-15",
+              "state": "ranking",
+              "rankingUrl": "https://example.com/pricing",
+              "position": 7.4,
+              "clicks": 3,
+              "impressions": 120
+            },
+            "observations": [
+              {
+                "day": "2026-11-13",
+                "state": "no_data",
+                "clicks": 0,
+                "impressions": 0
+              },
+              {
+                "day": "2026-11-14",
+                "state": "not_ranking",
+                "clicks": 0,
+                "impressions": 0
+              },
+              {
+                "day": "2026-11-15",
+                "state": "ranking",
+                "rankingUrl": "https://example.com/pricing",
+                "position": 7.4,
+                "clicks": 3,
+                "impressions": 120
+              }
+            ],
+            "pool": {
+              "demandBand": "10k_100k",
+              "positions": {
+                "top3": 35,
+                "top10": 40,
+                "top20": 15,
+                "beyond20": 10
+              }
+            }
+          },
+          {
+            "keywordUuid": "6512bd43-d9ca-46a1-b2c3-d4e5f6a7b866",
+            "keyword": "seo audit",
+            "country": "all",
+            "device": "all",
+            "status": "paused",
+            "notifyPosition": 20,
+            "createdAt": "2026-11-12T10:00:00Z",
+            "latest": {
+              "day": "2026-11-15",
+              "state": "no_data",
+              "clicks": 0,
+              "impressions": 0
+            },
+            "observations": [
+              {
+                "day": "2026-11-13",
+                "state": "no_data",
+                "clicks": 0,
+                "impressions": 0
+              },
+              {
+                "day": "2026-11-14",
+                "state": "no_data",
+                "clicks": 0,
+                "impressions": 0
+              },
+              {
+                "day": "2026-11-15",
+                "state": "no_data",
+                "clicks": 0,
+                "impressions": 0
+              }
+            ]
+          }
+        ]
+      },
+      "inspections": {
+        "inspections": [
+          {
+            "inspectionUuid": "0198a3b2-0000-7000-8000-000000000050",
+            "url": "https://example.com/plans",
+            "status": "done",
+            "requestedAt": "2026-11-17T08:00:00Z",
+            "inspectedAt": "2026-11-17T08:05:00Z",
+            "verdict": "PASS",
+            "coverageState": "Submitted and indexed",
+            "indexingState": "INDEXING_ALLOWED",
+            "robotsTxtState": "ALLOWED",
+            "pageFetchState": "SUCCESSFUL",
+            "lastCrawlAt": "2026-11-15T03:00:00Z",
+            "googleCanonical": "https://example.com/plans",
+            "userCanonical": "https://example.com/plans",
+            "crawledAs": "MOBILE",
+            "resultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:example.com"
+          },
+          {
+            "inspectionUuid": "0198a3b2-0000-7000-8000-000000000051",
+            "url": "https://example.com/new",
+            "status": "done",
+            "requestedAt": "2026-11-17T08:00:00Z",
+            "inspectedAt": "2026-11-17T08:05:00Z",
+            "verdict": "NEUTRAL",
+            "coverageState": "URL is unknown to Google"
+          },
+          {
+            "inspectionUuid": "0198a3b2-0000-7000-8000-000000000052",
+            "url": "https://example.com/old",
+            "status": "failed",
+            "requestedAt": "2026-11-17T08:00:00Z",
+            "inspectedAt": "2026-11-17T08:05:00Z",
+            "failure": "Google answered HTTP 403"
+          }
+        ],
+        "dailyLimit": 200,
+        "usedToday": 3
+      },
+      "indexNow": {
+        "enabled": true,
+        "key": "3f0c8a1d2b7e4c6f9a0b1c2d3e4f5a6b",
+        "keyLocation": "https://example.com/3f0c8a1d2b7e4c6f9a0b1c2d3e4f5a6b.txt",
+        "verified": true,
+        "verifiedAt": "2026-11-17T07:00:00Z",
+        "dailyUrlLimit": 1000,
+        "urlsToday": 3,
+        "submissions": [
+          {
+            "submissionUuid": "0198a3b2-0000-7000-8000-000000000060",
+            "status": "queued",
+            "urls": [
+              "https://example.com/plans",
+              "https://example.com/about"
+            ],
+            "requestedAt": "2026-11-17T08:00:00Z"
+          },
+          {
+            "submissionUuid": "0198a3b2-0000-7000-8000-000000000061",
+            "status": "accepted",
+            "urls": [
+              "https://example.com/"
+            ],
+            "providerStatus": 202,
+            "requestedAt": "2026-11-17T07:10:00Z",
+            "submittedAt": "2026-11-17T07:11:00Z"
+          },
+          {
+            "submissionUuid": "0198a3b2-0000-7000-8000-000000000062",
+            "status": "failed",
+            "urls": [
+              "https://example.com/old"
+            ],
+            "failure": "IndexNow could not be reached after 3 attempts",
+            "requestedAt": "2026-11-17T06:10:00Z"
+          }
+        ]
+      },
+      "metricRows": 2
+    },
+    "reports": {
+      "savedReports": [
+        {
+          "reportUuid": "c9f0f895-fb98-4b91-a2f1-2b0d6e3c5a33",
+          "name": "November client summary",
+          "template": "executive",
+          "days": 14,
+          "generatedAt": "2026-11-17T08:00:00Z",
+          "createdAt": "2026-11-17T08:00:00Z",
+          "liveShares": 1,
+          "report": {
+            "host": "example.com",
+            "generatedAt": "2026-11-17T08:00:00Z",
+            "template": "executive",
+            "uptime": {
+              "status": "up",
+              "responseMs": 180,
+              "monitoredSince": "2026-08-01T00:00:00Z",
+              "windows": {
+                "last24h": {
+                  "checks": 288,
+                  "upChecks": 288,
+                  "upPercent": 100
+                },
+                "last7d": {
+                  "checks": 2016,
+                  "upChecks": 2014,
+                  "upPercent": 99.9
+                },
+                "last30d": {
+                  "checks": 0,
+                  "upChecks": 0
+                }
+              },
+              "days": []
+            },
+            "certificate": {
+              "validTo": "2027-01-20T00:00:00Z",
+              "issuer": "Let's Encrypt",
+              "problem": false
+            },
+            "speed": [
+              {
+                "profile": "desktop",
+                "observedAt": "2026-11-17T05:00:00Z",
+                "scores": {
+                  "performance": 88,
+                  "seo": 100
+                },
+                "metrics": {}
+              }
+            ],
+            "search": {
+              "days": 14,
+              "connected": true,
+              "sources": [
+                {
+                  "provider": "google",
+                  "source": "search_console",
+                  "granularity": "daily",
+                  "from": "2026-11-02",
+                  "to": "2026-11-15",
+                  "days": 14,
+                  "importedAt": "2026-11-17T03:00:00Z",
+                  "totals": {
+                    "clicks": 120,
+                    "impressions": 4000,
+                    "ctr": 0.03,
+                    "position": 8.4
+                  },
+                  "daily": []
+                }
+              ],
+              "topQueries": [],
+              "topPages": [],
+              "strikingDistance": []
+            },
+            "audit": {
+              "auditedAt": "2026-11-17T06:00:00Z",
+              "summary": {
+                "high": 1,
+                "medium": 2,
+                "low": 0,
+                "info": 0,
+                "pagesChecked": 40,
+                "requests": 52,
+                "truncated": false
+              },
+              "findings": [
+                {
+                  "severity": "high",
+                  "title": "The page has no title",
+                  "url": "https://example.com/about",
+                  "fix": "Add a title element.",
+                  "firstSeenAt": "2026-11-10T06:00:00Z"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "campaignLinks": {
+        "links": [
+          {
+            "linkUuid": "0198a3b2-0000-7000-8000-000000000060",
+            "url": "https://example.com/plans?plan=team",
+            "source": "newsletter",
+            "medium": "email",
+            "campaign": "spring_sale",
+            "term": "hosting_plans",
+            "content": "header_link",
+            "taggedUrl": "https://example.com/plans?plan=team&utm_campaign=spring_sale&utm_content=header_link&utm_medium=email&utm_source=newsletter&utm_term=hosting_plans",
+            "createdAt": "2026-11-18T08:00:00Z"
+          },
+          {
+            "linkUuid": "0198a3b2-0000-7000-8000-000000000061",
+            "url": "https://example.com/",
+            "source": "facebook",
+            "medium": "paid_social",
+            "campaign": "launch",
+            "term": "",
+            "content": "",
+            "taggedUrl": "https://example.com/?utm_campaign=launch&utm_medium=paid_social&utm_source=facebook",
+            "createdAt": "2026-11-15T08:00:00Z",
+            "archivedAt": "2026-11-18T06:00:00Z"
+          }
+        ],
+        "maxLinks": 500,
+        "suggestedSources": [
+          "google",
+          "bing",
+          "facebook",
+          "instagram",
+          "linkedin",
+          "x",
+          "youtube",
+          "tiktok",
+          "newsletter",
+          "partner"
+        ],
+        "suggestedMediums": [
+          "cpc",
+          "email",
+          "social",
+          "paid_social",
+          "display",
+          "referral",
+          "affiliate",
+          "qr"
+        ]
+      }
+    },
+    "site": {
+      "projectContext": {
+        "siteUuid": "0198a3b2-0000-7000-8000-000000000002",
+        "brandNames": [
+          "Example Hosting"
+        ],
+        "competitorDomains": [
+          "competitor.example"
+        ],
+        "markets": [
+          {
+            "country": "ZA",
+            "language": "en"
+          }
+        ],
+        "updatedAt": "2026-11-17T08:00:00Z"
+      },
+      "keywordLists": {
+        "siteUuid": "3c59dc04-8b0f-4a3e-8f2d-6b7c1e9a4d22",
+        "lists": [
+          {
+            "name": "Brand",
+            "keywords": [
+              "example"
+            ],
+            "createdAt": "2026-11-14T10:00:00Z",
+            "updatedAt": "2026-11-14T10:00:00Z"
+          },
+          {
+            "name": "Pricing",
+            "seedTerm": "pricing",
+            "keywords": [
+              "pricing tool",
+              "price checker",
+              "seo audit"
+            ],
+            "createdAt": "2026-11-15T10:00:00Z",
+            "updatedAt": "2026-11-17T10:00:00Z"
+          }
+        ]
+      },
+      "webDomains": {
+        "siteUuid": "3c59dc04-8b0f-4a3e-8f2d-6b7c1e9a4d22",
+        "domains": [
+          {
+            "domain": "example.com",
+            "role": "own",
+            "trancoBand": "top-10k",
+            "trancoRank": 8421,
+            "trancoListDay": "2026-11-16",
+            "sitemapStatus": "done",
+            "waybackStatus": "partial",
+            "pageCount": 412,
+            "inventoryAt": "2026-11-16T02:00:00Z",
+            "nextInventoryAt": "2026-11-23T02:00:00Z"
+          },
+          {
+            "domain": "rival.example",
+            "role": "competitor",
+            "trancoBand": "unranked",
+            "trancoListDay": "2026-11-16",
+            "sitemapStatus": "failed",
+            "waybackStatus": "done",
+            "pageCount": 96,
+            "lastFailure": "sitemap.xml answered HTTP 503",
+            "inventoryAt": "2026-11-16T02:10:00Z",
+            "nextInventoryAt": "2026-11-23T02:10:00Z"
+          },
+          {
+            "domain": "new-rival.example",
+            "role": "competitor",
+            "trancoBand": "unknown",
+            "sitemapStatus": "pending",
+            "waybackStatus": "pending",
+            "pageCount": 0,
+            "nextInventoryAt": "2026-11-18T02:00:00Z"
+          }
+        ]
+      },
+      "topicTrends": {
+        "siteUuid": "3c59dc04-8b0f-4a3e-8f2d-6b7c1e9a4d22",
+        "trends": [
+          {
+            "term": "Example",
+            "source": "brand",
+            "project": "en.wikipedia",
+            "article": "Example",
+            "status": "found",
+            "checkedAt": "2026-11-16T03:00:00Z",
+            "months": [
+              {
+                "month": "2026-09",
+                "views": 1520
+              },
+              {
+                "month": "2026-10",
+                "views": 0
+              }
+            ]
+          },
+          {
+            "term": "zebra pricing tools",
+            "source": "seed",
+            "project": "en.wikipedia",
+            "article": "",
+            "status": "no_article",
+            "checkedAt": "2026-11-16T03:00:00Z",
+            "months": []
+          },
+          {
+            "term": "keyword research",
+            "source": "seed",
+            "project": "en.wikipedia",
+            "article": "",
+            "status": "failed",
+            "lastFailure": "wikipedia answered HTTP 429",
+            "months": []
+          }
+        ]
+      }
+    }
+  },
+  "searchMetrics": {
+    "domainUuid": "8b6f0c2e-4a1d-4f3b-9c7e-2d5a6b8c9e01",
+    "offset": 0,
+    "limit": 2,
+    "total": 2,
+    "rows": [
+      {
+        "provider": "google",
+        "day": "2026-11-14",
+        "dimension": "total",
+        "key": "",
+        "clicks": 52,
+        "impressions": 2400,
+        "avgPosition": 7.1
+      },
+      {
+        "provider": "google",
+        "day": "2026-11-14",
+        "dimension": "query",
+        "key": "pricing tool",
+        "clicks": 40,
+        "impressions": 2100,
+        "avgPosition": 4.2
+      }
+    ]
+  },
+  "searchMetricsInvalidProblem": {
+    "type": "invalid",
+    "title": "Invalid Request",
+    "status": 400,
+    "detail": "site insights export: offset must be 0 or more and limit 1 to 10000",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  }
+}

@@ -1,6 +1,7 @@
 {
   "joinRequest": {
-    "joined": true
+    "joined": true,
+    "termsVersion": "2026-11-18"
   },
   "leaveRequest": {
     "joined": false
@@ -70,13 +71,16 @@
   },
   "settingJoined": {
     "joined": true,
-    "joinedAt": "2026-11-17T09:30:00Z",
+    "joinedAt": "2026-11-18T09:00:00Z",
+    "acceptedTermsVersion": "2026-11-18",
+    "termsVersion": "2026-11-18",
     "minContributors": 5,
     "minImpressions": 100,
     "windowDays": 28
   },
   "settingNotJoined": {
     "joined": false,
+    "termsVersion": "2026-11-18",
     "minContributors": 5,
     "minImpressions": 100,
     "windowDays": 28
@@ -87,6 +91,16 @@
     "status": 403,
     "detail": "search pool: a credential bound to one Site cannot read or change the tenant's search pool",
     "code": "site_search_pool_site_bound",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  },
+  "termsNotAcceptedProblem": {
+    "type": "invalid",
+    "title": "Invalid Request",
+    "status": 400,
+    "detail": "search pool: joining requires accepting the shared search pool terms; send termsVersion 2026-11-18 after reading https://custd.com/docs/terms/shared-search-pool/",
     "retryability": "none",
     "nextAction": {
       "action": "none"

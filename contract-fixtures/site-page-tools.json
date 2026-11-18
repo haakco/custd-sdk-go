@@ -787,5 +787,129 @@
   "wordingCompareRequest": {
     "first": "<p>backups servers storage plans domains support uptime security teams mail number x.</p><p>billing support billing support billing support billing support billing support number xx.</p><p>hosting mail teams security uptime support domains plans storage servers number xxx.</p><p>mail servers support mail servers support mail servers support mail number xxxx.</p><p>teams support storage billing teams support storage billing teams support number xxxxx.</p><p>security mail billing servers plans support security mail billing servers number x.</p><p>uptime servers teams plans hosting support backups security storage mail number xx.</p><p>support support support support support support support support support support number xxx.</p><p>domains mail storage security backups support hosting plans teams servers number xxxx.</p><p>plans servers billing mail security support plans servers billing mail number xxxxx.</p><p>storage support teams billing storage support teams billing storage support number x.</p><p>servers mail support servers mail support servers mail support servers number xx.</p><p>backups servers storage plans domains support uptime security teams mail number xxx.</p><p>billing support billing support billing support billing support billing support number xxxx.</p><p>hosting mail teams security uptime support domains plans storage servers number xxxxx.</p><p>mail servers support mail servers support mail servers support mail number x.</p><p>teams support storage billing teams support storage billing teams support number xx.</p><p>security mail billing servers plans support security mail billing servers number xxx.</p><p>uptime servers teams plans hosting support backups security storage mail number xxxx.</p><p>support support support support support support support support support support number xxxxx.</p><p>domains mail storage security backups support hosting plans teams servers number x.</p><p>plans servers billing mail security support plans servers billing mail number xx.</p><p>Ask us about a plan today.</p>",
     "second": "<p>backups servers storage plans domains support uptime security teams mail number x.</p><p>billing support billing support billing support billing support billing support number xx.</p><p>hosting mail teams security uptime support domains plans storage servers number xxx.</p><p>mail servers support mail servers support mail servers support mail number xxxx.</p><p>teams support storage billing teams support storage billing teams support number xxxxx.</p><p>security mail billing servers plans support security mail billing servers number x.</p><p>uptime servers teams plans hosting support backups security storage mail number xx.</p><p>support support support support support support support support support support number xxx.</p><p>domains mail storage security backups support hosting plans teams servers number xxxx.</p><p>plans servers billing mail security support plans servers billing mail number xxxxx.</p><p>storage support teams billing storage support teams billing storage support number x.</p><p>servers mail support servers mail support servers mail support servers number xx.</p><p>backups servers storage plans domains support uptime security teams mail number xxx.</p><p>billing support billing support billing support billing support billing support number xxxx.</p><p>hosting mail teams security uptime support domains plans storage servers number xxxxx.</p><p>mail servers support mail servers support mail servers support mail number x.</p><p>teams support storage billing teams support storage billing teams support number xx.</p><p>security mail billing servers plans support security mail billing servers number xxx.</p><p>uptime servers teams plans hosting support backups security storage mail number xxxx.</p><p>support support support support support support support support support support number xxxxx.</p><p>domains mail storage security backups support hosting plans teams servers number x.</p><p>plans servers billing mail security support plans servers billing mail number xx.</p><p>Call us to move your site today.</p>"
+  },
+  "pageCheckContent": {
+    "page": {
+      "url": "https://shop.example.com/blog/pricing-guide",
+      "observedAt": "2026-11-18T10:00:00Z",
+      "status": 200,
+      "lang": "",
+      "title": "",
+      "description": "",
+      "canonical": "",
+      "robots": {
+        "noindex": false,
+        "nofollow": false,
+        "header": ""
+      },
+      "openGraph": {
+        "title": "",
+        "description": "",
+        "image": "",
+        "url": "",
+        "type": "",
+        "siteName": ""
+      },
+      "twitter": {
+        "card": "",
+        "title": "",
+        "description": "",
+        "image": "",
+        "site": ""
+      },
+      "hreflang": [],
+      "headings": [
+        {
+          "level": 2,
+          "text": "Pricing guide"
+        }
+      ],
+      "wordCount": 7,
+      "readability": {
+        "sentences": 1,
+        "wordsPerSentence": 7,
+        "readingTimeSeconds": 3
+      },
+      "shareImage": "https://shop.example.com/chart.png"
+    },
+    "findings": [
+      {
+        "rule": "content.thin",
+        "severity": "low",
+        "title": "Page has little text",
+        "url": "https://shop.example.com/blog/pricing-guide",
+        "evidence": "1 of 1 pages have fewer than 100 words of visible text: https://shop.example.com/blog/pricing-guide (7 words)",
+        "fix": "Expand the page with useful content, merge it into a related page, or mark it noindex; a page under 100 words rarely answers a search on its own.",
+        "source": "https://developers.google.com/search/docs/fundamentals/creating-helpful-content",
+        "remedy": {
+          "kind": "content",
+          "element": "the page's text"
+        }
+      },
+      {
+        "rule": "crawl.no-internal-links",
+        "severity": "low",
+        "title": "Page links to no other page on the site",
+        "url": "https://shop.example.com/blog/pricing-guide",
+        "evidence": "1 of 1 pages link to no other page on the site: https://shop.example.com/blog/pricing-guide",
+        "fix": "Add links to related pages; a page without them is a dead end for visitors and crawlers.",
+        "source": "https://developers.google.com/search/docs/crawling-indexing/links-crawlable",
+        "remedy": {
+          "kind": "content",
+          "element": "links between pages"
+        }
+      },
+      {
+        "rule": "image.alt-missing",
+        "severity": "low",
+        "title": "Images without alt text",
+        "url": "https://shop.example.com/blog/pricing-guide",
+        "evidence": "1 of 1 pages have images without alt: https://shop.example.com/blog/pricing-guide (1 of 1 images)",
+        "fix": "Describe each meaningful image in alt; use alt=\"\" for decorative ones.",
+        "source": "https://developers.google.com/search/docs/appearance/google-images",
+        "remedy": {
+          "kind": "content",
+          "element": "<img alt>"
+        }
+      },
+      {
+        "rule": "image.missing-dimensions",
+        "severity": "low",
+        "title": "Images without width and height",
+        "url": "https://shop.example.com/blog/pricing-guide",
+        "evidence": "1 of 1 pages have images without width and height: https://shop.example.com/blog/pricing-guide (1 of 1 images)",
+        "fix": "Set width and height on <img> so the layout does not shift while loading.",
+        "source": "https://web.dev/articles/optimize-cls",
+        "remedy": {
+          "kind": "markup",
+          "element": "<img>"
+        }
+      }
+    ],
+    "scope": "content",
+    "checkedRules": [
+      "heading.order-skip",
+      "content.thin",
+      "crawl.no-internal-links",
+      "image.alt-missing",
+      "image.missing-dimensions",
+      "image.not-lazy"
+    ]
+  },
+  "pageCheckContentRequest": {
+    "url": "https://shop.example.com/blog/pricing-guide",
+    "html": "<h2>Pricing guide</h2><p>Short body copy about pricing.</p><img src=\"/chart.png\">",
+    "scope": "content"
+  },
+  "pageNotReadProblem": {
+    "type": "not_found",
+    "title": "Not Found",
+    "status": 404,
+    "detail": "site page: no audit or recheck has read this page yet; ask for one with POST /api/v1/site-domains/{domainUuid}/page-rechecks",
+    "code": "site_page_not_read",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
   }
 }

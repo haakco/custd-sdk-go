@@ -1,0 +1,77 @@
+{
+  "pageSearchQueries": {
+    "domainUuid": "8b6f0c2e-4a1d-4f3b-9c7e-2d5a6b8c9e01",
+    "url": "https://shop.example.com/pricing",
+    "state": "available",
+    "window": {
+      "provider": "google",
+      "from": "2026-10-18",
+      "to": "2026-11-14",
+      "importedAt": "2026-11-17T04:00:00Z"
+    },
+    "maxQueries": 20,
+    "queries": [
+      {
+        "query": "pricing tool",
+        "clicks": 40,
+        "impressions": 2100,
+        "position": 4.2,
+        "inTitle": false,
+        "inDescription": true,
+        "inH1": false
+      },
+      {
+        "query": "shop plans",
+        "clicks": 3,
+        "impressions": 300,
+        "position": 11.5,
+        "inTitle": false,
+        "inDescription": false,
+        "inH1": false
+      }
+    ],
+    "titleOptions": [
+      {
+        "title": "Pricing tool | Shop",
+        "template": "general",
+        "query": "pricing tool",
+        "impressions": 2100
+      },
+      {
+        "title": "Pricing tool: what to know | Shop",
+        "template": "guide",
+        "query": "pricing tool",
+        "impressions": 2100
+      },
+      {
+        "title": "Shop plans",
+        "template": "general",
+        "query": "shop plans",
+        "impressions": 300
+      },
+      {
+        "title": "Shop plans: what to know",
+        "template": "guide",
+        "query": "shop plans",
+        "impressions": 300
+      }
+    ],
+    "linkSources": [
+      {
+        "url": "https://shop.example.com/blog/compare",
+        "title": "Choosing a pricing tool",
+        "query": "pricing tool",
+        "where": "title"
+      }
+    ]
+  },
+  "pageSearchQueriesNotConnected": {
+    "domainUuid": "8b6f0c2e-4a1d-4f3b-9c7e-2d5a6b8c9e01",
+    "url": "https://shop.example.com/pricing",
+    "state": "not_connected",
+    "maxQueries": 20,
+    "queries": [],
+    "titleOptions": [],
+    "linkSources": []
+  }
+}

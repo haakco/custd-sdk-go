@@ -119,8 +119,50 @@ type SystemStatus struct {
 	TopTenants    []SystemStatusTenant `json:"topTenants"`
 }
 
+// The Site Insights scheduler tasks, in the order ListSiteInsightsTasks shows them. Page rechecks
+// run inside site-audits; URL inspections, IndexNow, rankings and Bing links inside
+// site-search-imports.
+const (
+	SiteInsightsTaskChecks        = "site-checks"
+	SiteInsightsTaskAudits        = "site-audits"
+	SiteInsightsTaskSearchImports = "site-search-imports"
+	SiteInsightsTaskWebData       = "site-web-data"
+	SiteInsightsTaskWebGraph      = "site-web-graph"
+	SiteInsightsTaskAccessLogs    = "site-access-logs"
+	SiteInsightsTaskSearchPool    = "site-search-pool"
+)
+
+// SiteInsightsBacklog is one count of work waiting for a task, summed over every tenant.
+type SiteInsightsBacklog struct {
+	Name    string `json:"name"`
+	Count   int64  `json:"count"`
+	Meaning string `json:"meaning"`
+}
+
+// SiteInsightsTaskStatus is one Site Insights task: whether this deployment's scheduler registered
+// and enabled it, its latest run, its latest failed run among the recent runs and its backlog.
+type SiteInsightsTaskStatus struct {
+	TaskName      string                `json:"taskName"`
+	Registered    bool                  `json:"registered"`
+	Enabled       bool                  `json:"enabled"`
+	NextRunAt     *time.Time            `json:"nextRunAt,omitempty"`
+	LastRunAt     *time.Time            `json:"lastRunAt,omitempty"`
+	LastRunStatus string                `json:"lastRunStatus,omitempty"`
+	LastFailureAt *time.Time            `json:"lastFailureAt,omitempty"`
+	LastFailure   string                `json:"lastFailure,omitempty"`
+	Backlog       []SiteInsightsBacklog `json:"backlog"`
+}
+
+// SiteInsightsTaskList is every Site Insights scheduler task, counted across all tenants; it names
+// no tenant.
+type SiteInsightsTaskList struct {
+	GeneratedAt time.Time                `json:"generatedAt"`
+	Tasks       []SiteInsightsTaskStatus `json:"tasks"`
+}
+
 const (
 	scheduledTasksPath    = "/scheduled-tasks"
+	siteInsightsTasksPath = "/site-insights/tasks"
 	scheduledTaskRunsPath = "/scheduled-task-runs/"
 	systemStatusPath      = "/system/status"
 )
@@ -140,6 +182,16 @@ func (c *SystemAdminClient) ListScheduledTasks(
 ) (*ScheduledTaskListResponse, ResponseMetadata, error) {
 	var out ScheduledTaskListResponse
 	metadata, err := c.admin.requestWithMetadata(ctx, http.MethodGet, scheduledTasksPath, nil, &out)
+	return &out, metadata, err
+}
+
+// ListSiteInsightsTasks returns the Site Insights scheduler tasks with their run state and
+// backlog; system administrators only.
+func (c *SystemAdminClient) ListSiteInsightsTasks(
+	ctx context.Context,
+) (*SiteInsightsTaskList, ResponseMetadata, error) {
+	var out SiteInsightsTaskList
+	metadata, err := c.admin.requestWithMetadata(ctx, http.MethodGet, siteInsightsTasksPath, nil, &out)
 	return &out, metadata, err
 }
 

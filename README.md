@@ -277,9 +277,11 @@ Site's domains: each source's totals with status, scope and date, the domain's
 Common Crawl authority, the referring domains with their source labels, and the
 domains lost since the previous release. A source with no number has `nil`
 counts, never 0. The tenant-wide shared search pool uses `GetSearchPool`,
-`SetSearchPool(ctx, joined)` and `ListSearchPoolQueries`; `GetRankings` reports
-`Pool` and, for a member, each keyword's pool band (`nil` otherwise, and from a
-server that predates the pool).
+`SetSearchPool(ctx, joined, termsVersion)` and `ListSearchPoolQueries`. Joining
+accepts the pool terms for the organisation, so it must name the terms version
+(the setting's `TermsVersion`, or `AdminSiteSearchPoolTermsVersion`); leaving
+ignores it. `GetRankings` reports `Pool` and, for a member, each keyword's pool
+band (`nil` otherwise, and from a server that predates the pool).
 
 `CheckPage` takes an optional `PreviousURL` and `Phrase` and then returns the
 draft's `Slug`, the `Redirect` a move needs (format `redirect`) and the phrase's
@@ -288,6 +290,21 @@ measures two drafts as the `content.near-duplicate` rule does (`SharedPercent`
 is `nil` when the texts were too short to compare). `ListCampaignLinks`,
 `CreateCampaignLink` and `ArchiveCampaignLink` keep a domain's saved UTM links
 (409 `SiteCampaignLinkTakenCode` or `SiteCampaignLinkLimitCode`).
+
+`CheckPage` with `Scope: AdminSitePageCheckScopeContent` checks body content only
+(the template supplies the head and h1) and lists the rules it checked in
+`CheckedRules`; `GetPageFacts` answers 404 `SitePageNotReadCode` for a page
+nothing has read yet. `GetPageSearchQueries` returns one page's Search Console
+queries with title options and pages that could link to it. Keyword clusters
+carry Bing keyword research in `Demand` (`nil` from an older server) and lists
+carry Bing's `Related` keywords; a number Bing did not report is `nil`.
+`GetAnalytics`, `ConnectAnalytics` and `DisconnectAnalytics` read a domain's
+GA4 property (`SiteAnalytics*Code` refusals; a measure GA4 did not report is
+`nil`). `ExportSiteInsights` returns the domain's whole Site Insights data and
+`ExportSearchMetrics` pages its daily search metrics. `RetrySearchImport` makes
+a failing import due now (409 `SiteSearchRetryNotFailingCode` otherwise), and
+`Admin.System.ListSiteInsightsTasks` shows the Site Insights scheduler tasks to a
+system administrator.
 
 `NextActions` returns a domain's status, one plain `Headline`, what is not
 checked yet and its three most important actions in Custd's fixed order

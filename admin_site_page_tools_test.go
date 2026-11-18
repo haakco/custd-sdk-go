@@ -252,3 +252,25 @@ func TestSiteWordingCompareRouteAndNotCompared(t *testing.T) {
 		"POST " + siteTestBase + "/wording-compare", "POST " + siteTestBase + "/wording-compare",
 	})
 }
+
+// A content-scope draft sends its scope and lists the rules it checked; a page nothing has read is
+// a 404 the client can tell from a missing domain.
+func TestSitePageCheckContentScopeAndPageNotRead(t *testing.T) {
+	doer := newCaptureDoer(http.StatusOK, sitePageToolsFixture(t, "pageCheckContent"))
+	domains := newAdminTestClient(t, doer, "http://localhost:8080").Admin.SiteDomains
+	ctx := context.Background()
+	req := AdminSitePageCheckRequest{
+		URL:   "https://shop.example.com/blog/pricing-guide",
+		HTML:  `<h2>Pricing guide</h2><p>Short body copy about pricing.</p><img src="/chart.png">`,
+		Scope: AdminSitePageCheckScopeContent,
+	}
+	check, err := domains.CheckPage(ctx, "d-1", req)
+	if err != nil || check.Scope != AdminSitePageCheckScopeContent || len(check.CheckedRules) != 6 ||
+		check.CheckedRules[0] != SiteRuleHeadingSkip || check.Page.Title != "" || len(check.Findings) != 4 {
+		t.Fatalf("check = %+v, %v", check, err)
+	}
+	assertSiteBody(t, doer.requests[0], sitePageToolsFixture(t, "pageCheckContentRequest"))
+	doer.status, doer.body = http.StatusNotFound, sitePageToolsFixture(t, "pageNotReadProblem")
+	_, err = domains.GetPageFacts(ctx, "d-1", "https://shop.example.com/new")
+	assertSiteProblemCode(t, err, http.StatusNotFound, SitePageNotReadCode)
+}

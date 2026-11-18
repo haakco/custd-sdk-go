@@ -43,6 +43,17 @@ const (
 // another host than the domain's own.
 const SitePageNotOnDomainCode = "site_page_not_on_domain"
 
+// SitePageNotReadCode is the problem code a 404 from GetPageFacts carries when the page is on the
+// tenant's verified domain but no audit or recheck has read it yet; RequestPageRecheck reads it.
+const SitePageNotReadCode = "site_page_not_read"
+
+// The scopes of AdminSitePageCheckRequest.Scope: the whole page, or only the body content an
+// editor writes, which the site's template wraps in its own head, navigation and h1.
+const (
+	AdminSitePageCheckScopePage    = "page"
+	AdminSitePageCheckScopeContent = "content"
+)
+
 // SitePageRecheckReadLimit bounds how many rechecks ListPageRechecks reads in one call.
 const SitePageRecheckReadLimit = 30
 
@@ -175,13 +186,17 @@ type AdminSitePageFinding struct {
 // AdminSitePageCheck is what the page checks found on draft HTML, and the page's facts. The draft
 // tools are empty when not asked for or from an older server: Slug is made from the draft's first
 // h1, else its title; Redirect is the permanent redirect from PreviousURL (format redirect);
-// Phrase says where the requested phrase appears.
+// Phrase says where the requested phrase appears. Scope echoes the draft's scope (empty from an
+// older server); with scope content, CheckedRules lists the only rules checked, so a rule absent
+// from Findings passed rather than went unchecked, and the head facts of Page are empty.
 type AdminSitePageCheck struct {
-	Page     AdminSitePageFacts     `json:"page"`
-	Findings []AdminSitePageFinding `json:"findings"`
-	Slug     string                 `json:"slug,omitempty"`
-	Redirect *AdminSiteGeneratedFix `json:"redirect,omitempty"`
-	Phrase   *AdminSitePhraseUse    `json:"phrase,omitempty"`
+	Page         AdminSitePageFacts     `json:"page"`
+	Findings     []AdminSitePageFinding `json:"findings"`
+	Slug         string                 `json:"slug,omitempty"`
+	Redirect     *AdminSiteGeneratedFix `json:"redirect,omitempty"`
+	Phrase       *AdminSitePhraseUse    `json:"phrase,omitempty"`
+	Scope        string                 `json:"scope,omitempty"`
+	CheckedRules []string               `json:"checkedRules,omitempty"`
 }
 
 // AdminSitePhraseUse is where one phrase appears in a draft and how often, with no target or
@@ -211,12 +226,14 @@ func (p *AdminSitePhraseUse) UnmarshalJSON(data []byte) error {
 // AdminSitePageCheckRequest checks HTML as if URL, on the domain's host, served it. HTML is the
 // full page, at most 512 KiB; it is never stored. PreviousURL, the page's current address on the
 // same host, asks for the redirect a move needs; Phrase (at most 100 characters) asks where it
-// appears. Both are left out when empty.
+// appears. Both are left out when empty. Scope AdminSitePageCheckScopeContent checks body content
+// only (the template supplies the head and h1); empty is the whole page.
 type AdminSitePageCheckRequest struct {
 	URL         string `json:"url"`
 	HTML        string `json:"html"`
 	PreviousURL string `json:"previousUrl,omitempty"`
 	Phrase      string `json:"phrase,omitempty"`
+	Scope       string `json:"scope,omitempty"`
 }
 
 // AdminSiteWordingCompareRequest is two drafts, as HTML or plain text (each at most 512 KiB), to
@@ -284,7 +301,8 @@ type adminSitePageRecheckRequest struct {
 	URL string `json:"url"`
 }
 
-// GetPageFacts returns what the latest audit or recheck read from one page of the domain.
+// GetPageFacts returns what the latest audit or recheck read from one page of the domain. A page
+// nothing has read yet is a 404 with SitePageNotReadCode.
 func (c *SiteDomainAdminClient) GetPageFacts(ctx context.Context, domainUUID, pageURL string) (*AdminSitePageFacts, error) {
 	var facts AdminSitePageFacts
 	path := siteDomainPath(domainUUID) + "/page-facts?" + url.Values{"url": {pageURL}}.Encode()

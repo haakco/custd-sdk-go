@@ -167,7 +167,7 @@ func (p DataScopePrincipalRef) Validate() error {
 			return fmt.Errorf("custd: a human principal requires userUuid and no clientId")
 		}
 	case DataScopePrincipalMachine:
-		if !ValidDataScopeCode(p.ClientID) || p.UserUUID != "" {
+		if !validDataScopeClientID(p.ClientID) || p.UserUUID != "" {
 			return fmt.Errorf("custd: a machine principal requires a bounded clientId and no userUuid")
 		}
 	default:
@@ -484,6 +484,16 @@ func validateDataScopeUpdate(name *string, status *DataScopeStatus) error {
 			DataScopeStatusActive, DataScopeStatusDisabled)
 	}
 	return nil
+}
+
+// maxDataScopeClientIDLength matches the server's OAuth producer client ID bound,
+// which includes already-issued credentials longer than a scope code.
+const maxDataScopeClientIDLength = 255
+
+// validDataScopeClientID applies the server's machine principal rule: a non-empty
+// client ID of at most 255 bytes with no surrounding whitespace. It is not a scope code.
+func validDataScopeClientID(value string) bool {
+	return value != "" && len(value) <= maxDataScopeClientIDLength && value == strings.TrimSpace(value)
 }
 
 // ValidDataScopeCode reports whether value is a valid immutable external scope

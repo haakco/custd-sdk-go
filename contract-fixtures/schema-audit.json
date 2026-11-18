@@ -1,0 +1,24 @@
+{
+  "tenantNotFoundProblem": {
+    "type": "not_found",
+    "title": "Not Found",
+    "status": 404,
+    "detail": "schema audit: tenant not found",
+    "code": "schema_audit_tenant_not_found",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  },
+  "tenantSlugRequiredProblem": {
+    "type": "invalid",
+    "title": "Invalid Request",
+    "status": 400,
+    "detail": "schema audit: tenantSlug required",
+    "code": "schema_audit_tenant_slug_required",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  }
+}

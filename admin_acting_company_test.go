@@ -287,3 +287,24 @@ func TestPreparedDataDiagnosticDoesNotSynthesizeSupportHeader(t *testing.T) {
 	}
 	assertAuditLabels(t, request, "custdctl", "reporting.outputs.list")
 }
+
+// A non-admin route, such as every Site Insights read, keeps the caller's audit labels and
+// reports the server's request identifier, so a refused call can still be correlated.
+func TestNonAdminRequestKeepsAuditLabelsAndRequestID(t *testing.T) {
+	doer := &captureDoer{status: http.StatusNotFound, body: `{"type":"not_found","status":404}`,
+		headers: map[string]string{requestIDHeader: "req-site"}}
+	client := NewClient(&ClientConfig{
+		BaseURL: "http://localhost:8080", APIKey: "admin-token", HTTPClient: doer, FlushInterval: time.Hour,
+		ClientLabel: "custdctl", CommandLabel: "sites indexnow show",
+	})
+	t.Cleanup(func() { _ = client.Close(context.Background()) })
+	var recorder MetadataRecorder
+	ctx := WithMetadataRecorder(context.Background(), &recorder)
+	if _, err := client.Admin.SiteDomains.GetIndexNow(ctx, "019c0000-0000-7000-8000-000000000001"); err == nil {
+		t.Fatal("expected the 404 to be returned")
+	}
+	assertAuditLabels(t, recordDoerRequest(doer), "custdctl", "sites indexnow show")
+	if recorder.RequestID != "req-site" {
+		t.Fatalf("recorded request id = %q, want req-site", recorder.RequestID)
+	}
+}

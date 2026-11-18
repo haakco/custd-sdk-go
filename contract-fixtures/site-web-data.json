@@ -263,5 +263,140 @@
     "siteUuid": "3c59dc04-8b0f-4a3e-8f2d-6b7c1e9a4d22",
     "domain": "rival.example",
     "pages": []
+  },
+  "keywordClustersNoMarket": {
+    "siteUuid": "3c59dc04-8b0f-4a3e-8f2d-6b7c1e9a4d22",
+    "name": "Pricing",
+    "metricsSource": "search_console",
+    "metricsDays": 28,
+    "totalKeywords": 3,
+    "clusters": [
+      {
+        "cluster": "price",
+        "keywords": [
+          "pricing tool",
+          "price checker"
+        ],
+        "keywordCount": 2,
+        "measuredKeywords": 1,
+        "clicks": 12,
+        "impressions": 900,
+        "avgPosition": 6.5
+      },
+      {
+        "cluster": "audit",
+        "keywords": [
+          "seo audit"
+        ],
+        "keywordCount": 1,
+        "measuredKeywords": 0
+      }
+    ],
+    "strikingDistance": [
+      {
+        "keyword": "pricing tool",
+        "clicks": 12,
+        "impressions": 900,
+        "position": 6.5
+      }
+    ],
+    "demand": {
+      "state": "no_market",
+      "source": "bing_keyword_research",
+      "keywords": []
+    }
+  },
+  "keywordClustersWithDemand": {
+    "siteUuid": "3c59dc04-8b0f-4a3e-8f2d-6b7c1e9a4d22",
+    "name": "Pricing",
+    "metricsSource": "search_console",
+    "metricsDays": 28,
+    "totalKeywords": 3,
+    "clusters": [
+      {
+        "cluster": "price",
+        "keywords": [
+          "pricing tool",
+          "price checker"
+        ],
+        "keywordCount": 2,
+        "measuredKeywords": 1,
+        "clicks": 12,
+        "impressions": 900,
+        "avgPosition": 6.5,
+        "bingWeeklyImpressions": 1400
+      },
+      {
+        "cluster": "audit",
+        "keywords": [
+          "seo audit"
+        ],
+        "keywordCount": 1,
+        "measuredKeywords": 0
+      }
+    ],
+    "strikingDistance": [
+      {
+        "keyword": "pricing tool",
+        "clicks": 12,
+        "impressions": 900,
+        "position": 6.5
+      }
+    ],
+    "demand": {
+      "state": "available",
+      "source": "bing_keyword_research",
+      "market": "en-ZA",
+      "keywords": [
+        {
+          "keyword": "pricing tool",
+          "weeklyImpressions": 1100,
+          "broadImpressions": 3200,
+          "weekOf": "2026-11-09",
+          "checkedAt": "2026-11-17T03:00:00Z"
+        },
+        {
+          "keyword": "price checker",
+          "weeklyImpressions": 300,
+          "weekOf": "2026-11-09",
+          "checkedAt": "2026-11-17T03:00:00Z"
+        },
+        {
+          "keyword": "seo audit",
+          "checkedAt": "2026-11-17T03:00:00Z",
+          "lastFailure": "bing keyword research: the service answered 503"
+        }
+      ]
+    }
+  },
+  "keywordListWithRelated": {
+    "name": "Pricing",
+    "seedTerm": "pricing",
+    "keywords": [
+      "pricing tool",
+      "price checker",
+      "seo audit"
+    ],
+    "createdAt": "2026-11-15T10:00:00Z",
+    "updatedAt": "2026-11-17T10:00:00Z",
+    "related": {
+      "source": "bing_keyword_research",
+      "market": "en-ZA",
+      "from": "2026-08-17",
+      "to": "2026-11-15",
+      "checkedAt": "2026-11-17T03:00:00Z",
+      "keywords": [
+        {
+          "keyword": "pricing software",
+          "impressions": 5400,
+          "broadImpressions": 12000
+        },
+        {
+          "keyword": "pricing strategy tool",
+          "impressions": 800,
+          "broadImpressions": 950
+        }
+      ]
+    }
   }
 }

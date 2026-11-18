@@ -174,3 +174,19 @@ func TestDataScopeClientValidatesBeforeSending(t *testing.T) {
 		})
 	}
 }
+
+// A machine principal is an OAuth producer client ID, which the server accepts up to
+// 255 bytes; a long issued ID must not be refused by the SDK before it reaches the server.
+func TestDataScopeMachinePrincipalMatchesServerClientIDBound(t *testing.T) {
+	machine := func(clientID string) DataScopePrincipalRef {
+		return DataScopePrincipalRef{Kind: DataScopePrincipalMachine, ClientID: clientID}
+	}
+	if err := machine(strings.Repeat("a", 255)).Validate(); err != nil {
+		t.Fatalf("255-byte client id refused: %v", err)
+	}
+	for _, clientID := range []string{"", strings.Repeat("a", 256), " padded"} {
+		if machine(clientID).Validate() == nil {
+			t.Fatalf("client id %q (%d bytes) accepted", clientID, len(clientID))
+		}
+	}
+}

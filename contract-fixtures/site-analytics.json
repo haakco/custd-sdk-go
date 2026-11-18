@@ -1,0 +1,133 @@
+{
+  "connectionNotFoundProblem": {
+    "type": "not_found",
+    "title": "Not Found",
+    "status": 404,
+    "detail": "site analytics: the domain is not connected to GA4",
+    "code": "site_analytics_connection_not_found",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  },
+  "connectionPending": {
+    "provider": "ga4",
+    "propertyId": "123456789",
+    "status": "pending"
+  },
+  "connectionRequest": {
+    "propertyId": "properties/123456789"
+  },
+  "propertyInvalidProblem": {
+    "type": "invalid",
+    "title": "Invalid Request",
+    "status": 400,
+    "detail": "site analytics: propertyId must be the GA4 property's numeric ID, such as 123456789 or properties/123456789",
+    "code": "site_analytics_property_invalid",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  },
+  "report": {
+    "domainUuid": "8b6f0c2e-4a1d-4f3b-9c7e-2d5a6b8c9e01",
+    "connection": {
+      "provider": "ga4",
+      "propertyId": "123456789",
+      "status": "active",
+      "lastImportedAt": "2026-11-18T05:00:00Z"
+    },
+    "windowFrom": "2026-10-20",
+    "windowTo": "2026-11-16",
+    "keyEventsRecorded": true,
+    "landingPages": [
+      {
+        "key": "/pricing",
+        "sessions": 820,
+        "engagedSessions": 510,
+        "keyEvents": 34
+      },
+      {
+        "key": "/blog/compare",
+        "sessions": 240,
+        "engagedSessions": 130
+      }
+    ],
+    "keyEvents": [
+      {
+        "key": "sign_up",
+        "keyEvents": 34
+      }
+    ],
+    "channels": [
+      {
+        "key": "Organic Search",
+        "sessions": 1060,
+        "engagedSessions": 640
+      },
+      {
+        "key": "Direct",
+        "sessions": 400,
+        "engagedSessions": 150
+      }
+    ],
+    "unavailable": [
+      {
+        "report": "ecommerce",
+        "reason": "Custd does not import GA4 ecommerce; the Custd SDK's analytics events fill that role."
+      },
+      {
+        "report": "audience",
+        "reason": "Custd does not import GA4 audience reports, which describe people rather than search."
+      }
+    ]
+  },
+  "reportNoKeyEvents": {
+    "domainUuid": "8b6f0c2e-4a1d-4f3b-9c7e-2d5a6b8c9e01",
+    "connection": {
+      "provider": "ga4",
+      "propertyId": "123456789",
+      "status": "active",
+      "lastImportedAt": "2026-11-18T05:00:00Z"
+    },
+    "windowFrom": "2026-10-20",
+    "windowTo": "2026-11-16",
+    "keyEventsRecorded": false,
+    "landingPages": [
+      {
+        "key": "/pricing",
+        "sessions": 820,
+        "engagedSessions": 510
+      }
+    ],
+    "keyEvents": [],
+    "channels": [],
+    "unavailable": [
+      {
+        "report": "ecommerce",
+        "reason": "Custd does not import GA4 ecommerce; the Custd SDK's analytics events fill that role."
+      },
+      {
+        "report": "audience",
+        "reason": "Custd does not import GA4 audience reports, which describe people rather than search."
+      }
+    ]
+  },
+  "reportNotConnected": {
+    "domainUuid": "8b6f0c2e-4a1d-4f3b-9c7e-2d5a6b8c9e01",
+    "keyEventsRecorded": false,
+    "landingPages": [],
+    "keyEvents": [],
+    "channels": [],
+    "unavailable": [
+      {
+        "report": "ecommerce",
+        "reason": "Custd does not import GA4 ecommerce; the Custd SDK's analytics events fill that role."
+      },
+      {
+        "report": "audience",
+        "reason": "Custd does not import GA4 audience reports, which describe people rather than search."
+      }
+    ]
+  }
+}

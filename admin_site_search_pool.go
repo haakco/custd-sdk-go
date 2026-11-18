@@ -2,8 +2,10 @@ package custd
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -32,6 +34,12 @@ const (
 	AdminSiteSearchPoolSearchMaxLength     = 100
 )
 
+// AdminSiteSearchPoolTermsVersion is the shared search pool terms version current when this SDK
+// was released (https://custd.com/docs/terms/shared-search-pool/). A join must name the version
+// the server currently requires, which GetSearchPool reports as TermsVersion; prefer that live
+// value, since this constant goes stale when the terms change.
+const AdminSiteSearchPoolTermsVersion = "2026-11-18"
+
 // SiteSearchPoolNotJoinedCode is the problem code a 403 carries when a tenant that has not joined
 // the shared search pool reads it.
 const SiteSearchPoolNotJoinedCode = "site_search_pool_not_joined"
@@ -49,13 +57,16 @@ const SiteSearchPoolSettingInvalidCode = "site_search_pool_setting_invalid"
 const SiteSearchPoolQueryInvalidCode = "site_search_pool_query_invalid"
 
 // AdminSiteSearchPoolSetting is whether the tenant has joined the shared search pool, with the
-// rules the pool applies. JoinedAt is nil while not joined.
+// rules the pool applies and the terms a join accepts. JoinedAt and AcceptedTermsVersion are empty
+// while not joined; TermsVersion is the version a join must name, empty from an older server.
 type AdminSiteSearchPoolSetting struct {
-	Joined          bool       `json:"joined"`
-	JoinedAt        *time.Time `json:"joinedAt,omitempty"`
-	MinContributors int        `json:"minContributors"`
-	MinImpressions  int        `json:"minImpressions"`
-	WindowDays      int        `json:"windowDays"`
+	Joined               bool       `json:"joined"`
+	JoinedAt             *time.Time `json:"joinedAt,omitempty"`
+	AcceptedTermsVersion string     `json:"acceptedTermsVersion,omitempty"`
+	TermsVersion         string     `json:"termsVersion,omitempty"`
+	MinContributors      int        `json:"minContributors"`
+	MinImpressions       int        `json:"minImpressions"`
+	WindowDays           int        `json:"windowDays"`
 }
 
 // AdminSiteSearchPoolPositions is the share, in percent rounded to 5, of a query's pooled
@@ -95,10 +106,16 @@ type AdminSiteSearchPoolQueriesQuery struct {
 	Limit  int
 }
 
-// adminSiteSearchPoolRequest is the setting change body; joined is always sent.
+// adminSiteSearchPoolRequest is the setting change body; joined is always sent, termsVersion only
+// on a join.
 type adminSiteSearchPoolRequest struct {
-	Joined bool `json:"joined"`
+	Joined       bool   `json:"joined"`
+	TermsVersion string `json:"termsVersion,omitempty"`
 }
+
+// ErrSearchPoolTermsVersionRequired refuses a join that names no terms version, before any request.
+var ErrSearchPoolTermsVersionRequired = errors.New(
+	"custd: joining the shared search pool requires the terms version the caller accepts")
 
 const siteSearchPoolPath = siteDomainsPath + "/search-pool"
 
@@ -110,10 +127,22 @@ func (c *SiteDomainAdminClient) GetSearchPool(ctx context.Context) (*AdminSiteSe
 }
 
 // SetSearchPool joins (true) or leaves (false) the shared search pool for the whole tenant.
-// Joining shares the tenant's Search Console query numbers, pooled anonymously.
-func (c *SiteDomainAdminClient) SetSearchPool(ctx context.Context, joined bool) (*AdminSiteSearchPoolSetting, error) {
+// Joining shares the tenant's Search Console query numbers, pooled anonymously, and is the
+// organisation's acceptance of the pool terms: termsVersion is required to join (the setting's
+// TermsVersion, or AdminSiteSearchPoolTermsVersion) and ignored when leaving. A stale version is
+// refused with a 400.
+func (c *SiteDomainAdminClient) SetSearchPool(
+	ctx context.Context, joined bool, termsVersion string,
+) (*AdminSiteSearchPoolSetting, error) {
+	body := adminSiteSearchPoolRequest{Joined: joined}
+	if joined {
+		if strings.TrimSpace(termsVersion) == "" {
+			return nil, ErrSearchPoolTermsVersionRequired
+		}
+		body.TermsVersion = termsVersion
+	}
 	var setting AdminSiteSearchPoolSetting
-	err := c.request(ctx, http.MethodPut, siteSearchPoolPath, adminSiteSearchPoolRequest{Joined: joined}, &setting)
+	err := c.request(ctx, http.MethodPut, siteSearchPoolPath, body, &setting)
 	return &setting, err
 }
 

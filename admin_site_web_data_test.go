@@ -2,6 +2,7 @@ package custd
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"testing"
 )
@@ -116,4 +117,38 @@ func TestSiteKeywordListRoutesAndProblems(t *testing.T) {
 	_, err = domains.SaveKeywordList(ctx, "s-1", AdminSiteKeywordListRequest{Name: "More"})
 	assertSiteProblemCode(t, err, http.StatusConflict, SiteKeywordListLimitCode)
 	assertSiteBody(t, doer.requests[5], `{"name":"More","keywords":[]}`)
+}
+
+// Bing keyword research decodes with missing numbers left nil, an older server's clusters carry no
+// demand, and a list with a seed carries Bing's related keywords.
+func TestSiteKeywordDemandAndRelated(t *testing.T) {
+	var demand, noMarket, older AdminSiteKeywordClusters
+	decodeSiteFixture(t, siteWebDataFixture(t, "keywordClustersWithDemand"), &demand)
+	decodeSiteFixture(t, siteWebDataFixture(t, "keywordClustersNoMarket"), &noMarket)
+	decodeSiteFixture(t, siteWebDataFixture(t, "keywordClusters"), &older)
+	set := demand.Demand
+	if set == nil || set.State != AdminSiteKeywordDemandAvailable || set.Source != AdminSiteKeywordDemandSourceBing ||
+		set.Market != "en-ZA" || len(set.Keywords) != 3 || *set.Keywords[0].WeeklyImpressions != 1100 ||
+		set.Keywords[1].BroadImpressions != nil || set.Keywords[2].WeeklyImpressions != nil || set.Keywords[2].LastFailure == "" ||
+		demand.Clusters[0].BingWeeklyImpressions == nil || *demand.Clusters[0].BingWeeklyImpressions != 1400 ||
+		demand.Clusters[1].BingWeeklyImpressions != nil {
+		t.Fatalf("demand = %+v", demand)
+	}
+	if noMarket.Demand == nil || noMarket.Demand.State != AdminSiteKeywordDemandNoMarket || len(noMarket.Demand.Keywords) != 0 ||
+		older.Demand != nil {
+		t.Fatalf("no market = %+v, older = %+v", noMarket.Demand, older.Demand)
+	}
+	var list AdminSiteKeywordList
+	decodeSiteFixture(t, siteWebDataFixture(t, "keywordListWithRelated"), &list)
+	if list.Related == nil || list.Related.Market != "en-ZA" || len(list.Related.Keywords) != 2 ||
+		list.Related.Keywords[0].BroadImpressions != 12000 {
+		t.Fatalf("related = %+v", list.Related)
+	}
+}
+
+func decodeSiteFixture(t *testing.T, body string, into any) {
+	t.Helper()
+	if err := json.Unmarshal([]byte(body), into); err != nil {
+		t.Fatal(err)
+	}
 }
