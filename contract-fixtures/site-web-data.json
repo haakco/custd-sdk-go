@@ -398,5 +398,29 @@
         }
       ]
     }
+  },
+  "regionalTrends": {
+    "siteUuid": "3c59dc04-8b0f-4a3e-8f2d-6b7c1e9a4d22",
+    "source": "Google Trends",
+    "hasSavedTerms": true,
+    "markets": [{"supported": true, "country": "ZA", "stale": false, "matches": []}],
+    "technical": {
+      "source": "Hacker News",
+      "checkedAt": "2026-11-18T11:05:00Z",
+      "stale": false,
+      "matches": [{
+        "topic": "Postgres schema migrations",
+        "sourceUrl": "https://example.com/postgres",
+        "publishedAt": "2026-11-18T10:00:00Z",
+        "matchedTerm": "Postgres",
+        "discussionUrl": "https://news.ycombinator.com/item?id=123"
+      }]
+    }
+  },
+  "regionalTrendsWithoutTechnical": {
+    "siteUuid": "3c59dc04-8b0f-4a3e-8f2d-6b7c1e9a4d22",
+    "source": "Google Trends",
+    "hasSavedTerms": false,
+    "markets": []
   }
 }

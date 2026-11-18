@@ -98,3 +98,43 @@ func TestSiteProjectContextRoutesAndEmptyLists(t *testing.T) {
 	base := "http://localhost:8080/api/v1/site-domains/project-context"
 	assertSiteRequests(t, doer.requests, []string{"PUT " + base + "?siteUuid=s-1", "GET " + base, "PUT " + base})
 }
+
+func TestSiteProjectContextHackerNewsOptInAndRegionalTrends(t *testing.T) {
+	doer := newCaptureDoer(http.StatusOK, `{"siteUuid":"s-1","hackerNewsEnabled":true}`)
+	domains := newAdminTestClient(t, doer, "http://localhost:8080").Admin.SiteDomains
+	ctx := context.Background()
+	enable := true
+	enabled, err := domains.SetProjectContext(ctx, "s-1", AdminSiteProjectContextRequest{HackerNewsEnabled: &enable})
+	if err != nil || !enabled.HackerNewsEnabled {
+		t.Fatalf("enabled context = %+v, %v", enabled, err)
+	}
+	assertSiteBody(t, doer.requests[0], `{"brandNames":[],"competitorDomains":[],"markets":[],"hackerNewsEnabled":true}`)
+	disable := false
+	doer.body = `{"siteUuid":"s-1"}`
+	disabled, err := domains.SetProjectContext(ctx, "", AdminSiteProjectContextRequest{HackerNewsEnabled: &disable})
+	if err != nil || disabled.HackerNewsEnabled {
+		t.Fatalf("disabled context = %+v, %v", disabled, err)
+	}
+	assertSiteBody(t, doer.requests[1], `{"brandNames":[],"competitorDomains":[],"markets":[],"hackerNewsEnabled":false}`)
+
+	doer.body = `{"siteUuid":"s-1","source":"Google Trends","hasSavedTerms":true,"markets":[{"country":"ZA","supported":true,"stale":true,"matches":[]}],
+		"technical":{"source":"Hacker News","checkedAt":"2026-11-18T13:05:00Z","stale":false,"matches":[{"topic":"Database testing","sourceUrl":"https://example.com/testing",
+		"discussionUrl":"https://news.ycombinator.com/item?id=1","publishedAt":"2026-11-18T13:00:00Z","matchedTerm":"database"}]}}`
+	trends, err := domains.GetRegionalTrends(ctx, "s-1")
+	if err != nil || trends.Technical == nil || trends.Technical.Source != "Hacker News" ||
+		trends.Technical.CheckedAt == nil || len(trends.Technical.Matches) != 1 ||
+		trends.Technical.Matches[0].DiscussionURL != "https://news.ycombinator.com/item?id=1" ||
+		len(trends.Markets) != 1 || !trends.Markets[0].Stale {
+		t.Fatalf("trends = %+v, %v", trends, err)
+	}
+	doer.body = `{"siteUuid":"s-1","source":"Google Trends","hasSavedTerms":false,"markets":[]}`
+	siteBound, err := domains.GetRegionalTrends(ctx, "")
+	if err != nil || siteBound.Technical != nil {
+		t.Fatalf("site-bound result = %+v, %v", siteBound, err)
+	}
+	root := "http://localhost:8080/api/v1/site-domains"
+	assertSiteRequests(t, doer.requests, []string{
+		"PUT " + root + "/project-context?siteUuid=s-1", "PUT " + root + "/project-context",
+		"GET " + root + "/regional-trends?siteUuid=s-1", "GET " + root + "/regional-trends",
+	})
+}

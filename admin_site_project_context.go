@@ -23,12 +23,15 @@ type AdminSiteProjectContext struct {
 	BrandNames        []string          `json:"brandNames"`
 	CompetitorDomains []string          `json:"competitorDomains"`
 	Markets           []AdminSiteMarket `json:"markets"`
+	HackerNewsEnabled bool              `json:"hackerNewsEnabled,omitempty"`
 	UpdatedAt         *time.Time        `json:"updatedAt,omitempty"`
 }
 
 // AdminSiteProjectContextRequest replaces a Site's project context: up to 5 brand names, 10
 // competitor DNS names and 10 markets. Nil lists are sent as empty, clearing them.
 type AdminSiteProjectContextRequest struct {
+	// Nil preserves the saved choice. A pointer to false disables technical discussion trends.
+	HackerNewsEnabled *bool             `json:"hackerNewsEnabled,omitempty"`
 	BrandNames        []string          `json:"brandNames"`
 	CompetitorDomains []string          `json:"competitorDomains"`
 	Markets           []AdminSiteMarket `json:"markets"`
@@ -48,6 +51,7 @@ func (c *SiteDomainAdminClient) SetProjectContext(
 	ctx context.Context, siteUUID string, req AdminSiteProjectContextRequest,
 ) (*AdminSiteProjectContext, error) {
 	body := AdminSiteProjectContextRequest{
+		HackerNewsEnabled: req.HackerNewsEnabled,
 		BrandNames:        nonNilSlice(req.BrandNames),
 		CompetitorDomains: nonNilSlice(req.CompetitorDomains),
 		Markets:           nonNilSlice(req.Markets),
