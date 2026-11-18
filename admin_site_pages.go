@@ -243,7 +243,7 @@ type AdminSiteWordingCompareRequest struct {
 	Second string `json:"second"`
 }
 
-// AdminSiteWordingCompare is how much wording two drafts share, measured as the crawl's
+// AdminSiteWordingCompare is how much wording two texts share, measured as the crawl's
 // content.near-duplicate rule measures it; wording overlap, not plagiarism. Texts under MinWords
 // are not compared: Compared is false and SharedPercent nil.
 type AdminSiteWordingCompare struct {
@@ -266,6 +266,36 @@ func (w *AdminSiteWordingCompare) UnmarshalJSON(data []byte) error {
 		w.SharedPercent = nil
 	}
 	return nil
+}
+
+// AdminSitePageWordingQuery names two distinct absolute URLs on the same verified domain.
+type AdminSitePageWordingQuery struct {
+	FirstURL  string
+	SecondURL string
+}
+
+// AdminSiteWordingObservationState describes the available stored wording evidence for one page.
+type AdminSiteWordingObservationState string
+
+const (
+	AdminSiteWordingUnread      AdminSiteWordingObservationState = "unread"
+	AdminSiteWordingUnavailable AdminSiteWordingObservationState = "unavailable"
+	AdminSiteWordingShort       AdminSiteWordingObservationState = "short"
+	AdminSiteWordingReady       AdminSiteWordingObservationState = "ready"
+)
+
+// AdminSiteWordingObservation describes the latest stored page check. Unread pages have no timestamp.
+type AdminSiteWordingObservation struct {
+	State      AdminSiteWordingObservationState `json:"state"`
+	ObservedAt *time.Time                       `json:"observedAt,omitempty"`
+}
+
+// AdminSiteObservedWording compares two stored observations. Comparison is nil when an
+// observation is unread or unavailable. A short observation keeps the counts without a score.
+type AdminSiteObservedWording struct {
+	First      AdminSiteWordingObservation `json:"first"`
+	Second     AdminSiteWordingObservation `json:"second"`
+	Comparison *AdminSiteWordingCompare    `json:"comparison,omitempty"`
 }
 
 // AdminSiteRobotsTestRequest asks whether UserAgent may crawl URL (a path or an http(s) URL).
@@ -359,6 +389,17 @@ func (c *SiteDomainAdminClient) CompareWording(
 ) (*AdminSiteWordingCompare, error) {
 	var result AdminSiteWordingCompare
 	err := c.request(ctx, http.MethodPost, siteDomainPath(domainUUID)+"/wording-compare", req, &result)
+	return &result, err
+}
+
+// ComparePageWording compares the latest stored observations of two pages on a verified domain
+// without fetching either URL.
+func (c *SiteDomainAdminClient) ComparePageWording(
+	ctx context.Context, domainUUID string, query AdminSitePageWordingQuery,
+) (*AdminSiteObservedWording, error) {
+	var result AdminSiteObservedWording
+	values := url.Values{"firstUrl": {query.FirstURL}, "secondUrl": {query.SecondURL}}
+	err := c.request(ctx, http.MethodGet, siteDomainPath(domainUUID)+"/page-wording?"+values.Encode(), nil, &result)
 	return &result, err
 }
 

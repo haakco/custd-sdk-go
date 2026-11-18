@@ -911,5 +911,52 @@
     "nextAction": {
       "action": "none"
     }
+  },
+  "observedWording": {
+    "first": {
+      "state": "ready",
+      "observedAt": "2026-11-18T11:00:00Z"
+    },
+    "second": {
+      "state": "ready",
+      "observedAt": "2026-11-18T11:05:00Z"
+    },
+    "comparison": {
+      "firstWords": 410,
+      "secondWords": 415,
+      "minWords": 200,
+      "compared": true,
+      "sharedPercent": 96,
+      "thresholdPercent": 90,
+      "nearDuplicate": true
+    }
+  },
+  "observedWordingUnavailable": {
+    "first": {
+      "state": "unavailable",
+      "observedAt": "2026-11-18T11:00:00Z"
+    },
+    "second": {
+      "state": "unread"
+    }
+  },
+  "observedWordingShort": {
+    "first": {
+      "state": "short",
+      "observedAt": "2026-11-18T11:00:00Z"
+    },
+    "second": {
+      "state": "ready",
+      "observedAt": "2026-11-18T11:05:00Z"
+    },
+    "comparison": {
+      "firstWords": 80,
+      "secondWords": 415,
+      "minWords": 200,
+      "compared": false,
+      "sharedPercent": 0,
+      "thresholdPercent": 90,
+      "nearDuplicate": false
+    }
   }
 }

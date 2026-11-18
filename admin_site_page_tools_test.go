@@ -253,6 +253,39 @@ func TestSiteWordingCompareRouteAndNotCompared(t *testing.T) {
 	})
 }
 
+func TestSiteObservedWordingRouteAndEvidenceStates(t *testing.T) {
+	doer := newCaptureDoer(http.StatusOK, sitePageToolsFixture(t, "observedWording"))
+	domains := newAdminTestClient(t, doer, "http://localhost:8080").Admin.SiteDomains
+	query := AdminSitePageWordingQuery{
+		FirstURL: "https://example.com/plans?locale=en&view=full", SecondURL: "https://example.com/support",
+	}
+	ctx := context.Background()
+	ready, err := domains.ComparePageWording(ctx, "d-1", query)
+	if err != nil || ready.First.State != AdminSiteWordingReady || ready.First.ObservedAt == nil ||
+		ready.Second.State != AdminSiteWordingReady || ready.Second.ObservedAt == nil ||
+		ready.Comparison == nil || !ready.Comparison.Compared || ready.Comparison.SharedPercent == nil ||
+		*ready.Comparison.SharedPercent != 96 {
+		t.Fatalf("ready evidence = %+v, %v", ready, err)
+	}
+
+	doer.body = sitePageToolsFixture(t, "observedWordingUnavailable")
+	unavailable, err := domains.ComparePageWording(ctx, "d-1", query)
+	if err != nil || unavailable.First.State != AdminSiteWordingUnavailable || unavailable.First.ObservedAt == nil ||
+		unavailable.Second.State != AdminSiteWordingUnread || unavailable.Second.ObservedAt != nil ||
+		unavailable.Comparison != nil {
+		t.Fatalf("unavailable evidence = %+v, %v", unavailable, err)
+	}
+
+	doer.body = sitePageToolsFixture(t, "observedWordingShort")
+	short, err := domains.ComparePageWording(ctx, "d-1", query)
+	if err != nil || short.First.State != AdminSiteWordingShort || short.Comparison == nil || short.Comparison.Compared ||
+		short.Comparison.SharedPercent != nil || short.Comparison.FirstWords != 80 {
+		t.Fatalf("short evidence = %+v, %v", short, err)
+	}
+	route := "GET " + siteTestBase + "/page-wording?firstUrl=https%3A%2F%2Fexample.com%2Fplans%3Flocale%3Den%26view%3Dfull&secondUrl=https%3A%2F%2Fexample.com%2Fsupport"
+	assertSiteRequests(t, doer.requests, []string{route, route, route})
+}
+
 // A content-scope draft sends its scope and lists the rules it checked; a page nothing has read is
 // a 404 the client can tell from a missing domain.
 func TestSitePageCheckContentScopeAndPageNotRead(t *testing.T) {

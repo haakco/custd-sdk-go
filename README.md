@@ -287,7 +287,10 @@ band (`nil` otherwise, and from a server that predates the pool).
 draft's `Slug`, the `Redirect` a move needs (format `redirect`) and the phrase's
 `Phrase` use; page facts carry `ShareImage` and `FAQSchema`. `CompareWording`
 measures two drafts as the `content.near-duplicate` rule does (`SharedPercent`
-is `nil` when the texts were too short to compare). `ListCampaignLinks`,
+is `nil` when the texts were too short to compare). `ComparePageWording` compares
+the latest stored observations of two URLs on the verified domain without
+fetching either URL. Each page has an evidence state and an observation time
+when checked. `ListCampaignLinks`,
 `CreateCampaignLink` and `ArchiveCampaignLink` keep a domain's saved UTM links
 (409 `SiteCampaignLinkTakenCode` or `SiteCampaignLinkLimitCode`).
 

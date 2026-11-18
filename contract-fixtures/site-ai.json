@@ -1,0 +1,80 @@
+{
+  "settings": {
+    "aiMode": "own-key",
+    "monthlyCapUsdMicros": 10000000,
+    "keyConfigured": true,
+    "keyRefused": true,
+    "currentTermsVersion": "terms-v1",
+    "acceptedTermsVersion": "terms-v1",
+    "consentAcceptedAt": "2026-11-18T12:00:00Z"
+  },
+  "revoked": {
+    "aiMode": "off",
+    "monthlyCapUsdMicros": 0,
+    "keyConfigured": false,
+    "currentTermsVersion": "terms-v1"
+  },
+  "tenantUsage": {
+    "period": "month",
+    "from": "2026-11-01T00:00:00Z",
+    "until": "2026-12-01T00:00:00Z",
+    "rows": [
+      {
+        "feature": "site-suggestions",
+        "provider": "deepseek",
+        "method": "chat-completions",
+        "model": "deepseek-chat",
+        "payer": "tenant",
+        "priceRevision": "schedule-1",
+        "attempts": 3,
+        "unsettledAttempts": 1,
+        "unknownCostAttempts": 1,
+        "failedAttempts": 1,
+        "notSentAttempts": 0,
+        "inputTokens": 220,
+        "cachedInputTokens": 50,
+        "outputTokens": 40,
+        "searches": 0,
+        "pages": 0,
+        "audioMilliseconds": 0,
+        "confirmedCostUsdMicros": 13,
+        "estimatedCostUsdMicros": 27,
+        "capAccountedUsdMicros": 61
+      }
+    ],
+    "aiMode": "own-key",
+    "monthlyCapUsdMicros": 10000000
+  },
+  "platformUsage": {
+    "period": "previous-month",
+    "from": "2026-10-01T00:00:00Z",
+    "until": "2026-11-01T00:00:00Z",
+    "rows": [
+      {
+        "feature": "market-sampling",
+        "provider": "deepseek",
+        "method": "chat-completions",
+        "model": "deepseek-chat",
+        "payer": "platform",
+        "priceRevision": "schedule-1",
+        "attempts": 3,
+        "unsettledAttempts": 1,
+        "unknownCostAttempts": 1,
+        "failedAttempts": 1,
+        "notSentAttempts": 0,
+        "inputTokens": 220,
+        "cachedInputTokens": 50,
+        "outputTokens": 40,
+        "searches": 0,
+        "pages": 0,
+        "audioMilliseconds": 0,
+        "confirmedCostUsdMicros": 13,
+        "estimatedCostUsdMicros": 27,
+        "capAccountedUsdMicros": 61,
+        "tenantSlug": "haakco",
+        "samplingProduct": "hosting"
+      }
+    ],
+    "samplingMonthlyCapUsdMicros": 10000000
+  }
+}
