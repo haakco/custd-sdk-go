@@ -1,6 +1,98 @@
 {
   "rankings": {
     "source": "active",
+    "pool": "joined",
+    "from": "2026-11-13",
+    "to": "2026-11-15",
+    "maxKeywords": 50,
+    "keywords": [
+      {
+        "keywordUuid": "d3d94468-02a4-4b5e-8a6f-1c2b3d4e5f55",
+        "keyword": "pricing tool",
+        "country": "zaf",
+        "device": "mobile",
+        "status": "active",
+        "notifyPosition": 10,
+        "createdAt": "2026-11-12T10:00:00Z",
+        "latest": {
+          "day": "2026-11-15",
+          "state": "ranking",
+          "rankingUrl": "https://example.com/pricing",
+          "position": 7.4,
+          "clicks": 3,
+          "impressions": 120
+        },
+        "observations": [
+          {
+            "day": "2026-11-13",
+            "state": "no_data",
+            "clicks": 0,
+            "impressions": 0
+          },
+          {
+            "day": "2026-11-14",
+            "state": "not_ranking",
+            "clicks": 0,
+            "impressions": 0
+          },
+          {
+            "day": "2026-11-15",
+            "state": "ranking",
+            "rankingUrl": "https://example.com/pricing",
+            "position": 7.4,
+            "clicks": 3,
+            "impressions": 120
+          }
+        ],
+        "pool": {
+          "demandBand": "10k_100k",
+          "positions": {
+            "top3": 35,
+            "top10": 40,
+            "top20": 15,
+            "beyond20": 10
+          }
+        }
+      },
+      {
+        "keywordUuid": "6512bd43-d9ca-46a1-b2c3-d4e5f6a7b866",
+        "keyword": "seo audit",
+        "country": "all",
+        "device": "all",
+        "status": "paused",
+        "notifyPosition": 20,
+        "createdAt": "2026-11-12T10:00:00Z",
+        "latest": {
+          "day": "2026-11-15",
+          "state": "no_data",
+          "clicks": 0,
+          "impressions": 0
+        },
+        "observations": [
+          {
+            "day": "2026-11-13",
+            "state": "no_data",
+            "clicks": 0,
+            "impressions": 0
+          },
+          {
+            "day": "2026-11-14",
+            "state": "no_data",
+            "clicks": 0,
+            "impressions": 0
+          },
+          {
+            "day": "2026-11-15",
+            "state": "no_data",
+            "clicks": 0,
+            "impressions": 0
+          }
+        ]
+      }
+    ]
+  },
+  "rankingsBeforePool": {
+    "source": "active",
     "from": "2026-11-13",
     "to": "2026-11-15",
     "maxKeywords": 50,
@@ -94,6 +186,7 @@
   },
   "rankingsFailing": {
     "source": "failing",
+    "pool": "not_joined",
     "sourceFailure": "Search Console refused the token",
     "from": "2026-11-13",
     "to": "2026-11-15",
@@ -102,6 +195,7 @@
   },
   "rankingsNotConnected": {
     "source": "not_connected",
+    "pool": "not_joined",
     "from": "2026-11-13",
     "to": "2026-11-15",
     "maxKeywords": 50,

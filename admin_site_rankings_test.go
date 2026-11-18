@@ -28,15 +28,25 @@ func TestSiteRankingsDecodeStatesAndSources(t *testing.T) {
 		paused.Country != AdminSiteRankAll || paused.Latest.State != AdminSiteRankStateNoData {
 		t.Fatalf("keywords = %+v", rankings.Keywords)
 	}
+	if rankings.Pool != AdminSiteSearchPoolJoined || active.Pool == nil ||
+		active.Pool.DemandBand != AdminSiteSearchPoolDemand10KTo100K || active.Pool.Positions.Top10 != 40 || paused.Pool != nil {
+		t.Fatalf("pool = %q, %+v, %+v", rankings.Pool, active.Pool, paused.Pool)
+	}
 	doer.body = siteRankingsFixture(t, "rankingsNotConnected")
 	none, err := domains.GetRankings(ctx, "d-1", 0)
-	if err != nil || none.Source != AdminSiteRankSourceNotConnected || len(none.Keywords) != 0 {
+	if err != nil || none.Source != AdminSiteRankSourceNotConnected || none.Pool != AdminSiteSearchPoolNotJoined ||
+		len(none.Keywords) != 0 {
 		t.Fatalf("not connected = %+v, %v", none, err)
 	}
 	doer.body = siteRankingsFixture(t, "rankingsFailing")
 	failing, err := domains.GetRankings(ctx, "d-1", 0)
 	if err != nil || failing.Source != string(AdminSiteSearchConnectionFailing) || failing.SourceFailure == "" {
 		t.Fatalf("failing = %+v, %v", failing, err)
+	}
+	doer.body = siteRankingsFixture(t, "rankingsBeforePool")
+	before, err := domains.GetRankings(ctx, "d-1", 0)
+	if err != nil || before.Pool != "" || before.Keywords[0].Pool != nil || before.Keywords[1].Pool != nil {
+		t.Fatalf("before pool = %+v, %v", before, err)
 	}
 	assertSiteRequests(t, doer.requests[:2], []string{
 		"GET " + siteTestBase + "/rankings?days=3", "GET " + siteTestBase + "/rankings",

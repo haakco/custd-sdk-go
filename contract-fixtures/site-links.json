@@ -1,0 +1,177 @@
+{
+  "referringDomains": {
+    "siteUuid": "6f1c2b3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d",
+    "domain": "example.com",
+    "role": "own",
+    "sources": [
+      {
+        "source": "bing",
+        "status": "available",
+        "scope": "Bing's inbound links to https://example.com/: the linking URLs of its 20 most linked pages, of 34 pages Bing lists with links.",
+        "asOf": "2026-11-16",
+        "referringDomains": 2,
+        "links": 57,
+        "listed": 2,
+        "complete": true
+      },
+      {
+        "source": "commoncrawl",
+        "status": "available",
+        "scope": "Registrable domains linking to example.com in Common Crawl's cc-main-2026-aug-sep-oct domain graph; the 3 best ranked by harmonic centrality are listed.",
+        "asOf": "cc-main-2026-aug-sep-oct",
+        "referringDomains": 1843,
+        "listed": 3,
+        "complete": false
+      },
+      {
+        "source": "crawl",
+        "status": "available",
+        "scope": "Links on the pages Custd's latest audits crawled of this Site's 1 other audited domains.",
+        "asOf": "2026-11-17",
+        "referringDomains": 1,
+        "links": 4,
+        "listed": 1,
+        "complete": true
+      }
+    ],
+    "authority": {
+      "release": "cc-main-2026-aug-sep-oct",
+      "graphDomain": "example.com",
+      "inGraph": true,
+      "harmonicRank": 48210,
+      "harmonicCentrality": 14.73,
+      "pageRankRank": 61877,
+      "pageRank": 0.0000123,
+      "hosts": 6
+    },
+    "referringDomains": [
+      {
+        "domain": "news.example.org",
+        "sources": [
+          "bing",
+          "commoncrawl",
+          "crawl"
+        ],
+        "bingLinks": 40,
+        "crawlLinks": 4,
+        "followed": false,
+        "anchorText": "Example pricing",
+        "harmonicRank": 1200,
+        "pageRankRank": 3400
+      },
+      {
+        "domain": "blog.example.net",
+        "sources": [
+          "bing",
+          "commoncrawl"
+        ],
+        "bingLinks": 17,
+        "anchorText": "a great tool",
+        "harmonicRank": 50000,
+        "pageRankRank": 61000
+      },
+      {
+        "domain": "forum.example.io",
+        "sources": [
+          "commoncrawl"
+        ],
+        "harmonicRank": 90000,
+        "pageRankRank": 120000
+      }
+    ],
+    "lost": {
+      "status": "available",
+      "release": "cc-main-2026-aug-sep-oct",
+      "previousRelease": "cc-main-2026-may-jun-jul",
+      "scope": "Domains listed as linking to example.com in cc-main-2026-may-jun-jul that cc-main-2026-aug-sep-oct has no link from.",
+      "domains": [
+        {
+          "domain": "old.example.com",
+          "harmonicRank": 70000
+        },
+        {
+          "domain": "gone.example.org"
+        }
+      ]
+    }
+  },
+  "referringDomainsOutsideGraph": {
+    "siteUuid": "6f1c2b3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d",
+    "domain": "shop.example.dev",
+    "role": "own",
+    "sources": [
+      {
+        "source": "bing",
+        "status": "failed",
+        "scope": "Bing's inbound links to https://shop.example.dev/: the linking URLs of its 0 most linked pages, of 0 pages Bing lists with links.",
+        "listed": 0,
+        "complete": false,
+        "lastFailure": "bing GetLinkCounts: 401 Unauthorized"
+      },
+      {
+        "source": "commoncrawl",
+        "status": "unavailable",
+        "scope": "Common Crawl's cc-main-2026-aug-sep-oct domain graph does not hold example.dev.",
+        "asOf": "cc-main-2026-aug-sep-oct",
+        "listed": 0,
+        "complete": false
+      },
+      {
+        "source": "crawl",
+        "status": "available",
+        "scope": "Links on the pages Custd's latest audits crawled of this Site's 2 other audited domains.",
+        "asOf": "2026-11-17",
+        "referringDomains": 0,
+        "links": 0,
+        "listed": 0,
+        "complete": true
+      }
+    ],
+    "authority": {
+      "release": "cc-main-2026-aug-sep-oct",
+      "graphDomain": "example.dev",
+      "inGraph": false
+    },
+    "referringDomains": [],
+    "lost": {
+      "status": "unavailable",
+      "release": "cc-main-2026-aug-sep-oct",
+      "scope": "Common Crawl's cc-main-2026-aug-sep-oct domain graph does not hold example.dev.",
+      "domains": []
+    }
+  },
+  "referringDomainsPending": {
+    "siteUuid": "6f1c2b3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d",
+    "domain": "rival.example",
+    "role": "competitor",
+    "sources": [
+      {
+        "source": "bing",
+        "status": "unavailable",
+        "scope": "Bing Webmaster Tools reports inbound links only for a domain of the Site connected to Bing.",
+        "listed": 0,
+        "complete": false
+      },
+      {
+        "source": "commoncrawl",
+        "status": "pending",
+        "scope": "No Common Crawl domain graph has been read for rival.example yet; the next release import covers it.",
+        "listed": 0,
+        "complete": false
+      },
+      {
+        "source": "crawl",
+        "status": "unavailable",
+        "scope": "Links on the pages Custd's latest audits crawled of this Site's 0 other audited domains.",
+        "listed": 0,
+        "complete": false
+      }
+    ],
+    "referringDomains": [],
+    "lost": {
+      "status": "pending",
+      "scope": "No Common Crawl domain graph has been read for rival.example yet; the next release import covers it.",
+      "domains": []
+    }
+  }
+}

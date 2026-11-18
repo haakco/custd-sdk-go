@@ -270,6 +270,15 @@ and after the fix; an insufficient period has `nil` numbers, never 0.
 the analytics goals (1 to 5 event types) credited to them; `Landings` and
 `GoalConversions` are `nil` when goals were not measured.
 
+`GetReferringDomains(ctx, siteUUID, domain)` returns who links to one of the
+Site's domains: each source's totals with status, scope and date, the domain's
+Common Crawl authority, the referring domains with their source labels, and the
+domains lost since the previous release. A source with no number has `nil`
+counts, never 0. The tenant-wide shared search pool uses `GetSearchPool`,
+`SetSearchPool(ctx, joined)` and `ListSearchPoolQueries`; `GetRankings` reports
+`Pool` and, for a member, each keyword's pool band (`nil` otherwise, and from a
+server that predates the pool).
+
 Custd 3.46.0 and earlier send no report `Template` (their reports are the full
 template) and no Lighthouse history `URL` or `Pages`; those decode as empty.
 

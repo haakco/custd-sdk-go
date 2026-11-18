@@ -83,12 +83,17 @@ type AdminSiteTrackedKeyword struct {
 	CreatedAt      time.Time                  `json:"createdAt"`
 	Latest         AdminSiteRankObservation   `json:"latest"`
 	Observations   []AdminSiteRankObservation `json:"observations"`
+	// Pool is the shared search pool's bands for the keyword; nil when the tenant has not joined
+	// the pool, the keyword is below its threshold, or the server predates the pool.
+	Pool *AdminSiteSearchPoolBand `json:"pool,omitempty"`
 }
 
 // AdminSiteRankings are a domain's tracked keywords over From..To; SourceFailure says why a
-// failing Search Console connection failed.
+// failing Search Console connection failed. Pool is AdminSiteSearchPoolJoined or
+// AdminSiteSearchPoolNotJoined, and empty from a server that predates the shared search pool.
 type AdminSiteRankings struct {
 	Source        string                    `json:"source"`
+	Pool          string                    `json:"pool,omitempty"`
 	SourceFailure string                    `json:"sourceFailure,omitempty"`
 	From          string                    `json:"from"`
 	To            string                    `json:"to"`

@@ -1,0 +1,95 @@
+{
+  "joinRequest": {
+    "joined": true
+  },
+  "leaveRequest": {
+    "joined": false
+  },
+  "notJoinedProblem": {
+    "type": "forbidden",
+    "title": "Forbidden",
+    "status": 403,
+    "detail": "search pool: join the shared search pool to read it; only tenants that contribute their Search Console queries can read the pool",
+    "code": "site_search_pool_not_joined",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  },
+  "queries": {
+    "from": "2026-10-18",
+    "to": "2026-11-14",
+    "computedAt": "2026-11-18T00:00:00Z",
+    "queries": [
+      {
+        "query": "pricing tool",
+        "demandBand": "10k_100k",
+        "positions": {
+          "top3": 35,
+          "top10": 40,
+          "top20": 15,
+          "beyond20": 10
+        }
+      },
+      {
+        "query": "pricing tool free",
+        "demandBand": "100_999",
+        "positions": {
+          "top3": 0,
+          "top10": 0,
+          "top20": 25,
+          "beyond20": 75
+        }
+      }
+    ]
+  },
+  "queriesBeforeRollup": {
+    "queries": []
+  },
+  "queryInvalidProblem": {
+    "type": "invalid",
+    "title": "Invalid Request",
+    "status": 400,
+    "detail": "search pool: search must be at most 100 characters and limit 1 to 200",
+    "code": "site_search_pool_query_invalid",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  },
+  "settingInvalidProblem": {
+    "type": "invalid",
+    "title": "Invalid Request",
+    "status": 400,
+    "detail": "search pool: joined must be true or false",
+    "code": "site_search_pool_setting_invalid",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  },
+  "settingJoined": {
+    "joined": true,
+    "joinedAt": "2026-11-17T09:30:00Z",
+    "minContributors": 5,
+    "minImpressions": 100,
+    "windowDays": 28
+  },
+  "settingNotJoined": {
+    "joined": false,
+    "minContributors": 5,
+    "minImpressions": 100,
+    "windowDays": 28
+  },
+  "siteBoundProblem": {
+    "type": "forbidden",
+    "title": "Forbidden",
+    "status": 403,
+    "detail": "search pool: a credential bound to one Site cannot read or change the tenant's search pool",
+    "code": "site_search_pool_site_bound",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  }
+}
