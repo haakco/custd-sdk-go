@@ -110,6 +110,10 @@ type DataSpaceList struct {
 // the Site and its domains.
 const ScopeTemplateSiteInsights = "site-insights"
 
+// ScopeTemplateSiteInsightsRead provisions a tenant-wide, read-only credential (site_insights.read)
+// that reads only the next actions and the portfolio summary of every Site, as a hub shows them.
+const ScopeTemplateSiteInsightsRead = "site-insights-read"
+
 type ProducerProvisionRequest struct {
 	CompanySlug   string            `json:"companySlug"`
 	ProducerSlug  string            `json:"producerSlug"`

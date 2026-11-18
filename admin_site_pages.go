@@ -2,6 +2,7 @@ package custd
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/url"
 	"time"
@@ -16,10 +17,11 @@ const (
 	AdminSiteRemedyKindServer  = "server"
 )
 
-// The formats of AdminSiteGeneratedFix.Format.
+// The formats of AdminSiteGeneratedFix.Format. A redirect is one Apache line and one nginx line.
 const (
 	AdminSiteGeneratedFormatHTML      = "html"
 	AdminSiteGeneratedFormatRobotsTxt = "robots.txt"
+	AdminSiteGeneratedFormatRedirect  = "redirect"
 )
 
 // The states of AdminSitePageRecheck.State.
@@ -60,6 +62,10 @@ type AdminSiteGeneratedFix struct {
 }
 
 // AdminSitePageFacts is what the latest audit, recheck or draft check read from one page.
+// ShareImage is the og:image a fix would name (the largest declared image, else the first unsized
+// one; never fetched), empty when the page has none or the server predates it. FAQSchema is
+// FAQPage JSON-LD from the page's own question headings, nil when it asks none; Google shows no
+// FAQ rich results since 7 May 2026.
 type AdminSitePageFacts struct {
 	URL         string                   `json:"url"`
 	ObservedAt  time.Time                `json:"observedAt"`
@@ -75,6 +81,8 @@ type AdminSitePageFacts struct {
 	Headings    []AdminSitePageHeading   `json:"headings"`
 	WordCount   int                      `json:"wordCount"`
 	Readability AdminSitePageReadability `json:"readability"`
+	ShareImage  string                   `json:"shareImage,omitempty"`
+	FAQSchema   *AdminSiteGeneratedFix   `json:"faqSchema,omitempty"`
 }
 
 // AdminSitePageRobots is the page's robots meta and X-Robots-Tag header.
@@ -150,17 +158,83 @@ type AdminSitePageFinding struct {
 	Remedy   AdminSiteRemedy `json:"remedy"`
 }
 
-// AdminSitePageCheck is what the page checks found on draft HTML, and the page's facts.
+// AdminSitePageCheck is what the page checks found on draft HTML, and the page's facts. The draft
+// tools are empty when not asked for or from an older server: Slug is made from the draft's first
+// h1, else its title; Redirect is the permanent redirect from PreviousURL (format redirect);
+// Phrase says where the requested phrase appears.
 type AdminSitePageCheck struct {
 	Page     AdminSitePageFacts     `json:"page"`
 	Findings []AdminSitePageFinding `json:"findings"`
+	Slug     string                 `json:"slug,omitempty"`
+	Redirect *AdminSiteGeneratedFix `json:"redirect,omitempty"`
+	Phrase   *AdminSitePhraseUse    `json:"phrase,omitempty"`
+}
+
+// AdminSitePhraseUse is where one phrase appears in a draft and how often, with no target or
+// verdict. DensityPercent is Count over WordCount as a percentage, nil when the draft has no words.
+type AdminSitePhraseUse struct {
+	Phrase         string   `json:"phrase"`
+	InTitle        bool     `json:"inTitle"`
+	InDescription  bool     `json:"inDescription"`
+	InH1           bool     `json:"inH1"`
+	Count          int      `json:"count"`
+	WordCount      int      `json:"wordCount"`
+	DensityPercent *float64 `json:"densityPercent,omitempty"`
+}
+
+// UnmarshalJSON drops the density the server sends as 0 for a draft without words.
+func (p *AdminSitePhraseUse) UnmarshalJSON(data []byte) error {
+	type wire AdminSitePhraseUse
+	if err := json.Unmarshal(data, (*wire)(p)); err != nil {
+		return err
+	}
+	if p.WordCount == 0 {
+		p.DensityPercent = nil
+	}
+	return nil
 }
 
 // AdminSitePageCheckRequest checks HTML as if URL, on the domain's host, served it. HTML is the
-// full page, at most 512 KiB; it is never stored.
+// full page, at most 512 KiB; it is never stored. PreviousURL, the page's current address on the
+// same host, asks for the redirect a move needs; Phrase (at most 100 characters) asks where it
+// appears. Both are left out when empty.
 type AdminSitePageCheckRequest struct {
-	URL  string `json:"url"`
-	HTML string `json:"html"`
+	URL         string `json:"url"`
+	HTML        string `json:"html"`
+	PreviousURL string `json:"previousUrl,omitempty"`
+	Phrase      string `json:"phrase,omitempty"`
+}
+
+// AdminSiteWordingCompareRequest is two drafts, as HTML or plain text (each at most 512 KiB), to
+// compare. Nothing is stored or fetched.
+type AdminSiteWordingCompareRequest struct {
+	First  string `json:"first"`
+	Second string `json:"second"`
+}
+
+// AdminSiteWordingCompare is how much wording two drafts share, measured as the crawl's
+// content.near-duplicate rule measures it; wording overlap, not plagiarism. Texts under MinWords
+// are not compared: Compared is false and SharedPercent nil.
+type AdminSiteWordingCompare struct {
+	FirstWords       int  `json:"firstWords"`
+	SecondWords      int  `json:"secondWords"`
+	MinWords         int  `json:"minWords"`
+	Compared         bool `json:"compared"`
+	SharedPercent    *int `json:"sharedPercent,omitempty"`
+	ThresholdPercent int  `json:"thresholdPercent"`
+	NearDuplicate    bool `json:"nearDuplicate"`
+}
+
+// UnmarshalJSON drops the share the server sends as 0 when it did not compare the texts.
+func (w *AdminSiteWordingCompare) UnmarshalJSON(data []byte) error {
+	type wire AdminSiteWordingCompare
+	if err := json.Unmarshal(data, (*wire)(w)); err != nil {
+		return err
+	}
+	if !w.Compared {
+		w.SharedPercent = nil
+	}
+	return nil
 }
 
 // AdminSiteRobotsTestRequest asks whether UserAgent may crawl URL (a path or an http(s) URL).
@@ -226,13 +300,23 @@ func (c *SiteDomainAdminClient) GetPageRecheck(
 	return &recheck, err
 }
 
-// CheckPage runs the one-page checks on draft HTML without fetching or storing anything.
+// CheckPage runs the one-page checks on draft HTML without fetching or storing anything, and the
+// draft tools the request asks for.
 func (c *SiteDomainAdminClient) CheckPage(
 	ctx context.Context, domainUUID string, req AdminSitePageCheckRequest,
 ) (*AdminSitePageCheck, error) {
 	var check AdminSitePageCheck
 	err := c.request(ctx, http.MethodPost, siteDomainPath(domainUUID)+"/page-check", req, &check)
 	return &check, err
+}
+
+// CompareWording measures how much wording two drafts share, as the near-duplicate rule does.
+func (c *SiteDomainAdminClient) CompareWording(
+	ctx context.Context, domainUUID string, req AdminSiteWordingCompareRequest,
+) (*AdminSiteWordingCompare, error) {
+	var result AdminSiteWordingCompare
+	err := c.request(ctx, http.MethodPost, siteDomainPath(domainUUID)+"/wording-compare", req, &result)
+	return &result, err
 }
 
 // TestRobots answers whether a crawler may fetch a URL under a pasted or the live robots.txt.

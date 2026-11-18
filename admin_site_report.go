@@ -170,6 +170,9 @@ type AdminSiteReport struct {
 	Speed       []AdminSiteReportSpeed     `json:"speed"`
 	Search      AdminSiteReportSearch      `json:"search"`
 	Audit       AdminSiteReportAudit       `json:"audit"`
+	// NextActions are the domain's first three next actions, as NextActions ranks them; empty in
+	// reports built or saved before servers sent them.
+	NextActions []AdminSiteNextAction `json:"nextActions,omitempty"`
 }
 
 // AdminSiteReportShare is one live public share's metadata; its token is shown only on creation.

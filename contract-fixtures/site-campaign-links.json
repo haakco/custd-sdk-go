@@ -1,0 +1,105 @@
+{
+  "campaignLink": {
+    "linkUuid": "0198a3b2-0000-7000-8000-000000000060",
+    "url": "https://example.com/plans?plan=team",
+    "source": "newsletter",
+    "medium": "email",
+    "campaign": "spring_sale",
+    "term": "hosting_plans",
+    "content": "header_link",
+    "taggedUrl": "https://example.com/plans?plan=team&utm_campaign=spring_sale&utm_content=header_link&utm_medium=email&utm_source=newsletter&utm_term=hosting_plans",
+    "createdAt": "2026-11-18T08:00:00Z"
+  },
+  "campaignLinkArchived": {
+    "linkUuid": "0198a3b2-0000-7000-8000-000000000061",
+    "url": "https://example.com/",
+    "source": "facebook",
+    "medium": "paid_social",
+    "campaign": "launch",
+    "term": "",
+    "content": "",
+    "taggedUrl": "https://example.com/?utm_campaign=launch&utm_medium=paid_social&utm_source=facebook",
+    "createdAt": "2026-11-15T08:00:00Z",
+    "archivedAt": "2026-11-18T06:00:00Z"
+  },
+  "campaignLinkLimitProblem": {
+    "type": "conflict",
+    "title": "Conflict",
+    "status": 409,
+    "detail": "campaign link: a domain keeps at most 500 active links; archive one first",
+    "code": "site_campaign_link_limit",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  },
+  "campaignLinkListWithArchived": {
+    "links": [
+      {
+        "linkUuid": "0198a3b2-0000-7000-8000-000000000060",
+        "url": "https://example.com/plans?plan=team",
+        "source": "newsletter",
+        "medium": "email",
+        "campaign": "spring_sale",
+        "term": "hosting_plans",
+        "content": "header_link",
+        "taggedUrl": "https://example.com/plans?plan=team&utm_campaign=spring_sale&utm_content=header_link&utm_medium=email&utm_source=newsletter&utm_term=hosting_plans",
+        "createdAt": "2026-11-18T08:00:00Z"
+      },
+      {
+        "linkUuid": "0198a3b2-0000-7000-8000-000000000061",
+        "url": "https://example.com/",
+        "source": "facebook",
+        "medium": "paid_social",
+        "campaign": "launch",
+        "term": "",
+        "content": "",
+        "taggedUrl": "https://example.com/?utm_campaign=launch&utm_medium=paid_social&utm_source=facebook",
+        "createdAt": "2026-11-15T08:00:00Z",
+        "archivedAt": "2026-11-18T06:00:00Z"
+      }
+    ],
+    "maxLinks": 500,
+    "suggestedSources": [
+      "google",
+      "bing",
+      "facebook",
+      "instagram",
+      "linkedin",
+      "x",
+      "youtube",
+      "tiktok",
+      "newsletter",
+      "partner"
+    ],
+    "suggestedMediums": [
+      "cpc",
+      "email",
+      "social",
+      "paid_social",
+      "display",
+      "referral",
+      "affiliate",
+      "qr"
+    ]
+  },
+  "campaignLinkRequest": {
+    "url": "https://example.com/plans?plan=team",
+    "source": "Newsletter",
+    "medium": "Email",
+    "campaign": "Spring Sale",
+    "term": "Hosting Plans",
+    "content": "header_link"
+  },
+  "campaignLinkTakenProblem": {
+    "type": "conflict",
+    "title": "Conflict",
+    "status": 409,
+    "detail": "campaign link: an active link with this tagged URL already exists",
+    "code": "site_campaign_link_taken",
+    "retryability": "none",
+    "nextAction": {
+      "action": "none"
+    }
+  }
+}

@@ -279,6 +279,22 @@ counts, never 0. The tenant-wide shared search pool uses `GetSearchPool`,
 `Pool` and, for a member, each keyword's pool band (`nil` otherwise, and from a
 server that predates the pool).
 
+`CheckPage` takes an optional `PreviousURL` and `Phrase` and then returns the
+draft's `Slug`, the `Redirect` a move needs (format `redirect`) and the phrase's
+`Phrase` use; page facts carry `ShareImage` and `FAQSchema`. `CompareWording`
+measures two drafts as the `content.near-duplicate` rule does (`SharedPercent`
+is `nil` when the texts were too short to compare). `ListCampaignLinks`,
+`CreateCampaignLink` and `ArchiveCampaignLink` keep a domain's saved UTM links
+(409 `SiteCampaignLinkTakenCode` or `SiteCampaignLinkLimitCode`).
+
+`NextActions` returns a domain's status, one plain `Headline`, what is not
+checked yet and its three most important actions in Custd's fixed order
+(`AdminSiteNextAction*` kinds; show an unknown kind by its `Title` and `Why`).
+`PortfolioSummary` gives every domain's status, open findings and
+`FirstAction`, worst first, and the report's `NextActions` are the same three.
+`ScopeTemplateSiteInsightsRead` provisions a tenant-wide credential that reads
+only these two calls.
+
 Custd 3.46.0 and earlier send no report `Template` (their reports are the full
 template) and no Lighthouse history `URL` or `Pages`; those decode as empty.
 

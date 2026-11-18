@@ -168,6 +168,167 @@
       }
     ]
   },
+  "pageCheckDraftTools": {
+    "page": {
+      "url": "https://example.com/plans",
+      "observedAt": "2026-11-18T08:00:00Z",
+      "status": 200,
+      "lang": "en",
+      "title": "Hosting plans for small teams",
+      "description": "Pick a hosting plan that fits a small team, with backups included.",
+      "canonical": "https://example.com/plans",
+      "robots": {
+        "noindex": false,
+        "nofollow": false,
+        "header": ""
+      },
+      "openGraph": {
+        "title": "",
+        "description": "",
+        "image": "",
+        "url": "",
+        "type": "",
+        "siteName": ""
+      },
+      "twitter": {
+        "card": "",
+        "title": "",
+        "description": "",
+        "image": "",
+        "site": ""
+      },
+      "hreflang": [],
+      "headings": [
+        {
+          "level": 1,
+          "text": "Café hosting plans for small teams"
+        },
+        {
+          "level": 2,
+          "text": "What does a hosting plan include?"
+        },
+        {
+          "level": 2,
+          "text": "Can I move my site later?"
+        }
+      ],
+      "wordCount": 52,
+      "readability": {
+        "sentences": 6,
+        "wordsPerSentence": 8.7,
+        "readingTimeSeconds": 16,
+        "fleschReadingEase": 77.6
+      },
+      "shareImage": "https://example.com/img/team.jpg",
+      "faqSchema": {
+        "format": "html",
+        "code": "<script type=\"application/ld+json\">\n{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"FAQPage\",\n  \"mainEntity\": [\n    {\n      \"@type\": \"Question\",\n      \"acceptedAnswer\": {\n        \"@type\": \"Answer\",\n        \"text\": \"Daily backups, a staging copy and email support.\"\n      },\n      \"name\": \"What does a hosting plan include?\"\n    },\n    {\n      \"@type\": \"Question\",\n      \"acceptedAnswer\": {\n        \"@type\": \"Answer\",\n        \"text\": \"Yes. We copy it to the new plan for free.\"\n      },\n      \"name\": \"Can I move my site later?\"\n    }\n  ]\n}\n</script>"
+      }
+    },
+    "findings": [
+      {
+        "rule": "jsonld.missing",
+        "severity": "medium",
+        "title": "No structured data",
+        "url": "https://example.com/plans",
+        "evidence": "1 of 1 pages have no JSON-LD: https://example.com/plans",
+        "fix": "Add JSON-LD describing the organisation and the page (Organization, WebSite, Service, Article…).",
+        "source": "https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data",
+        "remedy": {
+          "kind": "markup",
+          "element": "<script type=\"application/ld+json\">",
+          "generated": {
+            "format": "html",
+            "code": "<script type=\"application/ld+json\">\n{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"WebPage\",\n  \"description\": \"Pick a hosting plan that fits a small team, with backups included.\",\n  \"name\": \"Hosting plans for small teams\",\n  \"url\": \"https://example.com/plans\"\n}\n</script>"
+          }
+        }
+      },
+      {
+        "rule": "og.image-missing",
+        "severity": "medium",
+        "title": "No link preview image",
+        "url": "https://example.com/plans",
+        "evidence": "no og:image meta tag",
+        "fix": "Add <meta property=\"og:image\" content=\"https://…\"> with an absolute URL of an image at least 1200×630 pixels, such as the page's featured image.",
+        "source": "https://ogp.me/",
+        "remedy": {
+          "kind": "markup",
+          "element": "<meta property=\"og:image\">",
+          "generated": {
+            "format": "html",
+            "code": "<meta property=\"og:image\" content=\"https://example.com/img/team.jpg\">"
+          }
+        }
+      },
+      {
+        "rule": "og.missing",
+        "severity": "medium",
+        "title": "Link preview tags missing",
+        "url": "https://example.com/plans",
+        "evidence": "1 of 1 pages lack link preview tags: https://example.com/plans (og:title, og:description)",
+        "fix": "Add og:title and og:description so shared links show the page's own title and summary.",
+        "source": "https://ogp.me/",
+        "remedy": {
+          "kind": "markup",
+          "element": "<meta property=\"og:*\">",
+          "generated": {
+            "format": "html",
+            "code": "<meta property=\"og:title\" content=\"Hosting plans for small teams\">\n<meta property=\"og:description\" content=\"Pick a hosting plan that fits a small team, with backups included.\">"
+          }
+        }
+      },
+      {
+        "rule": "content.thin",
+        "severity": "low",
+        "title": "Page has little text",
+        "url": "https://example.com/plans",
+        "evidence": "1 of 1 pages have fewer than 100 words of visible text (under 50 is reported as needing JavaScript instead): https://example.com/plans (52 words)",
+        "fix": "Expand the page with useful content, merge it into a related page, or mark it noindex; a page under 100 words rarely answers a search on its own.",
+        "source": "https://developers.google.com/search/docs/fundamentals/creating-helpful-content",
+        "remedy": {
+          "kind": "content",
+          "element": "the page's text"
+        }
+      },
+      {
+        "rule": "twitter.card-missing",
+        "severity": "low",
+        "title": "No X (Twitter) card tag",
+        "url": "https://example.com/plans",
+        "evidence": "1 of 1 pages have no twitter:card tag: https://example.com/plans",
+        "fix": "Add <meta name=\"twitter:card\" content=\"summary_large_image\">; X reads title, description and image from the og: tags, but shows no card without twitter:card.",
+        "source": "https://developer.x.com/en/docs/x-for-websites/cards/overview/markup",
+        "remedy": {
+          "kind": "markup",
+          "element": "<meta name=\"twitter:card\">",
+          "generated": {
+            "format": "html",
+            "code": "<meta name=\"twitter:card\" content=\"summary\">"
+          }
+        }
+      }
+    ],
+    "slug": "cafe-hosting-plans-for-small-teams",
+    "redirect": {
+      "format": "redirect",
+      "code": "# Apache (.htaccess)\nRedirect 301 /old-plans https://example.com/plans\n# nginx (inside the server block)\nlocation = /old-plans { return 301 https://example.com/plans; }"
+    },
+    "phrase": {
+      "phrase": "hosting plan",
+      "inTitle": false,
+      "inDescription": true,
+      "inH1": false,
+      "count": 2,
+      "wordCount": 52,
+      "densityPercent": 3.85
+    }
+  },
+  "pageCheckDraftToolsRequest": {
+    "url": "https://example.com/plans",
+    "html": "<!doctype html><html lang=\"en\"><head><title>Hosting plans for small teams</title><meta name=\"description\" content=\"Pick a hosting plan that fits a small team, with backups included.\"><link rel=\"canonical\" href=\"https://example.com/plans\"></head><body><h1>Café hosting plans for small teams</h1><img src=\"/img/logo.png\" width=\"120\" height=\"40\" alt=\"Example\"><img src=\"/img/team.jpg\" width=\"1200\" height=\"630\" alt=\"The team\"><p>Every hosting plan includes daily backups and support from people who run the servers.</p><h2>What does a hosting plan include?</h2><p>Daily backups, a staging copy and email support.</p><h2>Can I move my site later?</h2><p>Yes. We copy it to the new plan for free.</p><footer>Example Hosting</footer></body></html>",
+    "previousUrl": "https://example.com/old-plans",
+    "phrase": "hosting plan"
+  },
   "pageCheckRequest": {
     "url": "https://example.com/plans",
     "html": "<!doctype html><html lang=\"en\"><head><title>Hosting plans for small teams</title><meta name=\"description\" content=\"Pick a hosting plan that fits a small team, with backups and support included.\"><meta property=\"og:title\" content=\"Hosting plans\"><meta property=\"og:description\" content=\"Plans for small teams.\"><link rel=\"alternate\" hreflang=\"en-za\" href=\"https://example.com/plans\"></head><body><h1>Hosting plans</h1><h2>Backups</h2><p>Every plan keeps daily backups. Support answers within a day.</p></body></html>"
@@ -222,6 +383,62 @@
       "wordsPerSentence": 6.5,
       "readingTimeSeconds": 4,
       "fleschReadingEase": 57.1
+    }
+  },
+  "pageFactsShareImage": {
+    "url": "https://example.com/plans",
+    "observedAt": "2026-11-18T08:00:00Z",
+    "status": 200,
+    "lang": "en",
+    "title": "Hosting plans for small teams",
+    "description": "Pick a hosting plan that fits a small team, with backups included.",
+    "canonical": "https://example.com/plans",
+    "robots": {
+      "noindex": false,
+      "nofollow": false,
+      "header": ""
+    },
+    "openGraph": {
+      "title": "",
+      "description": "",
+      "image": "",
+      "url": "",
+      "type": "",
+      "siteName": ""
+    },
+    "twitter": {
+      "card": "",
+      "title": "",
+      "description": "",
+      "image": "",
+      "site": ""
+    },
+    "hreflang": [],
+    "headings": [
+      {
+        "level": 1,
+        "text": "Café hosting plans for small teams"
+      },
+      {
+        "level": 2,
+        "text": "What does a hosting plan include?"
+      },
+      {
+        "level": 2,
+        "text": "Can I move my site later?"
+      }
+    ],
+    "wordCount": 52,
+    "readability": {
+      "sentences": 6,
+      "wordsPerSentence": 8.7,
+      "readingTimeSeconds": 16,
+      "fleschReadingEase": 77.6
+    },
+    "shareImage": "https://example.com/img/team.jpg",
+    "faqSchema": {
+      "format": "html",
+      "code": "<script type=\"application/ld+json\">\n{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"FAQPage\",\n  \"mainEntity\": [\n    {\n      \"@type\": \"Question\",\n      \"acceptedAnswer\": {\n        \"@type\": \"Answer\",\n        \"text\": \"Daily backups, a staging copy and email support.\"\n      },\n      \"name\": \"What does a hosting plan include?\"\n    },\n    {\n      \"@type\": \"Question\",\n      \"acceptedAnswer\": {\n        \"@type\": \"Answer\",\n        \"text\": \"Yes. We copy it to the new plan for free.\"\n      },\n      \"name\": \"Can I move my site later?\"\n    }\n  ]\n}\n</script>"
     }
   },
   "pageFactsWithoutReadingEase": {
@@ -520,5 +737,27 @@
       }
     ],
     "unavailable": []
+  },
+  "wordingCompare": {
+    "firstWords": 270,
+    "secondWords": 271,
+    "minWords": 200,
+    "compared": true,
+    "sharedPercent": 91,
+    "thresholdPercent": 90,
+    "nearDuplicate": true
+  },
+  "wordingCompareNotCompared": {
+    "firstWords": 5,
+    "secondWords": 7,
+    "minWords": 200,
+    "compared": false,
+    "sharedPercent": 0,
+    "thresholdPercent": 90,
+    "nearDuplicate": false
+  },
+  "wordingCompareRequest": {
+    "first": "<p>backups servers storage plans domains support uptime security teams mail number x.</p><p>billing support billing support billing support billing support billing support number xx.</p><p>hosting mail teams security uptime support domains plans storage servers number xxx.</p><p>mail servers support mail servers support mail servers support mail number xxxx.</p><p>teams support storage billing teams support storage billing teams support number xxxxx.</p><p>security mail billing servers plans support security mail billing servers number x.</p><p>uptime servers teams plans hosting support backups security storage mail number xx.</p><p>support support support support support support support support support support number xxx.</p><p>domains mail storage security backups support hosting plans teams servers number xxxx.</p><p>plans servers billing mail security support plans servers billing mail number xxxxx.</p><p>storage support teams billing storage support teams billing storage support number x.</p><p>servers mail support servers mail support servers mail support servers number xx.</p><p>backups servers storage plans domains support uptime security teams mail number xxx.</p><p>billing support billing support billing support billing support billing support number xxxx.</p><p>hosting mail teams security uptime support domains plans storage servers number xxxxx.</p><p>mail servers support mail servers support mail servers support mail number x.</p><p>teams support storage billing teams support storage billing teams support number xx.</p><p>security mail billing servers plans support security mail billing servers number xxx.</p><p>uptime servers teams plans hosting support backups security storage mail number xxxx.</p><p>support support support support support support support support support support number xxxxx.</p><p>domains mail storage security backups support hosting plans teams servers number x.</p><p>plans servers billing mail security support plans servers billing mail number xx.</p><p>Ask us about a plan today.</p>",
+    "second": "<p>backups servers storage plans domains support uptime security teams mail number x.</p><p>billing support billing support billing support billing support billing support number xx.</p><p>hosting mail teams security uptime support domains plans storage servers number xxx.</p><p>mail servers support mail servers support mail servers support mail number xxxx.</p><p>teams support storage billing teams support storage billing teams support number xxxxx.</p><p>security mail billing servers plans support security mail billing servers number x.</p><p>uptime servers teams plans hosting support backups security storage mail number xx.</p><p>support support support support support support support support support support number xxx.</p><p>domains mail storage security backups support hosting plans teams servers number xxxx.</p><p>plans servers billing mail security support plans servers billing mail number xxxxx.</p><p>storage support teams billing storage support teams billing storage support number x.</p><p>servers mail support servers mail support servers mail support servers number xx.</p><p>backups servers storage plans domains support uptime security teams mail number xxx.</p><p>billing support billing support billing support billing support billing support number xxxx.</p><p>hosting mail teams security uptime support domains plans storage servers number xxxxx.</p><p>mail servers support mail servers support mail servers support mail number x.</p><p>teams support storage billing teams support storage billing teams support number xx.</p><p>security mail billing servers plans support security mail billing servers number xxx.</p><p>uptime servers teams plans hosting support backups security storage mail number xxxx.</p><p>support support support support support support support support support support number xxxxx.</p><p>domains mail storage security backups support hosting plans teams servers number x.</p><p>plans servers billing mail security support plans servers billing mail number xx.</p><p>Call us to move your site today.</p>"
   }
 }

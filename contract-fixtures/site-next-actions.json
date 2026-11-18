@@ -1,0 +1,348 @@
+{
+  "nextActions": {
+    "domainUuid": "0198a3b2-0000-7000-8000-000000000070",
+    "host": "example.com",
+    "status": "down",
+    "headline": "Your site is down. 6 things to do.",
+    "checkedAt": "2026-11-18T11:58:00Z",
+    "notChecked": [
+      "search"
+    ],
+    "actionCount": 6,
+    "actions": [
+      {
+        "kind": "outage",
+        "title": "Your site is down",
+        "why": "Visitors and search engines cannot reach it. Custd checks every five minutes and closes the outage at the first check that passes.",
+        "severity": "high",
+        "affectedCount": 0,
+        "target": {
+          "place": "uptime"
+        },
+        "recheckable": false
+      },
+      {
+        "kind": "certificate",
+        "title": "Your HTTPS certificate expires in 10 days",
+        "why": "Browsers refuse the site once its certificate expires. Renew it, or check that automatic renewal works.",
+        "severity": "medium",
+        "affectedCount": 0,
+        "target": {
+          "place": "uptime"
+        },
+        "recheckable": false
+      },
+      {
+        "kind": "reconnect-search",
+        "title": "Search access was refused",
+        "why": "Google or Bing refused Custd's access, so your search numbers stopped updating. Give access again, then reconnect in Settings.",
+        "severity": "medium",
+        "affectedCount": 0,
+        "target": {
+          "place": "search-settings"
+        },
+        "recheckable": false
+      }
+    ]
+  },
+  "nextActionsFindings": {
+    "domainUuid": "0198a3b2-0000-7000-8000-000000000073",
+    "host": "blog.example.com",
+    "status": "up",
+    "headline": "Your site is up. 3 things to do.",
+    "checkedAt": "2026-11-18T11:59:00Z",
+    "notChecked": [],
+    "actionCount": 3,
+    "actions": [
+      {
+        "kind": "finding",
+        "title": "Image has no alt text",
+        "why": "It stops search engines finding or reading the pages it affects.",
+        "severity": "high",
+        "affectedCount": 2,
+        "rule": "image.alt-missing",
+        "target": {
+          "place": "finding",
+          "findingUuid": "0198a3b2-0000-7000-8000-000000000081",
+          "pageUrl": "https://example.com/about"
+        },
+        "recheckable": false
+      },
+      {
+        "kind": "finding",
+        "title": "Page has no title",
+        "why": "It stops search engines finding or reading the pages it affects.",
+        "severity": "high",
+        "affectedCount": 1,
+        "rule": "title.missing",
+        "target": {
+          "place": "page",
+          "findingUuid": "0198a3b2-0000-7000-8000-000000000083",
+          "pageUrl": "https://example.com/contact"
+        },
+        "recheckable": true
+      },
+      {
+        "kind": "finding",
+        "title": "Meta description length",
+        "why": "It weakens how the pages it affects are listed, shown or cited in search.",
+        "severity": "medium",
+        "affectedCount": 1,
+        "rule": "description.length",
+        "target": {
+          "place": "page",
+          "findingUuid": "0198a3b2-0000-7000-8000-000000000084",
+          "pageUrl": "https://example.com/blog"
+        },
+        "recheckable": true
+      }
+    ]
+  },
+  "nextActionsHealthy": {
+    "domainUuid": "0198a3b2-0000-7000-8000-000000000072",
+    "host": "www.example.org",
+    "status": "up",
+    "headline": "Your site is up. Nothing to do right now.",
+    "checkedAt": "2026-11-18T11:59:00Z",
+    "notChecked": [],
+    "actionCount": 0,
+    "actions": []
+  },
+  "nextActionsPending": {
+    "domainUuid": "0198a3b2-0000-7000-8000-000000000071",
+    "host": "shop.example.com",
+    "status": "unknown",
+    "headline": "Custd is not checking this site yet: prove you own it first.",
+    "notChecked": [
+      "uptime",
+      "audit",
+      "search"
+    ],
+    "actionCount": 1,
+    "actions": [
+      {
+        "kind": "verify",
+        "title": "Prove you own this site",
+        "why": "Custd checks nothing on a site until its owner proves control with a DNS record or a file.",
+        "severity": "high",
+        "affectedCount": 0,
+        "target": {
+          "place": "ownership"
+        },
+        "recheckable": true
+      }
+    ]
+  },
+  "portfolioSummary": {
+    "domains": [
+      {
+        "domainUuid": "0198a3b2-0000-7000-8000-000000000071",
+        "siteUuid": "0198a3b2-0000-7000-8000-000000000002",
+        "host": "shop.example.com",
+        "status": "unknown",
+        "headline": "Custd is not checking this site yet: prove you own it first.",
+        "actionCount": 1,
+        "openFindings": {
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "info": 0
+        },
+        "firstAction": {
+          "kind": "verify",
+          "title": "Prove you own this site",
+          "why": "Custd checks nothing on a site until its owner proves control with a DNS record or a file.",
+          "severity": "high",
+          "affectedCount": 0,
+          "target": {
+            "place": "ownership"
+          },
+          "recheckable": true
+        }
+      },
+      {
+        "domainUuid": "0198a3b2-0000-7000-8000-000000000070",
+        "siteUuid": "0198a3b2-0000-7000-8000-000000000001",
+        "host": "example.com",
+        "status": "down",
+        "headline": "Your site is down. 6 things to do.",
+        "checkedAt": "2026-11-18T11:58:00Z",
+        "actionCount": 6,
+        "openFindings": {
+          "high": 4,
+          "medium": 1,
+          "low": 0,
+          "info": 0
+        },
+        "firstAction": {
+          "kind": "outage",
+          "title": "Your site is down",
+          "why": "Visitors and search engines cannot reach it. Custd checks every five minutes and closes the outage at the first check that passes.",
+          "severity": "high",
+          "affectedCount": 0,
+          "target": {
+            "place": "uptime"
+          },
+          "recheckable": false
+        }
+      },
+      {
+        "domainUuid": "0198a3b2-0000-7000-8000-000000000073",
+        "siteUuid": "0198a3b2-0000-7000-8000-000000000001",
+        "host": "blog.example.com",
+        "status": "up",
+        "headline": "Your site is up. 3 things to do.",
+        "checkedAt": "2026-11-18T11:59:00Z",
+        "actionCount": 3,
+        "openFindings": {
+          "high": 3,
+          "medium": 1,
+          "low": 0,
+          "info": 0
+        },
+        "firstAction": {
+          "kind": "finding",
+          "title": "Image has no alt text",
+          "why": "It stops search engines finding or reading the pages it affects.",
+          "severity": "high",
+          "affectedCount": 2,
+          "rule": "image.alt-missing",
+          "target": {
+            "place": "finding",
+            "findingUuid": "0198a3b2-0000-7000-8000-000000000081",
+            "pageUrl": "https://example.com/about"
+          },
+          "recheckable": false
+        }
+      },
+      {
+        "domainUuid": "0198a3b2-0000-7000-8000-000000000072",
+        "siteUuid": "0198a3b2-0000-7000-8000-000000000001",
+        "host": "www.example.org",
+        "status": "up",
+        "headline": "Your site is up. Nothing to do right now.",
+        "checkedAt": "2026-11-18T11:59:00Z",
+        "actionCount": 0,
+        "openFindings": {
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "info": 0
+        }
+      }
+    ]
+  },
+  "reportWithNextActions": {
+    "host": "example.com",
+    "generatedAt": "2026-11-18T12:00:00Z",
+    "template": "executive",
+    "uptime": {
+      "status": "down",
+      "downSince": "2026-11-18T11:40:00Z",
+      "windows": {
+        "last24h": {
+          "checks": 0,
+          "upChecks": 0
+        },
+        "last7d": {
+          "checks": 0,
+          "upChecks": 0
+        },
+        "last30d": {
+          "checks": 0,
+          "upChecks": 0
+        }
+      },
+      "days": []
+    },
+    "certificate": {
+      "validTo": "2026-11-28T12:00:00Z",
+      "issuer": "R11",
+      "problem": false
+    },
+    "speed": [],
+    "search": {
+      "days": 28,
+      "connected": true,
+      "sources": [],
+      "topQueries": [],
+      "topPages": [],
+      "strikingDistance": []
+    },
+    "audit": {
+      "auditedAt": "2026-11-18T09:00:00Z",
+      "findings": [
+        {
+          "severity": "high",
+          "title": "Site is down",
+          "url": "https://example.com/",
+          "fix": "Restore the site.",
+          "firstSeenAt": "2026-11-18T11:40:00Z"
+        },
+        {
+          "severity": "high",
+          "title": "Image has no alt text",
+          "url": "https://example.com/about",
+          "fix": "Add alt text.",
+          "firstSeenAt": "2026-11-18T09:00:00Z"
+        },
+        {
+          "severity": "high",
+          "title": "Image has no alt text",
+          "url": "https://example.com/pricing",
+          "fix": "Add alt text.",
+          "firstSeenAt": "2026-11-18T09:00:00Z"
+        },
+        {
+          "severity": "high",
+          "title": "Page has no title",
+          "url": "https://example.com/contact",
+          "fix": "Add a title.",
+          "firstSeenAt": "2026-11-18T09:00:00Z"
+        },
+        {
+          "severity": "medium",
+          "title": "Meta description length",
+          "url": "https://example.com/blog",
+          "fix": "Shorten it.",
+          "firstSeenAt": "2026-11-18T09:00:00Z"
+        }
+      ]
+    },
+    "nextActions": [
+      {
+        "kind": "outage",
+        "title": "Your site is down",
+        "why": "Visitors and search engines cannot reach it. Custd checks every five minutes and closes the outage at the first check that passes.",
+        "severity": "high",
+        "affectedCount": 0,
+        "target": {
+          "place": "uptime"
+        },
+        "recheckable": false
+      },
+      {
+        "kind": "certificate",
+        "title": "Your HTTPS certificate expires in 10 days",
+        "why": "Browsers refuse the site once its certificate expires. Renew it, or check that automatic renewal works.",
+        "severity": "medium",
+        "affectedCount": 0,
+        "target": {
+          "place": "uptime"
+        },
+        "recheckable": false
+      },
+      {
+        "kind": "reconnect-search",
+        "title": "Search access was refused",
+        "why": "Google or Bing refused Custd's access, so your search numbers stopped updating. Give access again, then reconnect in Settings.",
+        "severity": "medium",
+        "affectedCount": 0,
+        "target": {
+          "place": "search-settings"
+        },
+        "recheckable": false
+      }
+    ]
+  }
+}
