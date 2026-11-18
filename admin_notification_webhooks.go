@@ -15,15 +15,28 @@ type NotificationWebhookAdminClient struct {
 	admin *AdminClient
 }
 
-// NotificationWebhookSubscription is one tenant's webhook endpoint.
+// NotificationWebhookKind is how a subscription is delivered.
+type NotificationWebhookKind string
+
+const (
+	// NotificationWebhookKindWebhook posts signed Custd JSON to the endpoint.
+	NotificationWebhookKindWebhook NotificationWebhookKind = "webhook"
+	// NotificationWebhookKindSlack posts a Slack message to a Slack incoming
+	// webhook. Its URL is the secret: it is stored sealed and the endpoint
+	// read back is only a hint of it.
+	NotificationWebhookKindSlack NotificationWebhookKind = "slack"
+)
+
+// NotificationWebhookSubscription is one tenant's webhook or Slack endpoint.
 type NotificationWebhookSubscription struct {
-	UUID      string `json:"uuid"`
-	Name      string `json:"name"`
-	Endpoint  string `json:"endpoint"`
-	Enabled   bool   `json:"enabled"`
-	Company   string `json:"companySlug,omitempty"`
-	CreatedAt string `json:"createdAt"`
-	UpdatedAt string `json:"updatedAt"`
+	UUID      string                  `json:"uuid"`
+	Name      string                  `json:"name"`
+	Kind      NotificationWebhookKind `json:"kind"`
+	Endpoint  string                  `json:"endpoint"`
+	Enabled   bool                    `json:"enabled"`
+	Company   string                  `json:"companySlug,omitempty"`
+	CreatedAt string                  `json:"createdAt"`
+	UpdatedAt string                  `json:"updatedAt"`
 }
 
 // NotificationWebhookListResponse lists a tenant's subscriptions.
@@ -31,19 +44,24 @@ type NotificationWebhookListResponse struct {
 	Subscriptions []NotificationWebhookSubscription `json:"subscriptions"`
 }
 
-// NotificationWebhookSecret carries a signing secret. The value is sensitive:
-// hand it to the caller's secret store and do not log it.
+// NotificationWebhookSecret is the subscription with its signing secret. The
+// secret is sensitive: hand it to the caller's secret store and do not log it.
+// It is empty for a Slack subscription, whose URL is its secret.
 type NotificationWebhookSecret struct {
+	NotificationWebhookSubscription
 	SigningSecret string `json:"signingSecret"`
 }
 
-// NotificationWebhookCreateRequest registers a webhook endpoint. The tenant is
-// server-derived from the authenticated session.
+// NotificationWebhookCreateRequest registers an endpoint. The tenant is
+// server-derived from the authenticated session. Kind defaults to webhook; for
+// slack the endpoint is the Slack incoming-webhook URL
+// (https://hooks.slack.com/services/...), which is never shown again.
 type NotificationWebhookCreateRequest struct {
-	CompanySlug string `json:"companySlug,omitempty"`
-	Name        string `json:"name"`
-	Endpoint    string `json:"endpoint"`
-	Enabled     bool   `json:"enabled"`
+	CompanySlug string                  `json:"companySlug,omitempty"`
+	Name        string                  `json:"name"`
+	Kind        NotificationWebhookKind `json:"kind,omitempty"`
+	Endpoint    string                  `json:"endpoint"`
+	Enabled     bool                    `json:"enabled"`
 }
 
 // NotificationDeliveryStatus is one delivery attempt's state.

@@ -124,6 +124,7 @@ type AppReleaseSummary struct {
 	ReleaseID  string          `json:"releaseId"`
 	State      AppReleaseState `json:"state"`
 	Active     bool            `json:"active"`
+	Label      string          `json:"label,omitempty"`
 	FileCount  int             `json:"fileCount"`
 	TotalBytes int64           `json:"totalBytes"`
 	CreatedAt  string          `json:"createdAt"`

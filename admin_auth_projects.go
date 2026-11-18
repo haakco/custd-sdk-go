@@ -212,6 +212,55 @@ type AuthProjectDesiredState struct {
 	// Hosting serves the environment as a hosted application. Leaving it nil
 	// keeps the stored section, so an apply cannot switch an app off by omission.
 	Hosting *AuthProjectHosting `json:"hosting,omitempty"`
+	// SocialSignIn is the Google and GitHub sign-in the environment offers. Leaving it nil keeps the
+	// stored providers; an empty Providers list turns them all off.
+	SocialSignIn *AuthProjectSocialSignIn `json:"socialSignIn,omitempty"`
+}
+
+// Social sign-in modes: Custd's shared provider app, or the owner's own.
+const (
+	AuthProjectSocialModeShared = "shared"
+	AuthProjectSocialModeOwn    = "own"
+)
+
+// AuthProjectSocialSignIn is the social providers one environment offers.
+type AuthProjectSocialSignIn struct {
+	Providers []AuthProjectSocialProvider `json:"providers"`
+	// Status is read-only: what the environment's sign-in directory offers now, and the callback URLs
+	// an owner registers with their own provider app. An apply ignores it.
+	Status *AuthProjectSocialSignInStatus `json:"status,omitempty"`
+}
+
+// AuthProjectSocialProvider is one provider: google or github, in shared or own mode. ClientSecret is
+// write-only: send it once for an own provider; leave it empty later to keep the stored secret while
+// ClientID is unchanged. ClientSecretSet is read-only.
+type AuthProjectSocialProvider struct {
+	Provider        string `json:"provider"`
+	Mode            string `json:"mode"`
+	ClientID        string `json:"clientId,omitempty"`
+	ClientSecret    string `json:"clientSecret,omitempty"`
+	ClientSecretSet bool   `json:"clientSecretSet,omitempty"`
+}
+
+// AuthProjectSocialSignInStatus is the observed state of an environment's social providers.
+type AuthProjectSocialSignInStatus struct {
+	Providers    []AuthProjectSocialProviderStatus `json:"providers"`
+	CallbackURLs []AuthProjectSocialCallbackURL    `json:"callbackUrls"`
+}
+
+// AuthProjectSocialProviderStatus is one provider's state: active, applying, unavailable or
+// waiting_for_directory, with a plain note.
+type AuthProjectSocialProviderStatus struct {
+	Provider string `json:"provider"`
+	Mode     string `json:"mode"`
+	State    string `json:"state"`
+	Note     string `json:"note"`
+}
+
+// AuthProjectSocialCallbackURL is the exact callback one provider app must register.
+type AuthProjectSocialCallbackURL struct {
+	Provider string `json:"provider"`
+	URL      string `json:"url"`
 }
 
 // AuthProjectDesiredStateRequest is the body of both the apply and preview

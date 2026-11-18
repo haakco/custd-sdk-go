@@ -428,6 +428,11 @@ application principals a directory holds, through `/api/v1/admin/auth-projects`:
 - `CreateEnvironment`
 - `ListPrincipalSessions`, `RevokePrincipalSession`, `RevokePrincipalSessions`
 - `RevokePrincipalMembership`
+- Apps (`/api/v1/admin/apps`): `CreateApp` creates the project, its hosted
+  environment and ingest destination in one call and requires `IdempotencyKey`
+  (repeat it to finish `app_setup_incomplete`); `ListApps` and `GetApp` report one
+  `AppStatus` per app; `CreateAppDeployCredential` returns a CI client that can
+  deploy only that app (its secret is shown once) and `DeleteAppDeployCredential`
 - Hosted app releases: `CreateAppRelease` (manifest files and routing),
   `UploadAppReleaseFile` (one file's raw bytes, sent as `application/octet-stream`),
   `VerifyAppRelease`, `PromoteAppRelease` and `ListAppReleases`
@@ -436,6 +441,16 @@ An environment is served as a hosted app by the optional `Hosting` field of
 `AuthProjectDesiredState`; a nil value keeps the stored section.
 `AuthProjectStatus.Hosting` reports the derived host, origin and, with the
 `sign_in` capability, the sign-in client.
+The optional `SocialSignIn` field turns Google and GitHub sign-in on per
+environment, with Custd's shared provider app (`AuthProjectSocialModeShared`)
+or the owner's own (`AuthProjectSocialModeOwn`, whose `ClientSecret` is sent once
+and kept while `ClientID` is unchanged); a nil value keeps the stored providers.
+Its read-only `Status` lists the callback URLs to register with an own app.
+
+`Admin.Webhooks.Create` takes `Kind`: `NotificationWebhookKindWebhook` (signed
+JSON, the default) or `NotificationWebhookKindSlack`, whose endpoint is the Slack
+incoming-webhook URL. That URL is the secret: it is sealed, only a hint is read
+back and `SigningSecret` is empty.
 
 Every call takes a `custd.AuthProjectRequestOptions`. A machine credential must
 name the platform user it acts for in `OwningUserUUID`, sent as
