@@ -450,7 +450,11 @@ func TestAuthProjectDeleteProjectDecodesReleasedCounts(t *testing.T) {
 		"released": {
 			"environments": 2, "directories": 2, "organisations": 2, "memberships": 1,
 			"invitations": 3, "audienceBindings": 1, "operations": 4
-		}
+		},
+		"hosting": [{
+			"environmentId": "environment-1", "slug": "staging",
+			"removed": {"releases": 2, "releaseObjects": 14, "sites": 1, "items": 3, "alertWebhooks": 1}
+		}]
 	}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
 
@@ -473,6 +477,10 @@ func TestAuthProjectDeleteProjectDecodesReleasedCounts(t *testing.T) {
 		deletion.Released.AudienceBindings != 1 {
 		t.Fatalf("deletion = %+v", deletion)
 	}
+	if len(deletion.Hosting) != 1 || deletion.Hosting[0].Slug != "staging" ||
+		deletion.Hosting[0].Removed.ReleaseObjects != 14 || deletion.Hosting[0].Removed.AlertWebhooks != 1 {
+		t.Fatalf("hosting = %+v", deletion.Hosting)
+	}
 }
 
 func TestAuthProjectDeleteEnvironmentDecodesReceipt(t *testing.T) {
@@ -482,6 +490,11 @@ func TestAuthProjectDeleteEnvironmentDecodesReceipt(t *testing.T) {
 		"released": {
 			"directories": 1, "organisations": 1, "memberships": 0, "invitations": 1,
 			"audienceBindings": 1, "operations": 2, "profileValues": 3
+		},
+		"hosting": {
+			"releases": 1, "releaseObjects": 6, "shareCardObjects": 2, "sites": 1, "requestSummaries": 4,
+			"items": 2, "links": 3, "collectionEntries": 1, "measurementProjects": 1, "meetings": 1,
+			"uncertaintyModels": 1, "alertRules": 2, "alertSubscriptions": 1, "alertWebhooks": 1, "alertDeliveries": 5
 		}
 	}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
@@ -502,6 +515,10 @@ func TestAuthProjectDeleteEnvironmentDecodesReceipt(t *testing.T) {
 		deletion.Released.ProfileValues != 3 {
 		t.Fatalf("deletion = %+v", deletion)
 	}
+	if deletion.Hosting.ShareCardObjects != 2 || deletion.Hosting.UncertaintyModels != 1 ||
+		deletion.Hosting.AlertDeliveries != 5 {
+		t.Fatalf("hosting = %+v", deletion.Hosting)
+	}
 }
 
 func TestAuthProjectOffboardEnvironmentDecodesRetainedReceipt(t *testing.T) {
@@ -513,6 +530,10 @@ func TestAuthProjectOffboardEnvironmentDecodesRetainedReceipt(t *testing.T) {
 		"retained": {
 			"directories": 1, "organisations": 1, "memberships": 3,
 			"invitations": 4, "profileValues": 5, "reservedSlots": 1
+		},
+		"hosting": {
+			"status": "pending", "errorCategory": "hosting_withdrawal_incomplete",
+			"activeReleases": 1, "sites": 1, "alertRules": 2, "alertDeliveries": 3
 		}
 	}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
@@ -541,5 +562,9 @@ func TestAuthProjectOffboardEnvironmentDecodesRetainedReceipt(t *testing.T) {
 	if offboarding.Retained.ReservedSlots != 1 || offboarding.Retained.ProfileValues != 5 ||
 		offboarding.Retained.Memberships != 3 {
 		t.Fatalf("retained = %+v", offboarding.Retained)
+	}
+	if offboarding.Hosting.Status != "pending" || offboarding.Hosting.ErrorCategory != "hosting_withdrawal_incomplete" ||
+		offboarding.Hosting.ActiveReleases != 1 || offboarding.Hosting.AlertDeliveries != 3 {
+		t.Fatalf("hosting = %+v", offboarding.Hosting)
 	}
 }

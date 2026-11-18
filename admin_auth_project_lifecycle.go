@@ -138,12 +138,54 @@ type AuthProjectReleasedResources struct {
 	Operations       int `json:"operations"`
 }
 
-// AuthProjectDeletion is the receipt for a deleted project.
+// AuthProjectHostingRemovalIncompleteCode is the problem code an environment or
+// project delete carries when its hosted application was only partly removed.
+// Nothing else was deleted, so repeating the same delete finishes the removal.
+// Branch on it with errors.As(err, &requestErr) and requestErr.Problem.Code.
+const AuthProjectHostingRemovalIncompleteCode = "hosting_removal_incomplete"
+
+// AuthProjectEnvironmentDeletingCode is the problem code a 409 carries when a
+// release write reaches an environment whose deletion has started. Repeat the
+// delete to finish it; the environment accepts no further releases.
+const AuthProjectEnvironmentDeletingCode = "environment_deleting"
+
+// AuthEnvironmentHostingRemoval is what a delete removed from one environment's
+// hosted application. Object counts are what this request deleted, so a repeated
+// delete reports only the remainder.
+type AuthEnvironmentHostingRemoval struct {
+	Releases            int `json:"releases"`
+	ReleaseObjects      int `json:"releaseObjects"`
+	ShareCardObjects    int `json:"shareCardObjects"`
+	Sites               int `json:"sites"`
+	RequestSummaries    int `json:"requestSummaries"`
+	Items               int `json:"items"`
+	Links               int `json:"links"`
+	CollectionEntries   int `json:"collectionEntries"`
+	MeasurementProjects int `json:"measurementProjects"`
+	Meetings            int `json:"meetings"`
+	UncertaintyModels   int `json:"uncertaintyModels"`
+	AlertRules          int `json:"alertRules"`
+	AlertSubscriptions  int `json:"alertSubscriptions"`
+	AlertWebhooks       int `json:"alertWebhooks"`
+	AlertDeliveries     int `json:"alertDeliveries"`
+}
+
+// AuthProjectHostingRemoval is what a project delete removed from one
+// environment's hosted application.
+type AuthProjectHostingRemoval struct {
+	EnvironmentID string                        `json:"environmentId"`
+	Slug          string                        `json:"slug"`
+	Removed       AuthEnvironmentHostingRemoval `json:"removed"`
+}
+
+// AuthProjectDeletion is the receipt for a deleted project. Hosting lists what
+// the delete removed from each environment's hosted application.
 type AuthProjectDeletion struct {
 	ProjectID string                       `json:"projectId"`
 	Slug      string                       `json:"slug"`
 	Name      string                       `json:"name"`
 	Released  AuthProjectReleasedResources `json:"released"`
+	Hosting   []AuthProjectHostingRemoval  `json:"hosting"`
 }
 
 // AuthProjectEnvironmentDeletionRequest deletes one environment. ConfirmSlug must
@@ -175,6 +217,7 @@ type AuthProjectEnvironmentDeletion struct {
 	Slug          string                                  `json:"slug"`
 	Name          string                                  `json:"name"`
 	Released      AuthProjectEnvironmentReleasedResources `json:"released"`
+	Hosting       AuthEnvironmentHostingRemoval           `json:"hosting"`
 }
 
 // DeleteProject removes the project and everything scoped to it in one
@@ -247,6 +290,19 @@ type AuthEnvironmentRetainedResources struct {
 	ReservedSlots int `json:"reservedSlots"`
 }
 
+// AuthEnvironmentHostingWithdrawal is what an offboard withdrew from a hosted
+// environment. Status is complete, pending (repeat the offboard to resume) or
+// unavailable (no hosting on this deployment). The data is kept: the host and
+// discovery answer not found, every link is refused and alerts stop.
+type AuthEnvironmentHostingWithdrawal struct {
+	Status          string `json:"status"`
+	ErrorCategory   string `json:"errorCategory,omitempty"`
+	ActiveReleases  int    `json:"activeReleases"`
+	Sites           int    `json:"sites"`
+	AlertRules      int    `json:"alertRules"`
+	AlertDeliveries int    `json:"alertDeliveries"`
+}
+
 // AuthProjectEnvironmentOffboarding is the receipt for one offboarded environment.
 // It names both the project and the one environment it withdrew, so a caller can
 // tell it from a physical delete without reading the request back.
@@ -261,6 +317,7 @@ type AuthProjectEnvironmentOffboarding struct {
 	Revision           int64                            `json:"revision"`
 	ClientCleanup      AuthEnvironmentClientCleanup     `json:"clientCleanup"`
 	Retained           AuthEnvironmentRetainedResources `json:"retained"`
+	Hosting            AuthEnvironmentHostingWithdrawal `json:"hosting"`
 }
 
 // OffboardEnvironment withdraws one environment and reconciles its owned provider
