@@ -52,6 +52,9 @@ func TestSiteRemedyDecodesGeneratedAndUnknown(t *testing.T) {
 		generated.Format != AdminSiteGeneratedFormatHTML || generated.Code != `<link rel="canonical" href="https://example.com/plans">` {
 		t.Fatalf("remedy = %+v", finding.Remedy)
 	}
+	if !finding.Recheckable {
+		t.Fatal("canonical.missing finding is not recheckable")
+	}
 	var unknown AdminSiteRemedy
 	if err := json.Unmarshal([]byte(sitePageToolsFixture(t, "remedyUnknownRule")), &unknown); err != nil ||
 		unknown != (AdminSiteRemedy{}) {
@@ -117,6 +120,19 @@ func TestSitePageRecheckRoutesAndStates(t *testing.T) {
 	doer.status, doer.body = http.StatusBadRequest, sitePageToolsFixture(t, "pageNotOnDomainProblem")
 	_, err = domains.RequestPageRecheck(ctx, "d-1", "https://other.example/")
 	assertSiteProblemCode(t, err, http.StatusBadRequest, SitePageNotOnDomainCode)
+}
+
+// ListPageRechecks sends the ids comma-joined, as the server reads them, and decodes the list.
+func TestSitePageRechecksReadSendsCommaJoinedIDs(t *testing.T) {
+	doer := newCaptureDoer(http.StatusOK, sitePageToolsFixture(t, "pageRecheckList"))
+	domains := newAdminTestClient(t, doer, "http://localhost:8080").Admin.SiteDomains
+
+	list, err := domains.ListPageRechecks(context.Background(), "d-1", []string{"r-1", "r-2"})
+	if err != nil || len(list.Rechecks) != 2 || list.Rechecks[0].State != AdminSitePageRecheckChecked ||
+		list.Rechecks[1].State != AdminSitePageRecheckFailed {
+		t.Fatalf("list = %+v, %v", list, err)
+	}
+	assertSiteRequests(t, doer.requests, []string{"GET " + siteTestBase + "/page-rechecks?ids=r-1%2Cr-2"})
 }
 
 func TestSitePageCheckSendsDraftAndDecodesFindings(t *testing.T) {

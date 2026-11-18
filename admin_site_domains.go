@@ -26,7 +26,10 @@ const (
 )
 
 // AdminSiteDomainCreate claims a host for one of the tenant's sites. A site-bound credential
-// (site_domains.manage) may leave SiteUUID empty and gets its own Site.
+// (site_domains.manage) may leave SiteUUID empty and gets its own Site. Anyone else may leave it
+// empty too: Custd places the host on the Site holding it with or without www., else the Site
+// named after it, else the only Site, and refuses with SiteChoiceRequiredCode when that names no
+// one Site. A tenant with no Site gets one named after the host, which needs tenant-admin access.
 type AdminSiteDomainCreate struct {
 	SiteUUID string `json:"siteUuid,omitempty"`
 	Host     string `json:"host"`
@@ -122,6 +125,9 @@ type AdminSiteFinding struct {
 	Source      string                  `json:"source"`
 	Remedy      AdminSiteRemedy         `json:"remedy"`
 	History     AdminSiteFindingHistory `json:"history"`
+	// Recheckable says a one-page recheck decides this rule, so RequestPageRecheck can confirm the
+	// fix. A finding from a server before 3.51 reads false.
+	Recheckable bool `json:"recheckable"`
 }
 
 // AdminSiteFindingList lists a domain's findings, most severe first.

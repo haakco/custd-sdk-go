@@ -230,9 +230,11 @@ carry the `SiteSearchInspection*Code` constants.
 refusals carry the `SiteIndexNow*Code` constants.
 
 Each finding carries a `Remedy`: what the fix changes (`Kind`, `Element`) and,
-for some rules, `Generated` code to copy. The page tools work on one page:
+for some rules, `Generated` code to copy, and `Recheckable` when a one-page
+recheck can confirm the fix. The page tools work on one page:
 `GetPageFacts` returns what the last audit read, `RequestPageRecheck` queues a
-recheck (poll `GetPageRecheck`; `SitePageRecheckLimitCode` past the hourly
+recheck (poll `GetPageRecheck`, or `ListPageRechecks` for up to
+`SitePageRecheckReadLimit` at once; `SitePageRecheckLimitCode` past the hourly
 allowance, `SitePageNotOnDomainCode` for another host), `CheckPage` checks draft
 HTML without storing it, and `TestRobots` answers whether a crawler may fetch a
 URL under a pasted or the live robots.txt. `GetProjectContext` and

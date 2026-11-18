@@ -20,7 +20,8 @@
       "firstSeenAt": "2026-11-10T09:10:00Z",
       "lastSeenAt": "2026-11-17T06:10:00Z",
       "fixed": false
-    }
+    },
+    "recheckable": true
   },
   "pageCheck": {
     "page": {
@@ -528,6 +529,33 @@
       "action": "retry",
       "maxRetries": 3
     }
+  },
+  "pageRecheckList": {
+    "rechecks": [
+      {
+        "recheckUuid": "0198a3b2-0000-7000-8000-000000000040",
+        "url": "https://example.com/plans",
+        "state": "checked",
+        "requestedAt": "2026-11-17T08:00:00Z",
+        "checkedAt": "2026-11-17T08:01:00Z",
+        "openRules": [
+          "canonical.missing"
+        ],
+        "fixedRules": [
+          "title.missing"
+        ]
+      },
+      {
+        "recheckUuid": "0198a3b2-0000-7000-8000-000000000041",
+        "url": "https://example.com/gone",
+        "state": "failed",
+        "requestedAt": "2026-11-17T08:00:00Z",
+        "checkedAt": "2026-11-17T08:01:00Z",
+        "failure": "the page answered HTTP 503",
+        "openRules": [],
+        "fixedRules": []
+      }
+    ]
   },
   "pageRecheckQueued": {
     "recheckUuid": "0198a3b2-0000-7000-8000-000000000040",

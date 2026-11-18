@@ -96,4 +96,19 @@ func TestSiteFindingRuleMatchesRuleConstant(t *testing.T) {
 		uptime.Kind != AdminSiteRemedyKindServer || uptime.Generated != nil {
 		t.Fatalf("remedies = %+v, %+v", title, uptime)
 	}
+	if !findings.Findings[0].Recheckable || findings.Findings[1].Recheckable {
+		t.Fatalf("recheckable = %t, %t, want a page rule only", findings.Findings[0].Recheckable, findings.Findings[1].Recheckable)
+	}
+}
+
+// A domain created without a Site that matches no one Site surfaces site_choice_required.
+func TestSiteDomainCreateWithoutSiteSurfacesChoiceRequired(t *testing.T) {
+	doer := newCaptureDoer(http.StatusUnprocessableEntity, siteInsightsFixture(t, "siteChoiceRequiredProblem"))
+	domains := newAdminTestClient(t, doer, "http://localhost:8080").Admin.SiteDomains
+
+	_, err := domains.Create(context.Background(), AdminSiteDomainCreate{Host: "blog.example.com"})
+	assertSiteProblemCode(t, err, http.StatusUnprocessableEntity, SiteChoiceRequiredCode)
+	if got := string(doer.requests[0].Body); got != `{"host":"blog.example.com"}` {
+		t.Fatalf("create body = %s, want no siteUuid", got)
+	}
 }

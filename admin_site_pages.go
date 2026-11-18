@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -41,6 +42,13 @@ const (
 // SitePageNotOnDomainCode is the problem code a 400 carries when a page tool is given a URL on
 // another host than the domain's own.
 const SitePageNotOnDomainCode = "site_page_not_on_domain"
+
+// SitePageRecheckReadLimit bounds how many rechecks ListPageRechecks reads in one call.
+const SitePageRecheckReadLimit = 30
+
+// SiteChoiceRequiredCode is the problem code a 422 carries when a domain created without a Site
+// matches no one Site; name the Site with AdminSiteDomainCreate.SiteUUID.
+const SiteChoiceRequiredCode = "site_choice_required"
 
 // SitePageRecheckLimitCode is the problem code a 429 carries once the domain has used its hourly
 // page rechecks.
@@ -143,6 +151,12 @@ type AdminSitePageRecheck struct {
 	Failure     string     `json:"failure,omitempty"`
 	OpenRules   []string   `json:"openRules"`
 	FixedRules  []string   `json:"fixedRules"`
+}
+
+// AdminSitePageRecheckList is the rechecks ListPageRechecks found, in the order asked. An id that
+// is not one of the domain's rechecks is left out.
+type AdminSitePageRecheckList struct {
+	Rechecks []AdminSitePageRecheck `json:"rechecks"`
 }
 
 // AdminSitePageFinding is one problem a draft check found on a page. Unlike AdminSiteFinding it is
@@ -298,6 +312,17 @@ func (c *SiteDomainAdminClient) GetPageRecheck(
 	path := siteDomainPath(domainUUID) + "/page-rechecks/" + url.PathEscape(recheckUUID)
 	err := c.request(ctx, http.MethodGet, path, nil, &recheck)
 	return &recheck, err
+}
+
+// ListPageRechecks reads up to SitePageRecheckReadLimit of the domain's rechecks in one call, to
+// follow a group of pages with one poll. More ids, or none, is a 400.
+func (c *SiteDomainAdminClient) ListPageRechecks(
+	ctx context.Context, domainUUID string, recheckUUIDs []string,
+) (*AdminSitePageRecheckList, error) {
+	var list AdminSitePageRecheckList
+	query := url.Values{"ids": {strings.Join(recheckUUIDs, ",")}}.Encode()
+	err := c.request(ctx, http.MethodGet, siteDomainPath(domainUUID)+"/page-rechecks?"+query, nil, &list)
+	return &list, err
 }
 
 // CheckPage runs the one-page checks on draft HTML without fetching or storing anything, and the
