@@ -53,6 +53,7 @@ type SiteAISettings struct {
 	Mode                 SiteAIMode `json:"aiMode"`
 	MonthlyCapUSDMicros  int64      `json:"monthlyCapUsdMicros"`
 	KeyConfigured        bool       `json:"keyConfigured"`
+	OwnKeyAvailable      bool       `json:"ownKeyAvailable,omitempty"`
 	KeyRefused           bool       `json:"keyRefused,omitempty"`
 	CurrentTermsVersion  string     `json:"currentTermsVersion,omitempty"`
 	AcceptedTermsVersion string     `json:"acceptedTermsVersion,omitempty"`
@@ -106,8 +107,9 @@ type SiteAIUsage struct {
 
 type SiteAITenantUsage struct {
 	SiteAIUsage
-	Mode                SiteAIMode `json:"aiMode"`
-	MonthlyCapUSDMicros int64      `json:"monthlyCapUsdMicros"`
+	Mode                    SiteAIMode `json:"aiMode"`
+	MonthlyCapUSDMicros     int64      `json:"monthlyCapUsdMicros"`
+	MonthlyCapUsedUSDMicros *int64     `json:"monthlyCapUsedUsdMicros,omitempty"`
 }
 
 type SiteAIPlatformUsage struct {

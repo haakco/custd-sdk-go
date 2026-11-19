@@ -1,5 +1,6 @@
 {
   "nextActions": {
+    "aiMode": "own-key",
     "domainUuid": "0198a3b2-0000-7000-8000-000000000070",
     "host": "example.com",
     "status": "down",

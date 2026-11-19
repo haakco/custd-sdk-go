@@ -3,6 +3,7 @@
     "aiMode": "own-key",
     "monthlyCapUsdMicros": 10000000,
     "keyConfigured": true,
+    "ownKeyAvailable": true,
     "keyRefused": true,
     "currentTermsVersion": "terms-v1",
     "acceptedTermsVersion": "terms-v1",
@@ -43,7 +44,8 @@
       }
     ],
     "aiMode": "own-key",
-    "monthlyCapUsdMicros": 10000000
+    "monthlyCapUsdMicros": 10000000,
+    "monthlyCapUsedUsdMicros": 61
   },
   "platformUsage": {
     "period": "previous-month",

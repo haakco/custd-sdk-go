@@ -45,6 +45,7 @@ const AdminSiteNextActionsMax = 3
 // its most important actions, most important first. ActionCount counts every action; at most
 // AdminSiteNextActionsMax are returned.
 type AdminSiteNextActions struct {
+	AIMode      SiteAIMode            `json:"aiMode,omitempty"`
 	DomainUUID  string                `json:"domainUuid"`
 	Host        string                `json:"host"`
 	Status      AdminSiteUptimeStatus `json:"status"`
