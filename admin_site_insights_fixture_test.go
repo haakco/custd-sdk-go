@@ -96,6 +96,11 @@ func TestSiteFindingRuleMatchesRuleConstant(t *testing.T) {
 		uptime.Kind != AdminSiteRemedyKindServer || uptime.Generated != nil {
 		t.Fatalf("remedies = %+v, %+v", title, uptime)
 	}
+	suggestion := findings.Findings[0].Suggestion
+	if suggestion == nil || suggestion.Explanation != "The page has no title." ||
+		suggestion.NextStep != "Add a title that describes the page." || findings.Findings[1].Suggestion != nil {
+		t.Fatalf("suggestions = %+v, %+v", suggestion, findings.Findings[1].Suggestion)
+	}
 	if !findings.Findings[0].Recheckable || findings.Findings[1].Recheckable {
 		t.Fatalf("recheckable = %t, %t, want a page rule only", findings.Findings[0].Recheckable, findings.Findings[1].Recheckable)
 	}

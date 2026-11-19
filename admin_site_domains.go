@@ -127,7 +127,14 @@ type AdminSiteFinding struct {
 	History     AdminSiteFindingHistory `json:"history"`
 	// Recheckable says a one-page recheck decides this rule, so RequestPageRecheck can confirm the
 	// fix. A finding from a server before 3.51 reads false.
-	Recheckable bool `json:"recheckable"`
+	Recheckable bool                        `json:"recheckable"`
+	Suggestion  *AdminSiteFindingSuggestion `json:"suggestion,omitempty"`
+}
+
+// AdminSiteFindingSuggestion is a cached AI explanation and next step for an active finding.
+type AdminSiteFindingSuggestion struct {
+	Explanation string `json:"explanation"`
+	NextStep    string `json:"nextStep"`
 }
 
 // AdminSiteFindingList lists a domain's findings, most severe first.

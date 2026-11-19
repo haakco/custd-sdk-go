@@ -176,7 +176,11 @@
           "lastSeenAt": "2026-11-17T06:10:00Z",
           "fixed": false
         },
-        "recheckable": true
+        "recheckable": true,
+        "suggestion": {
+          "explanation": "The page has no title.",
+          "nextStep": "Add a title that describes the page."
+        }
       },
       {
         "findingUuid": "0198a3b2-0000-7000-8000-000000000021",
