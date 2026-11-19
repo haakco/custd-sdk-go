@@ -114,9 +114,6 @@ const ScopeTemplateSiteInsights = "site-insights"
 // that reads only the next actions and the portfolio summary of every Site, as a hub shows them.
 const ScopeTemplateSiteInsightsRead = "site-insights-read"
 
-// ScopeTemplateSiteAIRead permits reads of a tenant’s Site Insights AI settings and usage.
-const ScopeTemplateSiteAIRead = "site-ai-read"
-
 type ProducerProvisionRequest struct {
 	CompanySlug   string            `json:"companySlug"`
 	ProducerSlug  string            `json:"producerSlug"`
