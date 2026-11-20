@@ -125,6 +125,7 @@ type AdminSiteFinding struct {
 	Source      string                  `json:"source"`
 	Remedy      AdminSiteRemedy         `json:"remedy"`
 	History     AdminSiteFindingHistory `json:"history"`
+	Dismissible bool                    `json:"dismissible,omitempty"`
 	// Recheckable says a one-page recheck decides this rule, so RequestPageRecheck can confirm the
 	// fix. A finding from a server before 3.51 reads false.
 	Recheckable bool                        `json:"recheckable"`

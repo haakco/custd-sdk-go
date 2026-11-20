@@ -73,6 +73,7 @@ const (
 	SiteRuleTLSInvalid                 = "tls.invalid"
 	SiteRuleTLSExpiring                = "tls.expiring"
 	SiteRuleTLSExpiringSoon            = "tls.expiring-soon"
+	SiteRuleRegistrationExpiring       = "registration.expiring"
 	SiteRuleLighthouseDesktopDrop      = "lighthouse.desktop-score-drop"
 	SiteRuleLighthouseMobileDrop       = "lighthouse.mobile-score-drop"
 	SiteRuleSearchLowCTR               = "search.low-ctr"
