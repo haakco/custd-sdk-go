@@ -357,6 +357,40 @@ func authProjectDesiredState() AuthProjectDesiredState {
 	}
 }
 
+// TestAuthProjectDesiredStateRoundTripsTheDisplayName proves the two display-name fields travel
+// under their wire names, so a consumer reads back both the name and the surface that owns it.
+func TestAuthProjectDesiredStateRoundTripsTheDisplayName(t *testing.T) {
+	desired := authProjectDesiredState()
+	desired.DisplayName = "Acme Portal"
+	desired.DisplayNameSource = AuthProjectDisplayNameSourceApplication
+
+	encoded, err := json.Marshal(desired)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	var wire map[string]any
+	if err := json.Unmarshal(encoded, &wire); err != nil {
+		t.Fatalf("decode wire body: %v", err)
+	}
+	if wire["displayName"] != "Acme Portal" || wire["displayNameSource"] != "application" {
+		t.Fatalf("display name wire fields = %v/%v, want Acme Portal/application",
+			wire["displayName"], wire["displayNameSource"])
+	}
+	if AuthProjectDisplayNameSourceHosting != "hosting" {
+		t.Fatalf("hosting source constant = %q, want the closed-set value hosting",
+			AuthProjectDisplayNameSourceHosting)
+	}
+
+	var decoded AuthProjectDesiredState
+	if err := json.Unmarshal(encoded, &decoded); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	if decoded.DisplayName != "Acme Portal" ||
+		decoded.DisplayNameSource != AuthProjectDisplayNameSourceApplication {
+		t.Fatalf("decoded display name = %q/%q", decoded.DisplayName, decoded.DisplayNameSource)
+	}
+}
+
 func TestAuthProjectsApplyEnvironmentDesiredStatePinsRequestAndDecodesOperation(t *testing.T) {
 	doer := newCaptureDoer(http.StatusOK, `{
 		"id": "op-1",

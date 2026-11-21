@@ -204,6 +204,14 @@ type AuthProjectDesiredState struct {
 	EntryPath string `json:"entryPath"`
 	// BrandAccent is the realm's optional sign-in accent as #rrggbb, empty for the shared default.
 	BrandAccent string `json:"brandAccent"`
+	// DisplayName is the customer-facing application name the realm shows on invitations, hosted
+	// sign-in and hosted account settings. It is presentation only, empty when the realm has not
+	// chosen a name, and it is not the environment's own name.
+	DisplayName string `json:"displayName"`
+	// DisplayNameSource records which surface owns DisplayName, so a client edits the name where it
+	// is actually owned instead of overwriting a mirrored one. It is descriptive provenance and
+	// never authority; the closed set is the AuthProjectDisplayNameSource constants.
+	DisplayNameSource string `json:"displayNameSource"`
 	// SignInMethods narrows the methods the realm offers to a non-empty subset of the closed set.
 	// Empty means no narrowing.
 	SignInMethods []string                     `json:"signInMethods"`
@@ -216,6 +224,16 @@ type AuthProjectDesiredState struct {
 	// stored providers; an empty Providers list turns them all off.
 	SocialSignIn *AuthProjectSocialSignIn `json:"socialSignIn,omitempty"`
 }
+
+// The closed set of surfaces that can own an environment's customer-facing display name.
+const (
+	// AuthProjectDisplayNameSourceApplication means the client edits the name in Custd's realm
+	// branding, so Custd is the source of truth for it.
+	AuthProjectDisplayNameSourceApplication = "application"
+	// AuthProjectDisplayNameSourceHosting means the Hosting platform's application label is the
+	// source of truth and Custd only mirrors it, so a Custd editor must not overwrite it.
+	AuthProjectDisplayNameSourceHosting = "hosting"
+)
 
 // Social sign-in modes: Custd's shared provider app, or the owner's own.
 const (
