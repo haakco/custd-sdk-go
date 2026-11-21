@@ -37,7 +37,7 @@ func (c *CustdClient) CheckApplicationAuthority(ctx context.Context, request App
 	if err != nil {
 		return denied, fmt.Errorf("custd: encode application authority request: %w", err)
 	}
-	response, err := c.requestApplicationAuthority(ctx, &HTTPRequest{
+	response, err := c.requestApplication(ctx, &HTTPRequest{
 		Method: http.MethodPost,
 		URL:    strings.TrimRight(c.config.BaseURL, "/") + "/oauth/authority-check",
 		Headers: map[string]string{
@@ -65,7 +65,7 @@ func (c *CustdClient) CheckApplicationAuthority(ctx context.Context, request App
 	return ApplicationAuthorityDecision{Authorized: *decision.Authorized, Reason: *decision.Reason}, nil
 }
 
-func (c *CustdClient) requestApplicationAuthority(ctx context.Context, request *HTTPRequest) (*HTTPResponse, error) {
+func (c *CustdClient) requestApplication(ctx context.Context, request *HTTPRequest) (*HTTPResponse, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -74,21 +74,26 @@ func (c *CustdClient) requestApplicationAuthority(ctx context.Context, request *
 	}
 	req, err := http.NewRequestWithContext(ctx, request.Method, request.URL, bytes.NewReader(request.Body))
 	if err != nil {
-		return nil, fmt.Errorf("custd: create application authority request: %w", err)
+		return nil, fmt.Errorf("custd: create application request: %w", err)
 	}
 	for key, value := range request.Headers {
 		req.Header.Set(key, value)
 	}
 	// Do not use c.httpClient: its OAuth transport may mint and replace the
 	// application Authorization header with a platform machine credential.
-	client := &http.Client{Timeout: defaultHTTPTimeout}
+	client := &http.Client{
+		Timeout:       defaultHTTPTimeout,
+		CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse },
+	}
 	response, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("custd: application authority request failed: %w", err)
+		return nil, fmt.Errorf("custd: application request failed: %w", err)
 	}
 	body, err := readResponseBody(response.Body)
 	if err != nil {
-		return nil, fmt.Errorf("custd: read application authority decision: %w", err)
+		return nil, fmt.Errorf("custd: read application response: %w", err)
 	}
-	return &HTTPResponse{StatusCode: response.StatusCode, Body: body}, nil
+	return &HTTPResponse{StatusCode: response.StatusCode, Body: body, Headers: map[string]string{
+		"Content-Type": response.Header.Get("Content-Type"),
+	}}, nil
 }
