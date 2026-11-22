@@ -212,6 +212,11 @@ type AuthProjectDesiredState struct {
 	// is actually owned instead of overwriting a mirrored one. It is descriptive provenance and
 	// never authority; the closed set is the AuthProjectDisplayNameSource constants.
 	DisplayNameSource string `json:"displayNameSource"`
+	// WithdrawDisplayName asks Custd to give the name back. Sent with an empty DisplayName and a
+	// declared DisplayNameSource, it clears the name and releases the owner only when that surface
+	// actually holds it; a surface that does not own the name changes nothing at all. It is an
+	// instruction, never stored state, so a status read never returns it.
+	WithdrawDisplayName bool `json:"withdrawDisplayName,omitempty"`
 	// SignInMethods narrows the methods the realm offers to a non-empty subset of the closed set.
 	// Empty means no narrowing.
 	SignInMethods []string                     `json:"signInMethods"`

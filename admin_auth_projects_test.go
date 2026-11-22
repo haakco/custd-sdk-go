@@ -542,3 +542,37 @@ func TestAuthProjectsApplyRejectsMissingIdempotencyKeyBeforeSending(t *testing.T
 		t.Fatalf("a request was sent without an idempotency key: %d", len(doer.requests))
 	}
 }
+
+// TestAuthProjectDesiredStateSendsWithdrawalOnlyWhenAsked proves the withdrawal instruction is
+// omitted unless a caller sets it, so every existing payload keeps the shape older Custd accepts.
+func TestAuthProjectDesiredStateSendsWithdrawalOnlyWhenAsked(t *testing.T) {
+	desired := authProjectDesiredState()
+	desired.DisplayNameSource = AuthProjectDisplayNameSourceHosting
+
+	encoded, err := json.Marshal(desired)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	var wire map[string]any
+	if err := json.Unmarshal(encoded, &wire); err != nil {
+		t.Fatalf("decode wire body: %v", err)
+	}
+	if _, present := wire["withdrawDisplayName"]; present {
+		t.Fatalf("withdrawDisplayName was sent without being asked for: %v", wire["withdrawDisplayName"])
+	}
+
+	desired.WithdrawDisplayName = true
+	encoded, err = json.Marshal(desired)
+	if err != nil {
+		t.Fatalf("marshal withdrawal: %v", err)
+	}
+	if err := json.Unmarshal(encoded, &wire); err != nil {
+		t.Fatalf("decode withdrawal wire body: %v", err)
+	}
+	if wire["withdrawDisplayName"] != true {
+		t.Fatalf("withdrawDisplayName = %v, want true", wire["withdrawDisplayName"])
+	}
+	if wire["displayNameSource"] != AuthProjectDisplayNameSourceHosting {
+		t.Fatalf("displayNameSource = %v, want hosting", wire["displayNameSource"])
+	}
+}
