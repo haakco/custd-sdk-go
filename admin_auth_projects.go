@@ -190,6 +190,13 @@ type AuthProjectProfileField struct {
 	EditableBy           string `json:"editableBy"`
 }
 
+// The remembered-session offers a realm may choose. Offering lets a person tick "Remember me" on
+// hosted sign-in; short-only issues the short session to everyone.
+const (
+	AuthProjectSessionPolicyOfferRememberMe = "offer_remember_me"
+	AuthProjectSessionPolicyShortOnly       = "short_only"
+)
+
 // AuthProjectDesiredState is the environment configuration an apply writes. A
 // consumer builds it from these fields alone: Audiences carries the audience
 // binding, and IdentityMode, RegistrationPolicy, LoginPaused and ProfileFields
@@ -219,9 +226,12 @@ type AuthProjectDesiredState struct {
 	WithdrawDisplayName bool `json:"withdrawDisplayName,omitempty"`
 	// SignInMethods narrows the methods the realm offers to a non-empty subset of the closed set.
 	// Empty means no narrowing.
-	SignInMethods []string                     `json:"signInMethods"`
-	Audiences     []AuthProjectAudienceBinding `json:"audiences"`
-	ProfileFields []AuthProjectProfileField    `json:"profileFields"`
+	SignInMethods []string `json:"signInMethods"`
+	// ApplicationSessionPolicy is whether hosted sign-in offers a remembered session: one of the
+	// AuthProjectSessionPolicy constants. Leaving it empty keeps the stored setting.
+	ApplicationSessionPolicy string                       `json:"applicationSessionPolicy,omitempty"`
+	Audiences                []AuthProjectAudienceBinding `json:"audiences"`
+	ProfileFields            []AuthProjectProfileField    `json:"profileFields"`
 	// Hosting serves the environment as a hosted application. Leaving it nil
 	// keeps the stored section, so an apply cannot switch an app off by omission.
 	Hosting *AuthProjectHosting `json:"hosting,omitempty"`

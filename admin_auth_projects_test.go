@@ -576,3 +576,38 @@ func TestAuthProjectDesiredStateSendsWithdrawalOnlyWhenAsked(t *testing.T) {
 		t.Fatalf("displayNameSource = %v, want hosting", wire["displayNameSource"])
 	}
 }
+
+// TestAuthProjectDesiredStateCarriesTheSessionPolicyOnlyWhenSet proves a realm's remembered-session
+// offer survives a read-modify-apply round trip, and that leaving it unset sends nothing so Custd keeps
+// the stored setting. Without the field a tenant could change it only in the admin console.
+func TestAuthProjectDesiredStateCarriesTheSessionPolicyOnlyWhenSet(t *testing.T) {
+	encoded, err := json.Marshal(authProjectDesiredState())
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	var wire map[string]any
+	if err := json.Unmarshal(encoded, &wire); err != nil {
+		t.Fatalf("decode wire body: %v", err)
+	}
+	if _, present := wire["applicationSessionPolicy"]; present {
+		t.Fatalf("applicationSessionPolicy was sent without being set: %v", wire["applicationSessionPolicy"])
+	}
+
+	var stored AuthProjectDesiredState
+	if err := json.Unmarshal([]byte(`{"applicationSessionPolicy":"short_only"}`), &stored); err != nil {
+		t.Fatalf("decode stored state: %v", err)
+	}
+	if stored.ApplicationSessionPolicy != AuthProjectSessionPolicyShortOnly {
+		t.Fatalf("decoded session policy = %q", stored.ApplicationSessionPolicy)
+	}
+	encoded, err = json.Marshal(stored)
+	if err != nil {
+		t.Fatalf("marshal stored state: %v", err)
+	}
+	if err := json.Unmarshal(encoded, &wire); err != nil {
+		t.Fatalf("decode round trip: %v", err)
+	}
+	if wire["applicationSessionPolicy"] != "short_only" {
+		t.Fatalf("applicationSessionPolicy = %v, want short_only", wire["applicationSessionPolicy"])
+	}
+}
