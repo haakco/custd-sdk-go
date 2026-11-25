@@ -1,0 +1,63 @@
+{
+  "statusPageDraft": {
+    "title": "Service status",
+    "components": [
+      {
+        "domainUuid": "0198a3b2-0000-7000-8000-000000000001",
+        "label": "Customer portal"
+      }
+    ]
+  },
+  "statusPageSettingsEmpty": {},
+  "statusPageSettings": {
+    "draft": {
+      "title": "Service status",
+      "components": [
+        {
+          "domainUuid": "0198a3b2-0000-7000-8000-000000000001",
+          "label": "Customer portal"
+        }
+      ]
+    },
+    "publication": {
+      "publicKey": "AZijsgAAcACAAAAAAAAAAQGYo7IAAHAAgAAAAAAAAAE",
+      "publishedAt": "2026-11-20T06:00:00Z"
+    }
+  },
+  "statusPagePreview": {
+    "title": "Service status",
+    "components": [
+      {
+        "label": "Customer portal",
+        "status": "up",
+        "lastCheckedAt": "2026-11-20T05:59:00Z"
+      },
+      {
+        "label": "Billing",
+        "status": "maintenance"
+      }
+    ],
+    "updates": [
+      {
+        "message": "Service restored.",
+        "publishedAt": "2026-11-20T06:05:00Z"
+      }
+    ]
+  },
+  "statusPagePublication": {
+    "publicKey": "AZijsgAAcACAAAAAAAAAAQGYo7IAAHAAgAAAAAAAAAE",
+    "publishedAt": "2026-11-20T06:00:00Z"
+  },
+  "statusPageUpdateRequest": {
+    "requestUuid": "0198a3b2-0000-7000-8000-000000000070",
+    "message": "Service restored."
+  },
+  "statusPageUpdateHistory": {
+    "updates": [
+      {
+        "message": "Service restored.",
+        "publishedAt": "2026-11-20T06:05:00Z"
+      }
+    ]
+  }
+}
