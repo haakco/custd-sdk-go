@@ -118,13 +118,12 @@ const ScopeTemplateSiteInsightsRead = "site-insights-read"
 const ScopeTemplateSiteAIRead = "site-ai-read"
 
 type ProducerProvisionRequest struct {
-	CompanySlug   string            `json:"companySlug"`
-	ProducerSlug  string            `json:"producerSlug"`
-	DisplayName   string            `json:"displayName,omitempty"`
-	Environment   string            `json:"environment,omitempty"`
-	Scopes        []string          `json:"scopes,omitempty"`
-	ScopeTemplate string            `json:"scopeTemplate,omitempty"`
-	Metadata      map[string]string `json:"metadata,omitempty"`
+	CompanySlug   string   `json:"companySlug"`
+	ProducerSlug  string   `json:"producerSlug"`
+	DisplayName   string   `json:"displayName,omitempty"`
+	Environment   string   `json:"environment,omitempty"`
+	Scopes        []string `json:"scopes,omitempty"`
+	ScopeTemplate string   `json:"scopeTemplate,omitempty"`
 }
 
 type ProducerProvisionResponse struct {

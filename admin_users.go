@@ -45,9 +45,8 @@ type AdminUserCreateRequest struct {
 	Roles       []string `json:"roles,omitempty"`
 }
 
-// AdminUserUpdateRequest changes a user. Omitted fields are left untouched.
+// AdminUserUpdateRequest changes a user's roles; the server accepts no other field.
 type AdminUserUpdateRequest struct {
-	Email string   `json:"email,omitempty"`
 	Roles []string `json:"roles,omitempty"`
 }
 
