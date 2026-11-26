@@ -1,5 +1,7 @@
 package custd
 
+import "time"
+
 type AdminOAuthClientCreate struct {
 	ClientID    string   `json:"clientId"`
 	CompanySlug string   `json:"companySlug"`
@@ -23,6 +25,9 @@ type AdminOAuthClient struct {
 	Scopes         []string `json:"scopes"`
 	Profile        string   `json:"profile"`
 	PurposeProfile string   `json:"purposeProfile,omitempty"`
+	// CreatedAt tells apart two clients issued the same ID; a machine access override belongs to
+	// one of them.
+	CreatedAt time.Time `json:"createdAt,omitzero"`
 }
 
 // OAuthClientLoginSetup is what a login client must be configured with. It carries no

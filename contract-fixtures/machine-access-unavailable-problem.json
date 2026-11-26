@@ -1,0 +1,11 @@
+{
+  "type": "unavailable",
+  "title": "Service Unavailable",
+  "status": 503,
+  "detail": "machine access policy temporarily unavailable",
+  "code": "machine_access_unavailable",
+  "instance": "/api/v1/admin/reporting/packs",
+  "traceId": "req-machine-access-2",
+  "retryability": "bounded",
+  "nextAction": {"action": "retry", "maxRetries": 3}
+}

@@ -1,0 +1,17 @@
+{
+  "maximal": {
+    "allowSupportAutomation": true,
+    "areas": [
+      {
+        "area": "example",
+        "state": "example"
+      }
+    ],
+    "companySlug": "example"
+  },
+  "minimal": {
+    "allowSupportAutomation": true,
+    "areas": null,
+    "companySlug": "example"
+  }
+}

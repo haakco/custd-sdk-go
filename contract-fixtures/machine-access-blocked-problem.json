@@ -1,0 +1,17 @@
+{
+  "type": "forbidden",
+  "title": "Forbidden",
+  "status": 403,
+  "detail": "machine access: area \"reporting\" is blocked for client \"ci-reporting\" in company \"acme\" by that machine's own setting",
+  "code": "machine_access_blocked",
+  "instance": "/api/v1/admin/reporting/packs",
+  "traceId": "req-machine-access-1",
+  "retryability": "none",
+  "nextAction": {"action": "none"},
+  "machineAccess": {
+    "area": "reporting",
+    "blockedBy": "machine",
+    "companySlug": "acme",
+    "clientId": "ci-reporting"
+  }
+}

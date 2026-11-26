@@ -1473,6 +1473,48 @@ var adminSurfaceRows = []surfaceRow{
 		},
 	},
 	{
+		id:   "admin-api GET /api/v1/admin/machine-access",
+		path: "/api/v1/admin/machine-access",
+		call: func(e *surfaceEnv) error {
+			_, _, err := e.client.Admin.MachineAccess.Get(context.Background(), "a1")
+			return err
+		},
+	},
+	{
+		id:   "admin-api PUT /api/v1/admin/machine-access",
+		path: "/api/v1/admin/machine-access",
+		call: func(e *surfaceEnv) error {
+			_, _, err := e.client.Admin.MachineAccess.Update(context.Background(), "a1", MachineAccessCompanyUpdateRequest{})
+			return err
+		},
+	},
+	{
+		id:   "admin-api GET /api/v1/admin/machine-access/clients/{clientId}",
+		path: "/api/v1/admin/machine-access/clients/a1",
+		call: func(e *surfaceEnv) error {
+			_, _, err := e.client.Admin.MachineAccess.GetOverride(context.Background(), "a1")
+			return err
+		},
+	},
+	{
+		id:   "admin-api PUT /api/v1/admin/machine-access/clients/{clientId}",
+		path: "/api/v1/admin/machine-access/clients/a1",
+		call: func(e *surfaceEnv) error {
+			_, _, err := e.client.Admin.MachineAccess.UpdateOverride(
+				context.Background(), "a1", MachineAccessMachineUpdateRequest{},
+			)
+			return err
+		},
+	},
+	{
+		id:   "admin-api GET /api/v1/admin/machine-access/clients/{clientId}/effective",
+		path: "/api/v1/admin/machine-access/clients/a1/effective",
+		call: func(e *surfaceEnv) error {
+			_, _, err := e.client.Admin.MachineAccess.GetEffective(context.Background(), "a1")
+			return err
+		},
+	},
+	{
 		id:   "admin-api PUT /api/v1/admin/tenant-manifest/{tenantSlug}",
 		path: "/api/v1/admin/tenant-manifest/a1",
 		call: func(e *surfaceEnv) error {

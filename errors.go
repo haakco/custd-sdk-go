@@ -43,6 +43,9 @@ type Problem struct {
 	RequestID    string         `json:"requestId,omitempty"`
 	Retryability Retryability   `json:"retryability,omitempty"`
 	NextAction   map[string]any `json:"nextAction,omitempty"`
+	// MachineAccess names the setting that refused the request when Code is
+	// ProblemCodeMachineAccessBlocked; nil otherwise.
+	MachineAccess *MachineAccessBlock `json:"machineAccess,omitempty"`
 }
 
 // Error renders the problem as a human-readable message. It leads with the

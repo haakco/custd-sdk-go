@@ -114,6 +114,7 @@ type AdminClient struct {
 	Impersonation     *ImpersonationAdminClient
 	Webhooks          *NotificationWebhookAdminClient
 	EnvironmentPolicy *EnvironmentPolicyAdminClient
+	MachineAccess     *MachineAccessAdminClient
 	TenantManifest    *TenantManifestAdminClient
 	AdminUsers        *AdminUsersAdminClient
 	System            *SystemAdminClient
@@ -178,6 +179,7 @@ func newAdminClient(client *CustdClient) *AdminClient {
 	admin.Impersonation = &ImpersonationAdminClient{admin: admin}
 	admin.Webhooks = &NotificationWebhookAdminClient{admin: admin}
 	admin.EnvironmentPolicy = &EnvironmentPolicyAdminClient{admin: admin}
+	admin.MachineAccess = &MachineAccessAdminClient{admin: admin}
 	admin.TenantManifest = &TenantManifestAdminClient{admin: admin}
 	admin.AdminUsers = &AdminUsersAdminClient{admin: admin}
 	admin.System = &SystemAdminClient{admin: admin}

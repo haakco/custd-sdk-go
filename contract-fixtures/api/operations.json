@@ -2,9 +2,9 @@
   "source": {
     "apiReviewedAt": "2026-11-26",
     "sha256": {
-      "admin-api.openapi.yaml": "44bf182d6a55faad881f18f9f81904e924f6c90978f585d1e6648acc4092683e",
+      "admin-api.openapi.yaml": "848e15977b4b466ae994c5e1d35a3d927a1c3bf8e2887062754a3c2e88cff117",
       "analytics-api.openapi.yaml": "e521f61d1cffb8c8a9fdd7f4d50e2afbfad93f83e8a295b9dc6398dde3747997",
-      "api-operations.json": "963ab9ccf1fccf18827a69db7dbdc04251fed5b7a27af440b2aa446f8b89c1fe"
+      "api-operations.json": "6266ad378922650b5bcc2f76d30c946b3023d6e55a879e65e322da7076ae62d7"
     }
   },
   "operations": [
@@ -1289,6 +1289,39 @@
       "sdk": "required",
       "operationId": "listJobs",
       "example": "examples/listJobs.json"
+    },
+    {
+      "id": "admin-api GET /api/v1/admin/machine-access",
+      "service": "admin-api",
+      "method": "GET",
+      "path": "/api/v1/admin/machine-access",
+      "sdk": "required",
+      "operationId": "getMachineAccess",
+      "query": [
+        {
+          "name": "companySlug",
+          "required": false
+        }
+      ],
+      "example": "examples/getMachineAccess.json"
+    },
+    {
+      "id": "admin-api GET /api/v1/admin/machine-access/clients/{clientId}",
+      "service": "admin-api",
+      "method": "GET",
+      "path": "/api/v1/admin/machine-access/clients/{clientId}",
+      "sdk": "required",
+      "operationId": "getMachineAccessOverride",
+      "example": "examples/getMachineAccessOverride.json"
+    },
+    {
+      "id": "admin-api GET /api/v1/admin/machine-access/clients/{clientId}/effective",
+      "service": "admin-api",
+      "method": "GET",
+      "path": "/api/v1/admin/machine-access/clients/{clientId}/effective",
+      "sdk": "required",
+      "operationId": "getEffectiveMachineAccess",
+      "example": "examples/getEffectiveMachineAccess.json"
     },
     {
       "id": "admin-api GET /api/v1/admin/measurement/predictions/definitions",
@@ -7518,6 +7551,30 @@
           "required": false
         }
       ]
+    },
+    {
+      "id": "admin-api PUT /api/v1/admin/machine-access",
+      "service": "admin-api",
+      "method": "PUT",
+      "path": "/api/v1/admin/machine-access",
+      "sdk": "required",
+      "operationId": "updateMachineAccess",
+      "query": [
+        {
+          "name": "companySlug",
+          "required": false
+        }
+      ],
+      "example": "examples/updateMachineAccess.json"
+    },
+    {
+      "id": "admin-api PUT /api/v1/admin/machine-access/clients/{clientId}",
+      "service": "admin-api",
+      "method": "PUT",
+      "path": "/api/v1/admin/machine-access/clients/{clientId}",
+      "sdk": "required",
+      "operationId": "updateMachineAccessOverride",
+      "example": "examples/updateMachineAccessOverride.json"
     },
     {
       "id": "admin-api PUT /api/v1/admin/privacy/rules",

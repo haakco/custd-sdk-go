@@ -1,0 +1,28 @@
+{
+  "maximal": {
+    "allowedAreas": 1,
+    "areas": [
+      {
+        "allowed": true,
+        "area": "example",
+        "companyState": "example",
+        "decidedBy": "example",
+        "machineState": "example"
+      }
+    ],
+    "clientId": "example",
+    "companySlug": "example",
+    "scopes": [
+      "example"
+    ],
+    "totalAreas": 1
+  },
+  "minimal": {
+    "allowedAreas": 1,
+    "areas": null,
+    "clientId": "example",
+    "companySlug": "example",
+    "scopes": null,
+    "totalAreas": 1
+  }
+}

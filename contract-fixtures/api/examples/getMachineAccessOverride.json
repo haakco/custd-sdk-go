@@ -1,0 +1,17 @@
+{
+  "maximal": {
+    "areas": [
+      {
+        "area": "example",
+        "state": "example"
+      }
+    ],
+    "clientId": "example",
+    "companySlug": "example"
+  },
+  "minimal": {
+    "areas": null,
+    "clientId": "example",
+    "companySlug": "example"
+  }
+}
