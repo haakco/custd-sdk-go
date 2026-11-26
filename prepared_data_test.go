@@ -62,7 +62,7 @@ func assertPreparedDataRequest(
 }
 
 // requestURLQuery returns the query string of a captured request.
-func requestURLQuery(t *testing.T, request *HTTPRequest) string {
+func requestURLQuery(t *testing.T, request *fakeRequest) string {
 	t.Helper()
 	_, after, found := strings.Cut(request.URL, "?")
 	if !found {

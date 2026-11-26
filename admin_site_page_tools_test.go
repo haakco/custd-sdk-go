@@ -16,7 +16,7 @@ func sitePageToolsFixture(t *testing.T, key string) string {
 }
 
 // assertSiteBody checks a request body equals the recorded request, compared as JSON.
-func assertSiteBody(t *testing.T, req *HTTPRequest, recorded string) {
+func assertSiteBody(t *testing.T, req *fakeRequest, recorded string) {
 	t.Helper()
 	var got, want any
 	if err := json.Unmarshal(req.Body, &got); err != nil {

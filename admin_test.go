@@ -10,15 +10,15 @@ import (
 )
 
 type captureDoer struct {
-	requests []*HTTPRequest
+	requests []*fakeRequest
 	status   int
 	body     string
 	headers  map[string]string
 }
 
-func (d *captureDoer) Do(req *HTTPRequest) (*HTTPResponse, error) {
+func (d *captureDoer) Do(req *fakeRequest) (*fakeResponse, error) {
 	d.requests = append(d.requests, req)
-	return &HTTPResponse{StatusCode: d.status, Body: []byte(d.body), Headers: d.headers}, nil
+	return &fakeResponse{StatusCode: d.status, Body: []byte(d.body), Headers: d.headers}, nil
 }
 
 func TestAdminTenantsCreateUsesAdminAPI(t *testing.T) {
@@ -38,7 +38,7 @@ func TestAdminTenantsCreateUsesAdminAPI(t *testing.T) {
 	assertTenantCreateRequest(t, doer.requests[0])
 }
 
-func assertTenantCreateRequest(t *testing.T, req *HTTPRequest) {
+func assertTenantCreateRequest(t *testing.T, req *fakeRequest) {
 	t.Helper()
 	if req.Method != http.MethodPost {
 		t.Fatalf("method = %s", req.Method)
@@ -46,8 +46,8 @@ func assertTenantCreateRequest(t *testing.T, req *HTTPRequest) {
 	if req.URL != "http://localhost:8080/api/v1/admin/tenants" {
 		t.Fatalf("url = %s", req.URL)
 	}
-	if req.Headers["Authorization"] != "Bearer admin-token" {
-		t.Fatalf("authorization header = %q", req.Headers["Authorization"])
+	if req.Header("Authorization") != "Bearer admin-token" {
+		t.Fatalf("authorization header = %q", req.Header("Authorization"))
 	}
 	var body map[string]string
 	if err := json.Unmarshal(req.Body, &body); err != nil {
@@ -156,7 +156,7 @@ func TestAdminSitesCarryTheTypedIngestTarget(t *testing.T) {
 	}
 }
 
-func decodeSiteRequestBody(t *testing.T, request *HTTPRequest) map[string]any {
+func decodeSiteRequestBody(t *testing.T, request *fakeRequest) map[string]any {
 	t.Helper()
 	var body map[string]any
 	if err := json.Unmarshal(request.Body, &body); err != nil {
@@ -222,7 +222,7 @@ func TestAdminSchemasRegister(t *testing.T) {
 	})
 }
 
-func assertSiteRequests(t *testing.T, requests []*HTTPRequest, want []string) {
+func assertSiteRequests(t *testing.T, requests []*fakeRequest, want []string) {
 	t.Helper()
 	if len(requests) != len(want) {
 		t.Fatalf("requests = %d, want %d", len(requests), len(want))
@@ -257,7 +257,7 @@ func newAdminTestClient(t *testing.T, doer *captureDoer, baseURL string) *CustdC
 	client := NewClient(&ClientConfig{
 		BaseURL:       baseURL,
 		APIKey:        "admin-token",
-		HTTPClient:    doer,
+		HTTPClient:    fakeTransport(doer),
 		FlushInterval: time.Hour,
 	})
 	t.Cleanup(func() { _ = client.Close(context.Background()) })

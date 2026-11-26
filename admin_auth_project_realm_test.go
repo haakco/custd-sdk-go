@@ -30,7 +30,7 @@ type realmWireServer struct {
 	revision        int64
 	observedAt      int64
 	operations      map[string]string
-	requests        []*HTTPRequest
+	requests        []*fakeRequest
 	statusFailures  int
 	skipObservation bool
 }
@@ -39,9 +39,9 @@ func newRealmWireServer(projectID, environmentID string) *realmWireServer {
 	return &realmWireServer{projectID: projectID, environmentID: environmentID, operations: map[string]string{}}
 }
 
-func (s *realmWireServer) Do(req *HTTPRequest) (*HTTPResponse, error) {
+func (s *realmWireServer) Do(req *fakeRequest) (*fakeResponse, error) {
 	s.requests = append(s.requests, req)
-	key := req.Headers["Idempotency-Key"]
+	key := req.Header("Idempotency-Key")
 	if key != "" && (len(key) < 8 || len(key) > 128) {
 		return jsonWireResponse(http.StatusBadRequest, `{"title":"invalid_idempotency_key"}`), nil
 	}
@@ -58,7 +58,7 @@ func (s *realmWireServer) Do(req *HTTPRequest) (*HTTPResponse, error) {
 	return jsonWireResponse(http.StatusNotFound, `{"title":"not_found"}`), nil
 }
 
-func (s *realmWireServer) apply(req *HTTPRequest, key string) *HTTPResponse {
+func (s *realmWireServer) apply(req *fakeRequest, key string) *fakeResponse {
 	if recorded, ok := s.operations[key]; ok {
 		return jsonWireResponse(http.StatusOK, recorded)
 	}
@@ -79,7 +79,7 @@ func (s *realmWireServer) apply(req *HTTPRequest, key string) *HTTPResponse {
 	return jsonWireResponse(http.StatusOK, operation)
 }
 
-func (s *realmWireServer) enable(req *HTTPRequest, key string) *HTTPResponse {
+func (s *realmWireServer) enable(req *fakeRequest, key string) *fakeResponse {
 	if recorded, ok := s.operations[key]; ok {
 		return jsonWireResponse(http.StatusOK, recorded)
 	}
@@ -96,7 +96,7 @@ func (s *realmWireServer) enable(req *HTTPRequest, key string) *HTTPResponse {
 	return jsonWireResponse(http.StatusOK, operation)
 }
 
-func (s *realmWireServer) reconcile(req *HTTPRequest, key string) *HTTPResponse {
+func (s *realmWireServer) reconcile(req *fakeRequest, key string) *fakeResponse {
 	if recorded, ok := s.operations[key]; ok {
 		return jsonWireResponse(http.StatusOK, recorded)
 	}
@@ -118,7 +118,7 @@ func (s *realmWireServer) reconcile(req *HTTPRequest, key string) *HTTPResponse 
 	return jsonWireResponse(http.StatusOK, report)
 }
 
-func (s *realmWireServer) status() *HTTPResponse {
+func (s *realmWireServer) status() *fakeResponse {
 	if s.statusFailures > 0 {
 		s.statusFailures--
 		return jsonWireResponse(http.StatusInternalServerError, `{"title":"status_unavailable"}`)
@@ -148,13 +148,13 @@ func (s *realmWireServer) operationJSON(kind, key string) string {
 	)
 }
 
-func jsonWireResponse(status int, body string) *HTTPResponse {
-	return &HTTPResponse{StatusCode: status, Body: []byte(body)}
+func jsonWireResponse(status int, body string) *fakeResponse {
+	return &fakeResponse{StatusCode: status, Body: []byte(body)}
 }
 
-func newAdminDoerClient(t *testing.T, doer HTTPDoer) *CustdClient {
+func newAdminDoerClient(t *testing.T, doer fakeDoer) *CustdClient {
 	t.Helper()
-	client := NewClient(&ClientConfig{BaseURL: "http://localhost:8080", APIKey: "admin-token", HTTPClient: doer})
+	client := NewClient(&ClientConfig{BaseURL: "http://localhost:8080", APIKey: "admin-token", HTTPClient: fakeTransport(doer)})
 	t.Cleanup(func() { _ = client.Close(context.Background()) })
 	return client
 }
@@ -205,7 +205,7 @@ func TestAuthProjectProvisionRealmEnforcesServerRevisionSequence(t *testing.T) {
 		"",
 	}
 	for index, wantKey := range wantKeys {
-		if got := server.requests[index].Headers["Idempotency-Key"]; got != wantKey {
+		if got := server.requests[index].Header("Idempotency-Key"); got != wantKey {
 			t.Fatalf("request %d idempotency key = %q, want %q", index, got, wantKey)
 		}
 	}
@@ -356,7 +356,7 @@ func TestAuthProjectProvisionRealmAcceptsBoundaryBaseKeys(t *testing.T) {
 		t.Fatalf("provision made %d requests, want 4", len(server.requests))
 	}
 	for index, request := range server.requests {
-		key := request.Headers["Idempotency-Key"]
+		key := request.Header("Idempotency-Key")
 		if key == "" {
 			continue
 		}

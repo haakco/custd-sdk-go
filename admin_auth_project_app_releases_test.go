@@ -84,11 +84,11 @@ func TestAppReleaseOperationsSendTheirRoutes(t *testing.T) {
 			if req.Method != test.method || req.URL != test.url {
 				t.Fatalf("request = %s %s, want %s %s", req.Method, req.URL, test.method, test.url)
 			}
-			if req.Headers[authProjectOwningUserHeader] != authProjectOwningUser {
-				t.Fatalf("owning user header = %q", req.Headers[authProjectOwningUserHeader])
+			if req.Header(authProjectOwningUserHeader) != authProjectOwningUser {
+				t.Fatalf("owning user header = %q", req.Header(authProjectOwningUserHeader))
 			}
-			if test.content != "" && req.Headers["Content-Type"] != test.content {
-				t.Fatalf("content type = %q, want %q", req.Headers["Content-Type"], test.content)
+			if test.content != "" && req.Header("Content-Type") != test.content {
+				t.Fatalf("content type = %q, want %q", req.Header("Content-Type"), test.content)
 			}
 		})
 	}

@@ -29,8 +29,8 @@ func TestAppItemSendsOnlyAppCredentials(t *testing.T) {
 		AppItemSiteKeyHeader: "site_pk_1", "Origin": "https://app.example",
 	}
 	for name, value := range want {
-		if request.Headers[name] != value {
-			t.Fatalf("%s = %q, want %q", name, request.Headers[name], value)
+		if request.Header(name) != value {
+			t.Fatalf("%s = %q, want %q", name, request.Header(name), value)
 		}
 	}
 	if _, err := NewAppItemClient(newAdminTestClient(t, doer, "https://api.example"), AppItemClientConfig{}); err == nil {

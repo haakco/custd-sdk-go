@@ -127,16 +127,18 @@ type MeasurementPredictionStory struct {
 	State          string                                `json:"state"`
 }
 
+// PresentationPoint is one plotted point. Value and the interval bounds are nil when the layer
+// plots dates instead, so a real 0 is distinguishable from a missing value.
 type PresentationPoint struct {
-	Date         string  `json:"date,omitempty"`
-	LowerDate    string  `json:"lowerDate,omitempty"`
-	LowerValue   float64 `json:"lowerValue,omitempty"`
-	Selected     bool    `json:"selected,omitempty"`
-	SnapshotUUID string  `json:"snapshotUuid,omitempty"`
-	UpperDate    string  `json:"upperDate,omitempty"`
-	UpperValue   float64 `json:"upperValue,omitempty"`
-	Value        float64 `json:"value,omitempty"`
-	X            string  `json:"x"`
+	Date         string   `json:"date,omitempty"`
+	LowerDate    string   `json:"lowerDate,omitempty"`
+	LowerValue   *float64 `json:"lowerValue,omitempty"`
+	Selected     bool     `json:"selected,omitempty"`
+	SnapshotUUID string   `json:"snapshotUuid,omitempty"`
+	UpperDate    string   `json:"upperDate,omitempty"`
+	UpperValue   *float64 `json:"upperValue,omitempty"`
+	Value        *float64 `json:"value,omitempty"`
+	X            string   `json:"x"`
 }
 
 // PresentationLayerYKind is the kind of a presentation layer's y axis.
@@ -165,11 +167,12 @@ type PresentationLayer struct {
 	YKind  PresentationLayerYKind `json:"yKind"`
 }
 
+// PresentationReference is a reference line at a value or a date; Value is nil for a date line.
 type PresentationReference struct {
-	Date  string  `json:"date,omitempty"`
-	Label string  `json:"label"`
-	Role  string  `json:"role"`
-	Value float64 `json:"value,omitempty"`
+	Date  string   `json:"date,omitempty"`
+	Label string   `json:"label"`
+	Role  string   `json:"role"`
+	Value *float64 `json:"value,omitempty"`
 }
 
 type PresentationTableColumn struct {

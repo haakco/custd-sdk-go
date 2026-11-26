@@ -395,7 +395,7 @@ func newSurfaceEnv(t *testing.T, body string) *surfaceEnv {
 func (e *surfaceEnv) serverURL() string {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _ = io.Copy(io.Discard, r.Body)
-		e.doer.requests = append(e.doer.requests, &HTTPRequest{Method: r.Method, URL: r.URL.String()})
+		e.doer.requests = append(e.doer.requests, &fakeRequest{Method: r.Method, URL: r.URL.String()})
 		w.WriteHeader(e.status)
 		_, _ = io.WriteString(w, e.body)
 	}))

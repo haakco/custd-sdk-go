@@ -22,7 +22,7 @@ func TestAppAccountEntryBindsExactIssuerAndAppOrigin(t *testing.T) {
 	}
 	wire := doer.requests[0]
 	if wire.Method != http.MethodPost || wire.URL != action+"/ticket" ||
-		wire.Headers["Authorization"] != "Bearer application-token" {
+		wire.Header("Authorization") != "Bearer application-token" {
 		t.Fatal("entry request must use the configured issuer and current application token")
 	}
 	var body struct {

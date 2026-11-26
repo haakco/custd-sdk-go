@@ -100,7 +100,7 @@ func (c *AppItemClient) send(ctx context.Context, access AppItemAccess, method, 
 	return nil
 }
 
-func (c *AppItemClient) exchange(ctx context.Context, access AppItemAccess, method, path string, payload any) (*HTTPResponse, error) {
+func (c *AppItemClient) exchange(ctx context.Context, access AppItemAccess, method, path string, payload any) (*bufferedResponse, error) {
 	var body []byte
 	headers := map[string]string{
 		"X-Custd-Sdk": sdkIdentity, "Origin": c.config.Origin, AppItemSiteKeyHeader: c.config.SiteKey,
@@ -119,7 +119,7 @@ func (c *AppItemClient) exchange(ctx context.Context, access AppItemAccess, meth
 		body = encoded
 		headers["Content-Type"] = "application/json"
 	}
-	response, err := c.client.requestApplication(ctx, &HTTPRequest{
+	response, err := c.client.requestApplication(ctx, &bufferedRequest{
 		Method: method, URL: c.endpoint(path, access.Item), Headers: headers, Body: body,
 	})
 	if err != nil {

@@ -14,6 +14,7 @@ import (
 // token acquisition from the deadline of the operation needing the token.
 type clientCredentialsTransport struct {
 	config clientcredentials.Config
+	base   http.RoundTripper
 	mu     sync.Mutex
 	token  *oauth2.Token
 }
@@ -38,6 +39,6 @@ func (t *clientCredentialsTransport) RoundTrip(request *http.Request) (*http.Res
 		t.token = token
 		t.mu.Unlock()
 	}
-	transport := oauth2.Transport{Source: oauth2.StaticTokenSource(token), Base: http.DefaultTransport}
+	transport := oauth2.Transport{Source: oauth2.StaticTokenSource(token), Base: t.base}
 	return transport.RoundTrip(request)
 }

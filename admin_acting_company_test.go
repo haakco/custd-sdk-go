@@ -307,7 +307,7 @@ func TestNonAdminRequestKeepsAuditLabelsAndRequestID(t *testing.T) {
 	doer := &captureDoer{status: http.StatusNotFound, body: `{"type":"not_found","status":404}`,
 		headers: map[string]string{requestIDHeader: "req-site"}}
 	client := NewClient(&ClientConfig{
-		BaseURL: "http://localhost:8080", APIKey: "admin-token", HTTPClient: doer, FlushInterval: time.Hour,
+		BaseURL: "http://localhost:8080", APIKey: "admin-token", HTTPClient: fakeTransport(doer), FlushInterval: time.Hour,
 		ClientLabel: "custdctl", CommandLabel: "sites indexnow show",
 	})
 	t.Cleanup(func() { _ = client.Close(context.Background()) })

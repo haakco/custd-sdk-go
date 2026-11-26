@@ -214,7 +214,7 @@ func TestOffboarding_DownloadAndExecute(t *testing.T) {
 		download.Metadata.RequestID != "req-download" {
 		t.Fatalf("download = %+v, wrote %q", download, written.String())
 	}
-	if got := doer.requests[0].Headers["Authorization"]; got != "Bearer admin-token" {
+	if got := doer.requests[0].Header("Authorization"); got != "Bearer admin-token" {
 		t.Fatalf("download authorization = %q", got)
 	}
 

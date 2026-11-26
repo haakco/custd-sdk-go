@@ -25,8 +25,8 @@ func TestIngestRawLinesPostsToTheRawEndpointWithTheParserBinding(t *testing.T) {
 	if req.Method != http.MethodPost || !strings.HasSuffix(req.URL, "/api/v1/raw") {
 		t.Fatalf("request = %s %s", req.Method, req.URL)
 	}
-	if req.Headers["X-Parser-UUID"] != "11111111-1111-1111-1111-111111111111" {
-		t.Fatalf("parser header = %q", req.Headers["X-Parser-UUID"])
+	if req.Header("X-Parser-UUID") != "11111111-1111-1111-1111-111111111111" {
+		t.Fatalf("parser header = %q", req.Header("X-Parser-UUID"))
 	}
 	if string(req.Body) != "first line\nsecond line\n" {
 		t.Fatalf("body = %q", req.Body)
@@ -146,7 +146,7 @@ func TestIngestRawLinesPreservesLegitimatePartialCounts(t *testing.T) {
 
 func TestIngestRawLinesClassifiesTransportFailureAsUnknownAcceptance(t *testing.T) {
 	client := newAdminTestClient(t, &captureDoer{}, "http://localhost:8080")
-	client.config.HTTPClient = failingDoer{}
+	client.httpClient = fakeTransport(failingDoer{})
 	_, err := client.IngestRawLines(context.Background(), RawIngestRequest{
 		Content: "x\n", ParserUUID: "11111111-1111-1111-1111-111111111111",
 	})
@@ -193,8 +193,8 @@ func TestNewRawIngestRequestMintsOneRetainedKey(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	first := doer.requests[0].Headers[IdempotencyKeyHeader]
-	second := doer.requests[1].Headers[IdempotencyKeyHeader]
+	first := doer.requests[0].Header(IdempotencyKeyHeader)
+	second := doer.requests[1].Header(IdempotencyKeyHeader)
 	if first == "" || first != second || first != string(req.IdempotencyKey) {
 		t.Fatalf("keys = %q / %q, want retained %q", first, second, req.IdempotencyKey)
 	}
@@ -225,7 +225,7 @@ func TestRawRequestIdempotencyKeyRejectsMalformed(t *testing.T) {
 func TestIngestRawLinesSurfacesTheOperationKeyOnUnknownAcceptance(t *testing.T) {
 	key := NewRawRequestIdempotencyKey()
 	client := newAdminTestClient(t, &captureDoer{}, "http://localhost:8080")
-	client.config.HTTPClient = failingDoer{}
+	client.httpClient = fakeTransport(failingDoer{})
 	_, err := client.IngestRawLines(context.Background(), RawIngestRequest{
 		Content: "x\n", ParserUUID: rawKeyTestUUID, IdempotencyKey: key,
 	})

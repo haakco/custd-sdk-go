@@ -79,7 +79,7 @@ func TestTenantManifestApplySendsIdempotencyKey(t *testing.T) {
 	if len(doer.requests) != 1 {
 		t.Fatalf("requests = %d, want 1", len(doer.requests))
 	}
-	if got := doer.requests[0].Headers["Idempotency-Key"]; got != "01957abc-0000-7000-8000-0000000000ff" {
+	if got := doer.requests[0].Header("Idempotency-Key"); got != "01957abc-0000-7000-8000-0000000000ff" {
 		t.Fatalf("Idempotency-Key = %q", got)
 	}
 }
@@ -348,7 +348,7 @@ func TestOAuthMutationsCarryTheIdempotencyKey(t *testing.T) {
 		t.Fatalf("RotateSecret returned error: %v", err)
 	}
 	for _, request := range doer.requests {
-		if request.Headers["Idempotency-Key"] != key {
+		if request.Header("Idempotency-Key") != key {
 			t.Fatalf("%s headers = %#v, want the idempotency key", request.URL, request.Headers)
 		}
 	}

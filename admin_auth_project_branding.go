@@ -104,73 +104,10 @@ func sendAuthProjectRawRequest(
 	if contentType != "" {
 		merged["Content-Type"] = contentType
 	}
-	if admin.client.config.HTTPClient != nil {
-		return sendAuthProjectRawRequestViaDoer(ctx, admin, method, path, body, merged, out)
-	}
-	return sendAuthProjectRawRequestViaHTTP(ctx, admin, method, path, body, merged, out)
-}
-
-// sendAuthProjectRawRequestViaDoer sends the encoded body through the
-// configured transport.
-func sendAuthProjectRawRequestViaDoer(
-	ctx context.Context,
-	admin *AdminClient,
-	method string,
-	path string,
-	body []byte,
-	headers map[string]string,
-	out any,
-) (ResponseMetadata, error) {
-	requestHeaders := admin.client.headers(false)
-	for key, value := range headers {
-		requestHeaders[key] = value
-	}
-	response, err := admin.client.config.HTTPClient.Do(&HTTPRequest{
-		Method: method, URL: admin.endpoint(path), Headers: requestHeaders, Body: body,
+	metadata, responseBody, err := admin.client.exchangeChecked(ctx, "admin request", &bufferedRequest{
+		Method: method, URL: admin.endpoint(path), Headers: admin.client.withCredentials(merged), Body: body,
 	})
 	if err != nil {
-		return ResponseMetadata{}, fmt.Errorf("custd: admin request failed: %w", err)
-	}
-	metadata := ResponseMetadata{RequestID: responseHeader(response.Headers, requestIDHeader)}
-	recordMetadata(ctx, metadata.RequestID)
-	if err := admin.client.checkStatus(response.StatusCode, response.Body); err != nil {
-		return metadata, err
-	}
-	return metadata, decodeAdminResponse(response.Body, out)
-}
-
-// sendAuthProjectRawRequestViaHTTP sends the encoded body over the built-in
-// HTTP client.
-func sendAuthProjectRawRequestViaHTTP(
-	ctx context.Context,
-	admin *AdminClient,
-	method string,
-	path string,
-	body []byte,
-	headers map[string]string,
-	out any,
-) (ResponseMetadata, error) {
-	request, err := http.NewRequestWithContext(ctx, method, admin.endpoint(path), bytes.NewReader(body))
-	if err != nil {
-		return ResponseMetadata{}, fmt.Errorf("custd: create admin request: %w", err)
-	}
-	for key, value := range admin.client.headers(false) {
-		request.Header.Set(key, value)
-	}
-	for key, value := range headers {
-		request.Header.Set(key, value)
-	}
-	response, err := admin.client.httpClient.Do(request)
-	if err != nil {
-		return ResponseMetadata{}, fmt.Errorf("custd: admin request failed: %w", err)
-	}
-	responseBody, err := readResponseBody(response.Body)
-	if err != nil {
-		return ResponseMetadata{}, fmt.Errorf("custd: read admin response: %w", err)
-	}
-	metadata := ResponseMetadata{RequestID: response.Header.Get(requestIDHeader)}
-	recordMetadata(ctx, metadata.RequestID)
-	if err := admin.client.checkStatus(response.StatusCode, responseBody); err != nil {
 		return metadata, err
 	}
 	return metadata, decodeAdminResponse(responseBody, out)

@@ -9,7 +9,7 @@ import (
 
 func TestDataLabelsAdminClientRoutes(t *testing.T) {
 	doer := &dataLabelDoer{}
-	client := NewClient(&ClientConfig{BaseURL: "http://localhost:8080", APIKey: "token", HTTPClient: doer})
+	client := NewClient(&ClientConfig{BaseURL: "http://localhost:8080", APIKey: "token", HTTPClient: fakeTransport(doer)})
 	doer.responses = dataLabelAdminResponses()
 	labels := client.Admin.DataLabels
 	ctx := context.Background()
@@ -45,20 +45,20 @@ func TestDataLabelsAdminClientRoutes(t *testing.T) {
 }
 
 type dataLabelDoer struct {
-	requests  []*HTTPRequest
-	responses []*HTTPResponse
+	requests  []*fakeRequest
+	responses []*fakeResponse
 }
 
-func (d *dataLabelDoer) Do(req *HTTPRequest) (*HTTPResponse, error) {
+func (d *dataLabelDoer) Do(req *fakeRequest) (*fakeResponse, error) {
 	d.requests = append(d.requests, req)
 	response := d.responses[0]
 	d.responses = d.responses[1:]
 	return response, nil
 }
 
-func dataLabelAdminResponses() []*HTTPResponse {
+func dataLabelAdminResponses() []*fakeResponse {
 	bodies := []any{map[string]any{"definitions": []any{}}, map[string]any{"catalogue": map[string]any{"labels": []any{}}, "assignments": []any{}, "reportingPacks": []any{}, "fingerprint": "sha256"}, map[string]any{"uuid": "definition-1", "values": []any{}}, map[string]any{"uuid": "definition-1"}, map[string]any{"uuid": "definition-1"}, nil, map[string]any{"uuid": "value-1"}, map[string]any{"uuid": "value-1"}, nil, map[string]any{"usage": []any{}}, map[string]any{"eventTypeDefaults": []any{}, "schemaFieldAssignments": []any{}}, nil, nil, nil, nil}
-	out := make([]*HTTPResponse, 0, len(bodies))
+	out := make([]*fakeResponse, 0, len(bodies))
 	for _, body := range bodies {
 		data, _ := json.Marshal(body)
 		status := http.StatusOK
@@ -66,12 +66,12 @@ func dataLabelAdminResponses() []*HTTPResponse {
 			status = http.StatusNoContent
 			data = nil
 		}
-		out = append(out, &HTTPResponse{StatusCode: status, Body: data})
+		out = append(out, &fakeResponse{StatusCode: status, Body: data})
 	}
 	return out
 }
 
-func requestMethodsAndPaths(requests []*HTTPRequest) []string {
+func requestMethodsAndPaths(requests []*fakeRequest) []string {
 	out := make([]string, len(requests))
 	for i, req := range requests {
 		out[i] = req.Method + " " + req.URL[len("http://localhost:8080"):]

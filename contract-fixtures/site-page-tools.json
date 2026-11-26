@@ -605,7 +605,6 @@
     ]
   },
   "remedyUnknownRule": {
-    "kind": "",
     "element": ""
   },
   "robotsTest": {

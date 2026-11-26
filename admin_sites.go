@@ -17,11 +17,12 @@ type AdminSiteIngestTarget struct {
 }
 
 type AdminSiteCreate struct {
-	CompanySlug    string   `json:"companySlug"`
-	Name           string   `json:"name"`
-	IdentityMode   string   `json:"identityMode"`
-	Environment    string   `json:"environment,omitempty"`
-	AllowedOrigins []string `json:"allowedOrigins"`
+	CompanySlug string `json:"companySlug"`
+	Name        string `json:"name"`
+	// IdentityMode defaults to cookieless when empty.
+	IdentityMode   BrowserIdentityMode `json:"identityMode,omitempty"`
+	Environment    string              `json:"environment,omitempty"`
+	AllowedOrigins []string            `json:"allowedOrigins"`
 	// AllowedEnvironments restricts which environments this site may record. An empty
 	// list allows every environment.
 	AllowedEnvironments []string `json:"allowedEnvironments,omitempty"`

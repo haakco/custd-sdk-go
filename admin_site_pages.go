@@ -81,9 +81,9 @@ const SitePageRecheckLimitCode = "site_page_recheck_limit"
 
 // AdminSiteRemedy says what a finding's fix changes; the recommendation itself is the finding's
 // Fix text. Generated is set only for rules with a generator: code to copy, never a published
-// change.
+// change. Kind is empty, and absent on the wire, when Custd has no remedy shape for the rule.
 type AdminSiteRemedy struct {
-	Kind      AdminSiteRemedyKind    `json:"kind"`
+	Kind      AdminSiteRemedyKind    `json:"kind,omitempty"`
 	Element   string                 `json:"element"`
 	Generated *AdminSiteGeneratedFix `json:"generated,omitempty"`
 }

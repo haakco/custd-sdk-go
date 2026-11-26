@@ -45,7 +45,9 @@ type CustdClient struct {
 	done         chan struct{}
 	wg           sync.WaitGroup
 	closeOnce    sync.Once
-	httpClient   *http.Client
+	httpClient   HTTPDoer
+	streamClient HTTPDoer
+	streamStall  time.Duration
 	rng          *mrand.Rand
 	rngMu        sync.Mutex
 }
@@ -55,12 +57,14 @@ type CustdClient struct {
 func NewClient(config *ClientConfig) *CustdClient {
 	cfg := applyDefaults(config)
 	c := &CustdClient{
-		config:     cfg,
-		q:          newQueue(cfg.MaxQueueSize),
-		retrySet:   retryableStatusSet(cfg.Retry.RetryOnStatuses),
-		done:       make(chan struct{}),
-		httpClient: buildHTTPClient(&cfg),
-		rng:        newSecureRand(),
+		config:       cfg,
+		q:            newQueue(cfg.MaxQueueSize),
+		retrySet:     retryableStatusSet(cfg.Retry.RetryOnStatuses),
+		done:         make(chan struct{}),
+		httpClient:   buildTransport(&cfg),
+		streamClient: buildStreamTransport(&cfg),
+		streamStall:  streamStallTimeout,
+		rng:          newSecureRand(),
 	}
 	c.Admin = newAdminClient(c)
 	c.Analytics = newAnalyticsEventClient(c)
@@ -174,20 +178,12 @@ func (c *CustdClient) maybeCompress(body []byte) ([]byte, bool, error) {
 }
 
 // sendBatchRequest is the one authenticated batch transport for queued and confirmed sends.
-func (c *CustdClient) sendBatchRequest(ctx context.Context, body []byte, gzipped bool) (*HTTPResponse, error) {
-	if c.config.HTTPClient != nil {
-		response, err := c.config.HTTPClient.Do(&HTTPRequest{Method: http.MethodPost, URL: c.batchEndpoint(), Headers: c.headers(gzipped), Body: body})
-		if err != nil {
-			return nil, newRetryableTransportError(err)
-		}
-		return response, nil
-	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.batchEndpoint(), bytes.NewReader(body))
+func (c *CustdClient) sendBatchRequest(ctx context.Context, body []byte, gzipped bool) (*bufferedResponse, error) {
+	req, err := newHTTPRequest(ctx, &bufferedRequest{
+		Method: http.MethodPost, URL: c.batchEndpoint(), Headers: c.headers(gzipped), Body: body,
+	})
 	if err != nil {
 		return nil, err
-	}
-	for key, value := range c.headers(gzipped) {
-		req.Header.Set(key, value)
 	}
 	response, err := c.httpClient.Do(req)
 	if err != nil {
@@ -197,7 +193,86 @@ func (c *CustdClient) sendBatchRequest(ctx context.Context, body []byte, gzipped
 	if err != nil {
 		return nil, fmt.Errorf("custd: read batch response: %w", err)
 	}
-	return &HTTPResponse{StatusCode: response.StatusCode, Body: responseBody}, nil
+	return &bufferedResponse{StatusCode: response.StatusCode, Body: responseBody, Header: response.Header}, nil
+}
+
+// bufferedRequest is one SDK request whose body is already encoded.
+type bufferedRequest struct {
+	Method  string
+	URL     string
+	Headers map[string]string
+	Body    []byte
+}
+
+// bufferedResponse is an answer read whole into memory: every SDK answer except a download.
+type bufferedResponse struct {
+	StatusCode int
+	Body       []byte
+	Header     http.Header
+}
+
+func newHTTPRequest(ctx context.Context, request *bufferedRequest) (*http.Request, error) {
+	req, err := http.NewRequestWithContext(ctx, request.Method, request.URL, bytes.NewReader(request.Body))
+	if err != nil {
+		return nil, fmt.Errorf("custd: create request: %w", err)
+	}
+	for key, value := range request.Headers {
+		req.Header.Set(key, value)
+	}
+	return req, nil
+}
+
+// send issues one request through transport and returns the unread answer, so a download streams.
+func send(ctx context.Context, transport HTTPDoer, request *bufferedRequest) (*http.Response, error) {
+	req, err := newHTTPRequest(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return transport.Do(req)
+}
+
+// exchange issues one request through transport and reads the whole answer.
+func exchange(ctx context.Context, transport HTTPDoer, request *bufferedRequest) (*bufferedResponse, error) {
+	response, err := send(ctx, transport, request)
+	if err != nil {
+		return nil, err
+	}
+	body, err := readResponseBody(response.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read response: %w", err)
+	}
+	return &bufferedResponse{StatusCode: response.StatusCode, Body: body, Header: response.Header}, nil
+}
+
+// exchange issues one request through the client's transport and reads the whole answer.
+func (c *CustdClient) exchange(ctx context.Context, request *bufferedRequest) (*bufferedResponse, error) {
+	return exchange(ctx, c.httpClient, request)
+}
+
+// exchangeChecked is exchange plus the shared answer handling: it records the request id and
+// turns a refusal into the server's problem. label names the call in a transport error.
+func (c *CustdClient) exchangeChecked(
+	ctx context.Context, label string, request *bufferedRequest,
+) (ResponseMetadata, []byte, error) {
+	response, err := c.exchange(ctx, request)
+	if err != nil {
+		return ResponseMetadata{}, nil, fmt.Errorf("custd: %s failed: %w", label, err)
+	}
+	metadata := ResponseMetadata{RequestID: response.Header.Get(requestIDHeader)}
+	recordMetadata(ctx, metadata.RequestID)
+	if err := c.checkStatus(response.StatusCode, response.Body); err != nil {
+		return metadata, nil, err
+	}
+	return metadata, response.Body, nil
+}
+
+// withCredentials is the client's credential headers plus extra, which wins on a clash.
+func (c *CustdClient) withCredentials(extra map[string]string) map[string]string {
+	headers := c.headers(false)
+	for key, value := range extra {
+		headers[key] = value
+	}
+	return headers
 }
 
 // checkStatus returns a retryable or non-retryable error for non-2xx status
@@ -430,9 +505,23 @@ func applyDefaults(cfg *ClientConfig) ClientConfig {
 	return *cfg
 }
 
+// buildTransport is the caller's HTTPClient when one is configured, else the SDK's own client.
+func buildTransport(cfg *ClientConfig) HTTPDoer {
+	if cfg.HTTPClient != nil {
+		return cfg.HTTPClient
+	}
+	return buildHTTPClient(cfg)
+}
+
 func buildHTTPClient(cfg *ClientConfig) *http.Client {
+	return &http.Client{Timeout: defaultHTTPTimeout, Transport: buildRoundTripper(cfg, http.DefaultTransport)}
+}
+
+// buildRoundTripper is base, wrapped in the OAuth client-credentials transport when the config
+// names a client.
+func buildRoundTripper(cfg *ClientConfig, base http.RoundTripper) http.RoundTripper {
 	if cfg.ClientID == "" && cfg.ClientSecret == "" && cfg.TokenURL == "" {
-		return &http.Client{Timeout: defaultHTTPTimeout}
+		return base
 	}
 	oauthCfg := clientcredentials.Config{
 		ClientID:     cfg.ClientID,
@@ -443,7 +532,7 @@ func buildHTTPClient(cfg *ClientConfig) *http.Client {
 	if cfg.Audience != "" {
 		oauthCfg.EndpointParams = url.Values{"audience": {cfg.Audience}}
 	}
-	return &http.Client{Timeout: defaultHTTPTimeout, Transport: &clientCredentialsTransport{config: oauthCfg}}
+	return &clientCredentialsTransport{config: oauthCfg, base: base}
 }
 
 func isSecureOrLocalHTTP(raw string) bool {

@@ -156,7 +156,7 @@ func assertDurationEvaluationResponse(t *testing.T, response *DurationEvaluation
 
 // assertDurationEvaluationRequest proves the route, the query and the body the
 // evaluation was sent with.
-func assertDurationEvaluationRequest(t *testing.T, requests []*HTTPRequest, wantPath string) {
+func assertDurationEvaluationRequest(t *testing.T, requests []*fakeRequest, wantPath string) {
 	t.Helper()
 	if len(requests) != 1 {
 		t.Fatalf("requests = %d, want 1", len(requests))

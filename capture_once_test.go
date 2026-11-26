@@ -12,14 +12,14 @@ import (
 // the wrapped error message; capture-once values must stay out of logs.
 type failingDoer struct{}
 
-func (failingDoer) Do(req *HTTPRequest) (*HTTPResponse, error) {
+func (failingDoer) Do(req *fakeRequest) (*fakeResponse, error) {
 	return nil, errors.New("transport dial failure")
 }
 
 func TestAdminErrorsDoNotSurfaceCaptureOnceValues(t *testing.T) {
 	plainExternal := "external-secret-DO-NOT-LOG"
 	client := newAdminTestClient(t, &captureDoer{}, "http://localhost:8080/")
-	client.config.HTTPClient = failingDoer{}
+	client.httpClient = fakeTransport(failingDoer{})
 
 	_, err := client.Admin.Privacy.MapIdentifier(context.Background(), "acme", PrivacyIdentifierMapRequest{
 		ExternalID: plainExternal,

@@ -144,33 +144,9 @@ func (r *ReportingClient) DownloadExportArtifact(
 		return nil, fmt.Errorf("custd: exportId and artifactId must be UUIDs")
 	}
 	path := "/exports/" + url.PathEscape(exportID) + "/artifacts/" + url.PathEscape(artifactID)
-	if r.client.config.HTTPClient != nil {
-		resp, err := r.client.config.HTTPClient.Do(&HTTPRequest{
-			Method: http.MethodGet, URL: r.endpoint(path), Headers: r.client.headers(false),
-		})
-		if err != nil {
-			return nil, fmt.Errorf("custd: report export download failed: %w", err)
-		}
-		recordMetadata(ctx, responseHeader(resp.Headers, requestIDHeader))
-		if err := r.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
-			return nil, err
-		}
-		body, err := boundedReportExportBytes(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-		return &ReportExportDownload{
-			Body: body, MediaType: resp.Headers["Content-Type"], SHA256: resp.Headers[artifactChecksumHeader],
-		}, nil
-	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, r.endpoint(path), nil)
-	if err != nil {
-		return nil, fmt.Errorf("custd: create report export download: %w", err)
-	}
-	for key, value := range r.client.headers(false) {
-		req.Header.Set(key, value)
-	}
-	resp, err := r.client.httpClient.Do(req)
+	resp, err := send(ctx, r.client.httpClient, &bufferedRequest{
+		Method: http.MethodGet, URL: r.endpoint(path), Headers: r.client.headers(false),
+	})
 	if err != nil {
 		return nil, fmt.Errorf("custd: report export download failed: %w", err)
 	}

@@ -46,7 +46,7 @@ func (c *CustdClient) CreateAppAccountEntry(ctx context.Context, token string, r
 		return nil, fmt.Errorf("custd: encode app account entry request: %w", err)
 	}
 	action := issuer + appSettingsEntryPath
-	response, err := c.requestApplication(ctx, &HTTPRequest{
+	response, err := c.requestApplication(ctx, &bufferedRequest{
 		Method: http.MethodPost, URL: action + "/ticket",
 		Headers: map[string]string{
 			"Authorization": "Bearer " + token, "Content-Type": "application/json", "X-Custd-Sdk": sdkIdentity,

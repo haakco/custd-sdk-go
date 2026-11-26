@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"testing"
+	"time"
 )
 
 func TestEnvironmentAuthDomainLifecycle(t *testing.T) {
@@ -20,24 +21,24 @@ func TestEnvironmentAuthDomainLifecycle(t *testing.T) {
 		method string
 		suffix string
 		status AuthProjectDomainStatus
-		call   func(*AuthProjectAdminClient) (*AuthProjectDomainBinding, error)
+		call   func(*AuthProjectAdminClient) (*AuthDomainBinding, error)
 	}{
-		{http.MethodGet, "", AuthProjectDomainActive, func(c *AuthProjectAdminClient) (*AuthProjectDomainBinding, error) {
+		{http.MethodGet, "", AuthProjectDomainActive, func(c *AuthProjectAdminClient) (*AuthDomainBinding, error) {
 			return c.GetEnvironmentAuthDomain(ctx, projectID, environmentID, options)
 		}},
-		{http.MethodPut, "", AuthProjectDomainPending, func(c *AuthProjectAdminClient) (*AuthProjectDomainBinding, error) {
+		{http.MethodPut, "", AuthProjectDomainPending, func(c *AuthProjectAdminClient) (*AuthDomainBinding, error) {
 			return c.BindEnvironmentAuthDomain(ctx, projectID, environmentID, request, options)
 		}},
-		{http.MethodPost, "/admit", AuthProjectDomainActive, func(c *AuthProjectAdminClient) (*AuthProjectDomainBinding, error) {
+		{http.MethodPost, "/admit", AuthProjectDomainActive, func(c *AuthProjectAdminClient) (*AuthDomainBinding, error) {
 			return c.AdmitEnvironmentAuthDomain(ctx, projectID, environmentID, options)
 		}},
-		{http.MethodPost, "/retry", AuthProjectDomainPending, func(c *AuthProjectAdminClient) (*AuthProjectDomainBinding, error) {
+		{http.MethodPost, "/retry", AuthProjectDomainPending, func(c *AuthProjectAdminClient) (*AuthDomainBinding, error) {
 			return c.RetryEnvironmentAuthDomain(ctx, projectID, environmentID, options)
 		}},
-		{http.MethodPost, "/disable", AuthProjectDomainDisabled, func(c *AuthProjectAdminClient) (*AuthProjectDomainBinding, error) {
+		{http.MethodPost, "/disable", AuthProjectDomainDisabled, func(c *AuthProjectAdminClient) (*AuthDomainBinding, error) {
 			return c.DisableEnvironmentAuthDomain(ctx, projectID, environmentID, options)
 		}},
-		{http.MethodPost, "/release", AuthProjectDomainReleasing, func(c *AuthProjectAdminClient) (*AuthProjectDomainBinding, error) {
+		{http.MethodPost, "/release", AuthProjectDomainReleasing, func(c *AuthProjectAdminClient) (*AuthDomainBinding, error) {
 			return c.ReleaseEnvironmentAuthDomain(ctx, projectID, environmentID, options)
 		}},
 	} {
@@ -74,8 +75,9 @@ func TestEnvironmentAuthDomainLifecycle(t *testing.T) {
 			}
 			if binding.Status != check.status || binding.Issuer != issuer || binding.DNSTarget != "edge.example.test" ||
 				binding.DNSProof.RecordName != "_custd-auth.auth.example.test" || binding.DNSProof.RecordValue != "custd-auth=proof" ||
-				binding.CreatedAt != "2026-11-19T09:00:00Z" || binding.ObservedAt != "2026-11-19T09:01:00Z" ||
-				binding.CertificateExpiresAt != "2027-02-19T09:02:00Z" {
+				binding.CreatedAt.Format(time.RFC3339) != "2026-11-19T09:00:00Z" ||
+				binding.ObservedAt.Format(time.RFC3339) != "2026-11-19T09:01:00Z" ||
+				binding.CertificateExpiresAt.Format(time.RFC3339) != "2027-02-19T09:02:00Z" {
 				t.Fatalf("binding = %+v", binding)
 			}
 			if binding.SlotRef != "slot-a" || binding.Lifecycle != AuthProjectDomainAdmitted || binding.IntentRevision != 7 {

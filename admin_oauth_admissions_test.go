@@ -137,7 +137,7 @@ func TestAdminOAuthClientAdmissionConflictStaysVisible(t *testing.T) {
 	}
 }
 
-func assertAdmissionRequest(t *testing.T, req *HTTPRequest, method, url string, body map[string]any) {
+func assertAdmissionRequest(t *testing.T, req *fakeRequest, method, url string, body map[string]any) {
 	t.Helper()
 	if req.Method != method {
 		t.Fatalf("method = %s, want %s", req.Method, method)
@@ -145,8 +145,8 @@ func assertAdmissionRequest(t *testing.T, req *HTTPRequest, method, url string, 
 	if req.URL != url {
 		t.Fatalf("url = %s, want %s", req.URL, url)
 	}
-	if req.Headers["Idempotency-Key"] != "" {
-		t.Fatalf("unexpected Idempotency-Key = %q", req.Headers["Idempotency-Key"])
+	if req.Header("Idempotency-Key") != "" {
+		t.Fatalf("unexpected Idempotency-Key = %q", req.Header("Idempotency-Key"))
 	}
 	if body == nil {
 		if len(req.Body) != 0 {

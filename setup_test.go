@@ -54,7 +54,7 @@ func TestSetupProducerCreatesTenantAndOAuthClient(t *testing.T) {
 	admin := NewClient(&ClientConfig{
 		BaseURL:    "http://localhost:8090",
 		APIKey:     "admin-token",
-		HTTPClient: doer,
+		HTTPClient: fakeTransport(doer),
 	})
 	defer func() { _ = admin.Close(context.Background()) }()
 
@@ -91,7 +91,7 @@ func TestSetupProducerTreats409ProblemAsAlreadyExisting(t *testing.T) {
 	admin := NewClient(&ClientConfig{
 		BaseURL:    "http://localhost:8090",
 		APIKey:     "admin-token",
-		HTTPClient: doer,
+		HTTPClient: fakeTransport(doer),
 	})
 	defer func() { _ = admin.Close(context.Background()) }()
 
@@ -139,7 +139,7 @@ func TestSetupProducerRegistersSchemasFromDirectory(t *testing.T) {
 	admin := NewClient(&ClientConfig{
 		BaseURL:    "http://localhost:8090",
 		APIKey:     "admin-token",
-		HTTPClient: doer,
+		HTTPClient: fakeTransport(doer),
 	})
 	defer func() { _ = admin.Close(context.Background()) }()
 
@@ -180,7 +180,7 @@ func TestSetupProducerDoesNotCreateOAuthClientWhenSchemaRegistrationFails(t *tes
 	admin := NewClient(&ClientConfig{
 		BaseURL:    "http://localhost:8090",
 		APIKey:     "admin-token",
-		HTTPClient: doer,
+		HTTPClient: fakeTransport(doer),
 	})
 	defer func() { _ = admin.Close(context.Background()) }()
 
@@ -212,7 +212,7 @@ func TestSetupProducerPreflightsSchemaDirectoryBeforeCreatingOAuthClient(t *test
 	admin := NewClient(&ClientConfig{
 		BaseURL:    "http://localhost:8090",
 		APIKey:     "admin-token",
-		HTTPClient: doer,
+		HTTPClient: fakeTransport(doer),
 	})
 	defer func() { _ = admin.Close(context.Background()) }()
 
@@ -245,7 +245,7 @@ type capturingSetupDoer struct {
 	tenantStatus int
 }
 
-func (d *capturingSetupDoer) Do(req *HTTPRequest) (*HTTPResponse, error) {
+func (d *capturingSetupDoer) Do(req *fakeRequest) (*fakeResponse, error) {
 	path := strings.TrimPrefix(req.URL, "http://localhost:8090")
 	var body map[string]any
 	if len(req.Body) > 0 {
@@ -288,7 +288,7 @@ func (d *capturingSetupDoer) Do(req *HTTPRequest) (*HTTPResponse, error) {
 
 // problemResponse builds an RFC 9457 problem+json error response mirroring the
 // frozen ingest/admin error contract.
-func problemResponse(status int, slug, title, detail, code string) (*HTTPResponse, error) {
+func problemResponse(status int, slug, title, detail, code string) (*fakeResponse, error) {
 	problem := map[string]any{
 		"type":   slug,
 		"title":  title,
@@ -354,10 +354,10 @@ func loadProvisionedProducerFixture(t *testing.T, name string) ProvisionedProduc
 	return creds
 }
 
-func jsonResponse(status int, body map[string]any) (*HTTPResponse, error) {
+func jsonResponse(status int, body map[string]any) (*fakeResponse, error) {
 	encoded, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
-	return &HTTPResponse{StatusCode: status, Body: encoded}, nil
+	return &fakeResponse{StatusCode: status, Body: encoded}, nil
 }

@@ -19,7 +19,7 @@ func TestDiagnosticsGetHealthUsesTheRootAndSendsNoCredential(t *testing.T) {
 	if request.URL != "http://localhost:8080/health" {
 		t.Fatalf("url = %s, want the root health path", request.URL)
 	}
-	if _, present := request.Headers["Authorization"]; present {
+	if _, present := request.Headers[http.CanonicalHeaderKey("Authorization")]; present {
 		t.Fatal("the liveness probe must not send a credential")
 	}
 }

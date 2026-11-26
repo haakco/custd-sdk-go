@@ -35,10 +35,10 @@ func TestAuthProjectsBindCompanyIsAHumanOwnerActionWithNoBody(t *testing.T) {
 	if len(request.Body) != 0 {
 		t.Fatalf("body = %q", string(request.Body))
 	}
-	if request.Headers[authProjectOwningUserHeader] != authProjectOwningUser {
-		t.Fatalf("owning user header = %q", request.Headers[authProjectOwningUserHeader])
+	if request.Header(authProjectOwningUserHeader) != authProjectOwningUser {
+		t.Fatalf("owning user header = %q", request.Header(authProjectOwningUserHeader))
 	}
-	if _, present := request.Headers["Idempotency-Key"]; present {
+	if _, present := request.Headers[http.CanonicalHeaderKey("Idempotency-Key")]; present {
 		t.Fatal("company binding is safe to repeat and must not require an idempotency key")
 	}
 }

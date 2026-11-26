@@ -1,9 +1,7 @@
 package custd
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -492,58 +490,21 @@ func measurementDecisionSimulationPath(projectUuid string, decisionUuid string) 
 }
 
 func (c *MeasurementClient) request(ctx context.Context, method string, path string, payload any, out any) error {
-	var body []byte
-	var err error
-	if payload != nil {
-		body, err = json.Marshal(payload)
-		if err != nil {
-			return fmt.Errorf("custd: marshal measurement request: %w", err)
-		}
+	body, err := encodeRequestBody(payload, "measurement")
+	if err != nil {
+		return err
 	}
-	if c.client.config.HTTPClient != nil {
-		return c.requestViaDoer(ctx, method, path, body, out)
-	}
-	return c.requestViaHTTP(ctx, method, path, body, out)
-}
-
-func (c *MeasurementClient) requestViaDoer(ctx context.Context, method string, path string, body []byte, out any) error {
-	resp, err := c.client.config.HTTPClient.Do(&HTTPRequest{
-		Method:  method,
-		URL:     c.endpoint(path),
-		Headers: c.client.headers(false),
-		Body:    body,
+	response, err := c.client.exchange(ctx, &bufferedRequest{
+		Method: method, URL: c.endpoint(path), Headers: c.client.headers(false), Body: body,
 	})
 	if err != nil {
 		return fmt.Errorf("custd: measurement request failed: %w", err)
 	}
-	recordMetadata(ctx, responseHeader(resp.Headers, requestIDHeader))
-	if err := c.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
+	recordMetadata(ctx, response.Header.Get(requestIDHeader))
+	if err := c.client.checkStatus(response.StatusCode, response.Body); err != nil {
 		return err
 	}
-	return decodeAdminResponse(resp.Body, out)
-}
-
-func (c *MeasurementClient) requestViaHTTP(ctx context.Context, method string, path string, body []byte, out any) error {
-	req, err := http.NewRequestWithContext(ctx, method, c.endpoint(path), bytes.NewReader(body))
-	if err != nil {
-		return fmt.Errorf("custd: create measurement request: %w", err)
-	}
-	for k, v := range c.client.headers(false) {
-		req.Header.Set(k, v)
-	}
-	resp, err := c.client.httpClient.Do(req)
-	if err != nil {
-		return fmt.Errorf("custd: measurement request failed: %w", err)
-	}
-	respBody, bodyErr := readResponseBody(resp.Body)
-	if bodyErr != nil {
-		return fmt.Errorf("custd: read measurement response: %w", bodyErr)
-	}
-	recordMetadata(ctx, resp.Header.Get(requestIDHeader))
-	if err := c.client.checkStatus(resp.StatusCode, respBody); err != nil {
-		return err
-	}
-	return decodeAdminResponse(respBody, out)
+	return decodeAdminResponse(response.Body, out)
 }
 
 func (c *MeasurementClient) endpoint(path string) string {

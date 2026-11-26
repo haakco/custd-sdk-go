@@ -102,16 +102,6 @@ type AuthDomainImageOverrideSetRequest struct {
 	IncidentReference string    `json:"incidentReference"`
 }
 
-type AuthDomainDNSProof struct {
-	RecordName  string `json:"recordName"`
-	RecordValue string `json:"recordValue"`
-}
-
-type AuthDomainImageSet struct {
-	Gateway string `json:"gateway,omitempty"`
-	Hydra   string `json:"hydra,omitempty"`
-}
-
 type AuthDomainImageOverrideStatus struct {
 	ActorKind         string     `json:"actorKind"`
 	ActorSubject      string     `json:"actorSubject,omitempty"`
@@ -124,31 +114,6 @@ type AuthDomainImageOverrideStatus struct {
 	ReceiptID         string     `json:"receiptId"`
 	SetAt             time.Time  `json:"setAt"`
 	State             string     `json:"state"`
-}
-
-type AuthDomainImages struct {
-	Convergence AuthProjectDomainConvergence   `json:"convergence"`
-	Expected    AuthDomainImageSet             `json:"expected"`
-	Override    *AuthDomainImageOverrideStatus `json:"override,omitempty"`
-	Running     AuthDomainImageSet             `json:"running"`
-	Source      AuthProjectDomainImageSource   `json:"source"`
-}
-
-type AuthDomainBinding struct {
-	CertificateExpiresAt *time.Time                 `json:"certificateExpiresAt,omitempty"`
-	CreatedAt            time.Time                  `json:"createdAt"`
-	DNSProof             *AuthDomainDNSProof        `json:"dnsProof,omitempty"`
-	DNSTarget            string                     `json:"dnsTarget,omitempty"`
-	EnvironmentID        string                     `json:"environmentId"`
-	Host                 string                     `json:"host"`
-	Images               AuthDomainImages           `json:"images"`
-	IntentRevision       int64                      `json:"intentRevision"`
-	Issuer               string                     `json:"issuer"`
-	Lifecycle            AuthProjectDomainLifecycle `json:"lifecycle"`
-	ObservedAt           *time.Time                 `json:"observedAt,omitempty"`
-	SiteDomainID         string                     `json:"siteDomainId,omitempty"`
-	SlotRef              string                     `json:"slotRef,omitempty"`
-	Status               AuthProjectDomainStatus    `json:"status"`
 }
 
 type MintAuthDomainRequest struct {

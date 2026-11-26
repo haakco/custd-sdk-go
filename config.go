@@ -1,6 +1,7 @@
 package custd
 
 import (
+	"net/http"
 	"time"
 )
 
@@ -53,7 +54,11 @@ type ClientConfig struct {
 	MaxRetries    int
 	MaxQueueSize  int
 	Retry         RetryConfig
-	HTTPClient    HTTPDoer
+	// HTTPClient sends every Custd request in place of the SDK's built-in client, so it owns
+	// timeouts, redirects and any credential beyond APIKey: the OAuth client-credentials
+	// fields are not used with it. A *http.Client satisfies it. It answers with the unread
+	// response, so a download streams through it.
+	HTTPClient HTTPDoer
 
 	// CompressionEnabled gzip-compresses the batch request body when it meets
 	// CompressionThreshold. Nil defaults to enabled; set to a pointer to false
@@ -64,24 +69,10 @@ type ClientConfig struct {
 	CompressionThreshold int
 }
 
-// HTTPDoer abstracts HTTP requests for testing.
+// HTTPDoer sends one HTTP request and returns the unread response: the shape *http.Client has.
+// The request carries the caller's context, and the SDK closes the response body.
 type HTTPDoer interface {
-	Do(req *HTTPRequest) (*HTTPResponse, error)
-}
-
-// HTTPRequest is a simplified HTTP request for the doer interface.
-type HTTPRequest struct {
-	Method  string
-	URL     string
-	Headers map[string]string
-	Body    []byte
-}
-
-// HTTPResponse is a simplified HTTP response from the doer interface.
-type HTTPResponse struct {
-	StatusCode int
-	Body       []byte
-	Headers    map[string]string
+	Do(req *http.Request) (*http.Response, error)
 }
 
 // DefaultRetryConfig returns sensible retry defaults.

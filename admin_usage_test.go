@@ -56,8 +56,8 @@ func TestAdminUsageGetReadsCurrentTenantUsage(t *testing.T) {
 	if req.URL != "http://localhost:8080/api/v1/admin/usage/me" {
 		t.Fatalf("url = %s", req.URL)
 	}
-	if req.Headers["Authorization"] != "Bearer admin-token" {
-		t.Fatalf("authorization header = %q", req.Headers["Authorization"])
+	if req.Header("Authorization") != "Bearer admin-token" {
+		t.Fatalf("authorization header = %q", req.Header("Authorization"))
 	}
 	if report.SchemaVersion != "usage.v1" || report.CompanySlug != "acme" {
 		t.Fatalf("unexpected report: %+v", report)

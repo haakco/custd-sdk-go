@@ -13,7 +13,7 @@ const authProjectOwningUser = "01957abc-0000-7000-8000-0000000000aa"
 
 func assertAuthProjectRequest(
 	t *testing.T,
-	req *HTTPRequest,
+	req *fakeRequest,
 	method string,
 	url string,
 	owningUser string,
@@ -26,18 +26,18 @@ func assertAuthProjectRequest(
 	if req.URL != url {
 		t.Fatalf("url = %s, want %s", req.URL, url)
 	}
-	if req.Headers["Authorization"] != "Bearer admin-token" {
-		t.Fatalf("authorization header = %q", req.Headers["Authorization"])
+	if req.Header("Authorization") != "Bearer admin-token" {
+		t.Fatalf("authorization header = %q", req.Header("Authorization"))
 	}
-	if req.Headers[authProjectOwningUserHeader] != owningUser {
-		t.Fatalf("owning user header = %q, want %q", req.Headers[authProjectOwningUserHeader], owningUser)
+	if req.Header(authProjectOwningUserHeader) != owningUser {
+		t.Fatalf("owning user header = %q, want %q", req.Header(authProjectOwningUserHeader), owningUser)
 	}
-	if req.Headers["Idempotency-Key"] != idempotencyKey {
-		t.Fatalf("idempotency key header = %q, want %q", req.Headers["Idempotency-Key"], idempotencyKey)
+	if req.Header("Idempotency-Key") != idempotencyKey {
+		t.Fatalf("idempotency key header = %q, want %q", req.Header("Idempotency-Key"), idempotencyKey)
 	}
 }
 
-func decodeAuthProjectBody(t *testing.T, req *HTTPRequest) map[string]any {
+func decodeAuthProjectBody(t *testing.T, req *fakeRequest) map[string]any {
 	t.Helper()
 	var body map[string]any
 	if err := json.Unmarshal(req.Body, &body); err != nil {
@@ -329,9 +329,9 @@ func TestAuthProjectsOmitOwningUserHeaderForHumanAdministrator(t *testing.T) {
 	if req.URL != "http://localhost:8080/api/v1/admin/auth-projects" {
 		t.Fatalf("url = %s", req.URL)
 	}
-	if _, present := req.Headers[authProjectOwningUserHeader]; present {
+	if _, present := req.Headers[http.CanonicalHeaderKey(authProjectOwningUserHeader)]; present {
 		t.Fatalf("owning user header was sent for a human administrator: %q",
-			req.Headers[authProjectOwningUserHeader])
+			req.Header(authProjectOwningUserHeader))
 	}
 }
 

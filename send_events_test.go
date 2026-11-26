@@ -51,7 +51,7 @@ func TestSendEventsRejectsUnprovenAcceptance(t *testing.T) {
 	for _, body := range []string{``, `{"success":true}`, `{"success":true,"results":[]}`, `{"results":[{"eventUuid":"a1b2c3d4-e5f6-7890-abcd-ef1234567890","success":false,"status":422}]}`, `{"success":true,"results":[{"eventUuid":"unknown","success":true,"status":202}]}`, `{"success":true,"results":[{"eventUuid":"a1b2c3d4-e5f6-7890-abcd-ef1234567890","success":true,"status":500}]}`} {
 		t.Run(body, func(t *testing.T) {
 			doer := newCaptureDoer(202, body)
-			client := NewClient(&ClientConfig{BaseURL: "https://custd.example.test", APIKey: "token", HTTPClient: doer})
+			client := NewClient(&ClientConfig{BaseURL: "https://custd.example.test", APIKey: "token", HTTPClient: fakeTransport(doer)})
 			defer func() { _ = client.Close(context.Background()) }()
 			result, err := client.SendEvents(context.Background(), SendEventsRequest{Events: []EventEnvelope{*validEvent()}})
 			if err == nil || result != nil {
@@ -60,7 +60,7 @@ func TestSendEventsRejectsUnprovenAcceptance(t *testing.T) {
 		})
 	}
 	doer := newCaptureDoer(202, `{"success":true}`)
-	client := NewClient(&ClientConfig{BaseURL: "https://custd.example.test", APIKey: "token", HTTPClient: doer})
+	client := NewClient(&ClientConfig{BaseURL: "https://custd.example.test", APIKey: "token", HTTPClient: fakeTransport(doer)})
 	defer func() { _ = client.Close(context.Background()) }()
 	invalid := *validEvent()
 	invalid.EventUUID = ""

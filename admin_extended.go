@@ -836,8 +836,10 @@ type AuditDomainHistory struct {
 	StreamVersion int64  `json:"streamVersion,omitempty"`
 }
 
+// AuditListCursor is the next page's cursor; Cursor is empty, and absent on the wire, on the last
+// page.
 type AuditListCursor struct {
-	Cursor string `json:"cursor"`
+	Cursor string `json:"cursor,omitempty"`
 }
 
 type AuditListResponse struct {
@@ -1298,15 +1300,6 @@ func writeVerifiedOffboardingDownload(download *adminDownload, w io.Writer) (*Of
 		ContentType: download.header.Get("Content-Type"), ChecksumSHA256: checksum,
 		ByteSize: written, Metadata: download.metadata,
 	}, nil
-}
-
-func responseHeader(headers map[string]string, name string) string {
-	for key, value := range headers {
-		if strings.EqualFold(key, name) {
-			return value
-		}
-	}
-	return ""
 }
 
 // Acknowledge records that the export was downloaded successfully and its

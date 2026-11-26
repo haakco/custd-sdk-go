@@ -46,13 +46,13 @@ func TestApplicationAuthorityUsesOnlyApplicationTokenAndParsesDenial(t *testing.
 
 func TestApplicationAuthorityParsesPositiveEvidenceWithoutMachineCredential(t *testing.T) {
 	doer := newCaptureDoer(http.StatusOK, `{"authorized":true,"reason":"authorized"}`)
-	client := NewClient(&ClientConfig{BaseURL: "http://localhost:8080", HTTPClient: doer, FlushInterval: time.Hour})
+	client := NewClient(&ClientConfig{BaseURL: "http://localhost:8080", HTTPClient: fakeTransport(doer), FlushInterval: time.Hour})
 	t.Cleanup(func() { _ = client.Close(context.Background()) })
 	decision, err := client.CheckApplicationAuthority(context.Background(), ApplicationAuthorityRequest{AccessToken: "application-token"})
 	if err != nil || !decision.Authorized || len(doer.requests) != 1 {
 		t.Fatalf("positive authority decision: decision=%+v err=%v", decision, err)
 	}
-	if doer.requests[0].Headers["Authorization"] != "Bearer application-token" {
+	if doer.requests[0].Header("Authorization") != "Bearer application-token" {
 		t.Error("custom transport must also receive the application credential, not platform auth")
 	}
 }

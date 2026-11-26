@@ -70,7 +70,7 @@ func (c *CustdClient) RedeemSiteAIOwnerHandoff(
 	if handoff.Code == "" || hubOrigin == "" {
 		return nil, fmt.Errorf("custd: AI owner handoff requires a code and the hub origin")
 	}
-	response, err := c.requestApplication(ctx, &HTTPRequest{
+	response, err := c.requestApplication(ctx, &bufferedRequest{
 		Method: http.MethodPost, URL: handoff.RedeemURL,
 		Headers: map[string]string{
 			"Content-Type": "application/x-www-form-urlencoded", "Origin": hubOrigin, "X-Custd-Sdk": sdkIdentity,
@@ -86,7 +86,7 @@ func (c *CustdClient) RedeemSiteAIOwnerHandoff(
 		}
 		return nil, fmt.Errorf("custd: AI owner redeem returned HTTP %d, want 303", response.StatusCode)
 	}
-	cookie, err := http.ParseSetCookie(responseHeader(response.Headers, "Set-Cookie"))
+	cookie, err := http.ParseSetCookie(response.Header.Get("Set-Cookie"))
 	if err != nil || cookie.Name != siteAIOwnerCookieName || cookie.Value == "" {
 		return nil, fmt.Errorf("custd: AI owner redeem returned no session cookie")
 	}
@@ -144,7 +144,7 @@ func (s *SiteAIOwnerSession) send(ctx context.Context, method, path string, body
 		headers["Origin"] = s.origin
 		headers[siteAIOwnerBindingHeader] = s.binding
 	}
-	response, err := s.client.requestApplication(ctx, &HTTPRequest{
+	response, err := s.client.requestApplication(ctx, &bufferedRequest{
 		Method: method, URL: s.origin + siteAIOwnerBrowserPath + path, Headers: headers, Body: payload,
 	})
 	if err != nil {

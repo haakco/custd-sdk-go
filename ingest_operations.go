@@ -507,7 +507,7 @@ func (c *CustdClient) collect(ctx context.Context, site SiteCollectorConfig, pat
 	if err != nil {
 		return fmt.Errorf("custd: encode collector request: %w", err)
 	}
-	response, err := c.requestApplication(ctx, &HTTPRequest{
+	response, err := c.requestApplication(ctx, &bufferedRequest{
 		Method: http.MethodPost, URL: strings.TrimRight(c.config.BaseURL, "/") + path, Body: body,
 		Headers: map[string]string{
 			"Authorization": "Bearer " + site.WriteKey, "Origin": site.Origin,

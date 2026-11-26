@@ -40,7 +40,7 @@ func assertTimePlanRequestCase(t *testing.T, doer *captureDoer, test timePlanReq
 }
 
 // assertTimePlanRequestBody checks the captured body against the case.
-func assertTimePlanRequestBody(t *testing.T, request *HTTPRequest, test timePlanRequestCase) {
+func assertTimePlanRequestBody(t *testing.T, request *fakeRequest, test timePlanRequestCase) {
 	t.Helper()
 	if test.wantEmptyBody {
 		if len(request.Body) != 0 {

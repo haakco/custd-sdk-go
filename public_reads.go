@@ -88,7 +88,7 @@ func (c *CustdClient) publicRead(ctx context.Context, path string, headers map[s
 	for name, value := range headers {
 		request[name] = value
 	}
-	response, err := c.requestApplication(ctx, &HTTPRequest{
+	response, err := c.requestApplication(ctx, &bufferedRequest{
 		Method: http.MethodGet, URL: strings.TrimRight(c.config.BaseURL, "/") + path, Headers: request,
 	})
 	if err != nil {
@@ -148,7 +148,7 @@ func (c *CustdClient) publicWrite(ctx context.Context, path string, body any) er
 	if err != nil {
 		return fmt.Errorf("custd: encode public request: %w", err)
 	}
-	response, err := c.requestApplication(ctx, &HTTPRequest{
+	response, err := c.requestApplication(ctx, &bufferedRequest{
 		Method: http.MethodPost, URL: strings.TrimRight(c.config.BaseURL, "/") + path,
 		Headers: map[string]string{"Content-Type": "application/json", "X-Custd-Sdk": sdkIdentity},
 		Body:    payload,

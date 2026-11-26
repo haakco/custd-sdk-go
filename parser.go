@@ -1,9 +1,7 @@
 package custd
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -318,59 +316,22 @@ func (p *ParserClient) Preview(
 	return &out, nil
 }
 
-func (p *ParserClient) request(ctx context.Context, method, path string, payload any, out any) error {
-	var body []byte
-	var err error
-	if payload != nil {
-		body, err = json.Marshal(payload)
-		if err != nil {
-			return fmt.Errorf("custd: marshal parser request: %w", err)
-		}
+func (p *ParserClient) request(ctx context.Context, method string, path string, payload any, out any) error {
+	body, err := encodeRequestBody(payload, "parser")
+	if err != nil {
+		return err
 	}
-	if p.client.config.HTTPClient != nil {
-		return p.requestViaDoer(ctx, method, path, body, out)
-	}
-	return p.requestViaHTTP(ctx, method, path, body, out)
-}
-
-func (p *ParserClient) requestViaDoer(ctx context.Context, method, path string, body []byte, out any) error {
-	resp, err := p.client.config.HTTPClient.Do(&HTTPRequest{
-		Method:  method,
-		URL:     p.endpoint(path),
-		Headers: p.client.headers(false),
-		Body:    body,
+	response, err := p.client.exchange(ctx, &bufferedRequest{
+		Method: method, URL: p.endpoint(path), Headers: p.client.headers(false), Body: body,
 	})
 	if err != nil {
 		return &RequestError{Message: "custd: parser request failed: " + err.Error(), Retryable: true, Cause: err}
 	}
-	recordMetadata(ctx, responseHeader(resp.Headers, requestIDHeader))
-	if err := p.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
+	recordMetadata(ctx, response.Header.Get(requestIDHeader))
+	if err := p.client.checkStatus(response.StatusCode, response.Body); err != nil {
 		return err
 	}
-	return decodeParserResponse(resp.Body, out)
-}
-
-func (p *ParserClient) requestViaHTTP(ctx context.Context, method, path string, body []byte, out any) error {
-	req, err := http.NewRequestWithContext(ctx, method, p.endpoint(path), bytes.NewReader(body))
-	if err != nil {
-		return fmt.Errorf("custd: create parser request: %w", err)
-	}
-	for k, v := range p.client.headers(false) {
-		req.Header.Set(k, v)
-	}
-	resp, err := p.client.httpClient.Do(req)
-	if err != nil {
-		return &RequestError{Message: "custd: parser request failed: " + err.Error(), Retryable: true, Cause: err}
-	}
-	respBody, bodyErr := readResponseBody(resp.Body)
-	if bodyErr != nil {
-		return fmt.Errorf("custd: read parser response: %w", bodyErr)
-	}
-	recordMetadata(ctx, resp.Header.Get(requestIDHeader))
-	if err := p.client.checkStatus(resp.StatusCode, respBody); err != nil {
-		return err
-	}
-	return decodeParserResponse(respBody, out)
+	return decodeParserResponse(response.Body, out)
 }
 
 func (p *ParserClient) endpoint(path string) string {

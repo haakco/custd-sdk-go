@@ -15,7 +15,7 @@ func TestEnvironmentDeclarationIsCarriedAsReservedLabel(t *testing.T) {
 	capture := newCaptureDoer(http.StatusAccepted, `{"success":true}`)
 	client := NewClient(&ClientConfig{
 		BaseURL: "http://localhost:8080", APIKey: "token", Environment: "development",
-		BatchSize: 1, HTTPClient: capture,
+		BatchSize: 1, HTTPClient: fakeTransport(capture),
 	})
 	event := &EventEnvelope{
 		CompanySlug: "acme", EventTypeSlug: "page-view", SchemaVersion: "1.0.0",

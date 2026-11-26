@@ -1,7 +1,6 @@
 package custd
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -296,46 +295,14 @@ func decodeRetainedUsage(data []byte) (*TenantStorageUsage, error) {
 // openUsageExport starts a CSV export and hands back the unread body, so a large export
 // costs one stream rather than one whole document in memory.
 func (c *UsageAdminClient) openUsageExport(ctx context.Context, path string) (*UsageExport, error) {
-	if c.admin.client.config.HTTPClient != nil {
-		return c.openUsageExportViaDoer(ctx, path)
-	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.admin.endpoint(path), nil)
-	if err != nil {
-		return nil, fmt.Errorf("custd: create usage export request: %w", err)
-	}
-	for key, value := range c.admin.client.headers(false) {
-		req.Header.Set(key, value)
-	}
-	req.Header.Set("Accept", usageExportAccept)
-	resp, err := c.admin.client.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("custd: usage export failed: %w", err)
-	}
-	return c.streamUsageExport(ctx, resp)
-}
-
-// openUsageExportViaDoer answers from a caller-supplied doer, which returns a complete body
-// rather than a stream, so the stream is that body.
-func (c *UsageAdminClient) openUsageExportViaDoer(
-	ctx context.Context, path string,
-) (*UsageExport, error) {
-	headers := c.admin.client.headers(false)
-	headers["Accept"] = usageExportAccept
-	resp, err := c.admin.client.config.HTTPClient.Do(&HTTPRequest{
-		Method: http.MethodGet, URL: c.admin.endpoint(path), Headers: headers,
+	resp, err := c.admin.client.sendStream(ctx, &bufferedRequest{
+		Method: http.MethodGet, URL: c.admin.endpoint(path),
+		Headers: c.admin.client.withCredentials(map[string]string{"Accept": usageExportAccept}),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("custd: usage export failed: %w", err)
 	}
-	if err := c.admin.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
-		return nil, err
-	}
-	requestID := resp.Headers[requestIDHeader]
-	recordMetadata(ctx, requestID)
-	return &UsageExport{
-		Body:     io.NopCloser(bytes.NewReader(resp.Body)),
-		Metadata: ResponseMetadata{RequestID: requestID},
-	}, nil
+	return c.streamUsageExport(ctx, resp)
 }
 
 // streamUsageExport checks the answer before handing the body over. A refused export is read

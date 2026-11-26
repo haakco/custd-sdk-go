@@ -30,7 +30,7 @@ func repeatStr(s string, n int) string {
 func newCompressionClient(t *testing.T, doer *captureDoer, cfg *ClientConfig) *CustdClient {
 	t.Helper()
 	cfg.BaseURL = "http://localhost:8080/"
-	cfg.HTTPClient = doer
+	cfg.HTTPClient = fakeTransport(doer)
 	cfg.FlushInterval = -1
 	client := NewClient(cfg)
 	t.Cleanup(func() { _ = client.Close(context.Background()) })
@@ -77,11 +77,11 @@ func TestSendBatchCompressesBodyOverThreshold(t *testing.T) {
 	}
 
 	req := doer.requests[0]
-	if req.Headers["Content-Encoding"] != "gzip" {
-		t.Fatalf("Content-Encoding = %q, want gzip", req.Headers["Content-Encoding"])
+	if req.Header("Content-Encoding") != "gzip" {
+		t.Fatalf("Content-Encoding = %q, want gzip", req.Header("Content-Encoding"))
 	}
-	if req.Headers["Content-Type"] != "application/json" {
-		t.Fatalf("Content-Type = %q", req.Headers["Content-Type"])
+	if req.Header("Content-Type") != "application/json" {
+		t.Fatalf("Content-Type = %q", req.Header("Content-Type"))
 	}
 	if got := gunzip(t, req.Body); !bytes.Equal(got, expected) {
 		t.Fatalf("decompressed body mismatch:\n got %s\nwant %s", got, expected)

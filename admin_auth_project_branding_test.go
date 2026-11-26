@@ -17,7 +17,7 @@ func TestAuthProjectBrandLogoRoutesUseTypedPaths(t *testing.T) {
 		wantMethod   string
 		wantURL      string
 		wantBody     bool
-		check        func(t *testing.T, req *HTTPRequest)
+		check        func(t *testing.T, req *fakeRequest)
 	}{
 		{
 			name:         "upload",
@@ -40,12 +40,12 @@ func TestAuthProjectBrandLogoRoutesUseTypedPaths(t *testing.T) {
 				}
 				return metadata, nil
 			},
-			check: func(t *testing.T, req *HTTPRequest) {
+			check: func(t *testing.T, req *fakeRequest) {
 				t.Helper()
-				if req.Headers[authProjectOwningUserHeader] != authProjectOwningUser {
-					t.Fatalf("owning user header = %q", req.Headers[authProjectOwningUserHeader])
+				if req.Header(authProjectOwningUserHeader) != authProjectOwningUser {
+					t.Fatalf("owning user header = %q", req.Header(authProjectOwningUserHeader))
 				}
-				contentType := req.Headers["Content-Type"]
+				contentType := req.Header("Content-Type")
 				if !strings.HasPrefix(contentType, "multipart/form-data; boundary=") {
 					t.Fatalf("content type = %q", contentType)
 				}
@@ -70,10 +70,10 @@ func TestAuthProjectBrandLogoRoutesUseTypedPaths(t *testing.T) {
 					AuthProjectRequestOptions{OwningUserUUID: authProjectOwningUser},
 				)
 			},
-			check: func(t *testing.T, req *HTTPRequest) {
+			check: func(t *testing.T, req *fakeRequest) {
 				t.Helper()
-				if req.Headers[authProjectOwningUserHeader] != authProjectOwningUser {
-					t.Fatalf("owning user header = %q", req.Headers[authProjectOwningUserHeader])
+				if req.Header(authProjectOwningUserHeader) != authProjectOwningUser {
+					t.Fatalf("owning user header = %q", req.Header(authProjectOwningUserHeader))
 				}
 			},
 		},

@@ -1,7 +1,6 @@
 package custd
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -37,7 +36,7 @@ func (c *CustdClient) CheckApplicationAuthority(ctx context.Context, request App
 	if err != nil {
 		return denied, fmt.Errorf("custd: encode application authority request: %w", err)
 	}
-	response, err := c.requestApplication(ctx, &HTTPRequest{
+	response, err := c.requestApplication(ctx, &bufferedRequest{
 		Method: http.MethodPost,
 		URL:    strings.TrimRight(c.config.BaseURL, "/") + "/oauth/authority-check",
 		Headers: map[string]string{
@@ -65,36 +64,26 @@ func (c *CustdClient) CheckApplicationAuthority(ctx context.Context, request App
 	return ApplicationAuthorityDecision{Authorized: *decision.Authorized, Reason: *decision.Reason}, nil
 }
 
-func (c *CustdClient) requestApplication(ctx context.Context, request *HTTPRequest) (*HTTPResponse, error) {
+func (c *CustdClient) requestApplication(ctx context.Context, request *bufferedRequest) (*bufferedResponse, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	if c.config.HTTPClient != nil {
-		return c.config.HTTPClient.Do(request)
-	}
-	req, err := http.NewRequestWithContext(ctx, request.Method, request.URL, bytes.NewReader(request.Body))
-	if err != nil {
-		return nil, fmt.Errorf("custd: create application request: %w", err)
-	}
-	for key, value := range request.Headers {
-		req.Header.Set(key, value)
-	}
-	// Do not use c.httpClient: its OAuth transport may mint and replace the
-	// application Authorization header with a platform machine credential.
-	client := &http.Client{
-		Timeout:       defaultHTTPTimeout,
-		CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse },
-	}
-	response, err := client.Do(req)
+	response, err := exchange(ctx, c.applicationTransport(), request)
 	if err != nil {
 		return nil, fmt.Errorf("custd: application request failed: %w", err)
 	}
-	body, err := readResponseBody(response.Body)
-	if err != nil {
-		return nil, fmt.Errorf("custd: read application response: %w", err)
+	return response, nil
+}
+
+// applicationTransport carries a request authenticated by an application user's own token. The
+// built client is not used for it: its OAuth transport may mint and replace the application
+// Authorization header with a platform machine credential.
+func (c *CustdClient) applicationTransport() HTTPDoer {
+	if c.config.HTTPClient != nil {
+		return c.config.HTTPClient
 	}
-	return &HTTPResponse{StatusCode: response.StatusCode, Body: body, Headers: map[string]string{
-		"Content-Type": response.Header.Get("Content-Type"),
-		"Set-Cookie":   response.Header.Get("Set-Cookie"),
-	}}, nil
+	return &http.Client{
+		Timeout:       defaultHTTPTimeout,
+		CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse },
+	}
 }

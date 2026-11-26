@@ -3,6 +3,7 @@ package custd
 import (
 	"context"
 	"net/http"
+	"time"
 )
 
 // AuthProjectDomainStatus describes the observed lifecycle of a custom issuer.
@@ -41,9 +42,9 @@ const (
 	AuthProjectDomainRollingOut AuthProjectDomainConvergence = "rolling-out"
 )
 
-// AuthProjectDomainImageSet is one image identity pair: the gateway and its Hydra server/init
-// lineage. Both are empty when the deployment declares no slot images.
-type AuthProjectDomainImageSet struct {
+// AuthDomainImageSet is one image identity pair: the gateway and its Hydra server/init lineage.
+// Both are empty when the deployment declares no slot images.
+type AuthDomainImageSet struct {
 	Gateway string `json:"gateway,omitempty"`
 	Hydra   string `json:"hydra,omitempty"`
 }
@@ -57,12 +58,12 @@ const (
 	AuthProjectDomainImageSourceUndeclared     AuthProjectDomainImageSource = "undeclared"
 )
 
-// AuthProjectDomainImages reports the identity a realm should run against the identity it was
-// observed running. A paused, retiring or retired realm runs no container, so it answers
-// not-running with no running identity rather than reading as drift.
-type AuthProjectDomainImages struct {
-	Expected    AuthProjectDomainImageSet    `json:"expected"`
-	Running     AuthProjectDomainImageSet    `json:"running"`
+// AuthDomainImages reports the identity a realm should run against the identity it was observed
+// running. A paused, retiring or retired realm runs no container, so it answers not-running with no
+// running identity rather than reading as drift.
+type AuthDomainImages struct {
+	Expected    AuthDomainImageSet           `json:"expected"`
+	Running     AuthDomainImageSet           `json:"running"`
 	Convergence AuthProjectDomainConvergence `json:"convergence"`
 	// Source names where Expected comes from: release-default, override or undeclared.
 	Source AuthProjectDomainImageSource `json:"source"`
@@ -112,16 +113,18 @@ type AuthProjectDomainBindRequest struct {
 	Host         string `json:"host"`
 }
 
-// AuthProjectDomainDNSProof is the TXT record the domain administrator publishes.
-type AuthProjectDomainDNSProof struct {
+// AuthDomainDNSProof is the TXT record the domain administrator publishes.
+type AuthDomainDNSProof struct {
 	RecordName  string `json:"recordName"`
 	RecordValue string `json:"recordValue"`
 }
 
-// AuthProjectDomainBinding is the current issuer binding and DNS instructions, plus the realm
-// admission it holds. SlotRef is the stored claim and IntentRevision the domain intent revision the
-// claim was written at, so a remediation compares the revision instead of the presentation one.
-type AuthProjectDomainBinding struct {
+// AuthDomainBinding is the current issuer binding and DNS instructions, plus the realm admission it
+// holds. Every domain route answers with it, including MintDomain and the image override routes.
+// SlotRef is the stored claim and IntentRevision the domain intent revision the claim was written
+// at, so a remediation compares the revision instead of the presentation one. DNSProof is nil for a
+// platform-generated hostname, which needs no record published.
+type AuthDomainBinding struct {
 	EnvironmentID        string                     `json:"environmentId"`
 	SlotRef              string                     `json:"slotRef,omitempty"`
 	SiteDomainID         string                     `json:"siteDomainId,omitempty"`
@@ -130,25 +133,25 @@ type AuthProjectDomainBinding struct {
 	Status               AuthProjectDomainStatus    `json:"status"`
 	Lifecycle            AuthProjectDomainLifecycle `json:"lifecycle"`
 	IntentRevision       int64                      `json:"intentRevision"`
-	Images               AuthProjectDomainImages    `json:"images"`
+	Images               AuthDomainImages           `json:"images"`
 	DNSTarget            string                     `json:"dnsTarget,omitempty"`
-	DNSProof             AuthProjectDomainDNSProof  `json:"dnsProof"`
-	CreatedAt            string                     `json:"createdAt"`
-	ObservedAt           string                     `json:"observedAt,omitempty"`
-	CertificateExpiresAt string                     `json:"certificateExpiresAt,omitempty"`
+	DNSProof             *AuthDomainDNSProof        `json:"dnsProof,omitempty"`
+	CreatedAt            time.Time                  `json:"createdAt"`
+	ObservedAt           *time.Time                 `json:"observedAt,omitempty"`
+	CertificateExpiresAt *time.Time                 `json:"certificateExpiresAt,omitempty"`
 }
 
 // GetEnvironmentAuthDomain reads an environment's authentication hostname and status.
 func (c *AuthProjectAdminClient) GetEnvironmentAuthDomain(
 	ctx context.Context, projectID, environmentID string, options AuthProjectRequestOptions,
-) (*AuthProjectDomainBinding, error) {
+) (*AuthDomainBinding, error) {
 	return c.authDomainRequest(ctx, http.MethodGet, authProjectEnvironmentPath(projectID, environmentID)+"/domain", nil, options)
 }
 
 // BindEnvironmentAuthDomain reserves a hostname and returns the DNS records needed for activation.
 func (c *AuthProjectAdminClient) BindEnvironmentAuthDomain(
 	ctx context.Context, projectID, environmentID string, request AuthProjectDomainBindRequest, options AuthProjectRequestOptions,
-) (*AuthProjectDomainBinding, error) {
+) (*AuthDomainBinding, error) {
 	return c.authDomainRequest(ctx, http.MethodPut, authProjectEnvironmentPath(projectID, environmentID)+"/domain", &request, options)
 }
 
@@ -159,35 +162,35 @@ func (c *AuthProjectAdminClient) BindEnvironmentAuthDomain(
 // re-admitted.
 func (c *AuthProjectAdminClient) AdmitEnvironmentAuthDomain(
 	ctx context.Context, projectID, environmentID string, options AuthProjectRequestOptions,
-) (*AuthProjectDomainBinding, error) {
+) (*AuthDomainBinding, error) {
 	return c.authDomainRequest(ctx, http.MethodPost, authProjectEnvironmentPath(projectID, environmentID)+"/domain/admit", nil, options)
 }
 
 // RetryEnvironmentAuthDomain requests reconciliation of the environment's authentication hostname.
 func (c *AuthProjectAdminClient) RetryEnvironmentAuthDomain(
 	ctx context.Context, projectID, environmentID string, options AuthProjectRequestOptions,
-) (*AuthProjectDomainBinding, error) {
+) (*AuthDomainBinding, error) {
 	return c.authDomainRequest(ctx, http.MethodPost, authProjectEnvironmentPath(projectID, environmentID)+"/domain/retry", nil, options)
 }
 
 // DisableEnvironmentAuthDomain disables the issuer while retaining the hostname reservation.
 func (c *AuthProjectAdminClient) DisableEnvironmentAuthDomain(
 	ctx context.Context, projectID, environmentID string, options AuthProjectRequestOptions,
-) (*AuthProjectDomainBinding, error) {
+) (*AuthDomainBinding, error) {
 	return c.authDomainRequest(ctx, http.MethodPost, authProjectEnvironmentPath(projectID, environmentID)+"/domain/disable", nil, options)
 }
 
 // ReleaseEnvironmentAuthDomain starts cleanup before the hostname becomes available for a new binding.
 func (c *AuthProjectAdminClient) ReleaseEnvironmentAuthDomain(
 	ctx context.Context, projectID, environmentID string, options AuthProjectRequestOptions,
-) (*AuthProjectDomainBinding, error) {
+) (*AuthDomainBinding, error) {
 	return c.authDomainRequest(ctx, http.MethodPost, authProjectEnvironmentPath(projectID, environmentID)+"/domain/release", nil, options)
 }
 
 func (c *AuthProjectAdminClient) authDomainRequest(
 	ctx context.Context, method, path string, request any, options AuthProjectRequestOptions,
-) (*AuthProjectDomainBinding, error) {
-	var out AuthProjectDomainBinding
+) (*AuthDomainBinding, error) {
+	var out AuthDomainBinding
 	if err := c.admin.requestWithHeaders(ctx, method, path, request, &out, authProjectHeaders(options)); err != nil {
 		return nil, err
 	}

@@ -1,7 +1,6 @@
 package custd
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -471,71 +470,8 @@ func (c *AdminClient) request(ctx context.Context, method string, path string, p
 func (c *AdminClient) requestWithHeaders(
 	ctx context.Context, method, path string, payload, out any, headers map[string]string,
 ) error {
-	var body []byte
-	var err error
-	if payload != nil {
-		body, err = json.Marshal(payload)
-		if err != nil {
-			return fmt.Errorf("custd: marshal admin request: %w", err)
-		}
-	}
-	path = c.actingCompanyPath(path)
-	if c.client.config.HTTPClient != nil {
-		return c.requestViaDoer(ctx, method, path, body, out, headers)
-	}
-	return c.requestViaHTTP(ctx, method, path, body, out, headers)
-}
-
-func (c *AdminClient) requestViaDoer(
-	ctx context.Context, method, path string, body []byte, out any, extraHeaders map[string]string,
-) error {
-	headers := c.client.headers(false)
-	for key, value := range extraHeaders {
-		headers[key] = value
-	}
-	c.applyRequestLabels(headers)
-	resp, err := c.client.config.HTTPClient.Do(&HTTPRequest{
-		Method:  method,
-		URL:     c.endpoint(path),
-		Headers: headers,
-		Body:    body,
-	})
-	if err != nil {
-		return fmt.Errorf("custd: admin request failed: %w", err)
-	}
-	recordMetadata(ctx, responseHeader(resp.Headers, requestIDHeader))
-	if err := c.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
-		return err
-	}
-	return decodeAdminResponse(resp.Body, out)
-}
-
-func (c *AdminClient) requestViaHTTP(
-	ctx context.Context, method, path string, body []byte, out any, extraHeaders map[string]string,
-) error {
-	req, err := http.NewRequestWithContext(ctx, method, c.endpoint(path), bytes.NewReader(body))
-	if err != nil {
-		return fmt.Errorf("custd: create admin request: %w", err)
-	}
-	for k, v := range c.client.headers(false) {
-		req.Header.Set(k, v)
-	}
-	for key, value := range extraHeaders {
-		req.Header.Set(key, value)
-	}
-	resp, err := c.client.httpClient.Do(req)
-	if err != nil {
-		return fmt.Errorf("custd: admin request failed: %w", err)
-	}
-	respBody, bodyErr := readResponseBody(resp.Body)
-	if bodyErr != nil {
-		return fmt.Errorf("custd: read admin response: %w", bodyErr)
-	}
-	recordMetadata(ctx, resp.Header.Get(requestIDHeader))
-	if err := c.client.checkStatus(resp.StatusCode, respBody); err != nil {
-		return err
-	}
-	return decodeAdminResponse(respBody, out)
+	_, err := c.requestWithMetadataHeaders(ctx, method, path, payload, out, headers)
+	return err
 }
 
 // ResponseMetadata carries the server-side identifiers for one call. RequestID
@@ -569,57 +505,31 @@ func (c *AdminClient) requestWithMetadata(
 func (c *AdminClient) requestWithMetadataHeaders(
 	ctx context.Context, method, path string, payload, out any, headers map[string]string,
 ) (ResponseMetadata, error) {
-	var body []byte
-	if payload != nil {
-		encoded, err := json.Marshal(payload)
-		if err != nil {
-			return ResponseMetadata{}, fmt.Errorf("custd: marshal admin request: %w", err)
-		}
-		body = encoded
+	body, err := encodeRequestBody(payload, "admin")
+	if err != nil {
+		return ResponseMetadata{}, err
 	}
 	path = c.actingCompanyPath(path)
-	headers = c.withRequestLabels(headers)
-	if c.client.config.HTTPClient != nil {
-		merged := c.client.headers(false)
-		for key, value := range headers {
-			merged[key] = value
-		}
-		resp, err := c.client.config.HTTPClient.Do(&HTTPRequest{
-			Method: method, URL: c.endpoint(path), Headers: merged, Body: body,
-		})
-		if err != nil {
-			return ResponseMetadata{}, fmt.Errorf("custd: admin request failed: %w", err)
-		}
-		metadata := ResponseMetadata{RequestID: responseHeader(resp.Headers, requestIDHeader)}
-		if err := c.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
-			return metadata, err
-		}
-		return metadata, decodeAdminResponse(resp.Body, out)
-	}
-	req, err := http.NewRequestWithContext(ctx, method, c.endpoint(path), bytes.NewReader(body))
+	metadata, respBody, err := c.client.exchangeChecked(ctx, "admin request", &bufferedRequest{
+		Method: method, URL: c.endpoint(path), Headers: c.client.withCredentials(c.withRequestLabels(headers)), Body: body,
+	})
 	if err != nil {
-		return ResponseMetadata{}, fmt.Errorf("custd: create admin request: %w", err)
-	}
-	for key, value := range c.client.headers(false) {
-		req.Header.Set(key, value)
-	}
-	for key, value := range headers {
-		req.Header.Set(key, value)
-	}
-	resp, err := c.client.httpClient.Do(req)
-	if err != nil {
-		return ResponseMetadata{}, fmt.Errorf("custd: admin request failed: %w", err)
-	}
-	defer resp.Body.Close()
-	respBody, err := readResponseBody(resp.Body)
-	if err != nil {
-		return ResponseMetadata{}, fmt.Errorf("custd: read admin response: %w", err)
-	}
-	metadata := ResponseMetadata{RequestID: resp.Header.Get(requestIDHeader)}
-	if err := c.client.checkStatus(resp.StatusCode, respBody); err != nil {
 		return metadata, err
 	}
 	return metadata, decodeAdminResponse(respBody, out)
+}
+
+// encodeRequestBody is the JSON body for payload, empty when there is none. surface names the
+// request in an encoding error.
+func encodeRequestBody(payload any, surface string) ([]byte, error) {
+	if payload == nil {
+		return nil, nil
+	}
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return nil, fmt.Errorf("custd: marshal %s request: %w", surface, err)
+	}
+	return body, nil
 }
 
 func (c *AdminClient) endpoint(path string) string {
@@ -639,55 +549,15 @@ func (c *AdminClient) requestNonAdmin(ctx context.Context, method string, path s
 func (c *AdminClient) requestNonAdminWithHeaders(
 	ctx context.Context, method, path string, payload, out any, extraHeaders map[string]string,
 ) error {
-	var body []byte
-	var err error
-	if payload != nil {
-		body, err = json.Marshal(payload)
-		if err != nil {
-			return fmt.Errorf("custd: marshal non-admin request: %w", err)
-		}
+	body, err := encodeRequestBody(payload, "non-admin")
+	if err != nil {
+		return err
 	}
 	url := strings.TrimRight(c.client.config.BaseURL, "/") + "/api/v1" + path
-	if c.client.config.HTTPClient != nil {
-		headers := c.client.headers(false)
-		for key, value := range extraHeaders {
-			headers[key] = value
-		}
-		resp, err := c.client.config.HTTPClient.Do(&HTTPRequest{
-			Method:  method,
-			URL:     url,
-			Headers: headers,
-			Body:    body,
-		})
-		if err != nil {
-			return fmt.Errorf("custd: non-admin request failed: %w", err)
-		}
-		recordMetadata(ctx, responseHeader(resp.Headers, requestIDHeader))
-		if err := c.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
-			return err
-		}
-		return decodeAdminResponse(resp.Body, out)
-	}
-	req, err := http.NewRequestWithContext(ctx, method, url, bytes.NewReader(body))
+	_, respBody, err := c.client.exchangeChecked(ctx, "non-admin request", &bufferedRequest{
+		Method: method, URL: url, Headers: c.client.withCredentials(extraHeaders), Body: body,
+	})
 	if err != nil {
-		return fmt.Errorf("custd: create non-admin request: %w", err)
-	}
-	for k, v := range c.client.headers(false) {
-		req.Header.Set(k, v)
-	}
-	for k, v := range extraHeaders {
-		req.Header.Set(k, v)
-	}
-	resp, err := c.client.httpClient.Do(req)
-	if err != nil {
-		return fmt.Errorf("custd: non-admin request failed: %w", err)
-	}
-	respBody, bodyErr := readResponseBody(resp.Body)
-	if bodyErr != nil {
-		return fmt.Errorf("custd: read response: %w", bodyErr)
-	}
-	recordMetadata(ctx, resp.Header.Get(requestIDHeader))
-	if err := c.client.checkStatus(resp.StatusCode, respBody); err != nil {
 		return err
 	}
 	return decodeAdminResponse(respBody, out)
@@ -703,35 +573,12 @@ type adminDownload struct {
 
 // openAdminDownload starts an admin GET for a file. A refused request is read so its problem
 // reaches checkStatus; an accepted body is left unread so the caller streams it instead of
-// holding the whole file in memory. A caller-supplied doer answers with a complete body, so
-// that body is the stream.
+// holding the whole file in memory, through the caller's HTTPClient as much as the built one. The
+// body has no whole-download deadline; it fails only once it stalls (see sendStream).
 func (c *AdminClient) openAdminDownload(ctx context.Context, path, label string) (*adminDownload, error) {
-	if c.client.config.HTTPClient != nil {
-		resp, err := c.client.config.HTTPClient.Do(&HTTPRequest{
-			Method: http.MethodGet, URL: c.endpoint(path), Headers: c.client.headers(false),
-		})
-		if err != nil {
-			return nil, fmt.Errorf("custd: %s failed: %w", label, err)
-		}
-		header := http.Header{}
-		for key, value := range resp.Headers {
-			header.Set(key, value)
-		}
-		metadata := ResponseMetadata{RequestID: header.Get(requestIDHeader)}
-		recordMetadata(ctx, metadata.RequestID)
-		if err := c.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
-			return nil, err
-		}
-		return &adminDownload{body: io.NopCloser(bytes.NewReader(resp.Body)), header: header, metadata: metadata}, nil
-	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.endpoint(path), nil)
-	if err != nil {
-		return nil, fmt.Errorf("custd: create %s: %w", label, err)
-	}
-	for key, value := range c.client.headers(false) {
-		req.Header.Set(key, value)
-	}
-	resp, err := c.client.httpClient.Do(req)
+	resp, err := c.client.sendStream(ctx, &bufferedRequest{
+		Method: http.MethodGet, URL: c.endpoint(path), Headers: c.client.headers(false),
+	})
 	if err != nil {
 		return nil, fmt.Errorf("custd: %s failed: %w", label, err)
 	}

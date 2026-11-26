@@ -348,7 +348,7 @@ func TestOffboardingAdminClientLifecycle(t *testing.T) {
 	if string(doer.requests[4].Body) != `{"confirmation":"acme"}` {
 		t.Fatalf("RequestOffboarding body = %q", string(doer.requests[4].Body))
 	}
-	if got := doer.requests[4].Headers["Idempotency-Key"]; got != "acme-offboarding-1" {
+	if got := doer.requests[4].Header("Idempotency-Key"); got != "acme-offboarding-1" {
 		t.Fatalf("RequestOffboarding idempotency key = %q", got)
 	}
 

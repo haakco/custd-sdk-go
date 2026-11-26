@@ -112,7 +112,7 @@ func newProvisioningTestClient(t *testing.T, doer *captureDoer) *CustdClient {
 	client := NewClient(&ClientConfig{
 		BaseURL:       "http://localhost:8080/",
 		APIKey:        "broker-token",
-		HTTPClient:    doer,
+		HTTPClient:    fakeTransport(doer),
 		FlushInterval: time.Hour,
 	})
 	t.Cleanup(func() { _ = client.Close(context.Background()) })

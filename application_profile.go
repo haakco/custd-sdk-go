@@ -62,16 +62,15 @@ func (c *CustdClient) GetCurrentAppProfilePhoto(ctx context.Context, token strin
 	if err != nil {
 		return nil, err
 	}
-	for name, value := range response.Headers {
-		if strings.EqualFold(name, "Content-Type") {
-			photo := &CurrentAppProfilePhoto{ContentType: value, Bytes: response.Body}
-			if err := photo.validate(); err != nil {
-				return nil, err
-			}
-			return photo, nil
-		}
+	contentType := response.Header.Get("Content-Type")
+	if contentType == "" {
+		return nil, validationErrorf("custd: current app profile photo content type is required")
 	}
-	return nil, validationErrorf("custd: current app profile photo content type is required")
+	photo := &CurrentAppProfilePhoto{ContentType: contentType, Bytes: response.Body}
+	if err := photo.validate(); err != nil {
+		return nil, err
+	}
+	return photo, nil
 }
 
 func (c *CustdClient) UploadCurrentAppProfilePhoto(ctx context.Context, token string, photo CurrentAppProfilePhoto) (*CurrentAppProfile, error) {
@@ -121,7 +120,7 @@ func (c *CustdClient) currentAppProfile(ctx context.Context, token, method, path
 	return &profile, nil
 }
 
-func (c *CustdClient) requestCurrentAppProfile(ctx context.Context, token, method, path, contentType string, body []byte) (*HTTPResponse, error) {
+func (c *CustdClient) requestCurrentAppProfile(ctx context.Context, token, method, path, contentType string, body []byte) (*bufferedResponse, error) {
 	if token == "" || len(strings.Fields(token)) != 1 || strings.TrimSpace(token) != token {
 		return nil, fmt.Errorf("custd: application profile access token is required")
 	}
@@ -135,7 +134,7 @@ func (c *CustdClient) requestCurrentAppProfile(ctx context.Context, token, metho
 	if contentType != "" {
 		headers["Content-Type"] = contentType
 	}
-	response, err := c.requestApplication(ctx, &HTTPRequest{
+	response, err := c.requestApplication(ctx, &bufferedRequest{
 		Method: method, URL: strings.TrimRight(base, "/") + path, Headers: headers, Body: body,
 	})
 	if err != nil {

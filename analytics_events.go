@@ -1,7 +1,6 @@
 package custd
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -275,59 +274,22 @@ func validateAnalyticsEventRangeQuery(req AnalyticsEventRangeQueryRequest) error
 	return nil
 }
 
-func (a *AnalyticsEventClient) request(ctx context.Context, method, path string, payload any, out any) error {
-	var body []byte
-	var err error
-	if payload != nil {
-		body, err = json.Marshal(payload)
-		if err != nil {
-			return fmt.Errorf("custd: marshal analytics request: %w", err)
-		}
+func (a *AnalyticsEventClient) request(ctx context.Context, method string, path string, payload any, out any) error {
+	body, err := encodeRequestBody(payload, "analytics")
+	if err != nil {
+		return err
 	}
-	if a.client.config.HTTPClient != nil {
-		return a.requestViaDoer(ctx, method, path, body, out)
-	}
-	return a.requestViaHTTP(ctx, method, path, body, out)
-}
-
-func (a *AnalyticsEventClient) requestViaDoer(ctx context.Context, method, path string, body []byte, out any) error {
-	resp, err := a.client.config.HTTPClient.Do(&HTTPRequest{
-		Method:  method,
-		URL:     a.endpoint(path),
-		Headers: a.client.headers(false),
-		Body:    body,
+	response, err := a.client.exchange(ctx, &bufferedRequest{
+		Method: method, URL: a.endpoint(path), Headers: a.client.headers(false), Body: body,
 	})
 	if err != nil {
 		return &RequestError{Message: "custd: analytics request failed: " + err.Error(), Retryable: true, Cause: err}
 	}
-	recordMetadata(ctx, responseHeader(resp.Headers, requestIDHeader))
-	if err := a.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
+	recordMetadata(ctx, response.Header.Get(requestIDHeader))
+	if err := a.client.checkStatus(response.StatusCode, response.Body); err != nil {
 		return err
 	}
-	return decodeAnalyticsResponse(resp.Body, out)
-}
-
-func (a *AnalyticsEventClient) requestViaHTTP(ctx context.Context, method, path string, body []byte, out any) error {
-	req, err := http.NewRequestWithContext(ctx, method, a.endpoint(path), bytes.NewReader(body))
-	if err != nil {
-		return fmt.Errorf("custd: create analytics request: %w", err)
-	}
-	for k, v := range a.client.headers(false) {
-		req.Header.Set(k, v)
-	}
-	resp, err := a.client.httpClient.Do(req)
-	if err != nil {
-		return &RequestError{Message: "custd: analytics request failed: " + err.Error(), Retryable: true, Cause: err}
-	}
-	respBody, bodyErr := readResponseBody(resp.Body)
-	if bodyErr != nil {
-		return fmt.Errorf("custd: read analytics response: %w", bodyErr)
-	}
-	recordMetadata(ctx, resp.Header.Get(requestIDHeader))
-	if err := a.client.checkStatus(resp.StatusCode, respBody); err != nil {
-		return err
-	}
-	return decodeAnalyticsResponse(respBody, out)
+	return decodeAnalyticsResponse(response.Body, out)
 }
 
 func (a *AnalyticsEventClient) endpoint(path string) string {

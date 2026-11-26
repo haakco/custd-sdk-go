@@ -1,7 +1,6 @@
 package custd
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -366,58 +365,21 @@ func validateReportingSubjectInsightRequest(req SubjectInsightRequest) error {
 }
 
 func (r *ReportingClient) request(ctx context.Context, method string, path string, payload any, out any) error {
-	var body []byte
-	var err error
-	if payload != nil {
-		body, err = json.Marshal(payload)
-		if err != nil {
-			return fmt.Errorf("custd: marshal reporting request: %w", err)
-		}
+	body, err := encodeRequestBody(payload, "reporting")
+	if err != nil {
+		return err
 	}
-	if r.client.config.HTTPClient != nil {
-		return r.requestViaDoer(ctx, method, path, body, out)
-	}
-	return r.requestViaHTTP(ctx, method, path, body, out)
-}
-
-func (r *ReportingClient) requestViaDoer(ctx context.Context, method string, path string, body []byte, out any) error {
-	resp, err := r.client.config.HTTPClient.Do(&HTTPRequest{
-		Method:  method,
-		URL:     r.endpoint(path),
-		Headers: r.headers(),
-		Body:    body,
+	response, err := r.client.exchange(ctx, &bufferedRequest{
+		Method: method, URL: r.endpoint(path), Headers: r.headers(), Body: body,
 	})
 	if err != nil {
 		return &RequestError{Message: "custd: reporting request failed: " + err.Error(), Retryable: true, Cause: err}
 	}
-	recordMetadata(ctx, responseHeader(resp.Headers, requestIDHeader))
-	if err := r.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
+	recordMetadata(ctx, response.Header.Get(requestIDHeader))
+	if err := r.client.checkStatus(response.StatusCode, response.Body); err != nil {
 		return err
 	}
-	return decodeReportingResponse(resp.Body, out)
-}
-
-func (r *ReportingClient) requestViaHTTP(ctx context.Context, method string, path string, body []byte, out any) error {
-	req, err := http.NewRequestWithContext(ctx, method, r.endpoint(path), bytes.NewReader(body))
-	if err != nil {
-		return fmt.Errorf("custd: create reporting request: %w", err)
-	}
-	for k, v := range r.headers() {
-		req.Header.Set(k, v)
-	}
-	resp, err := r.client.httpClient.Do(req)
-	if err != nil {
-		return &RequestError{Message: "custd: reporting request failed: " + err.Error(), Retryable: true, Cause: err}
-	}
-	respBody, bodyErr := readResponseBody(resp.Body)
-	if bodyErr != nil {
-		return fmt.Errorf("custd: read reporting response: %w", bodyErr)
-	}
-	recordMetadata(ctx, resp.Header.Get(requestIDHeader))
-	if err := r.client.checkStatus(resp.StatusCode, respBody); err != nil {
-		return err
-	}
-	return decodeReportingResponse(respBody, out)
+	return decodeReportingResponse(response.Body, out)
 }
 
 // headers are the credential headers plus the caller's audit labels, so a reporting read is

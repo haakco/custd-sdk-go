@@ -80,11 +80,11 @@ func TestAppOperationsSendTheirRoutes(t *testing.T) {
 			if req.Method != test.method || req.URL != test.url {
 				t.Fatalf("request = %s %s, want %s %s", req.Method, req.URL, test.method, test.url)
 			}
-			if req.Headers[authProjectOwningUserHeader] != authProjectOwningUser {
-				t.Fatalf("owning user header = %q", req.Headers[authProjectOwningUserHeader])
+			if req.Header(authProjectOwningUserHeader) != authProjectOwningUser {
+				t.Fatalf("owning user header = %q", req.Header(authProjectOwningUserHeader))
 			}
-			if test.key != "" && req.Headers["Idempotency-Key"] != test.key {
-				t.Fatalf("idempotency key = %q, want %q", req.Headers["Idempotency-Key"], test.key)
+			if test.key != "" && req.Header("Idempotency-Key") != test.key {
+				t.Fatalf("idempotency key = %q, want %q", req.Header("Idempotency-Key"), test.key)
 			}
 		})
 	}

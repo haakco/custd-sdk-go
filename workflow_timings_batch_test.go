@@ -13,7 +13,7 @@ type workflowBatchDoer struct {
 	seen  int
 }
 
-func (d *workflowBatchDoer) Do(request *HTTPRequest) (*HTTPResponse, error) {
+func (d *workflowBatchDoer) Do(request *fakeRequest) (*fakeResponse, error) {
 	if len(request.Body) > 1<<20 {
 		return nil, fmt.Errorf("workflow batch exceeds the server byte limit: %d", len(request.Body))
 	}
@@ -36,12 +36,12 @@ func (d *workflowBatchDoer) Do(request *HTTPRequest) (*HTTPResponse, error) {
 	d.calls++
 	d.seen += len(batch.Observations)
 	body, err := json.Marshal(result)
-	return &HTTPResponse{StatusCode: 200, Body: body}, err
+	return &fakeResponse{StatusCode: 200, Body: body}, err
 }
 
 func TestWorkflowTimingBatchSplitsByBytesAndKeepsGlobalResults(t *testing.T) {
 	doer := &workflowBatchDoer{}
-	client := NewClient(&ClientConfig{BaseURL: "http://localhost:8080", APIKey: "test", HTTPClient: doer})
+	client := NewClient(&ClientConfig{BaseURL: "http://localhost:8080", APIKey: "test", HTTPClient: fakeTransport(doer)})
 	t.Cleanup(func() { _ = client.Close(context.Background()) })
 	observations := make([]WorkflowTimingObservation, 10001)
 	for index := range observations {

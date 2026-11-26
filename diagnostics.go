@@ -3,7 +3,6 @@ package custd
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -186,40 +185,25 @@ func trustedIssuerEndpoint(raw, issuer string) (string, error) {
 
 // fetchIssuerDocument reads one JSON document from an issuer.
 func (c *AdminClient) fetchIssuerDocument(ctx context.Context, rawURL string, out any) error {
-	if c.client.config.HTTPClient != nil {
-		response, err := c.client.config.HTTPClient.Do(&HTTPRequest{
-			Method:  http.MethodGet,
-			URL:     rawURL,
-			Headers: map[string]string{"Accept": "application/json"},
-		})
-		if err != nil {
-			return fmt.Errorf("custd: issuer request failed: %w", err)
-		}
-		if err := c.client.checkStatus(response.StatusCode, response.Body); err != nil {
-			return err
-		}
-		return decodeAdminResponse(response.Body, out)
-	}
-	request, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
-	if err != nil {
-		return fmt.Errorf("custd: create issuer request: %w", err)
-	}
-	request.Header.Set("Accept", "application/json")
-	// The issuer is a third party: the request carries no Custd credential, so
-	// the platform's own client is not used for it.
-	client := &http.Client{Timeout: defaultHTTPTimeout, CheckRedirect: sameOriginRedirect}
-	response, err := client.Do(request)
+	response, err := exchange(ctx, c.issuerTransport(), &bufferedRequest{
+		Method: http.MethodGet, URL: rawURL, Headers: map[string]string{"Accept": "application/json"},
+	})
 	if err != nil {
 		return fmt.Errorf("custd: issuer request failed: %w", err)
 	}
-	body, err := readResponseBody(response.Body)
-	if err != nil {
-		return fmt.Errorf("custd: read issuer response: %w", err)
-	}
-	if err := c.client.checkStatus(response.StatusCode, body); err != nil {
+	if err := c.client.checkStatus(response.StatusCode, response.Body); err != nil {
 		return err
 	}
-	return decodeAdminResponse(body, out)
+	return decodeAdminResponse(response.Body, out)
+}
+
+// issuerTransport carries a request to a third-party issuer. The request holds no Custd
+// credential, so the built client, whose OAuth transport adds one, is not used for it.
+func (c *AdminClient) issuerTransport() HTTPDoer {
+	if c.client.config.HTTPClient != nil {
+		return c.client.config.HTTPClient
+	}
+	return &http.Client{Timeout: defaultHTTPTimeout, CheckRedirect: sameOriginRedirect}
 }
 
 // sameOriginRedirect refuses a redirect that leaves the origin the request
@@ -244,61 +228,9 @@ func sameOriginRedirect(request *http.Request, via []*http.Request) error {
 func (c *AdminClient) requestOutsideAdmin(
 	ctx context.Context, method, url string, headers map[string]string, payload any,
 ) (ResponseMetadata, []byte, error) {
-	var body []byte
-	var err error
-	if payload != nil {
-		body, err = json.Marshal(payload)
-		if err != nil {
-			return ResponseMetadata{}, nil, fmt.Errorf("custd: marshal request: %w", err)
-		}
-	}
-	if c.client.config.HTTPClient != nil {
-		return c.requestOutsideAdminViaDoer(ctx, method, url, headers, body)
-	}
-	return c.requestOutsideAdminViaHTTP(ctx, method, url, headers, body)
-}
-
-// requestOutsideAdminViaDoer sends the request through the configured transport.
-func (c *AdminClient) requestOutsideAdminViaDoer(
-	ctx context.Context, method, url string, headers map[string]string, body []byte,
-) (ResponseMetadata, []byte, error) {
-	response, err := c.client.config.HTTPClient.Do(&HTTPRequest{
-		Method: method, URL: url, Headers: headers, Body: body,
-	})
+	body, err := encodeRequestBody(payload, "outside-admin")
 	if err != nil {
-		return ResponseMetadata{}, nil, fmt.Errorf("custd: request failed: %w", err)
+		return ResponseMetadata{}, nil, err
 	}
-	metadata := ResponseMetadata{RequestID: responseHeader(response.Headers, requestIDHeader)}
-	recordMetadata(ctx, metadata.RequestID)
-	if err := c.client.checkStatus(response.StatusCode, response.Body); err != nil {
-		return metadata, nil, err
-	}
-	return metadata, response.Body, nil
-}
-
-// requestOutsideAdminViaHTTP sends the request through the SDK's own client.
-func (c *AdminClient) requestOutsideAdminViaHTTP(
-	ctx context.Context, method, url string, headers map[string]string, body []byte,
-) (ResponseMetadata, []byte, error) {
-	request, err := http.NewRequestWithContext(ctx, method, url, bytes.NewReader(body))
-	if err != nil {
-		return ResponseMetadata{}, nil, fmt.Errorf("custd: create request: %w", err)
-	}
-	for key, value := range headers {
-		request.Header.Set(key, value)
-	}
-	response, err := c.client.httpClient.Do(request)
-	if err != nil {
-		return ResponseMetadata{}, nil, fmt.Errorf("custd: request failed: %w", err)
-	}
-	responseBody, err := readResponseBody(response.Body)
-	if err != nil {
-		return ResponseMetadata{}, nil, fmt.Errorf("custd: read response: %w", err)
-	}
-	metadata := ResponseMetadata{RequestID: response.Header.Get(requestIDHeader)}
-	recordMetadata(ctx, metadata.RequestID)
-	if err := c.client.checkStatus(response.StatusCode, responseBody); err != nil {
-		return metadata, nil, err
-	}
-	return metadata, responseBody, nil
+	return c.client.exchangeChecked(ctx, "request", &bufferedRequest{Method: method, URL: url, Headers: headers, Body: body})
 }

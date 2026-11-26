@@ -203,27 +203,11 @@ func (c *CustdClient) IngestRawLines(
 		headers[IdempotencyKeyHeader] = string(req.IdempotencyKey)
 	}
 
-	if c.config.HTTPClient != nil {
-		resp, err := c.config.HTTPClient.Do(&HTTPRequest{
-			Method: http.MethodPost, URL: c.rawEndpoint(path), Headers: headers, Body: []byte(req.Content),
-		})
-		if err != nil {
-			return nil, newRawAcceptanceUnknownError(err, req.IdempotencyKey)
-		}
-		if err := c.checkRawStatus(resp.StatusCode, resp.Body, req.IdempotencyKey); err != nil {
-			return nil, err
-		}
-		return rawIngestResultFromBody(resp.Body, req.IdempotencyKey)
-	}
-
-	httpReq, err := http.NewRequestWithContext(
-		ctx, http.MethodPost, c.rawEndpoint(path), strings.NewReader(req.Content),
-	)
+	httpReq, err := newHTTPRequest(ctx, &bufferedRequest{
+		Method: http.MethodPost, URL: c.rawEndpoint(path), Headers: headers, Body: []byte(req.Content),
+	})
 	if err != nil {
-		return nil, fmt.Errorf("custd: create raw ingest request: %w", err)
-	}
-	for k, v := range headers {
-		httpReq.Header.Set(k, v)
+		return nil, err
 	}
 	resp, err := c.httpClient.Do(httpReq)
 	if err != nil {

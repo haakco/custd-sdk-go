@@ -217,6 +217,8 @@ const (
 	UncertaintyBoundInputStateValueMissing  UncertaintyBoundInputState = "value_missing"
 )
 
+// UncertaintyBoundInput is one bound input's resolution. Value is set only when State is resolved,
+// so a resolved zero is distinguishable from a missing value.
 type UncertaintyBoundInput struct {
 	Detail              string                     `json:"detail,omitempty"`
 	ForecastGeneratedAt *time.Time                 `json:"forecastGeneratedAt,omitempty"`
@@ -224,7 +226,7 @@ type UncertaintyBoundInput struct {
 	Quantity            string                     `json:"quantity"`
 	Source              UncertaintyInputSource     `json:"source"`
 	State               UncertaintyBoundInputState `json:"state"`
-	Value               float64                    `json:"value,omitempty"`
+	Value               *float64                   `json:"value,omitempty"`
 }
 
 type UncertaintyInputInformation struct {

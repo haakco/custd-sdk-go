@@ -362,7 +362,7 @@ type TimePlanTransition struct {
 	RunUUID                  string                     `json:"runUuid"`
 	StreamVersion            int64                      `json:"streamVersion"`
 	CommandID                string                     `json:"commandId"`
-	Type                     string                     `json:"type"`
+	Type                     TimePlanCommandType        `json:"type"`
 	ActorKind                string                     `json:"actorKind"`
 	ActorRef                 string                     `json:"actorRef"`
 	ServerReceivedAt         string                     `json:"serverReceivedAt"`

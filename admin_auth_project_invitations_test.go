@@ -76,11 +76,11 @@ func TestAuthProjectInvitationByIDUsesTypedRoutes(t *testing.T) {
 			if req.URL != test.wantURL {
 				t.Fatalf("url = %s, want %s", req.URL, test.wantURL)
 			}
-			if req.Headers["Idempotency-Key"] != "idem-1" {
-				t.Fatalf("idempotency key header = %q", req.Headers["Idempotency-Key"])
+			if req.Header("Idempotency-Key") != "idem-1" {
+				t.Fatalf("idempotency key header = %q", req.Header("Idempotency-Key"))
 			}
-			if req.Headers[authProjectOwningUserHeader] != authProjectOwningUser {
-				t.Fatalf("owning user header = %q", req.Headers[authProjectOwningUserHeader])
+			if req.Header(authProjectOwningUserHeader) != authProjectOwningUser {
+				t.Fatalf("owning user header = %q", req.Header(authProjectOwningUserHeader))
 			}
 			body := decodeAuthProjectBody(t, req)
 			if body["invitationId"] != "invite-1" {
