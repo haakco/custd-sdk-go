@@ -86,13 +86,13 @@ func TestReportingPacksAdminClientLifecycle(t *testing.T) {
 		t.Fatalf("gen = %+v", gen)
 	}
 
-	doer.status = http.StatusAccepted
-	doer.body = `{"id":100,"generationNumber":8,"sourceDraftId":43,"definition":{"key":"security","displayName":"Security"},"state":"restarting"}`
+	doer.status = http.StatusOK
+	doer.body = `{"id":43,"revision":3,"definition":{"key":"security","displayName":"Security"},"createdAt":"2026-07-23T12:00:00Z","updatedAt":"2026-07-23T12:05:00Z"}`
 	restart, err := client.Admin.ReportingPacks.Restart(context.Background(), "43")
 	if err != nil {
 		t.Fatalf("Restart error: %v", err)
 	}
-	if restart.GenerationNumber != 8 {
+	if restart.ID != 43 || restart.Revision != 3 || restart.UpdatedAt != "2026-07-23T12:05:00Z" {
 		t.Fatalf("restart = %+v", restart)
 	}
 

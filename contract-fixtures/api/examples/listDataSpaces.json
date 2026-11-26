@@ -1,0 +1,27 @@
+{
+  "maximal": {
+    "dataSpaces": [
+      {
+        "companyName": "example",
+        "enabled": true,
+        "parentCompanySlug": "example",
+        "slug": "example"
+      }
+    ],
+    "entitlement": {
+      "activeDataSpaces": 1,
+      "enabled": true,
+      "maxActiveDataSpaces": 1,
+      "maxActiveProducersPerDataSpace": 1
+    }
+  },
+  "minimal": {
+    "dataSpaces": null,
+    "entitlement": {
+      "activeDataSpaces": 1,
+      "enabled": true,
+      "maxActiveDataSpaces": 1,
+      "maxActiveProducersPerDataSpace": 1
+    }
+  }
+}

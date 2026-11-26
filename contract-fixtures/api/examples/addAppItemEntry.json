@@ -1,0 +1,17 @@
+{
+  "maximal": {
+    "createdAt": "2026-11-20T06:00:00Z",
+    "entryUuid": "example",
+    "itemUuid": "example",
+    "kind": "example",
+    "position": 1,
+    "shareToken": "example"
+  },
+  "minimal": {
+    "createdAt": "2026-11-20T06:00:00Z",
+    "entryUuid": "example",
+    "itemUuid": "example",
+    "kind": "example",
+    "position": 1
+  }
+}

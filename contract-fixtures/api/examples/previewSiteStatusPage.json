@@ -1,0 +1,23 @@
+{
+  "maximal": {
+    "components": [
+      {
+        "label": "example",
+        "lastCheckedAt": "2026-11-20T06:00:00Z",
+        "status": "unknown"
+      }
+    ],
+    "title": "example",
+    "updates": [
+      {
+        "message": "example",
+        "publishedAt": "2026-11-20T06:00:00Z"
+      }
+    ]
+  },
+  "minimal": {
+    "components": null,
+    "title": "example",
+    "updates": null
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "maximal": {
+    "effectiveAt": "2026-11-20T06:00:00Z",
+    "gracePeriodDays": 1,
+    "reason": "example",
+    "status": "example",
+    "tenantSlug": "example",
+    "updatedAt": "2026-11-20T06:00:00Z"
+  },
+  "minimal": {
+    "effectiveAt": "2026-11-20T06:00:00Z",
+    "gracePeriodDays": 1,
+    "reason": "example",
+    "status": "example",
+    "tenantSlug": "example",
+    "updatedAt": "2026-11-20T06:00:00Z"
+  }
+}

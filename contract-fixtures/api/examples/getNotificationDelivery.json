@@ -1,0 +1,28 @@
+{
+  "maximal": {
+    "attemptCount": 1,
+    "channel": "example",
+    "createdAt": "2026-11-20T06:00:00Z",
+    "deliveryUuid": "example",
+    "failureReason": "example",
+    "lastErrorClass": "example",
+    "messageUuid": "example",
+    "nextAction": "example",
+    "providerMessageId": "example",
+    "sentAt": "2026-11-20T06:00:00Z",
+    "state": "example",
+    "templateId": "example",
+    "terminalAt": "2026-11-20T06:00:00Z",
+    "updatedAt": "2026-11-20T06:00:00Z"
+  },
+  "minimal": {
+    "attemptCount": 1,
+    "channel": "example",
+    "createdAt": "2026-11-20T06:00:00Z",
+    "deliveryUuid": "example",
+    "messageUuid": "example",
+    "state": "example",
+    "templateId": "example",
+    "updatedAt": "2026-11-20T06:00:00Z"
+  }
+}

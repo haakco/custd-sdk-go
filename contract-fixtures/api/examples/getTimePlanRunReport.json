@@ -1,0 +1,186 @@
+{
+  "maximal": {
+    "adjustments": [
+      {
+        "actor_kind": "example",
+        "actor_ref": "example",
+        "allocator_version": "example",
+        "client_occurred_at": "2026-11-20T06:00:00Z",
+        "command_id": "example",
+        "current_status": "example",
+        "occurred_at": "2026-11-20T06:00:00Z",
+        "previous_status": "example",
+        "reason": "example",
+        "receipt": {
+          "allocator_version": "example",
+          "changes": [
+            {
+              "block_uuid": "example",
+              "from_ms": 1,
+              "to_ms": 1
+            }
+          ],
+          "reason": "example",
+          "result": [
+            {
+              "block_uuid": "example",
+              "duration_ms": 1,
+              "sequence": 1
+            }
+          ],
+          "source": [
+            {
+              "block_uuid": "example",
+              "duration_ms": 1,
+              "sequence": 1
+            }
+          ],
+          "summary": "example"
+        },
+        "schema_version": "example",
+        "stream_version": 1,
+        "supersedes_transition_id": "example",
+        "transition_uuid": "example",
+        "type": "example"
+      }
+    ],
+    "annotations": [
+      {
+        "action_status": "example",
+        "actor_kind": "example",
+        "actor_ref": "example",
+        "assignee_ref": "example",
+        "block_uuid": "example",
+        "decision_status": "example",
+        "due_date": "2026-11-20T06:00:00Z",
+        "marker_label": "example",
+        "recorded_at": "2026-11-20T06:00:00Z",
+        "redacted_at": "2026-11-20T06:00:00Z",
+        "supersedes_uuid": "example",
+        "text": "example",
+        "type": "example",
+        "uuid": "example"
+      }
+    ],
+    "blocks": [
+      {
+        "actual_ms": 1,
+        "allocated_at_start_ms": 1,
+        "block_uuid": "example",
+        "category": "example",
+        "current_ms": 1,
+        "outcome": "completed",
+        "planned_ms": 1,
+        "semantic_key": "example",
+        "sequence": 1,
+        "status": "completed",
+        "tags": [
+          "example"
+        ],
+        "wall_ended_at": "2026-11-20T06:00:00Z",
+        "wall_started_at": "2026-11-20T06:00:00Z"
+      }
+    ],
+    "prediction_comparisons": [
+      {
+        "absolute_error_ms": 1,
+        "actual_ms": 1,
+        "block_uuid": "example",
+        "input_hash": "example",
+        "interval_covered": true,
+        "method": "example",
+        "method_version": "example",
+        "p10_ms": 1,
+        "p90_ms": 1,
+        "point_ms": 1,
+        "predicted_at": "2026-11-20T06:00:00Z",
+        "sample_count": 1,
+        "warnings": [
+          "example"
+        ]
+      }
+    ],
+    "provenance": {
+      "adjustment_count": 1,
+      "annotation_count": 1,
+      "corrected": true,
+      "forecast_evaluation_hash": "example",
+      "generated_at": "2026-11-20T06:00:00Z",
+      "input_hash": "example",
+      "measurement_input_hash": "example",
+      "measurement_projection_version": "example",
+      "prediction_count": 1,
+      "report_version": "example"
+    },
+    "summary": {
+      "actual_block_count": 1,
+      "actual_complete": true,
+      "actual_total_ms": 1,
+      "baseline_horizon_ms": 1,
+      "block_count": 1,
+      "cancelled_block_count": 1,
+      "censored_block_count": 1,
+      "completed_at": "2026-11-20T06:00:00Z",
+      "completed_block_count": 1,
+      "current_total_ms": 1,
+      "effective_ends_at": "2026-11-20T06:00:00Z",
+      "effective_starts_at": "2026-11-20T06:00:00Z",
+      "executable_horizon_ms": 1,
+      "final_variance_ms": 1,
+      "lost_ms": 1,
+      "not_run_block_count": 1,
+      "overrun_ms": 1,
+      "plan_id": "example",
+      "planned_total_ms": 1,
+      "run_id": "example",
+      "run_status": "completed",
+      "scheduled_ends_at": "2026-11-20T06:00:00Z",
+      "scheduled_starts_at": "2026-11-20T06:00:00Z",
+      "skipped_block_count": 1,
+      "stream_version": 1,
+      "unused_ms": 1,
+      "version_id": "example"
+    },
+    "tenant_id": "example"
+  },
+  "minimal": {
+    "adjustments": null,
+    "annotations": null,
+    "blocks": null,
+    "prediction_comparisons": null,
+    "provenance": {
+      "adjustment_count": 1,
+      "annotation_count": 1,
+      "corrected": true,
+      "generated_at": "2026-11-20T06:00:00Z",
+      "input_hash": "example",
+      "prediction_count": 1,
+      "report_version": "example"
+    },
+    "summary": {
+      "actual_block_count": 1,
+      "actual_complete": true,
+      "actual_total_ms": 1,
+      "baseline_horizon_ms": 1,
+      "block_count": 1,
+      "cancelled_block_count": 1,
+      "censored_block_count": 1,
+      "completed_at": "2026-11-20T06:00:00Z",
+      "completed_block_count": 1,
+      "current_total_ms": 1,
+      "final_variance_ms": 1,
+      "lost_ms": 1,
+      "not_run_block_count": 1,
+      "overrun_ms": 1,
+      "plan_id": "example",
+      "planned_total_ms": 1,
+      "run_id": "example",
+      "run_status": "completed",
+      "skipped_block_count": 1,
+      "stream_version": 1,
+      "unused_ms": 1,
+      "version_id": "example"
+    },
+    "tenant_id": "example"
+  }
+}

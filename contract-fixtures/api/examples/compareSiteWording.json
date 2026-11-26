@@ -1,0 +1,20 @@
+{
+  "maximal": {
+    "compared": true,
+    "firstWords": 1,
+    "minWords": 1,
+    "nearDuplicate": true,
+    "secondWords": 1,
+    "sharedPercent": 1,
+    "thresholdPercent": 1
+  },
+  "minimal": {
+    "compared": true,
+    "firstWords": 1,
+    "minWords": 1,
+    "nearDuplicate": true,
+    "secondWords": 1,
+    "sharedPercent": 1,
+    "thresholdPercent": 1
+  }
+}

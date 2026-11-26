@@ -1,0 +1,20 @@
+{
+  "maximal": {
+    "directoryId": "example",
+    "environmentId": "example",
+    "organisationId": "example",
+    "principalId": "example",
+    "projectId": "example",
+    "removed": true,
+    "removedAt": "example"
+  },
+  "minimal": {
+    "directoryId": "example",
+    "environmentId": "example",
+    "organisationId": "example",
+    "principalId": "example",
+    "projectId": "example",
+    "removed": true,
+    "removedAt": "example"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "maximal": {
+    "activeDataSpaces": 1,
+    "enabled": true,
+    "maxActiveDataSpaces": 1,
+    "maxActiveProducersPerDataSpace": 1
+  },
+  "minimal": {
+    "activeDataSpaces": 1,
+    "enabled": true,
+    "maxActiveDataSpaces": 1,
+    "maxActiveProducersPerDataSpace": 1
+  }
+}

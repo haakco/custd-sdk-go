@@ -1,0 +1,17 @@
+{
+  "maximal": {
+    "acceptedTermsVersion": "example",
+    "aiMode": "off",
+    "consentAcceptedAt": "2026-11-20T06:00:00Z",
+    "currentTermsVersion": "example",
+    "keyConfigured": true,
+    "keyRefused": true,
+    "monthlyCapUsdMicros": 1,
+    "ownKeyAvailable": true
+  },
+  "minimal": {
+    "aiMode": "off",
+    "keyConfigured": true,
+    "monthlyCapUsdMicros": 1
+  }
+}

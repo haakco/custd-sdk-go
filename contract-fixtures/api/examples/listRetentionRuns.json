@@ -1,0 +1,23 @@
+{
+  "maximal": {
+    "hasMore": true,
+    "nextOffset": 1,
+    "runs": [
+      {
+        "auditId": 1,
+        "endAt": "2026-11-20T06:00:00Z",
+        "lastAffectedCounts": {
+          "key": 1
+        },
+        "lastError": "example",
+        "lastResult": "example",
+        "startAt": "2026-11-20T06:00:00Z"
+      }
+    ]
+  },
+  "minimal": {
+    "hasMore": true,
+    "nextOffset": 1,
+    "runs": null
+  }
+}

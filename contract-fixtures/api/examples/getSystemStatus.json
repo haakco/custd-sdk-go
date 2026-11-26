@@ -1,0 +1,153 @@
+{
+  "maximal": {
+    "generatedAt": "2026-11-20T06:00:00Z",
+    "kpis": {
+      "backlogDepth": 1,
+      "claimBacklog": 1,
+      "claimBacklogOldestAgeSeconds": 1,
+      "desiredState": {
+        "backlog": 1,
+        "exhaustedTotal": 1,
+        "oldestPendingAgeSeconds": 1,
+        "terminalTotal": 1
+      },
+      "eventsPerMinute": 1.5,
+      "failedRawLandingObjects": 1,
+      "invariantViolations": 1,
+      "rawLandingUploadFailures": 1
+    },
+    "overallStatus": "example",
+    "realmCapacity": {
+      "declared": 1,
+      "exhausted": true,
+      "observed": true,
+      "occupied": 1,
+      "quarantined": 1,
+      "reason": "example",
+      "unavailable": 1
+    },
+    "stages": [
+      {
+        "name": "example",
+        "progress": {
+          "classification": "example",
+          "depth": 1,
+          "drainRatePerSecond": 1.5,
+          "etaSeconds": 1,
+          "note": "example",
+          "retentionExpirySeconds": 1
+        },
+        "reason": "example",
+        "signals": {
+          "acceptedRawLandingFailed": 1,
+          "acceptedRawLandingPending": 1,
+          "acceptedRawLandingUploadFailures": 1,
+          "ackFloorStreamSequence": 1,
+          "ackPending": 1,
+          "ackPendingUtilization": 1.5,
+          "compactionBacklog": 1,
+          "compactionBacklogAgeSeconds": 1,
+          "consumerActive": true,
+          "cpuLimitMilli": 1,
+          "cpuMilli": 1,
+          "deliveredStreamSequence": 1,
+          "healthProbeOk": true,
+          "livenessFlapCount": 1,
+          "memoryLimitBytes": 1,
+          "memoryUsageBytes": 1,
+          "metricsProbeOk": true,
+          "oomKillCount": 1,
+          "pending": 1,
+          "redelivered": 1,
+          "resourceMetricsOk": true,
+          "restartCount": 1,
+          "retentionSecondsLeft": 1,
+          "rollupBacklog": 1,
+          "segmentPending": 1,
+          "slowConsumer": true
+        },
+        "status": "healthy"
+      }
+    ],
+    "storage": {
+      "attributedStorageBytes": 1,
+      "effectiveLimitBytes": 1,
+      "measuredAt": "2026-11-20T06:00:00Z",
+      "percentUsed": 1.5,
+      "retainedLogicalBytes": 1,
+      "tenantCount": 1
+    },
+    "summary": {
+      "backlog": {
+        "classification": "example",
+        "depth": 1
+      },
+      "durable": {
+        "reason": "example",
+        "status": "healthy"
+      },
+      "queryable": {
+        "reason": "example",
+        "status": "healthy"
+      },
+      "received": {
+        "reason": "example",
+        "status": "healthy"
+      },
+      "status": "healthy"
+    },
+    "topTenants": [
+      {
+        "attributedStorageBytes": 1,
+        "claimQueued": 1,
+        "companyName": "example",
+        "companySlug": "example",
+        "effectiveLimitBytes": 1,
+        "percentUsed": 1.5,
+        "rankReason": "example",
+        "rejectedEvents": 1,
+        "retainedLogicalBytes": 1,
+        "warningState": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "generatedAt": "2026-11-20T06:00:00Z",
+    "kpis": {},
+    "overallStatus": "example",
+    "realmCapacity": {
+      "declared": 1,
+      "exhausted": true,
+      "observed": true,
+      "occupied": 1,
+      "quarantined": 1,
+      "unavailable": 1
+    },
+    "stages": null,
+    "storage": {
+      "attributedStorageBytes": 1,
+      "effectiveLimitBytes": 1,
+      "measuredAt": "2026-11-20T06:00:00Z",
+      "percentUsed": 1.5,
+      "retainedLogicalBytes": 1,
+      "tenantCount": 1
+    },
+    "summary": {
+      "backlog": {
+        "classification": "example",
+        "depth": 1
+      },
+      "durable": {
+        "status": "healthy"
+      },
+      "queryable": {
+        "status": "healthy"
+      },
+      "received": {
+        "status": "healthy"
+      },
+      "status": "healthy"
+    },
+    "topTenants": null
+  }
+}

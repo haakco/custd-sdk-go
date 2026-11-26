@@ -1,0 +1,27 @@
+{
+  "maximal": {
+    "dashboards": [
+      {
+        "defaultRange": "example",
+        "description": "example",
+        "exportFormats": [
+          "csv"
+        ],
+        "group": "example",
+        "interactions": [
+          "filter"
+        ],
+        "key": "example",
+        "refreshSeconds": 1,
+        "title": "example",
+        "trust": {
+          "serverOwned": true,
+          "tenantScoped": true
+        }
+      }
+    ]
+  },
+  "minimal": {
+    "dashboards": null
+  }
+}

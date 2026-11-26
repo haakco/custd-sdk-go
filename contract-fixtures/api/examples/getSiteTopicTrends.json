@@ -1,0 +1,26 @@
+{
+  "maximal": {
+    "siteUuid": "example",
+    "trends": [
+      {
+        "article": "example",
+        "checkedAt": "2026-11-20T06:00:00Z",
+        "lastFailure": "example",
+        "months": [
+          {
+            "month": "example",
+            "views": 1
+          }
+        ],
+        "project": "example",
+        "source": "brand",
+        "status": "pending",
+        "term": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "siteUuid": "example",
+    "trends": null
+  }
+}

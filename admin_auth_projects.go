@@ -374,6 +374,10 @@ type AuthProjectStatus struct {
 	// CompanyUUID is the persisted company of this environment's project; nil
 	// means explicitly unbound, never inferred.
 	CompanyUUID *string `json:"companyUuid"`
+	// CompanySlug and BrandLogoURL describe the bound company; both are empty
+	// when the environment is unbound.
+	CompanySlug  string `json:"companySlug,omitempty"`
+	BrandLogoURL string `json:"brandLogoUrl,omitempty"`
 	// Hosting is the derived serving identity of a hosted environment, nil when
 	// it is not served.
 	Hosting *AuthProjectHostingStatus `json:"hosting,omitempty"`

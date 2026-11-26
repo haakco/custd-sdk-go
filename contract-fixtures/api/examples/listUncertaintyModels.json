@@ -1,0 +1,17 @@
+{
+  "maximal": {
+    "models": [
+      {
+        "createdAt": "2026-11-20T06:00:00Z",
+        "description": "example",
+        "latestVersion": 1,
+        "modelUuid": "example",
+        "name": "example",
+        "updatedAt": "2026-11-20T06:00:00Z"
+      }
+    ]
+  },
+  "minimal": {
+    "models": null
+  }
+}

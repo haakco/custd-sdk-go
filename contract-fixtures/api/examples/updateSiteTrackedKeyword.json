@@ -1,0 +1,54 @@
+{
+  "maximal": {
+    "country": "example",
+    "createdAt": "2026-11-20T06:00:00Z",
+    "device": "example",
+    "keyword": "example",
+    "keywordUuid": "example",
+    "latest": {
+      "clicks": 1,
+      "day": "example",
+      "impressions": 1,
+      "position": 1.5,
+      "rankingUrl": "example",
+      "state": "ranking"
+    },
+    "notifyPosition": 1,
+    "observations": [
+      {
+        "clicks": 1,
+        "day": "example",
+        "impressions": 1,
+        "position": 1.5,
+        "rankingUrl": "example",
+        "state": "ranking"
+      }
+    ],
+    "pool": {
+      "demandBand": "100_999",
+      "positions": {
+        "beyond20": 1,
+        "top10": 1,
+        "top20": 1,
+        "top3": 1
+      }
+    },
+    "status": "active"
+  },
+  "minimal": {
+    "country": "example",
+    "createdAt": "2026-11-20T06:00:00Z",
+    "device": "example",
+    "keyword": "example",
+    "keywordUuid": "example",
+    "latest": {
+      "clicks": 1,
+      "day": "example",
+      "impressions": 1,
+      "state": "ranking"
+    },
+    "notifyPosition": 1,
+    "observations": null,
+    "status": "active"
+  }
+}

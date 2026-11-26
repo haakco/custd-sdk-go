@@ -1,0 +1,29 @@
+{
+  "maximal": {
+    "events": [
+      {
+        "channel": "email",
+        "delivery": {
+          "error": "example",
+          "state": "example",
+          "updatedAt": "2026-11-20T06:00:00Z"
+        },
+        "emailRecipient": "example",
+        "eventId": "example",
+        "measurement": {
+          "limitBytes": 1,
+          "measuredValue": 1,
+          "thresholdPercent": 1,
+          "warningState": "example"
+        },
+        "metric": "example",
+        "ruleId": "example",
+        "tenantSlug": "example",
+        "triggeredAt": "2026-11-20T06:00:00Z"
+      }
+    ]
+  },
+  "minimal": {
+    "events": null
+  }
+}

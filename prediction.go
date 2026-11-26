@@ -67,6 +67,27 @@ type PredictionDefinitionListResponse struct {
 	NextPageToken string                 `json:"next_page_token,omitempty"`
 }
 
+// PredictionRunListResponse is the run-history envelope.
+type PredictionRunListResponse struct {
+	Runs []PredictionRunSummary `json:"runs"`
+}
+
+// PredictionOutcomeListResponse is the outcome-history envelope.
+type PredictionOutcomeListResponse struct {
+	Outcomes []PredictionOutcomeSummary `json:"outcomes"`
+}
+
+// PredictionThresholdEventListResponse is the bounded threshold-crossing envelope.
+type PredictionThresholdEventListResponse struct {
+	Events []PredictionThresholdEvent `json:"events"`
+}
+
+// PredictionSignalSourceListResponse is the tenant signal-source page.
+type PredictionSignalSourceListResponse struct {
+	Sources       []PredictionSignalSource `json:"sources"`
+	NextPageToken string                   `json:"next_page_token,omitempty"`
+}
+
 type PredictionVersion struct {
 	UUID           string          `json:"uuid"`
 	VersionUUID    string          `json:"version_uuid"`
@@ -86,11 +107,6 @@ type PredictionVersionPublishRequest struct {
 }
 
 type PredictionActivateRequest struct {
-	VersionUUID string `json:"version_uuid"`
-	Reason      string `json:"reason,omitempty"`
-}
-
-type PredictionRollbackRequest struct {
 	VersionUUID string `json:"version_uuid"`
 	Reason      string `json:"reason,omitempty"`
 }
@@ -229,14 +245,6 @@ func (c *PredictionAdminClient) ActivateVersion(
 	return &out, err
 }
 
-func (c *PredictionAdminClient) RollbackVersion(
-	ctx context.Context, companySlug, definitionUUID string, req PredictionRollbackRequest,
-) (*PredictionVersion, error) {
-	var out PredictionVersion
-	err := c.admin.request(ctx, http.MethodPost, predictionResourcePath(companySlug, "/definitions/"+url.PathEscape(definitionUUID)+"/rollback"), req, &out)
-	return &out, err
-}
-
 func (c *PredictionAdminClient) PauseDefinition(
 	ctx context.Context, companySlug, definitionUUID string, req PredictionPauseRequest,
 ) error {
@@ -259,18 +267,18 @@ func (c *PredictionAdminClient) RunNow(
 
 func (c *PredictionAdminClient) ListRuns(
 	ctx context.Context, companySlug, definitionUUID string, pageSize int,
-) ([]PredictionRunSummary, error) {
-	var out []PredictionRunSummary
+) (*PredictionRunListResponse, error) {
+	var out PredictionRunListResponse
 	err := c.admin.request(ctx, http.MethodGet, predictionPath(companySlug, "/definitions/"+url.PathEscape(definitionUUID)+"/runs", pageSize, ""), nil, &out)
-	return out, err
+	return &out, err
 }
 
 func (c *PredictionAdminClient) ListOutcomes(
 	ctx context.Context, companySlug, definitionUUID string, pageSize int,
-) ([]PredictionOutcomeSummary, error) {
-	var out []PredictionOutcomeSummary
+) (*PredictionOutcomeListResponse, error) {
+	var out PredictionOutcomeListResponse
 	err := c.admin.request(ctx, http.MethodGet, predictionPath(companySlug, "/definitions/"+url.PathEscape(definitionUUID)+"/outcomes", pageSize, ""), nil, &out)
-	return out, err
+	return &out, err
 }
 
 func (c *PredictionAdminClient) GetEvaluation(
@@ -283,18 +291,18 @@ func (c *PredictionAdminClient) GetEvaluation(
 
 func (c *PredictionAdminClient) ListThresholdEvents(
 	ctx context.Context, companySlug, definitionUUID string, pageSize int,
-) ([]PredictionThresholdEvent, error) {
-	var out []PredictionThresholdEvent
+) (*PredictionThresholdEventListResponse, error) {
+	var out PredictionThresholdEventListResponse
 	err := c.admin.request(ctx, http.MethodGet, predictionPath(companySlug, "/definitions/"+url.PathEscape(definitionUUID)+"/threshold-events", pageSize, ""), nil, &out)
-	return out, err
+	return &out, err
 }
 
 func (c *PredictionAdminClient) ListSignalSources(
 	ctx context.Context, companySlug string, pageSize int, pageToken string,
-) ([]PredictionSignalSource, error) {
-	var out []PredictionSignalSource
+) (*PredictionSignalSourceListResponse, error) {
+	var out PredictionSignalSourceListResponse
 	err := c.admin.request(ctx, http.MethodGet, predictionPath(companySlug, "/sources", pageSize, pageToken), nil, &out)
-	return out, err
+	return &out, err
 }
 
 func (c *PredictionAdminClient) GetSignalSource(

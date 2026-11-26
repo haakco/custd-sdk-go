@@ -1,0 +1,75 @@
+{
+  "maximal": {
+    "counter": {
+      "completionInterval": {
+        "confidence": 1.5,
+        "lower": "2026-11-20T06:00:00Z",
+        "upper": "2026-11-20T06:00:00Z"
+      },
+      "deadlineProbability": 1.5,
+      "detail": {
+        "arrivalHistogram": {
+          "bins": [
+            {
+              "count": 1,
+              "end": "2026-11-20T06:00:00Z",
+              "start": "2026-11-20T06:00:00Z"
+            }
+          ],
+          "neverCount": 1
+        },
+        "posteriorLines": [
+          {
+            "points": [
+              {
+                "at": "2026-11-20T06:00:00Z",
+                "value": 1.5
+              }
+            ]
+          }
+        ]
+      },
+      "pooledRunCount": 1,
+      "rate": {
+        "perDay": 1.5,
+        "perHour": 1.5,
+        "perMinute": 1.5,
+        "perSecond": 1.5
+      }
+    },
+    "forecastFrom": "2026-11-20T06:00:00Z",
+    "forecastRunUuid": "example",
+    "generatedAt": "example",
+    "inputCount": 1,
+    "method": "example",
+    "percentiles": {
+      "key": "example"
+    },
+    "projectUuid": "example",
+    "provenance": {
+      "key": "example"
+    },
+    "sampleCount": 1,
+    "seed": 1,
+    "status": "example",
+    "warnings": [
+      {
+        "code": "example",
+        "message": "example",
+        "severity": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "forecastRunUuid": "example",
+    "generatedAt": "example",
+    "inputCount": 1,
+    "method": "example",
+    "percentiles": {},
+    "projectUuid": "example",
+    "provenance": {},
+    "sampleCount": 1,
+    "seed": 1,
+    "status": "example"
+  }
+}

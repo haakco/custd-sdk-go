@@ -149,6 +149,17 @@ type AdminSiteAIVisibility struct {
 	Crawlers    []AdminSiteTrafficCrawler `json:"crawlers"`
 	Assistants  []AdminSiteTrafficCount   `json:"assistants"`
 	Pages       []AdminSiteAIPage         `json:"pages"`
+	// AnswerSample is the latest AI assistant answer sampled for the site's
+	// product, nil when none was sampled.
+	AnswerSample *AdminSiteAIAnswerSample `json:"answerSample,omitempty"`
+}
+
+// AdminSiteAIAnswerSample is one sampled AI assistant answer. An empty Answer
+// means no answer was received.
+type AdminSiteAIAnswerSample struct {
+	Product    string    `json:"product"`
+	ObservedAt time.Time `json:"observedAt"`
+	Answer     string    `json:"answer,omitempty"`
 }
 
 // AdminAccessLogHourReplay is a queued replay of one access-log hour and that hour's state before.

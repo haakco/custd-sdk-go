@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 )
 
 const measurementEndpoint = "/api/v1/measurement"
@@ -21,8 +22,10 @@ type MeasurementProjectAdminClient struct {
 }
 
 type MeasurementClient struct {
-	Projects *MeasurementProjectClient
-	client   *CustdClient
+	Projects          *MeasurementProjectClient
+	UncertaintyModels *UncertaintyModelClient
+	Predictions       *PredictionClient
+	client            *CustdClient
 }
 
 type MeasurementProjectClient struct {
@@ -39,14 +42,18 @@ type MeasurementProjectCreate struct {
 }
 
 type MeasurementProject struct {
-	ProjectUUID string              `json:"projectUuid"`
-	ProjectCode string              `json:"projectCode"`
-	Name        string              `json:"name"`
-	Kind        string              `json:"kind"`
-	Status      string              `json:"status"`
-	Description string              `json:"description,omitempty"`
-	Series      []MeasurementSeries `json:"series,omitempty"`
-	Target      *MeasurementTarget  `json:"target,omitempty"`
+	ProjectUUID string                     `json:"projectUuid"`
+	ProjectCode string                     `json:"projectCode"`
+	Name        string                     `json:"name"`
+	Kind        string                     `json:"kind"`
+	Status      string                     `json:"status"`
+	Description string                     `json:"description,omitempty"`
+	Series      []MeasurementSeries        `json:"series,omitempty"`
+	Target      *MeasurementTarget         `json:"target,omitempty"`
+	Delivery    MeasurementProjectDelivery `json:"delivery"`
+	Run         MeasurementProjectRun      `json:"run"`
+	CreatedAt   string                     `json:"createdAt,omitempty"`
+	UpdatedAt   string                     `json:"updatedAt,omitempty"`
 }
 
 type MeasurementSeries struct {
@@ -54,6 +61,7 @@ type MeasurementSeries struct {
 	SeriesCode          string `json:"seriesCode"`
 	Name                string `json:"name"`
 	UnitSlug            string `json:"unitSlug"`
+	UnitLabel           string `json:"unitLabel,omitempty"`
 	CompletionDirection string `json:"completionDirection"`
 	Source              string `json:"source"`
 }
@@ -65,6 +73,7 @@ type MeasurementTarget struct {
 	TargetValue float64 `json:"targetValue"`
 	TargetDate  string  `json:"targetDate,omitempty"`
 	State       string  `json:"state"`
+	CompletedAt string  `json:"completedAt,omitempty"`
 }
 
 type MeasurementProjectList struct {
@@ -75,6 +84,7 @@ type MeasurementSeriesCreate struct {
 	SeriesCode          string `json:"seriesCode"`
 	Name                string `json:"name"`
 	UnitSlug            string `json:"unitSlug"`
+	UnitLabel           string `json:"unitLabel,omitempty"`
 	CompletionDirection string `json:"completionDirection"`
 	Source              string `json:"source"`
 }
@@ -88,11 +98,12 @@ type MeasurementTargetCreate struct {
 }
 
 type MeasurementObservationInput struct {
-	SeriesUUID     string            `json:"seriesUuid"`
-	ObservedAt     string            `json:"observedAt"`
-	Value          float64           `json:"value"`
-	IdempotencyKey string            `json:"idempotencyKey,omitempty"`
-	Metadata       map[string]string `json:"metadata,omitempty"`
+	SeriesUUID      string            `json:"seriesUuid"`
+	ObservedAt      string            `json:"observedAt"`
+	Value           float64           `json:"value"`
+	IdempotencyKey  string            `json:"idempotencyKey,omitempty"`
+	ObservationUUID string            `json:"observationUuid,omitempty"`
+	Metadata        map[string]string `json:"metadata,omitempty"`
 }
 
 type MeasurementObservationBulkRequest struct {
@@ -110,10 +121,11 @@ type MeasurementObservationResult struct {
 }
 
 type MeasurementObservationBulkResponse struct {
-	ImportID string                         `json:"importId"`
-	Accepted int                            `json:"accepted"`
-	Rejected int                            `json:"rejected"`
-	Results  []MeasurementObservationResult `json:"results"`
+	ImportID            string                         `json:"importId"`
+	CompletedTargetUUID string                         `json:"completedTargetUuid,omitempty"`
+	Accepted            int                            `json:"accepted"`
+	Rejected            int                            `json:"rejected"`
+	Results             []MeasurementObservationResult `json:"results"`
 }
 
 type MeasurementCSVImportResponse struct {
@@ -121,11 +133,14 @@ type MeasurementCSVImportResponse struct {
 	Accepted int                            `json:"accepted"`
 	Rejected int                            `json:"rejected"`
 	Results  []MeasurementObservationResult `json:"results"`
+	// CompletedTargetUUID names the active target an accepted measurement
+	// reached, which the import marked met.
+	CompletedTargetUUID string `json:"completedTargetUuid,omitempty"`
 }
 
 type MeasurementImportRun struct {
 	ImportID    string                         `json:"importId"`
-	ProjectUUID string                         `json:"projectUuid"`
+	ProjectCode string                         `json:"projectCode"`
 	Source      string                         `json:"source"`
 	RowCount    int                            `json:"rowCount"`
 	Accepted    int                            `json:"accepted"`
@@ -148,18 +163,18 @@ type MeasurementCalibrationExerciseCreate struct {
 }
 
 type MeasurementCalibrationExercise struct {
-	ExerciseUUID string  `json:"exerciseUuid"`
-	ProjectUUID  string  `json:"projectUuid"`
-	Status       string  `json:"status"`
-	Question     string  `json:"question"`
-	Confidence   float64 `json:"confidence"`
-	LowerBound   float64 `json:"lowerBound"`
-	UpperBound   float64 `json:"upperBound"`
-	ActualValue  float64 `json:"actualValue,omitempty"`
-	Contained    *bool   `json:"contained,omitempty"`
-	ResolvedAt   string  `json:"resolvedAt,omitempty"`
-	CreatedAt    string  `json:"createdAt,omitempty"`
-	UpdatedAt    string  `json:"updatedAt,omitempty"`
+	ExerciseUUID string   `json:"exerciseUuid"`
+	ProjectCode  string   `json:"projectCode"`
+	Status       string   `json:"status"`
+	Question     string   `json:"question"`
+	Confidence   float64  `json:"confidence"`
+	LowerBound   float64  `json:"lowerBound"`
+	UpperBound   float64  `json:"upperBound"`
+	ActualValue  *float64 `json:"actualValue,omitempty"`
+	Contained    *bool    `json:"contained,omitempty"`
+	ResolvedAt   string   `json:"resolvedAt,omitempty"`
+	CreatedAt    string   `json:"createdAt"`
+	UpdatedAt    string   `json:"updatedAt"`
 }
 
 type MeasurementDecisionModelCreate struct {
@@ -183,7 +198,7 @@ type MeasurementDecisionChoice struct {
 type MeasurementDecisionVariable struct {
 	VariableCode     string         `json:"variableCode"`
 	Name             string         `json:"name"`
-	UnitSlug         string         `json:"unit,omitempty"`
+	UnitSlug         string         `json:"unitSlug,omitempty"`
 	DistributionSlug string         `json:"distributionSlug"`
 	Parameters       map[string]any `json:"parameters,omitempty"`
 	MeasurementCost  float64        `json:"measurementCost,omitempty"`
@@ -199,15 +214,15 @@ type MeasurementDecisionExpression struct {
 type MeasurementDecisionModel struct {
 	DecisionUUID string                                `json:"decisionUuid"`
 	DecisionCode string                                `json:"decisionCode"`
-	ProjectUUID  string                                `json:"projectUuid"`
+	ProjectCode  string                                `json:"projectCode"`
 	Status       string                                `json:"status"`
 	Name         string                                `json:"name"`
-	Description  string                                `json:"description,omitempty"`
-	Objective    string                                `json:"objective,omitempty"`
+	Description  string                                `json:"description"`
+	Objective    string                                `json:"objective"`
 	Choices      []MeasurementDecisionChoiceResponse   `json:"choices,omitempty"`
 	Variables    []MeasurementDecisionVariableResponse `json:"variables,omitempty"`
-	CreatedAt    string                                `json:"createdAt,omitempty"`
-	UpdatedAt    string                                `json:"updatedAt,omitempty"`
+	CreatedAt    string                                `json:"createdAt"`
+	UpdatedAt    string                                `json:"updatedAt"`
 }
 
 type MeasurementDecisionChoiceResponse struct {
@@ -219,32 +234,37 @@ type MeasurementDecisionChoiceResponse struct {
 }
 
 type MeasurementDecisionVariableResponse struct {
-	VariableUUID     string         `json:"variableUuid,omitempty"`
+	VariableUUID     string         `json:"variableUuid"`
 	VariableCode     string         `json:"variableCode"`
 	Name             string         `json:"name"`
-	UnitSlug         string         `json:"unit,omitempty"`
+	UnitSlug         string         `json:"unitSlug"`
 	DistributionSlug string         `json:"distributionSlug"`
 	Parameters       map[string]any `json:"parameters,omitempty"`
-	MeasurementCost  float64        `json:"measurementCost,omitempty"`
+	MeasurementCost  float64        `json:"measurementCost"`
 }
 
 type MeasurementForecastRunRequest struct {
-	Seed        int64 `json:"seed,omitempty"`
-	SampleCount int   `json:"sampleCount,omitempty"`
+	Seed         int64      `json:"seed,omitempty"`
+	SampleCount  int        `json:"sampleCount,omitempty"`
+	Method       string     `json:"method,omitempty"`
+	ForecastFrom *time.Time `json:"forecastFrom,omitempty"`
 }
 
 type MeasurementForecastRun struct {
-	ForecastRunUUID string                       `json:"forecastRunUuid"`
-	ProjectUUID     string                       `json:"projectUuid"`
-	Status          string                       `json:"status"`
-	Method          string                       `json:"method"`
-	GeneratedAt     string                       `json:"generatedAt"`
-	InputCount      int                          `json:"inputCount"`
-	SampleCount     int                          `json:"sampleCount"`
-	Seed            int64                        `json:"seed"`
-	Percentiles     map[string]string            `json:"percentiles"`
-	Warnings        []MeasurementForecastWarning `json:"warnings,omitempty"`
-	Provenance      map[string]string            `json:"provenance"`
+	ForecastRunUUID string `json:"forecastRunUuid"`
+	ProjectUUID     string `json:"projectUuid"`
+	Status          string `json:"status"`
+	Method          string `json:"method"`
+	GeneratedAt     string `json:"generatedAt"`
+	InputCount      int    `json:"inputCount"`
+	SampleCount     int    `json:"sampleCount"`
+	Seed            int64  `json:"seed"`
+	// ForecastFrom is the earliest measurement time the run used, when limited.
+	ForecastFrom string                            `json:"forecastFrom,omitempty"`
+	Percentiles  map[string]string                 `json:"percentiles"`
+	Warnings     []MeasurementForecastWarning      `json:"warnings,omitempty"`
+	Provenance   map[string]string                 `json:"provenance"`
+	Counter      *MeasurementForecastCounterResult `json:"counter,omitempty"`
 }
 
 type MeasurementForecastWarning struct {
@@ -274,7 +294,7 @@ type MeasurementSimulationRun struct {
 }
 
 type MeasurementVOIVariableResponse struct {
-	VariableCode    string  `json:"variableCode"`
+	VariableUUID    string  `json:"variableUuid"`
 	Name            string  `json:"name"`
 	Rank            int     `json:"rank"`
 	EVPI            float64 `json:"evpi"`
@@ -296,6 +316,8 @@ func newMeasurementAdminClient(admin *AdminClient) *MeasurementAdminClient {
 func newMeasurementClient(client *CustdClient) *MeasurementClient {
 	measurement := &MeasurementClient{client: client}
 	measurement.Projects = &MeasurementProjectClient{measurement: measurement}
+	measurement.UncertaintyModels = &UncertaintyModelClient{measurement: measurement}
+	measurement.Predictions = &PredictionClient{measurement: measurement}
 	return measurement
 }
 

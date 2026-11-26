@@ -1,0 +1,14 @@
+{
+  "maximal": {
+    "createdAt": "2026-11-20T06:00:00Z",
+    "endpoint": "example",
+    "kind": "webhook",
+    "webhookUuid": "example"
+  },
+  "minimal": {
+    "createdAt": "2026-11-20T06:00:00Z",
+    "endpoint": "example",
+    "kind": "webhook",
+    "webhookUuid": "example"
+  }
+}

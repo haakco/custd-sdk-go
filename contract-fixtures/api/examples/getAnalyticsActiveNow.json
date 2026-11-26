@@ -1,0 +1,10 @@
+{
+  "maximal": {
+    "activeNow": 1,
+    "windowSeconds": 1
+  },
+  "minimal": {
+    "activeNow": 1,
+    "windowSeconds": 1
+  }
+}

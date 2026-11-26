@@ -1,0 +1,50 @@
+{
+  "maximal": {
+    "repairedAt": "2026-11-20T06:00:00Z",
+    "run": {
+      "baselineHorizonMs": 1,
+      "blocks": [
+        {
+          "actualActiveMs": 1,
+          "allocatedAtStartMs": 1,
+          "baselineMs": 1,
+          "currentMs": 1,
+          "outcomeCensored": true,
+          "sequence": 1,
+          "status": "example",
+          "uuid": "example",
+          "wallEndedAt": "2026-11-20T06:00:00Z",
+          "wallStartedAt": "2026-11-20T06:00:00Z"
+        }
+      ],
+      "currentBlockUuid": "example",
+      "effectiveEndsAt": "2026-11-20T06:00:00Z",
+      "effectiveStartsAt": "2026-11-20T06:00:00Z",
+      "executableHorizonMs": 1,
+      "lostMs": 1,
+      "overrunMs": 1,
+      "planUuid": "example",
+      "scheduledEndsAt": "2026-11-20T06:00:00Z",
+      "scheduledStartsAt": "2026-11-20T06:00:00Z",
+      "startPolicy": "full_duration",
+      "status": "example",
+      "streamVersion": 1,
+      "unusedMs": 1,
+      "uuid": "example"
+    }
+  },
+  "minimal": {
+    "repairedAt": "2026-11-20T06:00:00Z",
+    "run": {
+      "baselineHorizonMs": 1,
+      "blocks": null,
+      "lostMs": 1,
+      "overrunMs": 1,
+      "planUuid": "example",
+      "status": "example",
+      "streamVersion": 1,
+      "unusedMs": 1,
+      "uuid": "example"
+    }
+  }
+}

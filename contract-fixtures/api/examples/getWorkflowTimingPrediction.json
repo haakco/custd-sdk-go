@@ -1,0 +1,73 @@
+{
+  "maximal": {
+    "allowOverlap": true,
+    "externalRunId": "example",
+    "generatedAt": "2026-11-20T06:00:00Z",
+    "run": {
+      "attempt": 1,
+      "baselineMs": 1,
+      "conservativeHighMs": 1,
+      "conservativeLowMs": 1,
+      "evidenceWindowStart": "2026-11-20T06:00:00Z",
+      "expectedMs": 1,
+      "generatedAt": "2026-11-20T06:00:00Z",
+      "inputHash": "example",
+      "method": "example",
+      "methodVersion": "example",
+      "predictionVersionUuid": "example",
+      "sampleCount": 1,
+      "seriesKey": "example",
+      "state": "ready",
+      "stepKey": "example",
+      "warnings": [
+        "example"
+      ]
+    },
+    "runUuid": "example",
+    "state": "running",
+    "steps": [
+      {
+        "attempt": 1,
+        "baselineMs": 1,
+        "conservativeHighMs": 1,
+        "conservativeLowMs": 1,
+        "evidenceWindowStart": "2026-11-20T06:00:00Z",
+        "expectedMs": 1,
+        "generatedAt": "2026-11-20T06:00:00Z",
+        "inputHash": "example",
+        "method": "example",
+        "methodVersion": "example",
+        "predictionVersionUuid": "example",
+        "sampleCount": 1,
+        "seriesKey": "example",
+        "state": "ready",
+        "stepKey": "example",
+        "warnings": [
+          "example"
+        ]
+      }
+    ],
+    "workflowKey": "example"
+  },
+  "minimal": {
+    "allowOverlap": true,
+    "externalRunId": "example",
+    "generatedAt": "2026-11-20T06:00:00Z",
+    "run": {
+      "baselineMs": 1,
+      "evidenceWindowStart": "2026-11-20T06:00:00Z",
+      "generatedAt": "2026-11-20T06:00:00Z",
+      "inputHash": "example",
+      "method": "example",
+      "methodVersion": "example",
+      "sampleCount": 1,
+      "seriesKey": "example",
+      "state": "ready",
+      "warnings": null
+    },
+    "runUuid": "example",
+    "state": "running",
+    "steps": null,
+    "workflowKey": "example"
+  }
+}

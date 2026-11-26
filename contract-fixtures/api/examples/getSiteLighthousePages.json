@@ -1,0 +1,16 @@
+{
+  "maximal": {
+    "domainUuid": "example",
+    "homePage": "example",
+    "maxPages": 1,
+    "urls": [
+      "example"
+    ]
+  },
+  "minimal": {
+    "domainUuid": "example",
+    "homePage": "example",
+    "maxPages": 1,
+    "urls": null
+  }
+}

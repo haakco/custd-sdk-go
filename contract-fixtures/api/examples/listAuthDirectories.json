@@ -1,0 +1,38 @@
+{
+  "maximal": {
+    "capacity": {
+      "declared": 1,
+      "free": 1,
+      "inUse": 1
+    },
+    "directories": [
+      {
+        "attemptCount": 1,
+        "lastErrorCategory": "example",
+        "poolId": "example",
+        "poolSlug": "example",
+        "readyAt": "2026-11-20T06:00:00Z",
+        "revision": 1,
+        "runtimePublicUrl": "example",
+        "slotRef": "example",
+        "state": "draft"
+      }
+    ],
+    "environmentId": "example",
+    "projectId": "example",
+    "ready": true,
+    "revision": 1
+  },
+  "minimal": {
+    "capacity": {
+      "declared": 1,
+      "free": 1,
+      "inUse": 1
+    },
+    "directories": null,
+    "environmentId": "example",
+    "projectId": "example",
+    "ready": true,
+    "revision": 1
+  }
+}

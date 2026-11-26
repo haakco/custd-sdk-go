@@ -1,0 +1,50 @@
+{
+  "maximal": {
+    "domainUuid": "example",
+    "linkSources": [
+      {
+        "query": "example",
+        "title": "example",
+        "url": "example",
+        "where": "title"
+      }
+    ],
+    "maxQueries": 1,
+    "queries": [
+      {
+        "clicks": 1,
+        "impressions": 1,
+        "inDescription": true,
+        "inH1": true,
+        "inTitle": true,
+        "position": 1.5,
+        "query": "example"
+      }
+    ],
+    "state": "available",
+    "titleOptions": [
+      {
+        "impressions": 1,
+        "query": "example",
+        "template": "general",
+        "title": "example"
+      }
+    ],
+    "url": "example",
+    "window": {
+      "from": "example",
+      "importedAt": "2026-11-20T06:00:00Z",
+      "provider": "google",
+      "to": "example"
+    }
+  },
+  "minimal": {
+    "domainUuid": "example",
+    "linkSources": null,
+    "maxQueries": 1,
+    "queries": null,
+    "state": "available",
+    "titleOptions": null,
+    "url": "example"
+  }
+}

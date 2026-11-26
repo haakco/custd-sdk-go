@@ -1,0 +1,39 @@
+{
+  "maximal": {
+    "actionCount": 1,
+    "actions": [
+      {
+        "affectedCount": 1,
+        "kind": "example",
+        "recheckable": true,
+        "rule": "example",
+        "severity": "high",
+        "target": {
+          "findingUuid": "example",
+          "pageUrl": "example",
+          "place": "example"
+        },
+        "title": "example",
+        "why": "example"
+      }
+    ],
+    "aiMode": "off",
+    "checkedAt": "2026-11-20T06:00:00Z",
+    "domainUuid": "example",
+    "headline": "example",
+    "host": "example",
+    "notChecked": [
+      "example"
+    ],
+    "status": "unknown"
+  },
+  "minimal": {
+    "actionCount": 1,
+    "actions": null,
+    "domainUuid": "example",
+    "headline": "example",
+    "host": "example",
+    "notChecked": null,
+    "status": "unknown"
+  }
+}

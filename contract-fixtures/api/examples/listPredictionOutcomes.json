@@ -1,0 +1,17 @@
+{
+  "maximal": {
+    "outcomes": [
+      {
+        "is_late_evidence": true,
+        "observed_value": 1,
+        "outcome_kind": "example",
+        "resolution": "example",
+        "resolved_at": "2026-11-20T06:00:00Z",
+        "run_uuid": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "outcomes": null
+  }
+}

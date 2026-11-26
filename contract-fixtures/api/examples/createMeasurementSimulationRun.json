@@ -1,0 +1,47 @@
+{
+  "maximal": {
+    "completedAt": "example",
+    "decisionUuid": "example",
+    "generatedAt": "example",
+    "method": "example",
+    "projectUuid": "example",
+    "provenance": {
+      "key": "example"
+    },
+    "sampleCount": 1,
+    "seed": 1,
+    "simulationRunUuid": "example",
+    "status": "example",
+    "variables": [
+      {
+        "evpi": 1.5,
+        "evppi": 1.5,
+        "measurementCost": 1.5,
+        "name": "example",
+        "rank": 1,
+        "variableUuid": "example",
+        "worthMeasuring": true
+      }
+    ],
+    "warnings": [
+      {
+        "code": "example",
+        "message": "example",
+        "severity": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "completedAt": "example",
+    "decisionUuid": "example",
+    "generatedAt": "example",
+    "method": "example",
+    "projectUuid": "example",
+    "provenance": {},
+    "sampleCount": 1,
+    "seed": 1,
+    "simulationRunUuid": "example",
+    "status": "example",
+    "variables": null
+  }
+}

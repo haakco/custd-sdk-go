@@ -1,0 +1,46 @@
+{
+  "maximal": {
+    "companySlug": "example",
+    "containsIncomplete": true,
+    "containsProvisional": true,
+    "end": "2026-11-20T06:00:00Z",
+    "rows": [
+      {
+        "accountCompanySlug": "example",
+        "calculationVersion": 1,
+        "completenessState": "example",
+        "correctionGeneration": 1,
+        "dataSpaceCompanySlug": "example",
+        "meterSlug": "example",
+        "meterVersion": 1,
+        "quantity": 1,
+        "sourceWatermark": 1,
+        "unit": "example",
+        "windowEnd": "2026-11-20T06:00:00Z",
+        "windowStart": "2026-11-20T06:00:00Z"
+      }
+    ],
+    "schemaVersion": "example",
+    "sourceWatermark": 1,
+    "start": "2026-11-20T06:00:00Z",
+    "totals": [
+      {
+        "accountCompanySlug": "example",
+        "dataSpaceCompanySlug": "example",
+        "meterSlug": "example",
+        "quantity": 1,
+        "unit": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "containsIncomplete": true,
+    "containsProvisional": true,
+    "end": "2026-11-20T06:00:00Z",
+    "rows": null,
+    "schemaVersion": "example",
+    "sourceWatermark": 1,
+    "start": "2026-11-20T06:00:00Z",
+    "totals": null
+  }
+}

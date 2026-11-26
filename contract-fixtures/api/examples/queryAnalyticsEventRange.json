@@ -1,0 +1,55 @@
+{
+  "maximal": {
+    "buckets": [
+      {
+        "complete": true,
+        "count": 1,
+        "date": "example",
+        "message": "example",
+        "parquetUriCount": 1,
+        "queryDurationMs": 1,
+        "source": "auto"
+      }
+    ],
+    "count": 1,
+    "rows": [
+      {
+        "key": {}
+      }
+    ],
+    "sources": [
+      {
+        "complete": true,
+        "count": 1,
+        "fresh": true,
+        "freshnessLagMs": 1,
+        "message": "example",
+        "name": "auto",
+        "parquetUriCount": 1,
+        "queryDurationMs": 1
+      }
+    ],
+    "timing": {
+      "eventLagMaxMs": 1,
+      "eventLagP50Ms": 1,
+      "eventLagP95Ms": 1,
+      "newestEventTimestamp": "example",
+      "oldestEventTimestamp": "example",
+      "queryDurationMs": 1,
+      "snapshotAgeMs": 1
+    }
+  },
+  "minimal": {
+    "buckets": null,
+    "count": 1,
+    "rows": null,
+    "sources": null,
+    "timing": {
+      "eventLagMaxMs": 1,
+      "eventLagP50Ms": 1,
+      "eventLagP95Ms": 1,
+      "queryDurationMs": 1,
+      "snapshotAgeMs": 1
+    }
+  }
+}

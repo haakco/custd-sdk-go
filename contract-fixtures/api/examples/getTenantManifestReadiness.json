@@ -1,0 +1,61 @@
+{
+  "maximal": {
+    "manifestDigest": "example",
+    "observedAt": "2026-11-20T06:00:00Z",
+    "operation": {
+      "attemptCount": 1,
+      "completedAt": "2026-11-20T06:00:00Z",
+      "createdAt": "2026-11-20T06:00:00Z",
+      "errorCode": "example",
+      "idempotencyKey": "example",
+      "leaseExpiresAt": "2026-11-20T06:00:00Z",
+      "pending": {
+        "lastFailure": {
+          "code": "example",
+          "observedAt": "2026-11-20T06:00:00Z",
+          "resources": [
+            {
+              "detail": "example",
+              "key": "example",
+              "kind": "example",
+              "ready": true,
+              "safeNextAction": "example",
+              "safeNextActionCode": "example",
+              "state": "example"
+            }
+          ]
+        },
+        "nextAttemptAt": "2026-11-20T06:00:00Z"
+      },
+      "state": "pending",
+      "updatedAt": "2026-11-20T06:00:00Z",
+      "uuid": "example"
+    },
+    "ready": true,
+    "resources": [
+      {
+        "detail": "example",
+        "key": "example",
+        "kind": "example",
+        "ready": true,
+        "safeNextAction": "example",
+        "safeNextActionCode": "example",
+        "state": "example"
+      }
+    ],
+    "safeNextAction": "example",
+    "safeNextActionCode": "example",
+    "state": "example",
+    "tenantSlug": "example"
+  },
+  "minimal": {
+    "manifestDigest": "example",
+    "observedAt": "2026-11-20T06:00:00Z",
+    "ready": true,
+    "resources": null,
+    "safeNextAction": "example",
+    "safeNextActionCode": "example",
+    "state": "example",
+    "tenantSlug": "example"
+  }
+}

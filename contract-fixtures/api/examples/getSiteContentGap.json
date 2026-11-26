@@ -1,0 +1,48 @@
+{
+  "maximal": {
+    "competitors": [
+      {
+        "domain": "example",
+        "pageCount": 1,
+        "sitemapStatus": "example",
+        "waybackStatus": "example"
+      }
+    ],
+    "ownCoverage": "available",
+    "ownPages": 1,
+    "ownQueries": 1,
+    "partial": true,
+    "seed": "example",
+    "siteUuid": "example",
+    "topics": [
+      {
+        "competitors": [
+          "example"
+        ],
+        "label": "example",
+        "pageCount": 1,
+        "pages": [
+          {
+            "domain": "example",
+            "firstSeen": "example",
+            "lastSeen": "example",
+            "sources": [
+              "example"
+            ],
+            "url": "example"
+          }
+        ],
+        "topic": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "competitors": null,
+    "ownCoverage": "available",
+    "ownPages": 1,
+    "ownQueries": 1,
+    "partial": true,
+    "siteUuid": "example",
+    "topics": null
+  }
+}

@@ -56,7 +56,7 @@ func (c *CustdClient) SendEvents(ctx context.Context, request SendEventsRequest)
 		return nil, err
 	}
 	var result SendEventsResponse
-	if err := json.Unmarshal(response.Body, &result); err != nil {
+	if err := unmarshalResponse(response.Body, &result); err != nil {
 		return nil, validationWrap("custd: decode batch response", err)
 	}
 	if err := validateConfirmedEventResults(events, &result); err != nil {

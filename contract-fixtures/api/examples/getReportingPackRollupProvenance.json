@@ -1,0 +1,20 @@
+{
+  "maximal": {
+    "definitionFingerprint": "example",
+    "generationId": 1,
+    "materializations": [
+      {
+        "definitionFingerprint": "example",
+        "sourceCoverageCount": 1,
+        "status": "example"
+      }
+    ],
+    "tenantSlug": "example"
+  },
+  "minimal": {
+    "definitionFingerprint": "example",
+    "generationId": 1,
+    "materializations": null,
+    "tenantSlug": "example"
+  }
+}

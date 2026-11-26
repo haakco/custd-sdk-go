@@ -1,0 +1,19 @@
+{
+  "maximal": {
+    "releases": [
+      {
+        "active": true,
+        "createdAt": "2026-11-20T06:00:00Z",
+        "fileCount": 1,
+        "label": "example",
+        "releaseId": "example",
+        "state": "pending",
+        "totalBytes": 1,
+        "verifiedAt": "2026-11-20T06:00:00Z"
+      }
+    ]
+  },
+  "minimal": {
+    "releases": null
+  }
+}

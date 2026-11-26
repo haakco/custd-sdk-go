@@ -1,0 +1,24 @@
+{
+  "maximal": {
+    "domains": [
+      {
+        "domain": "example",
+        "inventoryAt": "2026-11-20T06:00:00Z",
+        "lastFailure": "example",
+        "nextInventoryAt": "2026-11-20T06:00:00Z",
+        "pageCount": 1,
+        "role": "own",
+        "sitemapStatus": "pending",
+        "trancoBand": "top-1k",
+        "trancoListDay": "example",
+        "trancoRank": 1,
+        "waybackStatus": "pending"
+      }
+    ],
+    "siteUuid": "example"
+  },
+  "minimal": {
+    "domains": null,
+    "siteUuid": "example"
+  }
+}

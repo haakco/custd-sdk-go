@@ -17,8 +17,8 @@ func TestOAuthUpdateScopesUsesPatchEndpoint(t *testing.T) {
 	if err != nil {
 		t.Fatalf("UpdateScopes error: %v", err)
 	}
-	if updated.ClientID != "custd-acme" || updated.ClientSecret != "" {
-		t.Fatalf("update leaked secret: %+v", updated)
+	if updated.ClientID != "custd-acme" {
+		t.Fatalf("updated = %+v", updated)
 	}
 	if doer.requests[0].Method != http.MethodPatch ||
 		doer.requests[0].URL != "http://localhost:8080/api/v1/admin/oauth-clients/custd-acme/scopes" {

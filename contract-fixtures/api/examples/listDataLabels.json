@@ -1,0 +1,39 @@
+{
+  "maximal": {
+    "definitions": [
+      {
+        "allowedScopes": [
+          "example"
+        ],
+        "authority": "example",
+        "createdAt": "2026-11-20T06:00:00Z",
+        "description": "example",
+        "displayName": "example",
+        "enabled": true,
+        "intendedUse": "example",
+        "key": "example",
+        "propagationPolicy": "example",
+        "sensitivity": "example",
+        "synonyms": [
+          "example"
+        ],
+        "updatedAt": "2026-11-20T06:00:00Z",
+        "uuid": "example",
+        "values": [
+          {
+            "createdAt": "2026-11-20T06:00:00Z",
+            "description": "example",
+            "displayName": "example",
+            "enabled": true,
+            "updatedAt": "2026-11-20T06:00:00Z",
+            "uuid": "example",
+            "value": "example"
+          }
+        ]
+      }
+    ]
+  },
+  "minimal": {
+    "definitions": null
+  }
+}

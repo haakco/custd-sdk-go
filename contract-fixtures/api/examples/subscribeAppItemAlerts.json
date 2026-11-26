@@ -1,0 +1,10 @@
+{
+  "maximal": {
+    "createdAt": "2026-11-20T06:00:00Z",
+    "subscriptionUuid": "example"
+  },
+  "minimal": {
+    "createdAt": "2026-11-20T06:00:00Z",
+    "subscriptionUuid": "example"
+  }
+}

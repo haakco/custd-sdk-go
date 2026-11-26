@@ -1,0 +1,263 @@
+{
+  "maximal": {
+    "currentSnapshotUuid": "example",
+    "delivery": {
+      "estimates": [
+        {
+          "estimatedAt": "2026-11-20T06:00:00Z",
+          "high": "2026-11-20T06:00:00Z",
+          "low": "2026-11-20T06:00:00Z",
+          "movementDays": 1.5,
+          "note": "example",
+          "widthDays": 1.5
+        }
+      ],
+      "targetDate": "2026-11-20T06:00:00Z"
+    },
+    "observations": [
+      {
+        "observedAt": "2026-11-20T06:00:00Z",
+        "value": 1.5
+      }
+    ],
+    "prediction": {
+      "contributions": [
+        {
+          "delta": 1.5,
+          "featureKey": "example",
+          "featureValue": 1.5,
+          "movement": "example",
+          "value": 1.5
+        }
+      ],
+      "current": {
+        "asOfAt": "2026-11-20T06:00:00Z",
+        "horizonEndAt": "2026-11-20T06:00:00Z",
+        "inputHash": "example",
+        "probability": 1.5,
+        "runUuid": "example"
+      },
+      "definitionKey": "example",
+      "definitionUuid": "example",
+      "displayName": "example",
+      "evaluation": {
+        "brierScore": 1.5,
+        "calibration": [
+          {
+            "lower": 1.5,
+            "observedRate": 1.5,
+            "positiveCount": 1,
+            "predicted": 1.5,
+            "sampleCount": 1,
+            "upper": 1.5
+          }
+        ],
+        "logLoss": 1.5,
+        "negativeCount": 1,
+        "positiveCount": 1,
+        "resolvedRunCount": 1,
+        "windowEndAt": "2026-11-20T06:00:00Z",
+        "windowStartAt": "2026-11-20T06:00:00Z"
+      },
+      "history": [
+        {
+          "asOfAt": "2026-11-20T06:00:00Z",
+          "horizonEndAt": "2026-11-20T06:00:00Z",
+          "inputHash": "example",
+          "probability": 1.5,
+          "runUuid": "example"
+        }
+      ],
+      "outcomes": [
+        {
+          "isLateEvidence": true,
+          "observedValue": 1,
+          "outcomeKind": "example",
+          "resolution": "example",
+          "resolvedAt": "2026-11-20T06:00:00Z",
+          "runUuid": "example"
+        }
+      ],
+      "qualityState": "example",
+      "sources": [
+        {
+          "consecutiveFailures": 1,
+          "displayName": "example",
+          "lastAttemptAt": "2026-11-20T06:00:00Z",
+          "lastSucceededAt": "2026-11-20T06:00:00Z",
+          "nextEligibleAt": "2026-11-20T06:00:00Z",
+          "sourceKey": "example",
+          "status": "example"
+        }
+      ],
+      "state": "example"
+    },
+    "presentation": {
+      "caption": "example",
+      "height": 1,
+      "layers": [
+        {
+          "label": "example",
+          "points": [
+            {
+              "date": "example",
+              "lowerDate": "example",
+              "lowerValue": 1.5,
+              "selected": true,
+              "snapshotUuid": "example",
+              "upperDate": "example",
+              "upperValue": 1.5,
+              "value": 1.5,
+              "x": "example"
+            }
+          ],
+          "role": "observed_progress",
+          "yKind": "numeric"
+        }
+      ],
+      "nonColorEncoding": "example",
+      "presetId": "example",
+      "references": [
+        {
+          "date": "example",
+          "label": "example",
+          "role": "example",
+          "value": 1.5
+        }
+      ],
+      "renderer": "example",
+      "summary": "example",
+      "supportingTables": [
+        {
+          "columns": [
+            {
+              "key": "example",
+              "label": "example"
+            }
+          ],
+          "key": "example",
+          "label": "example",
+          "rows": [
+            {
+              "cells": [
+                "example"
+              ],
+              "key": "example"
+            }
+          ]
+        }
+      ],
+      "tableColumns": [
+        {
+          "key": "example",
+          "label": "example"
+        }
+      ],
+      "tableRows": [
+        {
+          "cells": [
+            "example"
+          ],
+          "snapshotUuid": "example"
+        }
+      ],
+      "version": 1,
+      "width": 1
+    },
+    "projectKind": "example",
+    "projectName": "example",
+    "projectUuid": "example",
+    "provenance": {
+      "generatedAt": "2026-11-20T06:00:00Z",
+      "latestEngine": "example",
+      "latestInputHash": "example",
+      "owner": "example"
+    },
+    "snapshots": [
+      {
+        "asOfAt": "2026-11-20T06:00:00Z",
+        "generatedAt": "2026-11-20T06:00:00Z",
+        "horizonEndAt": "2026-11-20T06:00:00Z",
+        "inputCount": 1,
+        "inputHash": "example",
+        "intervalState": "example",
+        "method": "example",
+        "movement": "example",
+        "observedValue": 1.5,
+        "outputProbability": 1.5,
+        "percentiles": {
+          "p10": "2026-11-20T06:00:00Z",
+          "p25": "2026-11-20T06:00:00Z",
+          "p50": "2026-11-20T06:00:00Z",
+          "p75": "2026-11-20T06:00:00Z",
+          "p90": "2026-11-20T06:00:00Z"
+        },
+        "runUuid": "example",
+        "sampleCount": 1,
+        "status": "example",
+        "warnings": [
+          {
+            "code": "example",
+            "message": "example",
+            "severity": "example"
+          }
+        ]
+      }
+    ],
+    "state": "example",
+    "target": {
+      "available": true,
+      "deadline": "example",
+      "label": "example",
+      "value": 1.5
+    },
+    "truncated": true,
+    "trust": {
+      "evidence": "example",
+      "observationCount": 1,
+      "snapshotCount": 1,
+      "state": "example"
+    }
+  },
+  "minimal": {
+    "delivery": {
+      "estimates": null
+    },
+    "observations": null,
+    "presentation": {
+      "caption": "example",
+      "height": 1,
+      "layers": null,
+      "nonColorEncoding": "example",
+      "presetId": "example",
+      "references": null,
+      "renderer": "example",
+      "summary": "example",
+      "tableColumns": null,
+      "tableRows": null,
+      "version": 1,
+      "width": 1
+    },
+    "projectKind": "example",
+    "projectName": "example",
+    "projectUuid": "example",
+    "provenance": {
+      "generatedAt": "2026-11-20T06:00:00Z",
+      "owner": "example"
+    },
+    "snapshots": null,
+    "state": "example",
+    "target": {
+      "available": true,
+      "label": "example",
+      "value": 1.5
+    },
+    "truncated": true,
+    "trust": {
+      "evidence": "example",
+      "observationCount": 1,
+      "snapshotCount": 1,
+      "state": "example"
+    }
+  }
+}

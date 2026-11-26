@@ -1,0 +1,29 @@
+{
+  "maximal": {
+    "catalog_digest": "example",
+    "catalog_version": "example",
+    "tables": [
+      {
+        "classification": "example",
+        "desired": {
+          "enabled": true,
+          "force": true,
+          "policy_name": "example"
+        },
+        "drift": true,
+        "live": {
+          "enabled": true,
+          "force": true,
+          "policy_name": "example"
+        },
+        "reason": "example",
+        "table": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "catalog_digest": "example",
+    "catalog_version": "example",
+    "tables": null
+  }
+}

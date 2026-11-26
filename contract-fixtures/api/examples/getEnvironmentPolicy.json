@@ -1,0 +1,32 @@
+{
+  "maximal": {
+    "activeCount": 1,
+    "activeValueLimit": 1,
+    "activeValues": [
+      "example"
+    ],
+    "autoCreateEnvironments": true,
+    "definitionEnabled": true,
+    "definitionPresent": true,
+    "disabledValues": [
+      "example"
+    ],
+    "reasons": [
+      {
+        "code": "example",
+        "remedy": "example",
+        "summary": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "activeCount": 1,
+    "activeValueLimit": 1,
+    "activeValues": null,
+    "autoCreateEnvironments": true,
+    "definitionEnabled": true,
+    "definitionPresent": true,
+    "disabledValues": null,
+    "reasons": null
+  }
+}

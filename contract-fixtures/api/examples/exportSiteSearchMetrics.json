@@ -1,0 +1,26 @@
+{
+  "maximal": {
+    "domainUuid": "example",
+    "limit": 1,
+    "offset": 1,
+    "rows": [
+      {
+        "avgPosition": 1.5,
+        "clicks": 1,
+        "day": "2026-11-20",
+        "dimension": "total",
+        "impressions": 1,
+        "key": "example",
+        "provider": "google"
+      }
+    ],
+    "total": 1
+  },
+  "minimal": {
+    "domainUuid": "example",
+    "limit": 1,
+    "offset": 1,
+    "rows": null,
+    "total": 1
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "maximal": {
+    "byteSize": 1,
+    "contentType": "example",
+    "height": 1,
+    "updatedAt": "2026-11-20T06:00:00Z",
+    "width": 1
+  },
+  "minimal": {
+    "byteSize": 1,
+    "contentType": "example",
+    "height": 1,
+    "updatedAt": "2026-11-20T06:00:00Z",
+    "width": 1
+  }
+}

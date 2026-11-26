@@ -1,0 +1,28 @@
+{
+  "maximal": {
+    "monitors": [
+      {
+        "latest": {
+          "receivedAt": "2026-11-20T06:00:00Z",
+          "report": {
+            "outcome": "succeeded",
+            "scheduledFor": "2026-11-20T06:00:00Z"
+          }
+        },
+        "monitorUuid": "example",
+        "name": "example",
+        "nextExpectedAt": "2026-11-20T06:00:00Z",
+        "schedule": {
+          "cron": "example",
+          "graceMinutes": 1,
+          "timezone": "example"
+        },
+        "startedAt": "2026-11-20T06:00:00Z",
+        "status": "pending"
+      }
+    ]
+  },
+  "minimal": {
+    "monitors": null
+  }
+}

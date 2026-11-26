@@ -379,7 +379,7 @@ func decodeParserResponse(body []byte, out any) error {
 	if out == nil || len(body) == 0 {
 		return nil
 	}
-	if err := json.Unmarshal(body, out); err != nil {
+	if err := unmarshalResponse(body, out); err != nil {
 		return fmt.Errorf("custd: decode parser response: %w", err)
 	}
 	return nil

@@ -1,0 +1,18 @@
+{
+  "maximal": {
+    "issues": [
+      {
+        "code": "example",
+        "message": "example",
+        "path": "example"
+      }
+    ],
+    "suggestedAction": "example",
+    "valid": true
+  },
+  "minimal": {
+    "issues": null,
+    "suggestedAction": "example",
+    "valid": true
+  }
+}

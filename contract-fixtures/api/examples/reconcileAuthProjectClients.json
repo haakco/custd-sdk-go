@@ -1,0 +1,24 @@
+{
+  "maximal": {
+    "checkedAt": "2026-11-20T06:00:00Z",
+    "clients": [
+      {
+        "action": "created",
+        "audience": "example",
+        "clientId": "example",
+        "reason": "example"
+      }
+    ],
+    "environmentId": "example",
+    "errorCategory": "example",
+    "revision": 1,
+    "superseded": true
+  },
+  "minimal": {
+    "checkedAt": "2026-11-20T06:00:00Z",
+    "clients": null,
+    "environmentId": "example",
+    "revision": 1,
+    "superseded": true
+  }
+}

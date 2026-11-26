@@ -1,0 +1,27 @@
+{
+  "maximal": {
+    "actualValue": 1.5,
+    "confidence": 1.5,
+    "contained": true,
+    "createdAt": "2026-11-20T06:00:00Z",
+    "exerciseUuid": "example",
+    "lowerBound": 1.5,
+    "projectCode": "example",
+    "question": "example",
+    "resolvedAt": "2026-11-20T06:00:00Z",
+    "status": "example",
+    "updatedAt": "2026-11-20T06:00:00Z",
+    "upperBound": 1.5
+  },
+  "minimal": {
+    "confidence": 1.5,
+    "createdAt": "2026-11-20T06:00:00Z",
+    "exerciseUuid": "example",
+    "lowerBound": 1.5,
+    "projectCode": "example",
+    "question": "example",
+    "status": "example",
+    "updatedAt": "2026-11-20T06:00:00Z",
+    "upperBound": 1.5
+  }
+}

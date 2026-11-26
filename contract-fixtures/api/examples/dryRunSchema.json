@@ -1,0 +1,18 @@
+{
+  "maximal": {
+    "failed": 1,
+    "issues": [
+      {
+        "code": "example",
+        "message": "example",
+        "path": "example"
+      }
+    ],
+    "passed": 1
+  },
+  "minimal": {
+    "failed": 1,
+    "issues": null,
+    "passed": 1
+  }
+}

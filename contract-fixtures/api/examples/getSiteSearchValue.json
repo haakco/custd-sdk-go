@@ -1,0 +1,42 @@
+{
+  "maximal": {
+    "attribution": "example",
+    "days": 1,
+    "domainUuid": "example",
+    "from": "example",
+    "goalReason": "example",
+    "goalStatus": "measured",
+    "goals": [
+      "example"
+    ],
+    "pages": [
+      {
+        "goalConversions": 1,
+        "landings": 1,
+        "pageUrl": "example",
+        "path": "example",
+        "provider": "google",
+        "search": {
+          "clicks": 1,
+          "ctr": 1.5,
+          "impressions": 1,
+          "position": 1.5
+        },
+        "source": "example"
+      }
+    ],
+    "siteUuid": "example",
+    "to": "example"
+  },
+  "minimal": {
+    "attribution": "example",
+    "days": 1,
+    "domainUuid": "example",
+    "from": "example",
+    "goalStatus": "measured",
+    "goals": null,
+    "pages": null,
+    "siteUuid": "example",
+    "to": "example"
+  }
+}

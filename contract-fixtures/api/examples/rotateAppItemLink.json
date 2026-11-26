@@ -1,0 +1,19 @@
+{
+  "maximal": {
+    "link": {
+      "createdAt": "2026-11-20T06:00:00Z",
+      "linkUuid": "example",
+      "role": "owner",
+      "shareToken": "example"
+    },
+    "token": "example"
+  },
+  "minimal": {
+    "link": {
+      "createdAt": "2026-11-20T06:00:00Z",
+      "linkUuid": "example",
+      "role": "owner"
+    },
+    "token": "example"
+  }
+}

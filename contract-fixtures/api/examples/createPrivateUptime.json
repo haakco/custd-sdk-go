@@ -1,0 +1,28 @@
+{
+  "maximal": {
+    "monitor": {
+      "latest": {
+        "failure": "dns",
+        "observedAt": "2026-11-20T06:00:00Z",
+        "reportUuid": "0198a3b2-0000-7000-8000-000000000001",
+        "responseMs": 1,
+        "statusCode": 1
+      },
+      "monitorUuid": "example",
+      "networkLabel": "example",
+      "requestedAt": "2026-11-20T06:00:00Z",
+      "status": "unknown"
+    },
+    "reportPath": "example",
+    "token": "example"
+  },
+  "minimal": {
+    "monitor": {
+      "monitorUuid": "example",
+      "networkLabel": "example",
+      "status": "unknown"
+    },
+    "reportPath": "example",
+    "token": "example"
+  }
+}

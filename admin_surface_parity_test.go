@@ -17,115 +17,10 @@ func newSurfaceClient(t *testing.T, status int, body string) (*CustdClient, *cap
 	return newAdminTestClient(t, doer, "http://localhost:8080"), doer
 }
 
-// TestNewSurfacesSendTheirDocumentedRoute is the parity guard. Each row is the
-// operation the CLI performs today; a route change here means a SDK consumer
-// and custdctl have silently diverged.
-func TestNewSurfacesSendTheirDocumentedRoute(t *testing.T) {
-	tests := []struct {
-		name   string
-		body   string
-		call   func(*CustdClient) error
-		method string
-		path   string
-	}{
-		{
-			name: "support access create",
-			body: `{"supportAccessGrantUuid":"01957abc-0000-7000-8000-000000000001"}`,
-			call: func(c *CustdClient) error {
-				_, _, err := c.Admin.SupportAccess.Create(context.Background(),
-					SupportAccessGrantCreateRequest{CompanySlug: "acme", Reason: "incident", ExpiresAt: "2026-01-01T00:00:00Z"})
-				return err
-			},
-			method: http.MethodPost, path: "/api/v1/admin/support-access",
-		},
-		{
-			name: "support access revoke",
-			body: `{}`,
-			call: func(c *CustdClient) error {
-				_, _, err := c.Admin.SupportAccess.Revoke(context.Background(), "grant-1")
-				return err
-			},
-			method: http.MethodPost, path: "/api/v1/admin/support-access/grant-1/revoke",
-		},
-		{
-			name: "impersonation terminate",
-			body: `{}`,
-			call: func(c *CustdClient) error {
-				_, _, err := c.Admin.Impersonation.Terminate(context.Background(), "session-1")
-				return err
-			},
-			method: http.MethodPost, path: "/api/v1/admin/impersonation-sessions/session-1/terminate",
-		},
-		{
-			name: "webhook delete is bodyless",
-			body: ``,
-			call: func(c *CustdClient) error {
-				_, err := c.Admin.Webhooks.Delete(context.Background(), "acme", "hook-1")
-				return err
-			},
-			method: http.MethodDelete, path: "/api/v1/admin/notification-webhooks/hook-1",
-		},
-		{
-			name: "environment policy update",
-			body: `{"autoCreateEnvironments":true}`,
-			call: func(c *CustdClient) error {
-				_, _, err := c.Admin.EnvironmentPolicy.Update(context.Background(), "",
-					EnvironmentPolicyUpdateRequest{})
-				return err
-			},
-			method: http.MethodPatch, path: "/api/v1/admin/environment-policy",
-		},
-		{
-			name: "admin user reset password",
-			body: ``,
-			call: func(c *CustdClient) error {
-				_, _, err := c.Admin.AdminUsers.ResetPassword(context.Background(), "user-1")
-				return err
-			},
-			method: http.MethodPost, path: "/api/v1/admin/users/user-1/reset-password",
-		},
-		{
-			name: "scheduler pause",
-			body: ``,
-			call: func(c *CustdClient) error {
-				_, err := c.Admin.System.PauseScheduledTask(context.Background(), "rollup")
-				return err
-			},
-			method: http.MethodPost, path: "/api/v1/admin/scheduled-tasks/rollup/pause",
-		},
-		{
-			name: "system status",
-			body: `{"overallStatus":"healthy"}`,
-			call: func(c *CustdClient) error {
-				_, _, err := c.Admin.System.Status(context.Background())
-				return err
-			},
-			method: http.MethodGet, path: "/api/v1/admin/system/status",
-		},
-	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			client, doer := newSurfaceClient(t, http.StatusOK, test.body)
-			if err := test.call(client); err != nil {
-				t.Fatalf("call returned error: %v", err)
-			}
-			if len(doer.requests) != 1 {
-				t.Fatalf("requests = %d, want 1", len(doer.requests))
-			}
-			request := doer.requests[0]
-			if request.Method != test.method {
-				t.Fatalf("method = %s, want %s", request.Method, test.method)
-			}
-			if !strings.Contains(request.URL, test.path) {
-				t.Fatalf("url = %s, want it to contain %s", request.URL, test.path)
-			}
-		})
-	}
-}
-
 // TestSurfacesReportTheServerRequestID proves the identifier reaches the caller
-// in the two shapes that have no body of their own. A support path is useless
-// if the client cannot quote the request the server logged.
+// in the shapes that have no body of their own, including an empty reply. A
+// support path is useless if the client cannot quote the request the server
+// logged.
 func TestSurfacesReportTheServerRequestID(t *testing.T) {
 	client, _ := newSurfaceClient(t, http.StatusOK, `{"status":"ok"}`)
 
@@ -135,6 +30,15 @@ func TestSurfacesReportTheServerRequestID(t *testing.T) {
 	}
 	if metadata.RequestID != "req-123" {
 		t.Fatalf("requestId = %q, want req-123", metadata.RequestID)
+	}
+
+	bodyless, _ := newSurfaceClient(t, http.StatusNoContent, ``)
+	deleted, err := bodyless.Admin.Webhooks.Delete(context.Background(), "acme", "hook-1")
+	if err != nil {
+		t.Fatalf("bodyless Delete returned error: %v", err)
+	}
+	if deleted.RequestID != "req-123" {
+		t.Fatalf("bodyless Delete requestId = %q, want req-123", deleted.RequestID)
 	}
 
 	status, _, err := client.Admin.System.Status(context.Background())
@@ -260,34 +164,26 @@ func TestMetadataRecorderCapturesTheRequestID(t *testing.T) {
 	}
 }
 
-// TestAdminUserListSendsTheFilters proves the list surface carries the route the server
-// has: a named collection, narrowed by tenant, optionally including ended memberships.
+// TestAdminUserListSendsTheFilters proves the list surface carries every filter the
+// server reads, and only the URL it builds for them.
 func TestAdminUserListSendsTheFilters(t *testing.T) {
 	client, doer := newSurfaceClient(t, http.StatusOK, `{"users":[{"userUuid":"user-1","email":"a@b.c"}]}`)
 
-	page, err := fetchAdminUserPage(client, "acme", true)
+	page, err := client.Admin.AdminUsers.List(context.Background(), AdminUserListOptions{
+		CompanySlug: "acme", Role: "admin", GlobalState: "active", MembershipState: "ended",
+		WelcomeStatus: "failed", IncludeEnded: true, IncludeDeleted: true,
+	})
 	if err != nil {
 		t.Fatalf("List returned error: %v", err)
 	}
 	if len(page.Users) != 1 || page.Users[0].UserUUID != "user-1" {
 		t.Fatalf("page = %#v", page)
 	}
-	request := doer.requests[0]
-	if request.Method != http.MethodGet {
-		t.Fatalf("method = %s, want GET", request.Method)
+	want := "http://localhost:8080/api/v1/admin/users?companySlug=acme&globalState=active&includeDeleted=true" +
+		"&includeEnded=true&membershipState=ended&role=admin&welcomeStatus=failed"
+	if request := doer.requests[0]; request.Method != http.MethodGet || request.URL != want {
+		t.Fatalf("request = %s %s, want GET %s", request.Method, request.URL, want)
 	}
-	for _, want := range []string{"/users", "companySlug=acme", "includeEnded=true"} {
-		if !strings.Contains(request.URL, want) {
-			t.Fatalf("url = %s, want it to contain %s", request.URL, want)
-		}
-	}
-}
-
-// fetchAdminUserPage keeps the assertion above inside the statement budget.
-func fetchAdminUserPage(
-	client *CustdClient, company string, includeEnded bool,
-) (*AdminUserListResponse, error) {
-	return client.Admin.AdminUsers.List(context.Background(), company, includeEnded)
 }
 
 // TestAdminUserDisableSendsReasonAndScope proves the disable action carries the reason

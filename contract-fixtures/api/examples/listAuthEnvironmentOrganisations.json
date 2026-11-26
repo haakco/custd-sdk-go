@@ -1,0 +1,19 @@
+{
+  "maximal": {
+    "environmentId": "example",
+    "organisations": [
+      {
+        "identityPoolId": "example",
+        "name": "example",
+        "organisationId": "example",
+        "slug": "example"
+      }
+    ],
+    "projectId": "example"
+  },
+  "minimal": {
+    "environmentId": "example",
+    "organisations": null,
+    "projectId": "example"
+  }
+}

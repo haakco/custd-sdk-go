@@ -1,0 +1,60 @@
+{
+  "maximal": {
+    "clusters": [
+      {
+        "avgPosition": 1.5,
+        "bingWeeklyImpressions": 1,
+        "clicks": 1,
+        "cluster": "example",
+        "impressions": 1,
+        "keywordCount": 1,
+        "keywords": [
+          "example"
+        ],
+        "measuredKeywords": 1
+      }
+    ],
+    "demand": {
+      "keywords": [
+        {
+          "broadImpressions": 1,
+          "checkedAt": "2026-11-20T06:00:00Z",
+          "keyword": "example",
+          "lastFailure": "example",
+          "weekOf": "example",
+          "weeklyImpressions": 1
+        }
+      ],
+      "market": "example",
+      "source": "example",
+      "state": "available"
+    },
+    "metricsDays": 1,
+    "metricsSource": "example",
+    "name": "example",
+    "siteUuid": "example",
+    "strikingDistance": [
+      {
+        "clicks": 1,
+        "impressions": 1,
+        "keyword": "example",
+        "position": 1.5
+      }
+    ],
+    "totalKeywords": 1
+  },
+  "minimal": {
+    "clusters": null,
+    "demand": {
+      "keywords": null,
+      "source": "example",
+      "state": "available"
+    },
+    "metricsDays": 1,
+    "metricsSource": "example",
+    "name": "example",
+    "siteUuid": "example",
+    "strikingDistance": null,
+    "totalKeywords": 1
+  }
+}

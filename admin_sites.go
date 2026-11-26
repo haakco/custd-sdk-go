@@ -62,19 +62,11 @@ type AdminSite struct {
 	IngestTarget *AdminSiteIngestTarget `json:"ingestTarget,omitempty"`
 }
 
+// AdminSiteCreateResponse is the created site and its write key, which the
+// server returns only once.
 type AdminSiteCreateResponse struct {
-	SiteUUID           string   `json:"siteUuid"`
-	CompanySlug        string   `json:"companySlug"`
-	Name               string   `json:"name"`
-	IdentityMode       string   `json:"identityMode"`
-	AllowedOrigins     []string `json:"allowedOrigins"`
-	RateLimitPerMinute int      `json:"rateLimitPerMinute"`
-	RetentionDays      int      `json:"retentionDays"`
-	Enabled            bool     `json:"enabled"`
-	WriteKey           string   `json:"writeKey"`
-	// IngestTarget echoes the destination the site was created with, including the
-	// codes the server resolved for display.
-	IngestTarget *AdminSiteIngestTarget `json:"ingestTarget,omitempty"`
+	AdminSite
+	WriteKey string `json:"writeKey"`
 }
 
 type AdminSiteList struct {

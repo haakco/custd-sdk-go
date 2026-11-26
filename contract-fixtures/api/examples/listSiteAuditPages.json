@@ -1,0 +1,29 @@
+{
+  "maximal": {
+    "auditedAt": "2026-11-20T06:00:00Z",
+    "domainUuid": "example",
+    "limit": 1,
+    "offset": 1,
+    "pages": [
+      {
+        "depth": 1,
+        "finalUrl": "example",
+        "inboundLinks": 1,
+        "indexability": "indexable",
+        "openFindings": 1,
+        "status": 1,
+        "url": "example"
+      }
+    ],
+    "total": 1,
+    "truncated": true
+  },
+  "minimal": {
+    "domainUuid": "example",
+    "limit": 1,
+    "offset": 1,
+    "pages": null,
+    "total": 1,
+    "truncated": true
+  }
+}

@@ -102,28 +102,6 @@ type UsageQuery struct {
 	Limit     int
 }
 
-// RetainedUsage is the current tenant's retained storage position.
-//
-// It reports what the tenant holds, not what the platform is charged for: the
-// limit is enforced on the attributed footprint, which this read does not
-// carry.
-type RetainedUsage struct {
-	CompanySlug          string                        `json:"companySlug"`
-	CompanyName          string                        `json:"companyName"`
-	MeasuredAt           string                        `json:"measuredAt"`
-	RetainedLogicalBytes int64                         `json:"retainedLogicalBytes"`
-	RetainedEventCount   int64                         `json:"retainedEventCount"`
-	MeasurementState     RetainedUsageMeasurementState `json:"measurementState"`
-}
-
-// RetainedUsageMeasurementState is the provenance of one retained-usage
-// reading: the watermark it was measured at and how final that measurement is.
-type RetainedUsageMeasurementState struct {
-	SourceWatermark    int64  `json:"sourceWatermark"`
-	CompletenessState  string `json:"completenessState"`
-	CalculationVersion int    `json:"calculationVersion"`
-}
-
 // UsageExport is a streamed usage export.
 //
 // The export is CSV rather than a JSON document, so the body is a stream the
@@ -174,7 +152,7 @@ func (c *UsageAdminClient) ListUsage(
 }
 
 // GetRetainedUsage reads the current tenant's retained storage position.
-func (c *UsageAdminClient) GetRetainedUsage(ctx context.Context) (*RetainedUsage, error) {
+func (c *UsageAdminClient) GetRetainedUsage(ctx context.Context) (*TenantStorageUsage, error) {
 	var body json.RawMessage
 	if err := c.admin.request(ctx, http.MethodGet, adminRetainedUsagePath, nil, &body); err != nil {
 		return nil, err
@@ -262,7 +240,7 @@ func decodeUsageReport(data []byte) (*UsageReport, error) {
 		return nil, err
 	}
 	var report UsageReport
-	if err := json.Unmarshal(data, &report); err != nil {
+	if err := unmarshalResponse(data, &report); err != nil {
 		return nil, validationWrap(fmt.Sprintf("custd: decode %s", context), err)
 	}
 	return &report, nil
@@ -296,7 +274,7 @@ func usageQueryParams(query UsageQuery) (url.Values, error) {
 // decodeRetainedUsage decodes the retained-storage position. The measurement state is
 // required rather than optional: a caller has to be able to tell a final reading from a
 // provisional one, and a missing state would read as final.
-func decodeRetainedUsage(data []byte) (*RetainedUsage, error) {
+func decodeRetainedUsage(data []byte) (*TenantStorageUsage, error) {
 	const context = "retained usage response"
 	fields, err := decodeJSONObject(data, context)
 	if err != nil {
@@ -308,8 +286,8 @@ func decodeRetainedUsage(data []byte) (*RetainedUsage, error) {
 	); err != nil {
 		return nil, err
 	}
-	var usage RetainedUsage
-	if err := json.Unmarshal(data, &usage); err != nil {
+	var usage TenantStorageUsage
+	if err := unmarshalResponse(data, &usage); err != nil {
 		return nil, validationWrap(fmt.Sprintf("custd: decode %s", context), err)
 	}
 	return &usage, nil

@@ -1,0 +1,41 @@
+{
+  "maximal": {
+    "byteLength": 1,
+    "compression": "example",
+    "contractVersion": 1,
+    "datasetRowCounts": [
+      {
+        "count": 1,
+        "key": "example"
+      }
+    ],
+    "datasetSchemas": [
+      {
+        "columns": [
+          {
+            "description": "example",
+            "key": "example",
+            "label": "example",
+            "nullable": true,
+            "type": "text",
+            "unit": "example"
+          }
+        ],
+        "key": "example",
+        "label": "example"
+      }
+    ],
+    "downloadUrl": "example",
+    "generationId": "example",
+    "mediaType": "example",
+    "pollAfterSeconds": 1,
+    "snapshotSha256": "example",
+    "state": "building",
+    "urlExpiresAt": "2026-11-20T06:00:00Z",
+    "validUntil": "2026-11-20T06:00:00Z"
+  },
+  "minimal": {
+    "generationId": "example",
+    "state": "building"
+  }
+}

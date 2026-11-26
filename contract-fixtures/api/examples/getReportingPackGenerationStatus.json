@@ -1,0 +1,28 @@
+{
+  "maximal": {
+    "acknowledgements": [
+      {
+        "accepted": true,
+        "consumer": "example",
+        "errorDetail": "example",
+        "observedAt": "2026-11-20T06:00:00Z",
+        "observedGenerationId": 1
+      }
+    ],
+    "generation": {
+      "generationNumber": 1,
+      "id": 1,
+      "packKey": "example",
+      "state": "example"
+    }
+  },
+  "minimal": {
+    "acknowledgements": null,
+    "generation": {
+      "generationNumber": 1,
+      "id": 1,
+      "packKey": "example",
+      "state": "example"
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "maximal": {
+    "app": {
+      "activeReleaseId": "example",
+      "appId": "example",
+      "environmentId": "example",
+      "host": "example",
+      "name": "example",
+      "reason": {
+        "code": "example",
+        "message": "example"
+      },
+      "servingSince": "2026-11-20T06:00:00Z",
+      "signIn": true,
+      "siteUuid": "example",
+      "slug": "example",
+      "status": "needs_attention",
+      "url": "example"
+    },
+    "latestRelease": {
+      "active": true,
+      "createdAt": "2026-11-20T06:00:00Z",
+      "fileCount": 1,
+      "label": "example",
+      "releaseId": "example",
+      "state": "pending",
+      "totalBytes": 1,
+      "verifiedAt": "2026-11-20T06:00:00Z"
+    },
+    "ownerLinks": 1,
+    "releaseCount": 1,
+    "shareLinks": 1
+  },
+  "minimal": {
+    "app": {
+      "appId": "example",
+      "environmentId": "example",
+      "host": "example",
+      "name": "example",
+      "signIn": true,
+      "slug": "example",
+      "status": "needs_attention",
+      "url": "example"
+    },
+    "ownerLinks": 1,
+    "releaseCount": 1,
+    "shareLinks": 1
+  }
+}

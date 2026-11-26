@@ -1,0 +1,16 @@
+{
+  "maximal": {
+    "estimateUuid": "example",
+    "estimatedAt": "2026-11-20T06:00:00Z",
+    "highDate": "2026-11-20T06:00:00Z",
+    "lowDate": "2026-11-20T06:00:00Z",
+    "note": "example"
+  },
+  "minimal": {
+    "estimateUuid": "example",
+    "estimatedAt": "2026-11-20T06:00:00Z",
+    "highDate": "2026-11-20T06:00:00Z",
+    "lowDate": "2026-11-20T06:00:00Z",
+    "note": "example"
+  }
+}

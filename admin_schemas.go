@@ -12,19 +12,10 @@ type AdminSchemaRegister struct {
 	Enabled    bool   `json:"enabled"`
 }
 
-type AdminSchemaVersionCreate struct {
-	Version    string         `json:"version"`
-	JSONSchema map[string]any `json:"jsonSchema"`
-}
-
 type AdminSchema struct {
 	EventTypeSlug string         `json:"eventTypeSlug"`
 	Version       string         `json:"version"`
 	JSONSchema    map[string]any `json:"jsonSchema,omitempty"`
-}
-
-type AdminSchemaList struct {
-	Schemas []AdminSchema `json:"schemas"`
 }
 
 // AdminSchemaValidateRequest matches the Stage 1 contract: dialect is jsonschema

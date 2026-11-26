@@ -1,0 +1,36 @@
+{
+  "maximal": {
+    "cancelled": 1,
+    "cancelledAt": "2026-11-20T06:00:00Z",
+    "deliveries": [
+      {
+        "deliveryUuid": "example",
+        "position": 1,
+        "reason": "example",
+        "state": "example"
+      }
+    ],
+    "excluded": 1,
+    "failed": 1,
+    "id": "example",
+    "pending": 1,
+    "processing": 1,
+    "recipients": 1,
+    "revision": "example",
+    "scheduledAt": "2026-11-20T06:00:00Z",
+    "sent": 1
+  },
+  "minimal": {
+    "cancelled": 1,
+    "deliveries": null,
+    "excluded": 1,
+    "failed": 1,
+    "id": "example",
+    "pending": 1,
+    "processing": 1,
+    "recipients": 1,
+    "revision": "example",
+    "scheduledAt": "2026-11-20T06:00:00Z",
+    "sent": 1
+  }
+}

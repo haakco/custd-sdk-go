@@ -49,29 +49,27 @@ type ProducerCredentials struct {
 // from the producer provisioning API. Consumers pass it straight to
 // NewClientFromProvisionedProducer without any manual field mapping.
 type ProvisionedProducerCredentials struct {
-	CompanySlug  string            `json:"companySlug"`
-	BaseURL      string            `json:"baseUrl"`
-	TokenURL     string            `json:"tokenUrl"`
-	Audience     string            `json:"audience"`
-	ClientID     string            `json:"clientId"`
-	ClientSecret string            `json:"clientSecret"`
-	Scopes       []string          `json:"scopes"`
-	Environment  string            `json:"environment"`
-	Metadata     map[string]string `json:"metadata,omitempty"`
+	CompanySlug  string   `json:"companySlug"`
+	BaseURL      string   `json:"baseUrl"`
+	TokenURL     string   `json:"tokenUrl"`
+	Audience     string   `json:"audience"`
+	ClientID     string   `json:"clientId"`
+	ClientSecret string   `json:"clientSecret"`
+	Scopes       []string `json:"scopes"`
+	Environment  string   `json:"environment"`
 }
 
 // RedactedProvisionedProducerCredentials is the display-safe view of a
 // provisioned producer bundle. It mirrors ProvisionedProducerCredentials but
 // omits the client secret so it is safe to render on dashboards.
 type RedactedProvisionedProducerCredentials struct {
-	CompanySlug string            `json:"companySlug"`
-	BaseURL     string            `json:"baseUrl"`
-	TokenURL    string            `json:"tokenUrl"`
-	Audience    string            `json:"audience"`
-	ClientID    string            `json:"clientId"`
-	Scopes      []string          `json:"scopes"`
-	Environment string            `json:"environment"`
-	Metadata    map[string]string `json:"metadata,omitempty"`
+	CompanySlug string   `json:"companySlug"`
+	BaseURL     string   `json:"baseUrl"`
+	TokenURL    string   `json:"tokenUrl"`
+	Audience    string   `json:"audience"`
+	ClientID    string   `json:"clientId"`
+	Scopes      []string `json:"scopes"`
+	Environment string   `json:"environment"`
 }
 
 // NewClientFromProvisionedProducer builds an event-producing client directly
@@ -101,7 +99,6 @@ func RedactedProvisionedProducer(creds ProvisionedProducerCredentials) RedactedP
 		ClientID:    creds.ClientID,
 		Scopes:      creds.Scopes,
 		Environment: creds.Environment,
-		Metadata:    creds.Metadata,
 	}
 }
 

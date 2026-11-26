@@ -1,0 +1,46 @@
+{
+  "maximal": {
+    "lists": [
+      {
+        "createdAt": "2026-11-20T06:00:00Z",
+        "keywords": [
+          "example"
+        ],
+        "marketSample": {
+          "hits": [
+            {
+              "authority": 1,
+              "date": "2026-11-20T06:00:00Z",
+              "title": "example",
+              "url": "example"
+            }
+          ],
+          "observedAt": "2026-11-20T06:00:00Z"
+        },
+        "marketSampleEnabled": true,
+        "name": "example",
+        "related": {
+          "checkedAt": "2026-11-20T06:00:00Z",
+          "from": "example",
+          "keywords": [
+            {
+              "broadImpressions": 1,
+              "impressions": 1,
+              "keyword": "example"
+            }
+          ],
+          "market": "example",
+          "source": "example",
+          "to": "example"
+        },
+        "seedTerm": "example",
+        "updatedAt": "2026-11-20T06:00:00Z"
+      }
+    ],
+    "siteUuid": "example"
+  },
+  "minimal": {
+    "lists": null,
+    "siteUuid": "example"
+  }
+}

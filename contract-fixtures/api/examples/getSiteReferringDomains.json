@@ -1,0 +1,68 @@
+{
+  "maximal": {
+    "authority": {
+      "graphDomain": "example",
+      "harmonicCentrality": 1.5,
+      "harmonicRank": 1,
+      "hosts": 1,
+      "inGraph": true,
+      "pageRank": 1.5,
+      "pageRankRank": 1,
+      "release": "example"
+    },
+    "domain": "example",
+    "lost": {
+      "domains": [
+        {
+          "domain": "example",
+          "harmonicRank": 1
+        }
+      ],
+      "previousRelease": "example",
+      "release": "example",
+      "scope": "example",
+      "status": "available"
+    },
+    "referringDomains": [
+      {
+        "anchorText": "example",
+        "bingLinks": 1,
+        "crawlLinks": 1,
+        "domain": "example",
+        "followed": true,
+        "harmonicRank": 1,
+        "pageRankRank": 1,
+        "sources": [
+          "example"
+        ]
+      }
+    ],
+    "role": "own",
+    "siteUuid": "example",
+    "sources": [
+      {
+        "asOf": "example",
+        "complete": true,
+        "lastFailure": "example",
+        "links": 1,
+        "listed": 1,
+        "referringDomains": 1,
+        "scope": "example",
+        "source": "bing",
+        "status": "available"
+      }
+    ]
+  },
+  "minimal": {
+    "domain": "example",
+    "lost": {
+      "domains": null,
+      "scope": "example",
+      "status": "available"
+    },
+    "referringDomains": null,
+    "role": "own",
+    "siteUuid": "example",
+    "sources": null
+  }
+}

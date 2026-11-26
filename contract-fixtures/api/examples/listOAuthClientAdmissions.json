@@ -1,0 +1,35 @@
+{
+  "maximal": {
+    "admissions": [
+      {
+        "admissionUuid": "example",
+        "approvedAt": "2026-11-20T06:00:00Z",
+        "approvedGrants": [
+          {
+            "resourceUri": "example",
+            "scopes": [
+              "example"
+            ]
+          }
+        ],
+        "approvedSecurityRevision": "example",
+        "clientId": "example",
+        "companyUuid": "example",
+        "requestedGrants": [
+          {
+            "resourceUri": "example",
+            "scopes": [
+              "example"
+            ]
+          }
+        ],
+        "requestedSecurityRevision": "example",
+        "revision": 1,
+        "revokedAt": "2026-11-20T06:00:00Z"
+      }
+    ]
+  },
+  "minimal": {
+    "admissions": null
+  }
+}

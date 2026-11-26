@@ -1,0 +1,18 @@
+{
+  "maximal": {
+    "deprecatedAt": "2026-11-20T06:00:00Z",
+    "markedBy": "example",
+    "note": "example",
+    "recommendedVersion": "example",
+    "sdk": "example",
+    "versionScope": "example"
+  },
+  "minimal": {
+    "deprecatedAt": "2026-11-20T06:00:00Z",
+    "markedBy": "example",
+    "note": "example",
+    "recommendedVersion": "example",
+    "sdk": "example",
+    "versionScope": "example"
+  }
+}

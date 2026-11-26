@@ -1,0 +1,32 @@
+{
+  "maximal": {
+    "run": {
+      "completedAt": "2026-11-20T06:00:00Z",
+      "durationMs": 1,
+      "failureReason": "example",
+      "itemsCompleted": 1,
+      "itemsFailed": 1,
+      "itemsTotal": 1,
+      "runUuid": "example",
+      "scheduledFor": "2026-11-20T06:00:00Z",
+      "startedAt": "2026-11-20T06:00:00Z",
+      "status": "example",
+      "taskName": "example",
+      "trigger": "example",
+      "workerId": "example"
+    }
+  },
+  "minimal": {
+    "run": {
+      "durationMs": 1,
+      "itemsCompleted": 1,
+      "itemsFailed": 1,
+      "itemsTotal": 1,
+      "runUuid": "example",
+      "scheduledFor": "2026-11-20T06:00:00Z",
+      "status": "example",
+      "taskName": "example",
+      "trigger": "example"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "maximal": {
+    "shares": [
+      {
+        "createdAt": "2026-11-20T06:00:00Z",
+        "expiresAt": "2026-11-20T06:00:00Z",
+        "reportUuid": "example",
+        "shareUuid": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "shares": null
+  }
+}

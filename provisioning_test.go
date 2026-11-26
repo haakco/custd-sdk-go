@@ -14,7 +14,7 @@ func TestProvisioningDataSpacesUsePublicAPI(t *testing.T) {
 
 	space, err := client.Provisioning.DataSpaces.Create(context.Background(), DataSpaceCreate{
 		Slug: "agency-store-001", CompanyName: "Agency Store 001",
-	})
+	}, "")
 	if err != nil {
 		t.Fatalf("Create returned error: %v", err)
 	}
@@ -31,7 +31,7 @@ func TestProvisioningDataSpacesUsePublicAPI(t *testing.T) {
 
 	doer.status = http.StatusOK
 	doer.body = `{"dataSpaces":[],"entitlement":{"enabled":true,"activeDataSpaces":0,"maxActiveDataSpaces":5,"maxActiveProducersPerDataSpace":3}}`
-	list, err := client.Provisioning.DataSpaces.List(context.Background())
+	list, err := client.Provisioning.DataSpaces.List(context.Background(), "agency")
 	if err != nil {
 		t.Fatalf("List returned error: %v", err)
 	}
@@ -40,18 +40,18 @@ func TestProvisioningDataSpacesUsePublicAPI(t *testing.T) {
 	}
 	doer.status = http.StatusNoContent
 	doer.body = ""
-	if err := client.Provisioning.DataSpaces.Revoke(context.Background(), "agency store/001"); err != nil {
+	if err := client.Provisioning.DataSpaces.Revoke(context.Background(), "agency store/001", "agency"); err != nil {
 		t.Fatalf("Revoke returned error: %v", err)
 	}
 	assertSiteRequests(t, doer.requests, []string{
 		"POST http://localhost:8080/api/v1/data-spaces",
-		"GET http://localhost:8080/api/v1/data-spaces",
-		"DELETE http://localhost:8080/api/v1/data-spaces/agency%20store%2F001",
+		"GET http://localhost:8080/api/v1/data-spaces?parentCompanySlug=agency",
+		"DELETE http://localhost:8080/api/v1/data-spaces/agency%20store%2F001?parentCompanySlug=agency",
 	})
 }
 
 func TestProvisioningProducersUsePublicAPIAndKeepSecretExplicit(t *testing.T) {
-	doer := newCaptureDoer(http.StatusCreated, `{"clientId":"custd-agency-store-001-webhook","clientSecret":"once","companySlug":"agency-store-001","producerSlug":"webhook","scopes":["events.write"]}`)
+	doer := newCaptureDoer(http.StatusCreated, `{"baseUrl":"https://api.custd.test","tokenUrl":"https://auth.custd.test/oauth2/token","audience":"custd","companySlug":"agency-store-001","producerSlug":"webhook","clientId":"custd-agency-store-001-webhook","clientSecret":"once","scopes":["events.write"],"environment":"production","allowedEnvironments":["production"]}`)
 	client := newProvisioningTestClient(t, doer)
 
 	created, err := client.Provisioning.Producers.Provision(context.Background(), ProducerProvisionRequest{
@@ -60,24 +60,26 @@ func TestProvisioningProducersUsePublicAPIAndKeepSecretExplicit(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Provision returned error: %v", err)
 	}
-	if created.ClientSecret != "once" {
-		t.Fatalf("clientSecret = %q", created.ClientSecret)
+	if created.ClientSecret != "once" || created.Environment != "production" ||
+		len(created.AllowedEnvironments) != 1 || created.AllowedEnvironments[0] != "production" {
+		t.Fatalf("created = %+v", created)
 	}
 	doer.status = http.StatusOK
-	doer.body = `{"producers":[{"clientId":"custd-agency-store-001-webhook","companySlug":"agency-store-001","producerSlug":"webhook","scopes":["events.write"]}]}`
+	doer.body = `{"producers":[{"clientId":"custd-agency-store-001-webhook","companySlug":"agency-store-001","producerSlug":"webhook","displayName":"Webhook","scopes":["events.write"],"environment":"production","allowedEnvironments":["production","staging"]}]}`
 	producers, err := client.Provisioning.Producers.List(context.Background(), "agency-store-001")
 	if err != nil {
 		t.Fatalf("List returned error: %v", err)
 	}
-	if len(producers) != 1 || producers[0].ProducerSlug != "webhook" {
+	if len(producers) != 1 || producers[0].ProducerSlug != "webhook" || producers[0].DisplayName != "Webhook" ||
+		len(producers[0].AllowedEnvironments) != 2 {
 		t.Fatalf("producers = %+v", producers)
 	}
-	doer.body = `{"clientId":"custd-agency-store-001-webhook","clientSecret":"next","scopes":["events.write"]}`
+	doer.body = `{"baseUrl":"https://api.custd.test","tokenUrl":"https://auth.custd.test/oauth2/token","audience":"custd","clientId":"custd-agency-store-001-webhook","clientSecret":"next"}`
 	rotated, err := client.Provisioning.Producers.RotateSecret(context.Background(), "custd/agency store")
 	if err != nil {
 		t.Fatalf("RotateSecret returned error: %v", err)
 	}
-	if rotated.ClientSecret != "next" {
+	if rotated.ClientSecret != "next" || rotated.TokenURL != "https://auth.custd.test/oauth2/token" {
 		t.Fatalf("rotated = %+v", rotated)
 	}
 	doer.status = http.StatusOK

@@ -1,0 +1,21 @@
+{
+  "maximal": {
+    "nonDeletedCount": 1,
+    "observations": [
+      {
+        "blockUuid": "example",
+        "idempotencyKey": "example",
+        "observationUuid": "example",
+        "planUuid": "example",
+        "runUuid": "example",
+        "semanticKey": "example"
+      }
+    ],
+    "runUuid": "example"
+  },
+  "minimal": {
+    "nonDeletedCount": 1,
+    "observations": null,
+    "runUuid": "example"
+  }
+}

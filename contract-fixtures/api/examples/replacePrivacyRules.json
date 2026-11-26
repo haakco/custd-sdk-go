@@ -1,0 +1,21 @@
+{
+  "maximal": {
+    "applyMode": "example",
+    "companySlug": "example",
+    "enabled": true,
+    "rules": [
+      {
+        "action": "example",
+        "enabled": true,
+        "fieldPath": "example",
+        "truncateLength": 1
+      }
+    ]
+  },
+  "minimal": {
+    "applyMode": "example",
+    "companySlug": "example",
+    "enabled": true,
+    "rules": null
+  }
+}

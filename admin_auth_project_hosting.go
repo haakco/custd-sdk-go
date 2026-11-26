@@ -51,4 +51,6 @@ type AuthProjectHostedSignIn struct {
 	ClientID    string `json:"clientId"`
 	Audience    string `json:"audience"`
 	RedirectURI string `json:"redirectUri"`
+	// PostLogoutRedirectURI is where the hosted sign-out returns the browser.
+	PostLogoutRedirectURI string `json:"postLogoutRedirectUri"`
 }

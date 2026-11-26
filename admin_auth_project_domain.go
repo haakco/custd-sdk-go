@@ -38,6 +38,7 @@ const (
 	AuthProjectDomainDrifted    AuthProjectDomainConvergence = "drifted"
 	AuthProjectDomainNotRunning AuthProjectDomainConvergence = "not-running"
 	AuthProjectDomainUnverified AuthProjectDomainConvergence = "unverified"
+	AuthProjectDomainRollingOut AuthProjectDomainConvergence = "rolling-out"
 )
 
 // AuthProjectDomainImageSet is one image identity pair: the gateway and its Hydra server/init
@@ -54,6 +55,10 @@ type AuthProjectDomainImages struct {
 	Expected    AuthProjectDomainImageSet    `json:"expected"`
 	Running     AuthProjectDomainImageSet    `json:"running"`
 	Convergence AuthProjectDomainConvergence `json:"convergence"`
+	// Source names where Expected comes from: release-default, override or undeclared.
+	Source string `json:"source"`
+	// Override is the incident image override in force, nil when there is none.
+	Override *AuthDomainImageOverrideStatus `json:"override,omitempty"`
 }
 
 // The problem codes the admission and lifecycle routes answer with. Each is stable, so a caller

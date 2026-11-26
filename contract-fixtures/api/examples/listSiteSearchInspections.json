@@ -1,0 +1,32 @@
+{
+  "maximal": {
+    "dailyLimit": 1,
+    "inspections": [
+      {
+        "coverageState": "example",
+        "crawledAs": "example",
+        "failure": "example",
+        "googleCanonical": "example",
+        "indexingState": "example",
+        "inspectedAt": "2026-11-20T06:00:00Z",
+        "inspectionUuid": "example",
+        "lastCrawlAt": "2026-11-20T06:00:00Z",
+        "mobileUsabilityVerdict": "example",
+        "pageFetchState": "example",
+        "requestedAt": "2026-11-20T06:00:00Z",
+        "resultLink": "example",
+        "robotsTxtState": "example",
+        "status": "queued",
+        "url": "example",
+        "userCanonical": "example",
+        "verdict": "example"
+      }
+    ],
+    "usedToday": 1
+  },
+  "minimal": {
+    "dailyLimit": 1,
+    "inspections": null,
+    "usedToday": 1
+  }
+}

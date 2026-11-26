@@ -1,0 +1,49 @@
+{
+  "maximal": {
+    "days": 1,
+    "domainUuid": "example",
+    "pages": [
+      {
+        "latestAt": "2026-11-20T06:00:00Z",
+        "latestScore": 1,
+        "previousAt": "2026-11-20T06:00:00Z",
+        "previousScore": 1,
+        "profile": "desktop",
+        "regressionOpen": true,
+        "url": "example"
+      }
+    ],
+    "runs": [
+      {
+        "durationMs": 1,
+        "failure": "example",
+        "metrics": {
+          "cumulativeLayoutShift": 1.5,
+          "firstContentfulPaintMs": 1,
+          "largestContentfulPaintMs": 1,
+          "speedIndexMs": 1,
+          "totalBlockingTimeMs": 1
+        },
+        "observedAt": "2026-11-20T06:00:00Z",
+        "outcome": "success",
+        "profile": "desktop",
+        "scores": {
+          "accessibility": 1,
+          "bestPractices": 1,
+          "performance": 1,
+          "seo": 1
+        },
+        "toolVersion": "example",
+        "url": "example"
+      }
+    ],
+    "url": "example"
+  },
+  "minimal": {
+    "days": 1,
+    "domainUuid": "example",
+    "pages": null,
+    "runs": null,
+    "url": "example"
+  }
+}

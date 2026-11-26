@@ -9,6 +9,8 @@ type AdminTenantCreate struct {
 }
 
 type AdminTenant struct {
+	CompanyID   int64  `json:"companyId"`
+	CompanyUUID string `json:"companyUuid"`
 	Slug        string `json:"slug"`
 	CompanyName string `json:"companyName"`
 	Enabled     bool   `json:"enabled"`

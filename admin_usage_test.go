@@ -134,8 +134,8 @@ func TestAdminUsageGetRejectsMalformedSuccessBody(t *testing.T) {
 				report["rows"] = map[string]any{"unexpected": report["rows"]}
 			})
 		},
-		"collection is null": func() string {
-			return usageReportBodyWith(t, func(report map[string]any) { report["totals"] = nil })
+		"collection is absent": func() string {
+			return usageReportBodyWith(t, func(report map[string]any) { delete(report, "totals") })
 		},
 		"wrong field type": func() string {
 			return usageReportBodyWith(t, func(report map[string]any) { report["containsProvisional"] = "false" })

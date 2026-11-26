@@ -1,0 +1,20 @@
+{
+  "maximal": {
+    "maxReports": 1,
+    "reports": [
+      {
+        "createdAt": "2026-11-20T06:00:00Z",
+        "days": 1,
+        "generatedAt": "2026-11-20T06:00:00Z",
+        "liveShares": 1,
+        "name": "example",
+        "reportUuid": "example",
+        "template": "executive"
+      }
+    ]
+  },
+  "minimal": {
+    "maxReports": 1,
+    "reports": null
+  }
+}

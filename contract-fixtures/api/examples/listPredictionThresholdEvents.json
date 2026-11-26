@@ -1,0 +1,19 @@
+{
+  "maximal": {
+    "events": [
+      {
+        "dedup_key": "example",
+        "direction": "example",
+        "emitted_at": "2026-11-20T06:00:00Z",
+        "hysteresis_state": "example",
+        "observed_value": 1.5,
+        "threshold": 1.5,
+        "trigger_run_uuid": "example",
+        "version_uuid": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "events": null
+  }
+}

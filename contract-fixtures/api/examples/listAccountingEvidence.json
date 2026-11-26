@@ -1,0 +1,26 @@
+{
+  "maximal": {
+    "evidence": [
+      {
+        "actor": "example",
+        "auditCorrelationId": "example",
+        "balance": 1.5,
+        "delta": 1.5,
+        "effectiveAt": "2026-11-20T06:00:00Z",
+        "id": "example",
+        "kind": "purchase",
+        "observedAt": "2026-11-20T06:00:00Z",
+        "quantity": 1.5,
+        "reason": "example",
+        "supersedesId": "example",
+        "targetId": "example",
+        "targetKind": "purchase",
+        "tenantKey": "example",
+        "unit": "W"
+      }
+    ]
+  },
+  "minimal": {
+    "evidence": null
+  }
+}

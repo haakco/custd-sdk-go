@@ -1,0 +1,55 @@
+{
+  "maximal": {
+    "schemas": [
+      {
+        "class": "example",
+        "dialect": "example",
+        "eventTypeSlug": "example",
+        "exampleValidation": {
+          "deltas": 1,
+          "discovered": 1,
+          "issueCodes": [
+            "example"
+          ],
+          "run": 1,
+          "sameAccept": 1,
+          "sameReject": 1
+        },
+        "issueCodes": [
+          "example"
+        ],
+        "legacyCompile": {
+          "issues": [
+            "example"
+          ],
+          "valid": true
+        },
+        "recommendedAction": "example",
+        "schemaChecksum": "example",
+        "sharedCompile": {
+          "issues": [
+            "example"
+          ],
+          "valid": true
+        },
+        "tenantSlug": "example",
+        "version": "example"
+      }
+    ],
+    "summary": {
+      "blocked": 1,
+      "compatible": 1,
+      "needsMigration": 1,
+      "total": 1
+    }
+  },
+  "minimal": {
+    "schemas": null,
+    "summary": {
+      "blocked": 1,
+      "compatible": 1,
+      "needsMigration": 1,
+      "total": 1
+    }
+  }
+}

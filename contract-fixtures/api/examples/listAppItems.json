@@ -1,0 +1,22 @@
+{
+  "maximal": {
+    "items": [
+      {
+        "expiresAt": "2026-11-20T06:00:00Z",
+        "idleExpirySeconds": 1,
+        "itemUuid": "example",
+        "kind": "example",
+        "name": "example",
+        "ownership": "unowned",
+        "role": "owner",
+        "seriesCode": "example",
+        "status": "example",
+        "updatedAt": "2026-11-20T06:00:00Z",
+        "version": 1
+      }
+    ]
+  },
+  "minimal": {
+    "items": null
+  }
+}

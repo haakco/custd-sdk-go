@@ -1,0 +1,13 @@
+{
+  "maximal": {
+    "cancelledAt": "2026-11-20T06:00:00Z",
+    "endsAt": "2026-11-20T06:00:00Z",
+    "startsAt": "2026-11-20T06:00:00Z",
+    "windowUuid": "example"
+  },
+  "minimal": {
+    "endsAt": "2026-11-20T06:00:00Z",
+    "startsAt": "2026-11-20T06:00:00Z",
+    "windowUuid": "example"
+  }
+}

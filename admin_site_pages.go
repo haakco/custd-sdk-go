@@ -2,7 +2,6 @@ package custd
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"net/url"
 	"strings"
@@ -214,7 +213,7 @@ type AdminSitePhraseUse struct {
 // UnmarshalJSON drops the density the server sends as 0 for a draft without words.
 func (p *AdminSitePhraseUse) UnmarshalJSON(data []byte) error {
 	type wire AdminSitePhraseUse
-	if err := json.Unmarshal(data, (*wire)(p)); err != nil {
+	if err := unmarshalResponse(data, (*wire)(p)); err != nil {
 		return err
 	}
 	if p.WordCount == 0 {
@@ -259,7 +258,7 @@ type AdminSiteWordingCompare struct {
 // UnmarshalJSON drops the share the server sends as 0 when it did not compare the texts.
 func (w *AdminSiteWordingCompare) UnmarshalJSON(data []byte) error {
 	type wire AdminSiteWordingCompare
-	if err := json.Unmarshal(data, (*wire)(w)); err != nil {
+	if err := unmarshalResponse(data, (*wire)(w)); err != nil {
 		return err
 	}
 	if !w.Compared {

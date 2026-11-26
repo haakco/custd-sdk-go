@@ -1,0 +1,18 @@
+{
+  "maximal": {
+    "eventTypes": [
+      {
+        "categoryIsAudit": true,
+        "categoryRetentionDays": 1,
+        "categorySlug": "example",
+        "name": "example",
+        "retentionDays": 1,
+        "rollupDimensions": {},
+        "slug": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "eventTypes": null
+  }
+}

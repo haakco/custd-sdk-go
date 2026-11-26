@@ -1,0 +1,14 @@
+{
+  "maximal": {
+    "hardLimitEnabled": true,
+    "includedStorageBytes": 1,
+    "purchasedStorageBytes": 1,
+    "warnPercent": 1
+  },
+  "minimal": {
+    "hardLimitEnabled": true,
+    "includedStorageBytes": 1,
+    "purchasedStorageBytes": 1,
+    "warnPercent": 1
+  }
+}

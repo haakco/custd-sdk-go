@@ -1,0 +1,741 @@
+{
+  "maximal": {
+    "domain": {
+      "audit": {
+        "lastAuditedAt": "2026-11-20T06:00:00Z",
+        "lastFailure": "example",
+        "lastSummary": {
+          "high": 1,
+          "info": 1,
+          "low": 1,
+          "medium": 1,
+          "pagesChecked": 1,
+          "requests": 1,
+          "truncated": true
+        },
+        "requestedAt": "2026-11-20T06:00:00Z"
+      },
+      "checks": {
+        "chromeUx": {
+          "checkedAt": "2026-11-20T06:00:00Z",
+          "observation": {
+            "cls": 1.5,
+            "firstDate": "2026-11-20T06:00:00Z",
+            "inpMs": 1.5,
+            "lastDate": "2026-11-20T06:00:00Z",
+            "lcpMs": 1.5
+          }
+        },
+        "httpExpectations": {
+          "bodyContains": "example",
+          "json": {
+            "field": "example",
+            "value": "example"
+          },
+          "maxResponseMs": 1,
+          "statusCode": 1
+        },
+        "mode": "paused",
+        "openIncident": {
+          "acknowledgedAt": "2026-11-20T06:00:00Z",
+          "cause": "example",
+          "failedChecks": 1,
+          "incidentUuid": "example",
+          "openedAt": "2026-11-20T06:00:00Z",
+          "resolvedAt": "2026-11-20T06:00:00Z",
+          "startedAt": "2026-11-20T06:00:00Z"
+        },
+        "registration": {
+          "domain": "example",
+          "expiresAt": "2026-11-20T06:00:00Z",
+          "readAt": "2026-11-20T06:00:00Z",
+          "source": "example"
+        },
+        "tls": {
+          "issuer": "example",
+          "lastCheckedAt": "2026-11-20T06:00:00Z",
+          "lastFailure": "example",
+          "validTo": "2026-11-20T06:00:00Z"
+        },
+        "uptime": {
+          "consecutiveFailures": 1,
+          "lastCheckedAt": "2026-11-20T06:00:00Z",
+          "lastFailure": "example",
+          "responseMs": 1,
+          "status": "unknown",
+          "statusCode": 1
+        },
+        "warming": {
+          "lastWarmedAt": "2026-11-20T06:00:00Z",
+          "unwarmedResponseMs": 1,
+          "warmedResponseMs": 1
+        }
+      },
+      "createdAt": "2026-11-20T06:00:00Z",
+      "domainUuid": "example",
+      "host": "example",
+      "ownership": {
+        "attestation": {
+          "attestedAt": "2026-11-20T06:00:00Z",
+          "clientId": "example"
+        },
+        "instructions": {
+          "dnsRecordName": "example",
+          "dnsRecordValue": "example",
+          "fileContent": "example",
+          "fileUrl": "example"
+        },
+        "lastCheckFailure": "example",
+        "lastCheckedAt": "2026-11-20T06:00:00Z",
+        "verified": true,
+        "verifiedAt": "2026-11-20T06:00:00Z",
+        "verifiedBy": "example",
+        "verifiedViaDomainUuid": "example"
+      },
+      "siteUuid": "example"
+    },
+    "exportedAt": "2026-11-20T06:00:00Z",
+    "monitoring": {
+      "findingRows": 1,
+      "findings": {
+        "findings": [
+          {
+            "dismissible": true,
+            "evidence": "example",
+            "findingUuid": "example",
+            "fix": "example",
+            "history": {
+              "firstSeenAt": "2026-11-20T06:00:00Z",
+              "fixed": true,
+              "fixedAt": "2026-11-20T06:00:00Z",
+              "lastSeenAt": "2026-11-20T06:00:00Z"
+            },
+            "recheckable": true,
+            "remedy": {
+              "element": "example",
+              "generated": {
+                "code": "example",
+                "format": "html"
+              },
+              "kind": "markup"
+            },
+            "rule": "example",
+            "severity": "example",
+            "source": "example",
+            "suggestion": {
+              "explanation": "example",
+              "nextStep": "example"
+            },
+            "title": "example",
+            "url": "example"
+          }
+        ]
+      },
+      "incidents": {
+        "incidents": [
+          {
+            "acknowledgedAt": "2026-11-20T06:00:00Z",
+            "cause": "example",
+            "failedChecks": 1,
+            "incidentUuid": "example",
+            "openedAt": "2026-11-20T06:00:00Z",
+            "resolvedAt": "2026-11-20T06:00:00Z",
+            "startedAt": "2026-11-20T06:00:00Z"
+          }
+        ]
+      },
+      "lighthouse": [
+        {
+          "days": 1,
+          "domainUuid": "example",
+          "pages": [
+            {
+              "latestAt": "2026-11-20T06:00:00Z",
+              "latestScore": 1,
+              "previousAt": "2026-11-20T06:00:00Z",
+              "previousScore": 1,
+              "profile": "desktop",
+              "regressionOpen": true,
+              "url": "example"
+            }
+          ],
+          "runs": [
+            {
+              "durationMs": 1,
+              "failure": "example",
+              "metrics": {
+                "cumulativeLayoutShift": 1.5,
+                "firstContentfulPaintMs": 1,
+                "largestContentfulPaintMs": 1,
+                "speedIndexMs": 1,
+                "totalBlockingTimeMs": 1
+              },
+              "observedAt": "2026-11-20T06:00:00Z",
+              "outcome": "success",
+              "profile": "desktop",
+              "scores": {
+                "accessibility": 1,
+                "bestPractices": 1,
+                "performance": 1,
+                "seo": 1
+              },
+              "toolVersion": "example",
+              "url": "example"
+            }
+          ],
+          "url": "example"
+        }
+      ],
+      "uptime": {
+        "days": [
+          {
+            "checks": 1,
+            "date": "example",
+            "upChecks": 1,
+            "upPercent": 1.5
+          }
+        ],
+        "domainUuid": "example",
+        "generatedAt": "2026-11-20T06:00:00Z",
+        "hours": [
+          {
+            "avgMs": 1,
+            "checks": 1,
+            "hourStart": "2026-11-20T06:00:00Z",
+            "maxMs": 1,
+            "upChecks": 1
+          }
+        ],
+        "monitoredSince": "2026-11-20T06:00:00Z",
+        "responseDays": 1,
+        "windows": {
+          "last24h": {
+            "checks": 1,
+            "upChecks": 1,
+            "upPercent": 1.5
+          },
+          "last30d": {
+            "checks": 1,
+            "upChecks": 1,
+            "upPercent": 1.5
+          },
+          "last7d": {
+            "checks": 1,
+            "upChecks": 1,
+            "upPercent": 1.5
+          }
+        }
+      }
+    },
+    "reports": {
+      "campaignLinks": {
+        "links": [
+          {
+            "archivedAt": "2026-11-20T06:00:00Z",
+            "campaign": "example",
+            "content": "example",
+            "createdAt": "2026-11-20T06:00:00Z",
+            "linkUuid": "example",
+            "medium": "example",
+            "source": "example",
+            "taggedUrl": "example",
+            "term": "example",
+            "url": "example"
+          }
+        ],
+        "maxLinks": 1,
+        "suggestedMediums": [
+          "example"
+        ],
+        "suggestedSources": [
+          "example"
+        ]
+      },
+      "savedReports": [
+        {
+          "createdAt": "2026-11-20T06:00:00Z",
+          "days": 1,
+          "generatedAt": "2026-11-20T06:00:00Z",
+          "liveShares": 1,
+          "name": "example",
+          "report": {
+            "audit": {
+              "auditedAt": "2026-11-20T06:00:00Z",
+              "findings": [
+                {
+                  "firstSeenAt": "2026-11-20T06:00:00Z",
+                  "fix": "example",
+                  "severity": "example",
+                  "title": "example",
+                  "url": "example"
+                }
+              ],
+              "summary": {
+                "high": 1,
+                "info": 1,
+                "low": 1,
+                "medium": 1,
+                "pagesChecked": 1,
+                "requests": 1,
+                "truncated": true
+              }
+            },
+            "certificate": {
+              "issuer": "example",
+              "problem": true,
+              "validTo": "2026-11-20T06:00:00Z"
+            },
+            "generatedAt": "2026-11-20T06:00:00Z",
+            "host": "example",
+            "nextActions": [
+              {
+                "affectedCount": 1,
+                "kind": "example",
+                "recheckable": true,
+                "rule": "example",
+                "severity": "high",
+                "target": {
+                  "findingUuid": "example",
+                  "pageUrl": "example",
+                  "place": "example"
+                },
+                "title": "example",
+                "why": "example"
+              }
+            ],
+            "search": {
+              "connected": true,
+              "days": 1,
+              "sources": [
+                {
+                  "daily": [
+                    {
+                      "clicks": 1,
+                      "day": "example",
+                      "impressions": 1
+                    }
+                  ],
+                  "days": 1,
+                  "from": "example",
+                  "granularity": "daily",
+                  "importedAt": "2026-11-20T06:00:00Z",
+                  "previous": {
+                    "clicks": 1,
+                    "ctr": 1.5,
+                    "impressions": 1,
+                    "position": 1.5
+                  },
+                  "provider": "google",
+                  "source": "example",
+                  "to": "example",
+                  "totals": {
+                    "clicks": 1,
+                    "ctr": 1.5,
+                    "impressions": 1,
+                    "position": 1.5
+                  }
+                }
+              ],
+              "strikingDistance": [
+                {
+                  "key": "example",
+                  "provider": "google",
+                  "totals": {
+                    "clicks": 1,
+                    "ctr": 1.5,
+                    "impressions": 1,
+                    "position": 1.5
+                  }
+                }
+              ],
+              "topPages": [
+                {
+                  "key": "example",
+                  "provider": "google",
+                  "totals": {
+                    "clicks": 1,
+                    "ctr": 1.5,
+                    "impressions": 1,
+                    "position": 1.5
+                  }
+                }
+              ],
+              "topQueries": [
+                {
+                  "key": "example",
+                  "provider": "google",
+                  "totals": {
+                    "clicks": 1,
+                    "ctr": 1.5,
+                    "impressions": 1,
+                    "position": 1.5
+                  }
+                }
+              ]
+            },
+            "speed": [
+              {
+                "metrics": {
+                  "cumulativeLayoutShift": 1.5,
+                  "firstContentfulPaintMs": 1,
+                  "largestContentfulPaintMs": 1,
+                  "speedIndexMs": 1,
+                  "totalBlockingTimeMs": 1
+                },
+                "observedAt": "2026-11-20T06:00:00Z",
+                "profile": "desktop",
+                "scores": {
+                  "accessibility": 1,
+                  "bestPractices": 1,
+                  "performance": 1,
+                  "seo": 1
+                }
+              }
+            ],
+            "template": "executive",
+            "uptime": {
+              "days": [
+                {
+                  "checks": 1,
+                  "date": "example",
+                  "upChecks": 1,
+                  "upPercent": 1.5
+                }
+              ],
+              "downSince": "2026-11-20T06:00:00Z",
+              "monitoredSince": "2026-11-20T06:00:00Z",
+              "responseMs": 1,
+              "status": "unknown",
+              "windows": {
+                "last24h": {
+                  "checks": 1,
+                  "upChecks": 1,
+                  "upPercent": 1.5
+                },
+                "last30d": {
+                  "checks": 1,
+                  "upChecks": 1,
+                  "upPercent": 1.5
+                },
+                "last7d": {
+                  "checks": 1,
+                  "upChecks": 1,
+                  "upPercent": 1.5
+                }
+              }
+            }
+          },
+          "reportUuid": "example",
+          "template": "executive"
+        }
+      ]
+    },
+    "schema": "example",
+    "search": {
+      "indexNow": {
+        "dailyUrlLimit": 1,
+        "enabled": true,
+        "key": "example",
+        "keyLocation": "example",
+        "lastCheckFailure": "example",
+        "submissions": [
+          {
+            "failure": "example",
+            "providerStatus": 1,
+            "requestedAt": "2026-11-20T06:00:00Z",
+            "status": "queued",
+            "submissionUuid": "example",
+            "submittedAt": "2026-11-20T06:00:00Z",
+            "urls": [
+              "example"
+            ]
+          }
+        ],
+        "urlsToday": 1,
+        "verified": true,
+        "verifiedAt": "2026-11-20T06:00:00Z"
+      },
+      "inspections": {
+        "dailyLimit": 1,
+        "inspections": [
+          {
+            "coverageState": "example",
+            "crawledAs": "example",
+            "failure": "example",
+            "googleCanonical": "example",
+            "indexingState": "example",
+            "inspectedAt": "2026-11-20T06:00:00Z",
+            "inspectionUuid": "example",
+            "lastCrawlAt": "2026-11-20T06:00:00Z",
+            "mobileUsabilityVerdict": "example",
+            "pageFetchState": "example",
+            "requestedAt": "2026-11-20T06:00:00Z",
+            "resultLink": "example",
+            "robotsTxtState": "example",
+            "status": "queued",
+            "url": "example",
+            "userCanonical": "example",
+            "verdict": "example"
+          }
+        ],
+        "usedToday": 1
+      },
+      "metricRows": 1,
+      "rankings": {
+        "from": "example",
+        "keywords": [
+          {
+            "country": "example",
+            "createdAt": "2026-11-20T06:00:00Z",
+            "device": "example",
+            "keyword": "example",
+            "keywordUuid": "example",
+            "latest": {
+              "clicks": 1,
+              "day": "example",
+              "impressions": 1,
+              "position": 1.5,
+              "rankingUrl": "example",
+              "state": "ranking"
+            },
+            "notifyPosition": 1,
+            "observations": [
+              {
+                "clicks": 1,
+                "day": "example",
+                "impressions": 1,
+                "position": 1.5,
+                "rankingUrl": "example",
+                "state": "ranking"
+              }
+            ],
+            "pool": {
+              "demandBand": "100_999",
+              "positions": {
+                "beyond20": 1,
+                "top10": 1,
+                "top20": 1,
+                "top3": 1
+              }
+            },
+            "status": "active"
+          }
+        ],
+        "maxKeywords": 1,
+        "pool": "joined",
+        "source": "not_connected",
+        "sourceFailure": "example",
+        "to": "example"
+      }
+    },
+    "site": {
+      "keywordLists": {
+        "lists": [
+          {
+            "createdAt": "2026-11-20T06:00:00Z",
+            "keywords": [
+              "example"
+            ],
+            "marketSample": {
+              "hits": [
+                {
+                  "authority": 1,
+                  "date": "2026-11-20T06:00:00Z",
+                  "title": "example",
+                  "url": "example"
+                }
+              ],
+              "observedAt": "2026-11-20T06:00:00Z"
+            },
+            "marketSampleEnabled": true,
+            "name": "example",
+            "related": {
+              "checkedAt": "2026-11-20T06:00:00Z",
+              "from": "example",
+              "keywords": [
+                {
+                  "broadImpressions": 1,
+                  "impressions": 1,
+                  "keyword": "example"
+                }
+              ],
+              "market": "example",
+              "source": "example",
+              "to": "example"
+            },
+            "seedTerm": "example",
+            "updatedAt": "2026-11-20T06:00:00Z"
+          }
+        ],
+        "siteUuid": "example"
+      },
+      "projectContext": {
+        "brandNames": [
+          "example"
+        ],
+        "competitorDomains": [
+          "example"
+        ],
+        "hackerNewsEnabled": true,
+        "markets": [
+          {
+            "country": "example",
+            "language": "example"
+          }
+        ],
+        "siteUuid": "example",
+        "updatedAt": "2026-11-20T06:00:00Z"
+      },
+      "topicTrends": {
+        "siteUuid": "example",
+        "trends": [
+          {
+            "article": "example",
+            "checkedAt": "2026-11-20T06:00:00Z",
+            "lastFailure": "example",
+            "months": [
+              {
+                "month": "example",
+                "views": 1
+              }
+            ],
+            "project": "example",
+            "source": "brand",
+            "status": "pending",
+            "term": "example"
+          }
+        ]
+      },
+      "webDomains": {
+        "domains": [
+          {
+            "domain": "example",
+            "inventoryAt": "2026-11-20T06:00:00Z",
+            "lastFailure": "example",
+            "nextInventoryAt": "2026-11-20T06:00:00Z",
+            "pageCount": 1,
+            "role": "own",
+            "sitemapStatus": "pending",
+            "trancoBand": "top-1k",
+            "trancoListDay": "example",
+            "trancoRank": 1,
+            "waybackStatus": "pending"
+          }
+        ],
+        "siteUuid": "example"
+      }
+    }
+  },
+  "minimal": {
+    "domain": {
+      "audit": {},
+      "checks": {
+        "mode": "paused",
+        "tls": {},
+        "uptime": {
+          "consecutiveFailures": 1,
+          "status": "unknown"
+        },
+        "warming": {}
+      },
+      "createdAt": "2026-11-20T06:00:00Z",
+      "domainUuid": "example",
+      "host": "example",
+      "ownership": {
+        "instructions": {
+          "dnsRecordName": "example",
+          "dnsRecordValue": "example",
+          "fileContent": "example",
+          "fileUrl": "example"
+        },
+        "verified": true
+      },
+      "siteUuid": "example"
+    },
+    "exportedAt": "2026-11-20T06:00:00Z",
+    "monitoring": {
+      "findingRows": 1,
+      "findings": {
+        "findings": null
+      },
+      "incidents": {
+        "incidents": null
+      },
+      "lighthouse": null,
+      "uptime": {
+        "days": null,
+        "domainUuid": "example",
+        "generatedAt": "2026-11-20T06:00:00Z",
+        "hours": null,
+        "responseDays": 1,
+        "windows": {
+          "last24h": {
+            "checks": 1,
+            "upChecks": 1
+          },
+          "last30d": {
+            "checks": 1,
+            "upChecks": 1
+          },
+          "last7d": {
+            "checks": 1,
+            "upChecks": 1
+          }
+        }
+      }
+    },
+    "reports": {
+      "campaignLinks": {
+        "links": null,
+        "maxLinks": 1,
+        "suggestedMediums": null,
+        "suggestedSources": null
+      },
+      "savedReports": null
+    },
+    "schema": "example",
+    "search": {
+      "indexNow": {
+        "dailyUrlLimit": 1,
+        "enabled": true,
+        "submissions": null,
+        "urlsToday": 1,
+        "verified": true
+      },
+      "inspections": {
+        "dailyLimit": 1,
+        "inspections": null,
+        "usedToday": 1
+      },
+      "metricRows": 1,
+      "rankings": {
+        "from": "example",
+        "keywords": null,
+        "maxKeywords": 1,
+        "pool": "joined",
+        "source": "not_connected",
+        "to": "example"
+      }
+    },
+    "site": {
+      "keywordLists": {
+        "lists": null,
+        "siteUuid": "example"
+      },
+      "projectContext": {
+        "brandNames": null,
+        "competitorDomains": null,
+        "markets": null,
+        "siteUuid": "example"
+      },
+      "topicTrends": {
+        "siteUuid": "example",
+        "trends": null
+      },
+      "webDomains": {
+        "domains": null,
+        "siteUuid": "example"
+      }
+    }
+  }
+}

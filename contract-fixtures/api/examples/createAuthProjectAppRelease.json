@@ -1,0 +1,82 @@
+{
+  "maximal": {
+    "active": true,
+    "createdAt": "2026-11-20T06:00:00Z",
+    "fileCount": 1,
+    "label": "example",
+    "manifest": {
+      "createdAt": "2026-11-20T06:00:00Z",
+      "files": [
+        {
+          "contentType": "example",
+          "path": "example",
+          "sha256": "example",
+          "size": 1
+        }
+      ],
+      "releaseId": "example",
+      "routing": {
+        "cache": [
+          {
+            "match": "example",
+            "mode": "immutable"
+          }
+        ],
+        "headers": [
+          {
+            "framing": "deny",
+            "headers": [
+              {
+                "name": "example",
+                "value": "example"
+              }
+            ],
+            "route": "example"
+          }
+        ],
+        "indexFile": "example",
+        "notFoundPage": "example",
+        "shareableRoutes": [
+          {
+            "cardTemplate": "example",
+            "description": "example",
+            "kind": "example",
+            "route": "example",
+            "title": "example"
+          }
+        ],
+        "siteCard": {
+          "cardTemplate": "example",
+          "description": "example",
+          "title": "example"
+        },
+        "spaFallbacks": [
+          {
+            "file": "example",
+            "prefix": "example"
+          }
+        ]
+      },
+      "version": 1
+    },
+    "releaseId": "example",
+    "state": "pending",
+    "totalBytes": 1,
+    "verifiedAt": "2026-11-20T06:00:00Z"
+  },
+  "minimal": {
+    "active": true,
+    "createdAt": "2026-11-20T06:00:00Z",
+    "fileCount": 1,
+    "manifest": {
+      "createdAt": "2026-11-20T06:00:00Z",
+      "files": null,
+      "releaseId": "example",
+      "routing": {},
+      "version": 1
+    },
+    "releaseId": "example",
+    "state": "pending",
+    "totalBytes": 1
+  }
+}

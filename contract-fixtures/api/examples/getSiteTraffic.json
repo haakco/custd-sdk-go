@@ -1,0 +1,105 @@
+{
+  "maximal": {
+    "countries": [
+      {
+        "key": "example",
+        "requests": 1
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "hoursExpected": 1,
+      "hoursFailed": 1,
+      "hoursMissing": 1,
+      "hoursPartial": 1,
+      "hoursRead": 1
+    },
+    "crawlers": [
+      {
+        "ai": true,
+        "crawler": "example",
+        "identity": "verified",
+        "notFound": 1,
+        "requests": 1
+      }
+    ],
+    "days": [
+      {
+        "bytes": 1,
+        "coverage": "complete",
+        "date": "example",
+        "hoursFailed": 1,
+        "hoursMissing": 1,
+        "hoursPartial": 1,
+        "hoursRead": 1,
+        "notFound": 1,
+        "requests": 1
+      }
+    ],
+    "domainUuid": "example",
+    "from": "example",
+    "generatedAt": "2026-11-20T06:00:00Z",
+    "notFoundPaths": [
+      {
+        "key": "example",
+        "requests": 1
+      }
+    ],
+    "referrerClasses": [
+      {
+        "class": "search",
+        "requests": 1
+      }
+    ],
+    "referrers": [
+      {
+        "class": "search",
+        "domain": "example",
+        "requests": 1
+      }
+    ],
+    "slowPaths": [
+      {
+        "maxMs": 1,
+        "p95Ms": 1,
+        "path": "example",
+        "requests": 1
+      }
+    ],
+    "statusClasses": [
+      {
+        "key": "example",
+        "requests": 1
+      }
+    ],
+    "to": "example",
+    "totals": {
+      "bytes": 1,
+      "notFound": 1,
+      "p95Ms": 1,
+      "requests": 1
+    }
+  },
+  "minimal": {
+    "countries": null,
+    "coverage": {
+      "complete": true,
+      "hoursExpected": 1,
+      "hoursFailed": 1,
+      "hoursMissing": 1,
+      "hoursPartial": 1,
+      "hoursRead": 1
+    },
+    "crawlers": null,
+    "days": null,
+    "domainUuid": "example",
+    "from": "example",
+    "generatedAt": "2026-11-20T06:00:00Z",
+    "notFoundPaths": null,
+    "referrerClasses": null,
+    "referrers": null,
+    "slowPaths": null,
+    "statusClasses": null,
+    "to": "example"
+  }
+}

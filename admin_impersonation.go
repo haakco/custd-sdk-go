@@ -39,6 +39,13 @@ type ImpersonationSession struct {
 	StopReason      string  `json:"stopReason,omitempty"`
 }
 
+// ImpersonationSessionStateResponse is the answer to stopping or terminating a
+// session: the session and the state it is now in.
+type ImpersonationSessionStateResponse struct {
+	SessionUUID string `json:"sessionUuid"`
+	State       string `json:"state"`
+}
+
 // ImpersonationSessionListResponse lists the caller's sessions.
 type ImpersonationSessionListResponse struct {
 	Sessions []ImpersonationSession `json:"sessions"`
@@ -75,7 +82,7 @@ func (c *ImpersonationAdminClient) List(
 func (c *ImpersonationAdminClient) Stop(
 	ctx context.Context,
 	sessionUUID string,
-) (*ImpersonationSession, ResponseMetadata, error) {
+) (*ImpersonationSessionStateResponse, ResponseMetadata, error) {
 	return c.sessionAction(ctx, sessionUUID, "/stop")
 }
 
@@ -84,7 +91,7 @@ func (c *ImpersonationAdminClient) Stop(
 func (c *ImpersonationAdminClient) Terminate(
 	ctx context.Context,
 	sessionUUID string,
-) (*ImpersonationSession, ResponseMetadata, error) {
+) (*ImpersonationSessionStateResponse, ResponseMetadata, error) {
 	return c.sessionAction(ctx, sessionUUID, "/terminate")
 }
 
@@ -92,8 +99,8 @@ func (c *ImpersonationAdminClient) sessionAction(
 	ctx context.Context,
 	sessionUUID string,
 	action string,
-) (*ImpersonationSession, ResponseMetadata, error) {
-	var out ImpersonationSession
+) (*ImpersonationSessionStateResponse, ResponseMetadata, error) {
+	var out ImpersonationSessionStateResponse
 	path := impersonationSessionsPath + "/" + url.PathEscape(sessionUUID) + action
 	metadata, err := c.admin.requestWithMetadata(ctx, http.MethodPost, path, nil, &out)
 	return &out, metadata, err

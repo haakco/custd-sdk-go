@@ -1,0 +1,135 @@
+{
+  "maximal": {
+    "checkedRules": [
+      "crawl.page-status"
+    ],
+    "findings": [
+      {
+        "evidence": "example",
+        "fix": "example",
+        "remedy": {
+          "element": "example",
+          "generated": {
+            "code": "example",
+            "format": "html"
+          },
+          "kind": "markup"
+        },
+        "rule": "crawl.page-status",
+        "severity": "high",
+        "source": "example",
+        "title": "example",
+        "url": "example"
+      }
+    ],
+    "page": {
+      "canonical": "example",
+      "description": "example",
+      "faqSchema": {
+        "code": "example",
+        "format": "html"
+      },
+      "headings": [
+        {
+          "level": 1,
+          "text": "example"
+        }
+      ],
+      "hreflang": [
+        {
+          "code": "example",
+          "href": "example"
+        }
+      ],
+      "lang": "example",
+      "observedAt": "2026-11-20T06:00:00Z",
+      "openGraph": {
+        "description": "example",
+        "image": "example",
+        "siteName": "example",
+        "title": "example",
+        "type": "example",
+        "url": "example"
+      },
+      "readability": {
+        "fleschReadingEase": 1.5,
+        "readingTimeSeconds": 1,
+        "sentences": 1,
+        "wordsPerSentence": 1.5
+      },
+      "robots": {
+        "header": "example",
+        "nofollow": true,
+        "noindex": true
+      },
+      "shareImage": "example",
+      "status": 1,
+      "title": "example",
+      "twitter": {
+        "card": "example",
+        "description": "example",
+        "image": "example",
+        "site": "example",
+        "title": "example"
+      },
+      "url": "example",
+      "wordCount": 1
+    },
+    "phrase": {
+      "count": 1,
+      "densityPercent": 1.5,
+      "inDescription": true,
+      "inH1": true,
+      "inTitle": true,
+      "phrase": "example",
+      "wordCount": 1
+    },
+    "redirect": {
+      "code": "example",
+      "format": "html"
+    },
+    "scope": "page",
+    "slug": "example"
+  },
+  "minimal": {
+    "findings": null,
+    "page": {
+      "canonical": "example",
+      "description": "example",
+      "headings": null,
+      "hreflang": null,
+      "lang": "example",
+      "observedAt": "2026-11-20T06:00:00Z",
+      "openGraph": {
+        "description": "example",
+        "image": "example",
+        "siteName": "example",
+        "title": "example",
+        "type": "example",
+        "url": "example"
+      },
+      "readability": {
+        "readingTimeSeconds": 1,
+        "sentences": 1,
+        "wordsPerSentence": 1.5
+      },
+      "robots": {
+        "header": "example",
+        "nofollow": true,
+        "noindex": true
+      },
+      "shareImage": "example",
+      "status": 1,
+      "title": "example",
+      "twitter": {
+        "card": "example",
+        "description": "example",
+        "image": "example",
+        "site": "example",
+        "title": "example"
+      },
+      "url": "example",
+      "wordCount": 1
+    }
+  }
+}

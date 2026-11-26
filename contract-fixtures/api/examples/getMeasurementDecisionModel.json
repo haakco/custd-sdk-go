@@ -1,0 +1,56 @@
+{
+  "maximal": {
+    "choices": [
+      {
+        "choiceCode": "example",
+        "choiceUuid": "example",
+        "description": "example",
+        "expression": {
+          "children": [],
+          "kind": "example",
+          "value": 1.5,
+          "variableCode": "example"
+        },
+        "name": "example"
+      }
+    ],
+    "createdAt": "2026-11-20T06:00:00Z",
+    "decisionCode": "example",
+    "decisionUuid": "example",
+    "description": "example",
+    "name": "example",
+    "objective": "example",
+    "projectCode": "example",
+    "status": "example",
+    "updatedAt": "2026-11-20T06:00:00Z",
+    "variables": [
+      {
+        "distributionSlug": "example",
+        "measurementCost": 1.5,
+        "name": "example",
+        "parameters": {
+          "max": 1.5,
+          "mean": 1.5,
+          "min": 1.5,
+          "mode": 1.5,
+          "std-dev": 1.5,
+          "value": 1.5
+        },
+        "unitSlug": "example",
+        "variableCode": "example",
+        "variableUuid": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "createdAt": "2026-11-20T06:00:00Z",
+    "decisionCode": "example",
+    "decisionUuid": "example",
+    "description": "example",
+    "name": "example",
+    "objective": "example",
+    "projectCode": "example",
+    "status": "example",
+    "updatedAt": "2026-11-20T06:00:00Z"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "maximal": {
+    "comparison": {
+      "compared": true,
+      "firstWords": 1,
+      "minWords": 1,
+      "nearDuplicate": true,
+      "secondWords": 1,
+      "sharedPercent": 1,
+      "thresholdPercent": 1
+    },
+    "first": {
+      "observedAt": "2026-11-20T06:00:00Z",
+      "state": "unread"
+    },
+    "second": {
+      "observedAt": "2026-11-20T06:00:00Z",
+      "state": "unread"
+    }
+  },
+  "minimal": {
+    "first": {
+      "state": "unread"
+    },
+    "second": {
+      "state": "unread"
+    }
+  }
+}

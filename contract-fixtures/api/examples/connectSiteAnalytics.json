@@ -1,0 +1,14 @@
+{
+  "maximal": {
+    "lastFailure": "example",
+    "lastImportedAt": "2026-11-20T06:00:00Z",
+    "propertyId": "example",
+    "provider": "ga4",
+    "status": "pending"
+  },
+  "minimal": {
+    "propertyId": "example",
+    "provider": "ga4",
+    "status": "pending"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "maximal": {
+    "app": {
+      "activeReleaseId": "example",
+      "appId": "example",
+      "environmentId": "example",
+      "host": "example",
+      "name": "example",
+      "reason": {
+        "code": "example",
+        "message": "example"
+      },
+      "servingSince": "2026-11-20T06:00:00Z",
+      "signIn": true,
+      "siteUuid": "example",
+      "slug": "example",
+      "status": "needs_attention",
+      "url": "example"
+    },
+    "replayed": true,
+    "trafficReporting": "example"
+  },
+  "minimal": {
+    "app": {
+      "appId": "example",
+      "environmentId": "example",
+      "host": "example",
+      "name": "example",
+      "signIn": true,
+      "slug": "example",
+      "status": "needs_attention",
+      "url": "example"
+    },
+    "replayed": true,
+    "trafficReporting": "example"
+  }
+}

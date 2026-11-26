@@ -1,0 +1,24 @@
+{
+  "maximal": {
+    "claims": [
+      {
+        "byteCount": 1,
+        "claimAttempts": 1,
+        "claimExpiresAt": "2026-11-20T06:00:00Z",
+        "eventCount": 1,
+        "failedAt": "2026-11-20T06:00:00Z",
+        "failureClass": "example",
+        "objectId": 1,
+        "objectUuid": "example",
+        "processedAt": "2026-11-20T06:00:00Z",
+        "processingState": "example",
+        "windowStart": "2026-11-20T06:00:00Z"
+      }
+    ],
+    "truncated": true
+  },
+  "minimal": {
+    "claims": null,
+    "truncated": true
+  }
+}

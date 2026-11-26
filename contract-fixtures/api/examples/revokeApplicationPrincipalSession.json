@@ -1,0 +1,15 @@
+{
+  "maximal": {
+    "directoryId": "example",
+    "principalId": "example",
+    "projectId": "example",
+    "revoked": 1,
+    "sessionId": "example"
+  },
+  "minimal": {
+    "directoryId": "example",
+    "principalId": "example",
+    "projectId": "example",
+    "revoked": 1
+  }
+}

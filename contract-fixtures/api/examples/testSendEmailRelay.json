@@ -1,0 +1,26 @@
+{
+  "maximal": {
+    "accepted": true,
+    "deliveryUuids": [
+      "example"
+    ],
+    "messageUuid": "example",
+    "sender": {
+      "fromAddress": "example",
+      "fromDisplayName": "example",
+      "hasCredential": true,
+      "relay": "example"
+    }
+  },
+  "minimal": {
+    "accepted": true,
+    "deliveryUuids": null,
+    "messageUuid": "example",
+    "sender": {
+      "fromAddress": "example",
+      "fromDisplayName": "example",
+      "hasCredential": true,
+      "relay": "example"
+    }
+  }
+}

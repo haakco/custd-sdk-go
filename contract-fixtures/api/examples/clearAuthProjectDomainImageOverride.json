@@ -1,0 +1,60 @@
+{
+  "maximal": {
+    "certificateExpiresAt": "2026-11-20T06:00:00Z",
+    "createdAt": "2026-11-20T06:00:00Z",
+    "dnsProof": {
+      "recordName": "example",
+      "recordValue": "example"
+    },
+    "dnsTarget": "example",
+    "environmentId": "example",
+    "host": "example",
+    "images": {
+      "convergence": "converged",
+      "expected": {
+        "gateway": "example",
+        "hydra": "example"
+      },
+      "override": {
+        "actorKind": "example",
+        "actorSubject": "example",
+        "component": "example",
+        "endedAt": "2026-11-20T06:00:00Z",
+        "endedBy": "example",
+        "expiresAt": "2026-11-20T06:00:00Z",
+        "imageDigest": "example",
+        "incidentReference": "example",
+        "receiptId": "example",
+        "setAt": "2026-11-20T06:00:00Z",
+        "state": "example"
+      },
+      "running": {
+        "gateway": "example",
+        "hydra": "example"
+      },
+      "source": "release-default"
+    },
+    "intentRevision": 1,
+    "issuer": "example",
+    "lifecycle": "unclaimed",
+    "observedAt": "2026-11-20T06:00:00Z",
+    "siteDomainId": "example",
+    "slotRef": "example",
+    "status": "pending"
+  },
+  "minimal": {
+    "createdAt": "2026-11-20T06:00:00Z",
+    "environmentId": "example",
+    "host": "example",
+    "images": {
+      "convergence": "converged",
+      "expected": {},
+      "running": {},
+      "source": "release-default"
+    },
+    "intentRevision": 1,
+    "issuer": "example",
+    "lifecycle": "unclaimed",
+    "status": "pending"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "maximal": {
+    "issues": [
+      {
+        "culprit": "example",
+        "environments": [
+          "example"
+        ],
+        "eventCount": 1,
+        "exceptionType": "example",
+        "fingerprint": "example",
+        "firstRelease": "example",
+        "firstSeenAt": "2026-11-20T06:00:00Z",
+        "lastRelease": "example",
+        "lastSeenAt": "2026-11-20T06:00:00Z",
+        "platform": "example",
+        "regressedAt": "2026-11-20T06:00:00Z",
+        "resolvedAt": "2026-11-20T06:00:00Z",
+        "resolvedRelease": "example",
+        "siteName": "example",
+        "siteUuid": "example",
+        "state": "open",
+        "title": "example",
+        "uuid": "example"
+      }
+    ],
+    "nextCursor": "example",
+    "openCount": 1
+  },
+  "minimal": {
+    "issues": null,
+    "openCount": 1
+  }
+}

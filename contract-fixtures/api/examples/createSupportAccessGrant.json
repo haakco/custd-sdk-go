@@ -1,0 +1,20 @@
+{
+  "maximal": {
+    "companySlug": "example",
+    "expiresAt": "example",
+    "operatorUserUuid": "example",
+    "reason": "example",
+    "revokedAt": "example",
+    "startsAt": "example",
+    "supportAccessGrantUuid": "example"
+  },
+  "minimal": {
+    "companySlug": "example",
+    "expiresAt": "example",
+    "operatorUserUuid": "example",
+    "reason": "example",
+    "revokedAt": "example",
+    "startsAt": "example",
+    "supportAccessGrantUuid": "example"
+  }
+}

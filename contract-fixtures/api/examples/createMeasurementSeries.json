@@ -1,0 +1,19 @@
+{
+  "maximal": {
+    "completionDirection": "example",
+    "name": "example",
+    "seriesCode": "example",
+    "seriesUuid": "example",
+    "source": "example",
+    "unitLabel": "example",
+    "unitSlug": "example"
+  },
+  "minimal": {
+    "completionDirection": "example",
+    "name": "example",
+    "seriesCode": "example",
+    "seriesUuid": "example",
+    "source": "example",
+    "unitSlug": "example"
+  }
+}

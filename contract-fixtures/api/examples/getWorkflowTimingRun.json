@@ -1,0 +1,61 @@
+{
+  "maximal": {
+    "attempts": [
+      {
+        "attempt": 1,
+        "errorClass": "example",
+        "finishedAt": "2026-11-20T06:00:00Z",
+        "occurredAt": "2026-11-20T06:00:00Z",
+        "receiptAt": "2026-11-20T06:00:00Z",
+        "startedAt": "2026-11-20T06:00:00Z",
+        "state": "running",
+        "stepKey": "example"
+      }
+    ],
+    "dimensions": {
+      "key": "example"
+    },
+    "externalRunId": "example",
+    "finishedAt": "2026-11-20T06:00:00Z",
+    "projectionStatus": {
+      "foldError": "example",
+      "healthy": true,
+      "latestLedgerId": 1,
+      "nextAction": "example",
+      "pendingFacts": 1,
+      "projectedLedgerId": 1,
+      "state": "example"
+    },
+    "receiptAt": "2026-11-20T06:00:00Z",
+    "revisionHash": "example",
+    "revisionNumber": 1,
+    "revisionUuid": "example",
+    "runUuid": "example",
+    "sourceOccurredAt": "2026-11-20T06:00:00Z",
+    "startedAt": "2026-11-20T06:00:00Z",
+    "state": "running",
+    "workflowKey": "example",
+    "workflowUuid": "example"
+  },
+  "minimal": {
+    "attempts": null,
+    "dimensions": {},
+    "externalRunId": "example",
+    "projectionStatus": {
+      "healthy": true,
+      "latestLedgerId": 1,
+      "nextAction": "example",
+      "pendingFacts": 1,
+      "projectedLedgerId": 1,
+      "state": "example"
+    },
+    "receiptAt": "2026-11-20T06:00:00Z",
+    "revisionHash": "example",
+    "revisionNumber": 1,
+    "revisionUuid": "example",
+    "runUuid": "example",
+    "state": "running",
+    "workflowKey": "example",
+    "workflowUuid": "example"
+  }
+}

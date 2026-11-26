@@ -119,7 +119,7 @@ func TestMeasurementCalibrationExerciseCreateUsesAdminAPI(t *testing.T) {
 }
 
 func TestMeasurementDecisionModelCreateUsesAdminAPI(t *testing.T) {
-	doer := newCaptureDoer(http.StatusCreated, `{"decisionUuid":"decision-123","decisionCode":"launch-choice","projectCode":"checkout-runway","status":"active","name":"Launch choice","choices":[{"choiceCode":"ship","name":"Ship","expression":{"kind":"variable","variableCode":"conversion-rate"}}],"variables":[{"variableCode":"conversion-rate","name":"Conversion rate","distributionSlug":"normal","parameters":{"mean":10,"stddev":2},"measurementCost":1}]}`)
+	doer := newCaptureDoer(http.StatusCreated, `{"decisionUuid":"decision-123","decisionCode":"launch-choice","projectCode":"checkout-runway","status":"active","name":"Launch choice","choices":[{"choiceCode":"ship","name":"Ship","expression":{"kind":"variable","variableCode":"conversion-rate"}}],"variables":[{"variableUuid":"variable-123","variableCode":"conversion-rate","name":"Conversion rate","unitSlug":"percent","distributionSlug":"normal","parameters":{"mean":10,"stddev":2},"measurementCost":1}]}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
 
 	decision, err := client.Admin.Measurement.Projects.CreateDecisionModel(
@@ -137,6 +137,7 @@ func TestMeasurementDecisionModelCreateUsesAdminAPI(t *testing.T) {
 			Variables: []MeasurementDecisionVariable{{
 				VariableCode:     "conversion-rate",
 				Name:             "Conversion rate",
+				UnitSlug:         "percent",
 				DistributionSlug: "normal",
 				Parameters:       map[string]any{"mean": 10, "stddev": 2},
 				MeasurementCost:  1,
@@ -146,8 +147,14 @@ func TestMeasurementDecisionModelCreateUsesAdminAPI(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CreateDecisionModel returned error: %v", err)
 	}
-	if decision.DecisionUUID != "decision-123" || decision.DecisionCode != "launch-choice" {
+	if decision.DecisionUUID != "decision-123" || decision.DecisionCode != "launch-choice" ||
+		decision.ProjectCode != "checkout-runway" || len(decision.Variables) != 1 ||
+		decision.Variables[0].VariableUUID != "variable-123" || decision.Variables[0].UnitSlug != "percent" {
 		t.Fatalf("decision = %+v", decision)
+	}
+	// The server reads the variable unit as unitSlug; any other key is dropped.
+	if !strings.Contains(string(doer.requests[0].Body), `"unitSlug":"percent"`) {
+		t.Fatalf("create body = %s", doer.requests[0].Body)
 	}
 	assertSiteRequests(t, doer.requests, []string{
 		"POST http://localhost:8080/api/v1/admin/measurement/projects/checkout-runway/decisions",
@@ -175,7 +182,7 @@ func TestMeasurementForecastRunUsesAnalyticsAPI(t *testing.T) {
 }
 
 func TestMeasurementDecisionSimulationUsesAnalyticsAPI(t *testing.T) {
-	doer := newCaptureDoer(http.StatusOK, `{"simulationRunUuid":"simulation-123","projectCode":"checkout-runway","decisionCode":"launch-choice","status":"completed","method":"evpi_rank","generatedAt":"2026-07-05T12:00:00Z","completedAt":"2026-07-05T12:00:01Z","sampleCount":2000,"seed":770501,"variables":[{"variableCode":"conversion-rate","name":"Conversion rate","rank":1,"evpi":12.5,"measurementCost":1,"worthMeasuring":true}],"warnings":[{"code":"decision_weight_defaulted","severity":"warning","message":"defaulted"}],"provenance":{"engineVersion":"measurement-go-v1","inputHash":"sha256:def"}}`)
+	doer := newCaptureDoer(http.StatusOK, `{"simulationRunUuid":"simulation-123","projectCode":"checkout-runway","decisionCode":"launch-choice","status":"completed","method":"evpi_rank","generatedAt":"2026-07-05T12:00:00Z","completedAt":"2026-07-05T12:00:01Z","sampleCount":2000,"seed":770501,"variables":[{"variableUuid":"variable-123","name":"Conversion rate","rank":1,"evpi":12.5,"measurementCost":1,"worthMeasuring":true}],"warnings":[{"code":"decision_weight_defaulted","severity":"warning","message":"defaulted"}],"provenance":{"engineVersion":"measurement-go-v1","inputHash":"sha256:def"}}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
 
 	simulation, err := client.Measurement.Projects.RunDecisionSimulation(
@@ -187,7 +194,8 @@ func TestMeasurementDecisionSimulationUsesAnalyticsAPI(t *testing.T) {
 	if err != nil {
 		t.Fatalf("RunDecisionSimulation returned error: %v", err)
 	}
-	if simulation.SimulationRunUUID != "simulation-123" || len(simulation.Variables) != 1 {
+	if simulation.SimulationRunUUID != "simulation-123" || len(simulation.Variables) != 1 ||
+		simulation.Variables[0].VariableUUID != "variable-123" {
 		t.Fatalf("simulation = %+v", simulation)
 	}
 	assertSiteRequests(t, doer.requests, []string{

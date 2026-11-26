@@ -14,26 +14,32 @@ import (
 	"strings"
 )
 
-// TenantStorageAdminClient owns tenant-scoped storage location registration.
-// Locations are server-prefixed: the SDK submits clientLocation and the
-// server returns a serverAssignedPrefix that the SDK must use for raw
-// landing writes. Tenant is derived from the auth context; wrong-tenant
-// reads collapse to an empty list indistinguishable from "no locations".
+// TenantStorageAdminClient owns tenant-scoped storage locations. Custd
+// generates each location's identity, bucket prefix and write state; the
+// tenant is derived from the auth context, and wrong-tenant reads collapse to
+// an empty list indistinguishable from "no locations".
 type TenantStorageAdminClient struct {
 	admin *AdminClient
 }
 
-// TenantStorageLocation is the per-tenant storage entry. ClientLocation is
-// the client-supplied bucket URI; ServerAssignedPrefix is the writable
-// prefix the server mints on the tenant's behalf.
+// TenantStorageLocation is the tenant-scoped view of one storage location: its
+// routing identity and lifecycle state, never S3 credentials.
 type TenantStorageLocation struct {
-	ID                   string `json:"id"`
-	TenantSlug           string `json:"tenantSlug"`
-	ClientLocation       string `json:"clientLocation"`
-	ServerAssignedPrefix string `json:"serverAssignedPrefix"`
-	Status               string `json:"status"`
-	CreatedAt            string `json:"createdAt,omitempty"`
-	ExpiresAt            string `json:"expiresAt,omitempty"`
+	ID               int64  `json:"id"`
+	UUID             string `json:"uuid"`
+	CompanyID        int64  `json:"companyId"`
+	Code             string `json:"code"`
+	IsolationTier    string `json:"isolationTier"`
+	Provider         string `json:"provider"`
+	Bucket           string `json:"bucket"`
+	Region           string `json:"region"`
+	Endpoint         string `json:"endpoint"`
+	RootPrefix       string `json:"rootPrefix"`
+	WriteEnabled     bool   `json:"writeEnabled"`
+	ValidationStatus string `json:"validationStatus"`
+	ValidatedAt      string `json:"validatedAt,omitempty"`
+	CreatedAt        string `json:"createdAt"`
+	UpdatedAt        string `json:"updatedAt"`
 }
 
 // TenantStorageListResponse is the body for GET /tenant-storage-locations.
@@ -42,11 +48,8 @@ type TenantStorageListResponse struct {
 }
 
 // TenantStorageCreateRequest is the body for POST /tenant-storage-locations.
-// Tenant is server-derived; callers must not pre-fill TenantSlug.
-type TenantStorageCreateRequest struct {
-	TenantSlug     string `json:"tenantSlug,omitempty"`
-	ClientLocation string `json:"clientLocation"`
-}
+// It is empty: Custd generates the routing, identity, prefix and write state.
+type TenantStorageCreateRequest struct{}
 
 func (c *TenantStorageAdminClient) List(ctx context.Context) (*TenantStorageListResponse, error) {
 	var out TenantStorageListResponse
@@ -83,57 +86,75 @@ func (c *TenantStorageAdminClient) Revoke(ctx context.Context, id string) error 
 }
 
 // SubjectExportAdminClient owns per-tenant subject export requests. The
-// download surface returns a short-lived signed URL the SDK must surface
-// only to the caller; it must not be logged or echoed into error messages.
+// download surface returns artifact metadata the SDK surfaces only to the
+// caller; it must not be logged or echoed into error messages.
 type SubjectExportAdminClient struct {
 	admin *AdminClient
 }
 
-// SubjectExportSubject is the typed selector the server returns alongside
-// an export request. The value is a server-side identifier (e.g. a user
-// UUID); the SDK must not echo it into logs or error messages.
-type SubjectExportSubject struct {
-	Type  string `json:"type"`
-	Value string `json:"value"`
+// SubjectExportStoreProgress is one store's progress for a subject export.
+type SubjectExportStoreProgress struct {
+	Store              string `json:"store"`
+	DeletedCount       int64  `json:"deletedCount"`
+	RetainedExceptions int64  `json:"retainedExceptions"`
+	LastError          string `json:"lastError,omitempty"`
+	LastCompletedAt    string `json:"lastCompletedAt,omitempty"`
 }
 
-// SubjectExport is the receipt returned for a subject export request. The
-// Checksum and ArtifactSize are present only once the request is in
-// terminal ready state.
+// Subject export scopes. A request may ask for both; each downloadable artifact
+// is one of access or portability.
+const (
+	SubjectExportScopeAccess      = "access"
+	SubjectExportScopePortability = "portability"
+	SubjectExportScopeBoth        = "both"
+)
+
+// SubjectExport is the status of one subject export request. Scope is access,
+// portability or both; State is queued, running, complete, failed, cancelled
+// or expired.
 type SubjectExport struct {
-	RequestID    string               `json:"requestId"`
-	TenantSlug   string               `json:"tenantSlug"`
-	Subject      SubjectExportSubject `json:"subject"`
-	Scope        string               `json:"scope"`
-	State        string               `json:"state"`
-	CreatedAt    string               `json:"createdAt,omitempty"`
-	ExpiresAt    string               `json:"expiresAt,omitempty"`
-	Checksum     string               `json:"checksum,omitempty"`
-	ArtifactSize int64                `json:"artifactSize,omitempty"`
+	ID                 string                       `json:"id"`
+	OpaqueSubjectID    string                       `json:"opaqueSubjectId"`
+	Scope              string                       `json:"scope"`
+	State              string                       `json:"state"`
+	IdempotencyKey     string                       `json:"idempotencyKey"`
+	RequestedAt        string                       `json:"requestedAt"`
+	ExpiresAt          string                       `json:"expiresAt"`
+	CompletedAt        string                       `json:"completedAt,omitempty"`
+	LastProgressAt     string                       `json:"lastProgressAt,omitempty"`
+	LastActionSafeNext string                       `json:"lastActionSafeNext,omitempty"`
+	Error              string                       `json:"error,omitempty"`
+	PerStoreProgress   []SubjectExportStoreProgress `json:"perStoreProgress"`
 }
 
 // SubjectExportListResponse is the body for GET /admin/subject-exports.
 type SubjectExportListResponse struct {
-	Exports []SubjectExport `json:"exports"`
+	Requests []SubjectExport `json:"requests"`
 }
 
 // SubjectExportCreateRequest is the body for POST /admin/subject-exports.
 // IdempotencyKey is required for safe retries.
 type SubjectExportCreateRequest struct {
-	TenantSlug     string               `json:"tenantSlug"`
-	Subject        SubjectExportSubject `json:"subject"`
-	Scope          string               `json:"scope"`
-	IdempotencyKey string               `json:"idempotencyKey"`
+	OpaqueSubjectID string `json:"opaqueSubjectId"`
+	Scope           string `json:"scope"`
+	IdempotencyKey  string `json:"idempotencyKey"`
 }
 
 // SubjectExportDownloadResponse is the body for GET
-// /admin/subject-exports/{requestId}/download. The DownloadURL is a
-// short-lived signed URL the SDK must hand back to the caller without
-// logging the URL value or the underlying subject identifier.
+// /admin/subject-exports/{requestId}/download: the stored artifact's identity,
+// location and integrity metadata. It names an object key, not a signed URL.
 type SubjectExportDownloadResponse struct {
-	RequestID   string `json:"requestId"`
-	DownloadURL string `json:"downloadUrl"`
-	ExpiresAt   string `json:"expiresAt,omitempty"`
+	ID              string `json:"id"`
+	RequestID       string `json:"requestId"`
+	Scope           string `json:"scope"`
+	ObjectKey       string `json:"objectKey"`
+	S3Key           string `json:"s3Key"`
+	EncryptionKeyID string `json:"encryptionKeyId"`
+	ChecksumSHA256  string `json:"checksumSha256"`
+	ByteSize        int64  `json:"byteSize"`
+	RecordCount     int64  `json:"recordCount"`
+	GeneratedAt     string `json:"generatedAt"`
+	ExpiresAt       string `json:"expiresAt"`
 }
 
 func (c *SubjectExportAdminClient) Create(
@@ -145,9 +166,12 @@ func (c *SubjectExportAdminClient) Create(
 	return &out, err
 }
 
-func (c *SubjectExportAdminClient) List(ctx context.Context) (*SubjectExportListResponse, error) {
+// List returns the tenant's subject exports, newest first. A limit of zero uses the
+// server default (100); the server accepts 1 to 1000.
+func (c *SubjectExportAdminClient) List(ctx context.Context, limit int) (*SubjectExportListResponse, error) {
 	var out SubjectExportListResponse
-	err := c.admin.request(ctx, http.MethodGet, "/subject-exports", nil, &out)
+	path := siteQueryPath("/subject-exports", url.Values{"limit": {sitePositiveInt(limit)}})
+	err := c.admin.request(ctx, http.MethodGet, path, nil, &out)
 	return &out, err
 }
 
@@ -155,33 +179,35 @@ func (c *SubjectExportAdminClient) Get(ctx context.Context, requestID string) (*
 	return adminGetByID[SubjectExport](ctx, c.admin, "/subject-exports/", requestID)
 }
 
-func (c *SubjectExportAdminClient) Cancel(ctx context.Context, requestID string) error {
-	return c.admin.request(
+// Cancel stops a queued or running export and returns its cancelled status.
+func (c *SubjectExportAdminClient) Cancel(ctx context.Context, requestID string) (*SubjectExport, error) {
+	var out SubjectExport
+	err := c.admin.request(
 		ctx,
 		http.MethodPost,
 		"/subject-exports/"+url.PathEscape(requestID)+"/cancel",
-		nil,
-		nil,
-	)
-}
-
-// Download returns a short-lived signed URL. The DownloadURL field is
-// sensitive; callers must not log the URL or echo it into error messages.
-func (c *SubjectExportAdminClient) Download(
-	ctx context.Context,
-	requestID string,
-) (*SubjectExportDownloadResponse, error) {
-	var out SubjectExportDownloadResponse
-	err := c.admin.request(
-		ctx,
-		http.MethodGet,
-		"/subject-exports/"+url.PathEscape(requestID)+"/download",
 		nil,
 		&out,
 	)
 	return &out, err
 }
 
+// Download returns one stored export artifact's identity, location and
+// integrity metadata. Scope names the artifact: SubjectExportScopeAccess or
+// SubjectExportScopePortability. The object keys are tenant data; do not log them.
+func (c *SubjectExportAdminClient) Download(
+	ctx context.Context,
+	requestID string,
+	scope string,
+) (*SubjectExportDownloadResponse, error) {
+	var out SubjectExportDownloadResponse
+	path := "/subject-exports/" + url.PathEscape(requestID) + "/download?" + url.Values{"scope": {scope}}.Encode()
+	err := c.admin.request(ctx, http.MethodGet, path, nil, &out)
+	return &out, err
+}
+
+// Force runs a stalled export now. The route requires companySlug, which it
+// takes from ClientConfig.ActingCompanySlug.
 func (c *SubjectExportAdminClient) Force(ctx context.Context, requestID string) (*SubjectExport, error) {
 	var out SubjectExport
 	err := c.admin.request(
@@ -202,43 +228,64 @@ type PrivacyErasureAdminClient struct {
 }
 
 // PrivacyErasureSelector is the typed selector the SDK submits to identify
-// a subject. The value is server-side identifier; do not log it.
+// a subject: one Value or a list of Values. Do not log it.
 type PrivacyErasureSelector struct {
-	Type  string `json:"type"`
-	Value string `json:"value"`
+	Type   string   `json:"type"`
+	Value  string   `json:"value,omitempty"`
+	Values []string `json:"values,omitempty"`
 }
 
-// PrivacyErasureStoreProgress tracks per-store progress of an erasure.
-// State==retained is terminal for the legal_hold store and means the row
-// must not be deleted; callers must surface this verbatim.
-type PrivacyErasureStoreProgress struct {
-	Store        string `json:"store"`
-	State        string `json:"state"`
-	DeletedCount int    `json:"deletedCount,omitempty"`
-	Reason       string `json:"reason,omitempty"`
-}
-
-// PrivacyErasure is the receipt returned for an erasure request.
+// PrivacyErasure is the read model of one erasure request: its state plus
+// the rewrite, SLA and archive-propagation rollups.
 type PrivacyErasure struct {
-	RequestUUID      string                        `json:"requestUuid"`
-	TenantSlug       string                        `json:"tenantSlug"`
-	Selector         PrivacyErasureSelector        `json:"selector"`
-	State            string                        `json:"state"`
-	PerStoreProgress []PrivacyErasureStoreProgress `json:"perStoreProgress,omitempty"`
-	CreatedAt        string                        `json:"createdAt,omitempty"`
-	CompletedAt      string                        `json:"completedAt,omitempty"`
+	RequestUUID             string `json:"requestUuid"`
+	Status                  string `json:"status"`
+	SelectorType            string `json:"selectorType"`
+	SelectorDisplay         string `json:"selectorDisplay"`
+	Source                  string `json:"source,omitempty"`
+	RequestedBy             string `json:"requestedBy,omitempty"`
+	MatchedEventCount       int64  `json:"matchedEventCount"`
+	RedactedEventCount      int64  `json:"redactedEventCount"`
+	AffectedSegmentCount    int64  `json:"affectedSegmentCount"`
+	RewriteCount            int64  `json:"rewriteCount,omitempty"`
+	PendingRewriteCount     int64  `json:"pendingRewriteCount,omitempty"`
+	RewritingRewriteCount   int64  `json:"rewritingRewriteCount,omitempty"`
+	RewrittenRewriteCount   int64  `json:"rewrittenRewriteCount,omitempty"`
+	RecompactedRewriteCount int64  `json:"recompactedRewriteCount,omitempty"`
+	FailedRewriteCount      int64  `json:"failedRewriteCount,omitempty"`
+	OldestPendingRewriteAt  string `json:"oldestPendingRewriteAt,omitempty"`
+	LatestRecompactedAt     string `json:"latestRecompactedAt,omitempty"`
+	ArchiveRecompactedAt    string `json:"archiveRecompactedAt,omitempty"`
+	S3PropagationLagSeconds int64  `json:"s3PropagationLagSeconds,omitempty"`
+	LatestFailureReason     string `json:"latestFailureReason,omitempty"`
+	SLADeadlineAt           string `json:"slaDeadlineAt,omitempty"`
+	SLAState                string `json:"slaState,omitempty"`
+	ForceRequestedAt        string `json:"forceRequestedAt,omitempty"`
+	CreatedAt               string `json:"createdAt,omitempty"`
+	UpdatedAt               string `json:"updatedAt,omitempty"`
 }
 
 // PrivacyErasureCreateRequest is the body for POST /admin/privacy/erasures.
 type PrivacyErasureCreateRequest struct {
-	TenantSlug string                 `json:"tenantSlug"`
-	Selector   PrivacyErasureSelector `json:"selector"`
-	Reason     string                 `json:"reason"`
+	CompanySlug string                 `json:"companySlug"`
+	Selector    PrivacyErasureSelector `json:"selector"`
+	Reason      string                 `json:"reason"`
+	RedactionID string                 `json:"redactionId"`
+	ForceNow    bool                   `json:"forceNow"`
 }
 
 // PrivacyErasureListResponse is the body for GET /admin/privacy/erasures.
 type PrivacyErasureListResponse struct {
-	Erasures []PrivacyErasure `json:"erasures"`
+	Requests []PrivacyErasure `json:"requests"`
+}
+
+// PrivacyErasureForceResponse is the body for POST
+// /admin/privacy/erasures/{requestUuid}/force: the request after forcing and
+// the safe next action.
+type PrivacyErasureForceResponse struct {
+	Request            *PrivacyErasure `json:"request"`
+	SafeNextAction     string          `json:"safe_next_action"`
+	SafeNextActionCode string          `json:"safe_next_action_code"`
 }
 
 func (c *PrivacyErasureAdminClient) Create(
@@ -250,18 +297,29 @@ func (c *PrivacyErasureAdminClient) Create(
 	return &out, err
 }
 
-func (c *PrivacyErasureAdminClient) List(ctx context.Context) (*PrivacyErasureListResponse, error) {
+// List returns the tenant's erasure requests. An empty companySlug reads the
+// credential's own tenant; a system administrator names another one.
+func (c *PrivacyErasureAdminClient) List(ctx context.Context, companySlug string) (*PrivacyErasureListResponse, error) {
 	var out PrivacyErasureListResponse
-	err := c.admin.request(ctx, http.MethodGet, "/privacy/erasures", nil, &out)
+	err := c.admin.request(ctx, http.MethodGet, "/privacy/erasures"+optionalCompanySlug(companySlug), nil, &out)
 	return &out, err
 }
 
-func (c *PrivacyErasureAdminClient) Get(ctx context.Context, requestUUID string) (*PrivacyErasure, error) {
-	return adminGetByID[PrivacyErasure](ctx, c.admin, "/privacy/erasures/", requestUUID)
+// Get returns one erasure request. An empty companySlug reads the credential's
+// own tenant; a system administrator names another one.
+func (c *PrivacyErasureAdminClient) Get(
+	ctx context.Context,
+	requestUUID string,
+	companySlug string,
+) (*PrivacyErasure, error) {
+	var out PrivacyErasure
+	path := "/privacy/erasures/" + url.PathEscape(requestUUID) + optionalCompanySlug(companySlug)
+	err := c.admin.request(ctx, http.MethodGet, path, nil, &out)
+	return &out, err
 }
 
-func (c *PrivacyErasureAdminClient) Force(ctx context.Context, requestUUID string) (*PrivacyErasure, error) {
-	var out PrivacyErasure
+func (c *PrivacyErasureAdminClient) Force(ctx context.Context, requestUUID string) (*PrivacyErasureForceResponse, error) {
+	var out PrivacyErasureForceResponse
 	err := c.admin.request(
 		ctx,
 		http.MethodPost,
@@ -306,6 +364,12 @@ type PrivacyIdentifierMapRequest struct {
 	// consumed once on the wire; do not log or echo the response payload for
 	// this request back to a place where ExternalID could appear.
 	ExternalID string `json:"externalId"`
+}
+
+// PrivacyIdentifierListResponse is the effective tenant's mapping list.
+type PrivacyIdentifierListResponse struct {
+	CompanySlug string                     `json:"companySlug"`
+	Mappings    []PrivacyIdentifierMapping `json:"mappings"`
 }
 
 type PrivacyIdentifierMapping struct {
@@ -358,8 +422,8 @@ func (c *PrivacyAdminClient) MapIdentifier(
 func (c *PrivacyAdminClient) ListIdentifierMappings(
 	ctx context.Context,
 	companySlug string,
-) ([]PrivacyIdentifierMapping, error) {
-	var out []PrivacyIdentifierMapping
+) (*PrivacyIdentifierListResponse, error) {
+	var out PrivacyIdentifierListResponse
 	err := c.admin.request(
 		ctx,
 		http.MethodGet,
@@ -367,7 +431,7 @@ func (c *PrivacyAdminClient) ListIdentifierMappings(
 		nil,
 		&out,
 	)
-	return out, err
+	return &out, err
 }
 
 // RetentionAdminClient owns per-tenant retention policies. Effective-tenant
@@ -376,21 +440,43 @@ type RetentionAdminClient struct {
 	admin *AdminClient
 }
 
+// RetentionPolicy is one bounded retention policy row. Scope is tenant,
+// data_space, event_type or global; RetentionClass names the classified store.
 type RetentionPolicy struct {
-	TenantSlug          string   `json:"tenantSlug"`
-	MaxAgeDays          int      `json:"maxAgeDays"`
-	HardDeleteAfterDays int      `json:"hardDeleteAfterDays"`
-	ApplyToEventTypes   []string `json:"applyToEventTypes"`
-	ApplyToDataSpaces   []string `json:"applyToDataSpaces"`
+	ID                 int64            `json:"id"`
+	CompanyID          int64            `json:"companyId,omitempty"`
+	Scope              string           `json:"scope"`
+	RetentionClass     string           `json:"retentionClass"`
+	MaxAgeSeconds      int64            `json:"maxAgeSeconds"`
+	Precedence         int64            `json:"precedence"`
+	LegalHold          bool             `json:"legalHold"`
+	LegalHoldUntil     string           `json:"legalHoldUntil,omitempty"`
+	EffectiveAt        string           `json:"effectiveAt"`
+	ExpiresAt          string           `json:"expiresAt,omitempty"`
+	NextRunAt          string           `json:"nextRunAt,omitempty"`
+	LastResult         string           `json:"lastResult,omitempty"`
+	LastAffectedCounts map[string]int64 `json:"lastAffectedCounts"`
+	LastError          string           `json:"lastError,omitempty"`
+	AuditID            int64            `json:"auditId,omitempty"`
 }
 
+// RetentionPolicyUpsertRequest is the body for PUT
+// /admin/retention/policies/{tenantSlug}. LegalHold is operator-only and needs
+// a future LegalHoldUntil plus an opaque LegalHoldReference.
 type RetentionPolicyUpsertRequest struct {
-	MaxAgeDays          int      `json:"maxAgeDays"`
-	HardDeleteAfterDays int      `json:"hardDeleteAfterDays"`
-	ApplyToEventTypes   []string `json:"applyToEventTypes"`
-	ApplyToDataSpaces   []string `json:"applyToDataSpaces"`
+	Scope              string `json:"scope"`
+	RetentionClass     string `json:"retentionClass"`
+	MaxAgeSeconds      int64  `json:"maxAgeSeconds"`
+	Precedence         int64  `json:"precedence"`
+	LegalHold          bool   `json:"legalHold"`
+	LegalHoldUntil     string `json:"legalHoldUntil,omitempty"`
+	LegalHoldReference string `json:"legalHoldReference,omitempty"`
+	EffectiveAt        string `json:"effectiveAt,omitempty"`
+	ExpiresAt          string `json:"expiresAt,omitempty"`
 }
 
+// RetentionPolicyListResponse is the body for GET /admin/retention/policies
+// and GET /admin/retention/policies/{tenantSlug}.
 type RetentionPolicyListResponse struct {
 	Policies []RetentionPolicy `json:"policies"`
 }
@@ -417,8 +503,9 @@ func (c *RetentionAdminClient) Upsert(
 	return &out, err
 }
 
-func (c *RetentionAdminClient) Get(ctx context.Context, tenantSlug string) (*RetentionPolicy, error) {
-	return adminGetByID[RetentionPolicy](ctx, c.admin, "/retention/policies/", tenantSlug)
+// Get returns every retention policy row for one tenant.
+func (c *RetentionAdminClient) Get(ctx context.Context, tenantSlug string) (*RetentionPolicyListResponse, error) {
+	return adminGetByID[RetentionPolicyListResponse](ctx, c.admin, "/retention/policies/", tenantSlug)
 }
 
 func (c *RetentionAdminClient) Delete(ctx context.Context, tenantSlug string) error {
@@ -431,36 +518,47 @@ func (c *RetentionAdminClient) Delete(ctx context.Context, tenantSlug string) er
 	)
 }
 
-// RetentionRunDeletion is the per-store deletion estimate a preview returns.
-// The Count is server-computed; the SDK must not infer it client-side.
-type RetentionRunDeletion struct {
-	Store string `json:"store"`
-	Count int    `json:"count"`
+// RetentionStoreBreakdown is one classified store's projection in a retention
+// preview or apply. The counts are server-computed; do not re-derive them.
+type RetentionStoreBreakdown struct {
+	Store             string   `json:"store"`
+	RetentionClass    string   `json:"retentionClass"`
+	CandidateCount    int64    `json:"candidateCount"`
+	EstimatedAffected int64    `json:"estimatedAffected"`
+	SampleSubjects    []string `json:"sampleSubjects"`
+	LegalHoldCount    int      `json:"legalHoldCount"`
 }
 
-// RetentionRunPreview is the body for POST /admin/retention/policies/{slug}/preview.
-// The PreviewId is server-issued; the SDK does not mint it.
+// RetentionRunPreview is the body for both preview and apply. LastResult is
+// "preview" for a dry run and "applied" for a live run; LastAffectedCounts is
+// set only for applies.
 type RetentionRunPreview struct {
-	PreviewID          string                 `json:"previewId"`
-	TenantSlug         string                 `json:"tenantSlug"`
-	EstimatedDeletions []RetentionRunDeletion `json:"estimatedDeletions"`
-	PreviewedAt        string                 `json:"previewedAt,omitempty"`
+	PerStore           []RetentionStoreBreakdown `json:"perStore"`
+	NextRunAt          string                    `json:"nextRunAt,omitempty"`
+	LastResult         string                    `json:"lastResult"`
+	LastAffectedCounts map[string]int64          `json:"lastAffectedCounts,omitempty"`
+	LastError          string                    `json:"lastError,omitempty"`
+	SafeNextAction     string                    `json:"safeNextAction"`
+	StartedAt          string                    `json:"startedAt"`
+	CompletedAt        string                    `json:"completedAt"`
 }
 
-// RetentionRun is the body element for GET /admin/retention/policies/{slug}/runs.
-// CompletedAt is empty while the run is in flight.
+// RetentionRun is one historical retention run.
 type RetentionRun struct {
-	RunID        string `json:"runId"`
-	TenantSlug   string `json:"tenantSlug"`
-	State        string `json:"state"`
-	StartedAt    string `json:"startedAt,omitempty"`
-	CompletedAt  string `json:"completedAt,omitempty"`
-	DeletedCount int    `json:"deletedCount,omitempty"`
+	StartAt            string           `json:"startAt"`
+	EndAt              string           `json:"endAt"`
+	LastResult         string           `json:"lastResult"`
+	LastAffectedCounts map[string]int64 `json:"lastAffectedCounts"`
+	LastError          string           `json:"lastError,omitempty"`
+	AuditID            *int64           `json:"auditId,omitempty"`
 }
 
-// RetentionRunsListResponse is the body for GET /admin/retention/policies/{slug}/runs.
+// RetentionRunsListResponse is the body for GET
+// /admin/retention/policies/{slug}/runs. Follow NextOffset while HasMore.
 type RetentionRunsListResponse struct {
-	Runs []RetentionRun `json:"runs"`
+	Runs       []RetentionRun `json:"runs"`
+	NextOffset int            `json:"nextOffset"`
+	HasMore    bool           `json:"hasMore"`
 }
 
 // Preview asks the server to compute a deletion estimate without applying it.
@@ -486,8 +584,8 @@ func (c *RetentionAdminClient) Preview(
 func (c *RetentionAdminClient) Apply(
 	ctx context.Context,
 	tenantSlug string,
-) (*RetentionRun, error) {
-	var out RetentionRun
+) (*RetentionRunPreview, error) {
+	var out RetentionRunPreview
 	err := c.admin.request(
 		ctx,
 		http.MethodPost,
@@ -498,20 +596,29 @@ func (c *RetentionAdminClient) Apply(
 	return &out, err
 }
 
+// RetentionRunsPage selects a page of retention runs. Zero values use the
+// server defaults.
+type RetentionRunsPage struct {
+	Limit  int
+	Offset int
+}
+
 // ListRuns returns the retention runs for a single tenant. Empty runs list
 // is the canonical "no runs yet" response, not an error.
 func (c *RetentionAdminClient) ListRuns(
 	ctx context.Context,
 	tenantSlug string,
+	page ...RetentionRunsPage,
 ) (*RetentionRunsListResponse, error) {
+	var selected RetentionRunsPage
+	if len(page) > 0 {
+		selected = page[0]
+	}
+	path := siteQueryPath("/retention/policies/"+url.PathEscape(tenantSlug)+"/runs", url.Values{
+		"limit": {sitePositiveInt(selected.Limit)}, "offset": {sitePositiveInt(selected.Offset)},
+	})
 	var out RetentionRunsListResponse
-	err := c.admin.request(
-		ctx,
-		http.MethodGet,
-		"/retention/policies/"+url.PathEscape(tenantSlug)+"/runs",
-		nil,
-		&out,
-	)
+	err := c.admin.request(ctx, http.MethodGet, path, nil, &out)
 	return &out, err
 }
 
@@ -522,20 +629,33 @@ type StorageAlertAdminClient struct {
 }
 
 type StorageAlertRule struct {
-	RuleID           string `json:"ruleId"`
-	TenantSlug       string `json:"tenantSlug"`
-	Metric           string `json:"metric"`
-	ThresholdPercent int    `json:"thresholdPercent"`
-	Channel          string `json:"channel"`
-	Enabled          bool   `json:"enabled"`
-	CreatedAt        string `json:"createdAt,omitempty"`
-	UpdatedAt        string `json:"updatedAt,omitempty"`
+	RuleID           string                  `json:"ruleId"`
+	TenantSlug       string                  `json:"tenantSlug"`
+	Metric           string                  `json:"metric"`
+	ThresholdPercent int                     `json:"thresholdPercent"`
+	Channel          string                  `json:"channel"`
+	EmailRecipient   string                  `json:"emailRecipient,omitempty"`
+	Enabled          bool                    `json:"enabled"`
+	Evaluation       *StorageAlertEvaluation `json:"evaluation,omitempty"`
+	CreatedAt        string                  `json:"createdAt"`
+	UpdatedAt        string                  `json:"updatedAt"`
 }
 
+// StorageAlertEvaluation is the latest evaluation of a storage alert rule.
+type StorageAlertEvaluation struct {
+	Breached      bool   `json:"breached"`
+	MeasuredValue int64  `json:"measuredValue"`
+	EvaluatedAt   string `json:"evaluatedAt"`
+	FiredAt       string `json:"firedAt,omitempty"`
+}
+
+// StorageAlertRuleCreateRequest is the body for POST
+// /admin/storage/alerts/{tenantSlug}. Channel is email or webhook.
 type StorageAlertRuleCreateRequest struct {
 	Metric           string `json:"metric"`
 	ThresholdPercent int    `json:"thresholdPercent"`
 	Channel          string `json:"channel"`
+	EmailRecipient   string `json:"emailRecipient"`
 	Enabled          bool   `json:"enabled"`
 }
 
@@ -652,6 +772,21 @@ type AuditEvent struct {
 	Changes          []AuditChange           `json:"changes,omitempty"`
 	Details          map[string]any          `json:"details,omitempty"`
 	Network          *AuditNetworkDisclosure `json:"network,omitempty"`
+	DomainHistory    *AuditDomainHistory     `json:"domainHistory,omitempty"`
+}
+
+// AuditDomainHistory is the domain-history record an audit event links to.
+type AuditDomainHistory struct {
+	Source        string `json:"source"`
+	SourceID      string `json:"sourceId"`
+	CreatedAt     string `json:"createdAt"`
+	Action        string `json:"action,omitempty"`
+	ResourceType  string `json:"resourceType,omitempty"`
+	ResourceID    string `json:"resourceId,omitempty"`
+	State         string `json:"state,omitempty"`
+	PreviousState string `json:"previousState,omitempty"`
+	CurrentState  string `json:"currentState,omitempty"`
+	StreamVersion int64  `json:"streamVersion,omitempty"`
 }
 
 type AuditListCursor struct {
@@ -692,7 +827,6 @@ type ReportingPackAuditEvent struct {
 	ActorReference   string `json:"actorReference,omitempty"`
 	ActorDisplayName string `json:"actorDisplayName"`
 	ResourceType     string `json:"resourceType"`
-	ResourceID       string `json:"resourceId"`
 	PackKey          string `json:"packKey"`
 	CreatedAt        string `json:"createdAt"`
 }
@@ -938,8 +1072,7 @@ type OffboardingPreviewResponse struct {
 // metadata to the execute endpoint.
 type OffboardingWaiver struct {
 	Role      string `json:"role"`
-	Reason    string `json:"reason"`
-	Timestamp string `json:"timestamp,omitempty"`
+	Timestamp string `json:"timestamp"`
 }
 
 // OffboardingExportResponse is the body for POST
@@ -989,15 +1122,14 @@ type OffboardingReceiptPerStore struct {
 // terminal state of the request; SHA256 is the unkeyed integrity checksum the
 // client must store alongside its offboarding record.
 type OffboardingReceiptResponse struct {
-	CompanyID         int64                        `json:"company_id"`
-	RequestedByUserID *int64                       `json:"requested_by_user_id,omitempty"`
-	RequestedByActor  string                       `json:"requested_by_actor"`
-	RequestedAt       string                       `json:"requested_at"`
-	CompletedAt       string                       `json:"completed_at"`
-	FinalState        string                       `json:"final_state"`
-	PerStore          []OffboardingReceiptPerStore `json:"per_store"`
-	Waiver            *OffboardingWaiver           `json:"waiver,omitempty"`
-	SHA256            string                       `json:"sha256"`
+	CompanyID       int64                        `json:"company_id"`
+	RequestedByKind string                       `json:"requested_by_kind"`
+	RequestedAt     string                       `json:"requested_at"`
+	CompletedAt     string                       `json:"completed_at"`
+	FinalState      string                       `json:"final_state"`
+	PerStore        []OffboardingReceiptPerStore `json:"per_store"`
+	Waiver          *OffboardingWaiver           `json:"waiver,omitempty"`
+	SHA256          string                       `json:"sha256"`
 }
 
 // Preview asks the server to compute the per-store inventory estimate for

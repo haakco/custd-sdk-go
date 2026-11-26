@@ -1,0 +1,81 @@
+{
+  "maximal": {
+    "attributedStorageBytes": 1,
+    "breakdown": {
+      "dbCoreLogicalBytes": 1,
+      "dbRawInlineLogicalBytes": 1,
+      "parquetArchiveAttribution": "example",
+      "s3ParquetArchiveBytes": 1,
+      "s3ParquetArchiveObjectCount": 1,
+      "s3RawBytes": 1,
+      "s3RawObjectCount": 1
+    },
+    "effectiveLimitBytes": 1,
+    "measuredAt": "2026-11-20T06:00:00Z",
+    "measurementState": {
+      "calculationVersion": 1,
+      "completenessState": "example",
+      "sourceWatermark": 1
+    },
+    "percentUsed": 1.5,
+    "remainingBytes": 1,
+    "retainedEventCount": 1,
+    "retainedLogicalBytes": 1,
+    "tenantCount": 1,
+    "tenants": [
+      {
+        "attributedStorageBytes": 1,
+        "breakdown": {
+          "dbCoreLogicalBytes": 1,
+          "dbRawInlineLogicalBytes": 1,
+          "parquetArchiveAttribution": "example",
+          "s3ParquetArchiveBytes": 1,
+          "s3ParquetArchiveObjectCount": 1,
+          "s3RawBytes": 1,
+          "s3RawObjectCount": 1
+        },
+        "companyName": "example",
+        "companySlug": "example",
+        "effectiveLimitBytes": 1,
+        "limit": {
+          "hardLimitEnabled": true,
+          "includedStorageBytes": 1,
+          "purchasedStorageBytes": 1,
+          "warnPercent": 1
+        },
+        "measuredAt": "2026-11-20T06:00:00Z",
+        "measurementState": {
+          "calculationVersion": 1,
+          "completenessState": "example",
+          "sourceWatermark": 1
+        },
+        "percentUsed": 1.5,
+        "remainingBytes": 1,
+        "retainedEventCount": 1,
+        "retainedLogicalBytes": 1,
+        "warning": true,
+        "warningState": "example"
+      }
+    ],
+    "warning": true,
+    "warningState": "example"
+  },
+  "minimal": {
+    "attributedStorageBytes": 1,
+    "effectiveLimitBytes": 1,
+    "measuredAt": "2026-11-20T06:00:00Z",
+    "measurementState": {
+      "calculationVersion": 1,
+      "completenessState": "example",
+      "sourceWatermark": 1
+    },
+    "percentUsed": 1.5,
+    "remainingBytes": 1,
+    "retainedEventCount": 1,
+    "retainedLogicalBytes": 1,
+    "tenantCount": 1,
+    "tenants": null,
+    "warning": true,
+    "warningState": "example"
+  }
+}

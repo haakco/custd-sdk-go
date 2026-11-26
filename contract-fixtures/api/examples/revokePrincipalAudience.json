@@ -1,0 +1,16 @@
+{
+  "maximal": {
+    "audience": "example",
+    "granted": true,
+    "managed": true,
+    "organisationId": "0198a3b2-0000-7000-8000-000000000001",
+    "principalId": "0198a3b2-0000-7000-8000-000000000001"
+  },
+  "minimal": {
+    "audience": "example",
+    "granted": true,
+    "managed": true,
+    "organisationId": "0198a3b2-0000-7000-8000-000000000001",
+    "principalId": "0198a3b2-0000-7000-8000-000000000001"
+  }
+}

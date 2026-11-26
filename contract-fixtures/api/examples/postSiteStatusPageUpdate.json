@@ -1,0 +1,13 @@
+{
+  "maximal": {
+    "updates": [
+      {
+        "message": "example",
+        "publishedAt": "2026-11-20T06:00:00Z"
+      }
+    ]
+  },
+  "minimal": {
+    "updates": null
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "maximal": {
+    "durations": {
+      "activeMs": 1,
+      "excluded": [
+        {
+          "attempt": 1,
+          "outcome": "completed",
+          "stepKey": "example"
+        }
+      ],
+      "openAttempts": 1,
+      "run": {
+        "baselineMs": 1,
+        "finishedAt": "2026-11-20T06:00:00Z",
+        "startedAt": "2026-11-20T06:00:00Z",
+        "valueMs": 1
+      },
+      "runEligible": true,
+      "steps": [
+        {
+          "attempt": 1,
+          "baselineMs": 1,
+          "finishedAt": "2026-11-20T06:00:00Z",
+          "receiptAt": "2026-11-20T06:00:00Z",
+          "startedAt": "2026-11-20T06:00:00Z",
+          "stepKey": "example",
+          "valueMs": 1
+        }
+      ],
+      "waitMs": 1
+    },
+    "externalRunId": "example",
+    "facts": 1,
+    "observationsWritten": 1,
+    "projection": {
+      "appliedLedgerId": 1,
+      "attempts": [
+        {
+          "attempt": 1,
+          "errorClass": "example",
+          "finishedAt": "2026-11-20T06:00:00Z",
+          "occurredAt": "2026-11-20T06:00:00Z",
+          "receiptAt": "2026-11-20T06:00:00Z",
+          "startedAt": "2026-11-20T06:00:00Z",
+          "state": "running",
+          "stepKey": "example"
+        }
+      ],
+      "corrected": true,
+      "dimensions": {
+        "key": "example"
+      },
+      "finishedAt": "2026-11-20T06:00:00Z",
+      "occurredAt": "2026-11-20T06:00:00Z",
+      "openAttempts": 1,
+      "receiptAt": "2026-11-20T06:00:00Z",
+      "runUuid": "example",
+      "startedAt": "2026-11-20T06:00:00Z",
+      "state": "running"
+    },
+    "runUuid": "example",
+    "status": {
+      "foldError": "example",
+      "healthy": true,
+      "latestLedgerId": 1,
+      "nextAction": "example",
+      "pendingFacts": 1,
+      "projectedLedgerId": 1,
+      "state": "example"
+    },
+    "workflowKey": "example"
+  },
+  "minimal": {
+    "durations": {
+      "activeMs": 1,
+      "excluded": null,
+      "openAttempts": 1,
+      "run": {
+        "baselineMs": 1,
+        "finishedAt": "2026-11-20T06:00:00Z",
+        "startedAt": "2026-11-20T06:00:00Z",
+        "valueMs": 1
+      },
+      "runEligible": true,
+      "steps": null,
+      "waitMs": 1
+    },
+    "externalRunId": "example",
+    "facts": 1,
+    "observationsWritten": 1,
+    "projection": {
+      "appliedLedgerId": 1,
+      "attempts": null,
+      "corrected": true,
+      "dimensions": {},
+      "openAttempts": 1,
+      "receiptAt": "2026-11-20T06:00:00Z",
+      "runUuid": "example",
+      "state": "running"
+    },
+    "runUuid": "example",
+    "status": {
+      "healthy": true,
+      "latestLedgerId": 1,
+      "nextAction": "example",
+      "pendingFacts": 1,
+      "projectedLedgerId": 1,
+      "state": "example"
+    },
+    "workflowKey": "example"
+  }
+}

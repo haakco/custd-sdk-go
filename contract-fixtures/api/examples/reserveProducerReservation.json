@@ -1,0 +1,21 @@
+{
+  "maximal": {
+    "childCompanySlug": "example",
+    "claimedByClientId": "example",
+    "expiresAt": "2026-11-20T06:00:00Z",
+    "maxTtlSeconds": 1,
+    "parentCompanySlug": "example",
+    "producerSlug": "example",
+    "reservedAt": "2026-11-20T06:00:00Z",
+    "status": "pending"
+  },
+  "minimal": {
+    "childCompanySlug": "example",
+    "expiresAt": "2026-11-20T06:00:00Z",
+    "maxTtlSeconds": 1,
+    "parentCompanySlug": "example",
+    "producerSlug": "example",
+    "reservedAt": "2026-11-20T06:00:00Z",
+    "status": "pending"
+  }
+}

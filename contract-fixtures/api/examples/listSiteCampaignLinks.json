@@ -1,0 +1,31 @@
+{
+  "maximal": {
+    "links": [
+      {
+        "archivedAt": "2026-11-20T06:00:00Z",
+        "campaign": "example",
+        "content": "example",
+        "createdAt": "2026-11-20T06:00:00Z",
+        "linkUuid": "example",
+        "medium": "example",
+        "source": "example",
+        "taggedUrl": "example",
+        "term": "example",
+        "url": "example"
+      }
+    ],
+    "maxLinks": 1,
+    "suggestedMediums": [
+      "example"
+    ],
+    "suggestedSources": [
+      "example"
+    ]
+  },
+  "minimal": {
+    "links": null,
+    "maxLinks": 1,
+    "suggestedMediums": null,
+    "suggestedSources": null
+  }
+}

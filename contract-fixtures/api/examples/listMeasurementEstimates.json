@@ -1,0 +1,29 @@
+{
+  "maximal": {
+    "deliveryTargetDate": "2026-11-20T06:00:00Z",
+    "estimates": [
+      {
+        "estimateUuid": "example",
+        "estimatedAt": "2026-11-20T06:00:00Z",
+        "highDate": "2026-11-20T06:00:00Z",
+        "lowDate": "2026-11-20T06:00:00Z",
+        "note": "example"
+      }
+    ],
+    "latest": {
+      "ageDays": 1.5,
+      "chanceByDeliveryTarget": 1.5,
+      "estimate": {
+        "estimateUuid": "example",
+        "estimatedAt": "2026-11-20T06:00:00Z",
+        "highDate": "2026-11-20T06:00:00Z",
+        "lowDate": "2026-11-20T06:00:00Z",
+        "note": "example"
+      },
+      "movementDays": 1.5
+    }
+  },
+  "minimal": {
+    "estimates": null
+  }
+}

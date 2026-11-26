@@ -1,0 +1,23 @@
+{
+  "maximal": {
+    "rechecks": [
+      {
+        "checkedAt": "2026-11-20T06:00:00Z",
+        "failure": "example",
+        "fixedRules": [
+          "example"
+        ],
+        "openRules": [
+          "example"
+        ],
+        "recheckUuid": "example",
+        "requestedAt": "2026-11-20T06:00:00Z",
+        "state": "queued",
+        "url": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "rechecks": null
+  }
+}

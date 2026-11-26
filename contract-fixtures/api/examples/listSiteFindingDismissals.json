@@ -1,0 +1,17 @@
+{
+  "maximal": {
+    "dismissals": [
+      {
+        "dismissalUuid": "example",
+        "dismissedAt": "2026-11-20T06:00:00Z",
+        "reason": "example",
+        "rule": "example",
+        "title": "example",
+        "url": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "dismissals": null
+  }
+}

@@ -36,12 +36,10 @@ type ReportingPackDraftListResponse struct {
 	Drafts []ReportingPackDraft `json:"drafts"`
 }
 
-// ReportingPackValidateResponse reports whether a definition validates, and why not when it does
-// not. The issues and warnings are the only actionable part of a refusal.
+// ReportingPackValidateResponse reports that a definition validates. A definition that does not
+// validate is refused with an error naming why.
 type ReportingPackValidateResponse struct {
-	Valid    bool     `json:"valid"`
-	Issues   []string `json:"issues,omitempty"`
-	Warnings []string `json:"warnings,omitempty"`
+	Valid bool `json:"valid"`
 }
 
 type ReportingPackPreviewRequest struct {
@@ -289,8 +287,9 @@ func (c *ReportingPacksAdminClient) Publish(ctx context.Context, draftID string)
 	return &out, err
 }
 
-func (c *ReportingPacksAdminClient) Restart(ctx context.Context, draftID string) (*ReportingPackGeneration, error) {
-	var out ReportingPackGeneration
+// Restart reopens a draft for editing and returns the restarted draft.
+func (c *ReportingPacksAdminClient) Restart(ctx context.Context, draftID string) (*ReportingPackDraft, error) {
+	var out ReportingPackDraft
 	err := c.admin.request(
 		ctx,
 		http.MethodPost,

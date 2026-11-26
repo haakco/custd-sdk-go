@@ -1,0 +1,18 @@
+{
+  "maximal": {
+    "allocations": [
+      {
+        "blockId": "example",
+        "durationMs": 1,
+        "sequence": 1
+      }
+    ],
+    "allocatorVersion": "example",
+    "horizonMs": 1
+  },
+  "minimal": {
+    "allocations": null,
+    "allocatorVersion": "example",
+    "horizonMs": 1
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "maximal": {
+    "eventTypeDefaults": [
+      {
+        "definitionUuid": "example",
+        "eventTypeSlug": "example",
+        "valueUuid": "example"
+      }
+    ],
+    "schemaFieldAssignments": [
+      {
+        "assignmentUuid": "example",
+        "definitionUuid": "example",
+        "fieldPath": "example",
+        "schemaUuid": "example",
+        "valueUuid": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "eventTypeDefaults": null,
+    "schemaFieldAssignments": null
+  }
+}

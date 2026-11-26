@@ -1,0 +1,26 @@
+{
+  "maximal": {
+    "locations": [
+      {
+        "bucket": "example",
+        "code": "example",
+        "companyId": 1,
+        "createdAt": "2026-11-20T06:00:00Z",
+        "endpoint": "example",
+        "id": 1,
+        "isolationTier": "example",
+        "provider": "example",
+        "region": "example",
+        "rootPrefix": "example",
+        "updatedAt": "2026-11-20T06:00:00Z",
+        "uuid": "example",
+        "validatedAt": "2026-11-20T06:00:00Z",
+        "validationStatus": "example",
+        "writeEnabled": true
+      }
+    ]
+  },
+  "minimal": {
+    "locations": null
+  }
+}

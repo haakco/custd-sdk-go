@@ -1,0 +1,43 @@
+{
+  "maximal": {
+    "dataSpaceCount": 1,
+    "dataSpaces": [
+      {
+        "companyName": "example",
+        "enabled": true,
+        "measuredAt": "2026-11-20T06:00:00Z",
+        "measurementState": {
+          "calculationVersion": 1,
+          "completenessState": "example",
+          "sourceWatermark": 1
+        },
+        "retainedEventCount": 1,
+        "retainedLogicalBytes": 1,
+        "revokedAt": "2026-11-20T06:00:00Z",
+        "slug": "example"
+      }
+    ],
+    "measuredAt": "2026-11-20T06:00:00Z",
+    "measurementState": {
+      "calculationVersion": 1,
+      "completenessState": "example",
+      "sourceWatermark": 1
+    },
+    "parentCompanySlug": "example",
+    "retainedEventCount": 1,
+    "retainedLogicalBytes": 1
+  },
+  "minimal": {
+    "dataSpaceCount": 1,
+    "dataSpaces": null,
+    "measuredAt": "2026-11-20T06:00:00Z",
+    "measurementState": {
+      "calculationVersion": 1,
+      "completenessState": "example",
+      "sourceWatermark": 1
+    },
+    "parentCompanySlug": "example",
+    "retainedEventCount": 1,
+    "retainedLogicalBytes": 1
+  }
+}

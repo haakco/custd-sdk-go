@@ -1,0 +1,19 @@
+{
+  "maximal": {
+    "fields": [
+      {
+        "editable": true,
+        "editableBy": "example",
+        "fieldKey": "example",
+        "initialized": true,
+        "present": true,
+        "required": true,
+        "value": "example"
+      }
+    ],
+    "managedPhoto": true
+  },
+  "minimal": {
+    "fields": null
+  }
+}

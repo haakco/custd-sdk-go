@@ -1,0 +1,27 @@
+{
+  "maximal": {
+    "snapshots": [
+      {
+        "blockId": 1,
+        "blockUuid": "example",
+        "inputHash": "example",
+        "method": "example",
+        "methodVersion": "example",
+        "p10Ms": 1,
+        "p90Ms": 1,
+        "pointMs": 1,
+        "predictedAt": "2026-11-20T06:00:00Z",
+        "predictionVersionUuid": "example",
+        "runUuid": "example",
+        "sampleCount": 1,
+        "snapshotUuid": "example",
+        "warnings": [
+          "example"
+        ]
+      }
+    ]
+  },
+  "minimal": {
+    "snapshots": null
+  }
+}

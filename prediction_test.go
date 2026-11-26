@@ -24,12 +24,12 @@ func TestAdminPredictionsUseTenantScopedTypedContract(t *testing.T) {
 	}
 
 	doer.status = http.StatusOK
-	doer.body = `[{"uuid":"source-1","source_key":"status","source_mode":"http_json","display_name":"Status","source_status":"active","is_paused":false,"created_at":"2026-08-12T12:00:00Z","updated_at":"2026-08-12T12:00:00Z","consecutive_failed_count":0}]`
+	doer.body = `{"sources":[{"uuid":"source-1","source_key":"status","source_mode":"http_json","display_name":"Status","source_status":"active","is_paused":false,"created_at":"2026-08-12T12:00:00Z","updated_at":"2026-08-12T12:00:00Z","consecutive_failed_count":0}]}`
 	sources, err := client.Admin.Predictions.ListSignalSources(context.Background(), "acme", 20, "next")
 	if err != nil {
 		t.Fatalf("ListSignalSources returned error: %v", err)
 	}
-	if len(sources) != 1 || sources[0].SourceMode != "http_json" {
+	if len(sources.Sources) != 1 || sources.Sources[0].SourceMode != "http_json" {
 		t.Fatalf("sources = %+v", sources)
 	}
 	if got := doer.requests[1].URL; got != "http://localhost:8080/api/v1/admin/measurement/predictions/sources?companySlug=acme&pageSize=20&pageToken=next" {

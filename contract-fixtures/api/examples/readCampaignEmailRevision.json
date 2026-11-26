@@ -1,0 +1,12 @@
+{
+  "maximal": {
+    "artifactJson": "example",
+    "publishedAt": "2026-11-20T06:00:00Z",
+    "revision": "example"
+  },
+  "minimal": {
+    "artifactJson": "example",
+    "publishedAt": "2026-11-20T06:00:00Z",
+    "revision": "example"
+  }
+}

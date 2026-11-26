@@ -1,0 +1,10 @@
+{
+  "maximal": {
+    "confirmedAt": "2026-11-20T06:00:00Z",
+    "eligible": true,
+    "withdrawnAt": "2026-11-20T06:00:00Z"
+  },
+  "minimal": {
+    "eligible": true
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "maximal": {
+    "emailRecipient": "example",
+    "siteUuid": "example"
+  },
+  "minimal": {
+    "siteUuid": "example"
+  }
+}

@@ -307,3 +307,12 @@ func sitePositiveInt(n int) string {
 	}
 	return strconv.Itoa(n)
 }
+
+// positiveIntQuery renders a positive count for siteQueryPath; zero or less
+// leaves the parameter out so the server default applies.
+func positiveIntQuery(value int64) string {
+	if value <= 0 {
+		return ""
+	}
+	return strconv.FormatInt(value, 10)
+}

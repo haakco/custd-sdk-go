@@ -1,0 +1,22 @@
+{
+  "maximal": {
+    "producers": [
+      {
+        "allowedEnvironments": [
+          "example"
+        ],
+        "clientId": "example",
+        "companySlug": "example",
+        "displayName": "example",
+        "environment": "example",
+        "producerSlug": "example",
+        "scopes": [
+          "example"
+        ]
+      }
+    ]
+  },
+  "minimal": {
+    "producers": null
+  }
+}

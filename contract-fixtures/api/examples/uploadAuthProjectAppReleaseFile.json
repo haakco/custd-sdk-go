@@ -1,0 +1,12 @@
+{
+  "maximal": {
+    "path": "example",
+    "sha256": "example",
+    "size": 1
+  },
+  "minimal": {
+    "path": "example",
+    "sha256": "example",
+    "size": 1
+  }
+}

@@ -37,6 +37,11 @@ func (e *ResponseValidationError) Error() string {
 // Unwrap exposes the wrapped JSON decode error, if any.
 func (e *ResponseValidationError) Unwrap() error { return e.Err }
 
+// unmarshalResponse decodes a Custd response body into an SDK type. The
+// surface conformance test swaps in a decoder that rejects unknown fields, so
+// a field the server sends but the SDK type lacks fails there.
+var unmarshalResponse = json.Unmarshal
+
 // validationErrorf builds a ResponseValidationError from a format string.
 func validationErrorf(format string, args ...any) *ResponseValidationError {
 	return &ResponseValidationError{Message: fmt.Sprintf(format, args...)}
@@ -100,11 +105,11 @@ func requireJSONObject(fields map[string]json.RawMessage, context, name string, 
 
 // requireJSONObjectList validates that a field is a JSON list of objects and
 // that every element carries the named required fields. A non-list container or
-// a null element is rejected; an empty list is accepted because the owner
-// emits [] for an empty collection.
+// a null element is rejected. An empty list and a present null are accepted:
+// the Go owner encodes an empty collection as null.
 func requireJSONObjectList(fields map[string]json.RawMessage, context, name string, required ...string) error {
 	raw, ok := fields[name]
-	if !ok || string(raw) == "null" {
+	if !ok {
 		return validationErrorf("custd: %s field %s is required", context, name)
 	}
 	var items []json.RawMessage

@@ -22,7 +22,9 @@ type ClientConfig struct {
 	// validate. It is ordinary tenant selection: it never requests grant-backed support
 	// context, so a caller using it still needs only the authority it already has.
 	// Ordinary tenant commands leave it empty and the server uses the credential's own
-	// company.
+	// company. The one exception is ingest-api's cleanup jobs, which read the tenant only
+	// from `X-Custd-Effective-Company`: those calls send it there, and the server then
+	// requires support access and an active grant for that company, even the caller's own.
 	ActingCompanySlug string
 
 	// CommandLabel names the operation the caller is performing, sent as

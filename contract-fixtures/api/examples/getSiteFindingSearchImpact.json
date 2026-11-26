@@ -1,0 +1,56 @@
+{
+  "maximal": {
+    "after": {
+      "from": "example",
+      "to": "example"
+    },
+    "before": {
+      "from": "example",
+      "to": "example"
+    },
+    "findingUuid": "example",
+    "fixedAt": "2026-11-20T06:00:00Z",
+    "note": "example",
+    "pageUrl": "example",
+    "rule": "example",
+    "sources": [
+      {
+        "after": {
+          "clicks": 1,
+          "coveredDays": 1,
+          "ctr": 1.5,
+          "expectedDays": 1,
+          "impressions": 1,
+          "reason": "example",
+          "status": "measured"
+        },
+        "before": {
+          "clicks": 1,
+          "coveredDays": 1,
+          "ctr": 1.5,
+          "expectedDays": 1,
+          "impressions": 1,
+          "reason": "example",
+          "status": "measured"
+        },
+        "granularity": "daily",
+        "provider": "google",
+        "source": "example",
+        "status": "measured"
+      }
+    ],
+    "status": "open",
+    "url": "example",
+    "windowDays": 1
+  },
+  "minimal": {
+    "findingUuid": "example",
+    "note": "example",
+    "pageUrl": "example",
+    "rule": "example",
+    "sources": null,
+    "status": "open",
+    "url": "example",
+    "windowDays": 1
+  }
+}

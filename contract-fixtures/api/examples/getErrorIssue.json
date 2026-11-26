@@ -1,0 +1,91 @@
+{
+  "maximal": {
+    "issue": {
+      "culprit": "example",
+      "environments": [
+        "example"
+      ],
+      "eventCount": 1,
+      "exceptionType": "example",
+      "fingerprint": "example",
+      "firstRelease": "example",
+      "firstSeenAt": "2026-11-20T06:00:00Z",
+      "lastRelease": "example",
+      "lastSeenAt": "2026-11-20T06:00:00Z",
+      "platform": "example",
+      "regressedAt": "2026-11-20T06:00:00Z",
+      "resolvedAt": "2026-11-20T06:00:00Z",
+      "resolvedRelease": "example",
+      "siteName": "example",
+      "siteUuid": "example",
+      "state": "open",
+      "title": "example",
+      "uuid": "example"
+    },
+    "latestEvent": {
+      "correlationId": "example",
+      "environment": "example",
+      "exceptions": [
+        {
+          "frames": [
+            {
+              "column": 1,
+              "contextLine": "example",
+              "filename": "example",
+              "function": "example",
+              "inApp": true,
+              "line": 1,
+              "module": "example",
+              "postContext": [
+                "example"
+              ],
+              "preContext": [
+                "example"
+              ]
+            }
+          ],
+          "framesOmitted": 1,
+          "handled": true,
+          "module": "example",
+          "type": "example",
+          "value": "example"
+        }
+      ],
+      "fingerprint": "example",
+      "level": "example",
+      "platform": "example",
+      "release": "example",
+      "runtimeName": "example",
+      "runtimeVersion": "example",
+      "sdkName": "example",
+      "sdkVersion": "example",
+      "siteUuid": "example",
+      "truncated": true
+    },
+    "latestEventUuid": "example"
+  },
+  "minimal": {
+    "issue": {
+      "culprit": "example",
+      "environments": null,
+      "eventCount": 1,
+      "exceptionType": "example",
+      "fingerprint": "example",
+      "firstRelease": "example",
+      "firstSeenAt": "2026-11-20T06:00:00Z",
+      "lastRelease": "example",
+      "lastSeenAt": "2026-11-20T06:00:00Z",
+      "platform": "example",
+      "siteName": "example",
+      "siteUuid": "example",
+      "state": "open",
+      "title": "example",
+      "uuid": "example"
+    },
+    "latestEvent": {
+      "exceptions": null,
+      "fingerprint": "example"
+    },
+    "latestEventUuid": "example"
+  }
+}

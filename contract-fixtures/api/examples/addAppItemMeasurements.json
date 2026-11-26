@@ -1,0 +1,25 @@
+{
+  "maximal": {
+    "accepted": 1,
+    "completedTargetUuid": "example",
+    "importId": "example",
+    "rejected": 1,
+    "results": [
+      {
+        "detail": "example",
+        "observationUuid": "example",
+        "rowIndex": 1,
+        "status": 1,
+        "success": true,
+        "title": "example",
+        "type": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "accepted": 1,
+    "importId": "example",
+    "rejected": 1,
+    "results": null
+  }
+}

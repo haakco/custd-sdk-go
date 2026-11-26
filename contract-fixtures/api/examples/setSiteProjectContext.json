@@ -1,0 +1,25 @@
+{
+  "maximal": {
+    "brandNames": [
+      "example"
+    ],
+    "competitorDomains": [
+      "example"
+    ],
+    "hackerNewsEnabled": true,
+    "markets": [
+      {
+        "country": "example",
+        "language": "example"
+      }
+    ],
+    "siteUuid": "example",
+    "updatedAt": "2026-11-20T06:00:00Z"
+  },
+  "minimal": {
+    "brandNames": null,
+    "competitorDomains": null,
+    "markets": null,
+    "siteUuid": "example"
+  }
+}

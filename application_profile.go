@@ -115,7 +115,7 @@ func (c *CustdClient) currentAppProfile(ctx context.Context, token, method, path
 		return nil, err
 	}
 	var profile CurrentAppProfile
-	if err := json.Unmarshal(response.Body, &profile); err != nil {
+	if err := unmarshalResponse(response.Body, &profile); err != nil {
 		return nil, validationWrap("custd: decode current app profile", err)
 	}
 	return &profile, nil

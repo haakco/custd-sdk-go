@@ -1,0 +1,18 @@
+{
+  "maximal": {
+    "grants": [
+      {
+        "companySlug": "example",
+        "expiresAt": "example",
+        "operatorUserUuid": "example",
+        "reason": "example",
+        "revokedAt": "example",
+        "startsAt": "example",
+        "supportAccessGrantUuid": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "grants": null
+  }
+}

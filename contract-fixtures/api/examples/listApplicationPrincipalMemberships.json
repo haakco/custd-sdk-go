@@ -1,0 +1,23 @@
+{
+  "maximal": {
+    "directoryId": "example",
+    "environmentId": "example",
+    "memberships": [
+      {
+        "organisationId": "example",
+        "organisationName": "example",
+        "organisationSlug": "example",
+        "role": "administrator"
+      }
+    ],
+    "principalId": "example",
+    "projectId": "example"
+  },
+  "minimal": {
+    "directoryId": "example",
+    "environmentId": "example",
+    "memberships": null,
+    "principalId": "example",
+    "projectId": "example"
+  }
+}

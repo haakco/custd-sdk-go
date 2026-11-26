@@ -36,6 +36,25 @@ type AdminSiteKeywordList struct {
 	CreatedAt time.Time                 `json:"createdAt"`
 	UpdatedAt time.Time                 `json:"updatedAt"`
 	Related   *AdminSiteRelatedKeywords `json:"related,omitempty"`
+	// MarketSampleEnabled allows sampling the public seed topic; MarketSample
+	// is the latest sample, nil before the first one.
+	MarketSampleEnabled bool                   `json:"marketSampleEnabled"`
+	MarketSample        *AdminSiteMarketSample `json:"marketSample,omitempty"`
+}
+
+// AdminSiteMarketSample is one sample of the public search results for a seed topic.
+type AdminSiteMarketSample struct {
+	ObservedAt time.Time                  `json:"observedAt"`
+	Hits       []AdminSiteMarketSearchHit `json:"hits"`
+}
+
+// AdminSiteMarketSearchHit is one result of a market sample. Authority is the
+// sampler's authority tier, -1 when unknown; Date is nil when unpublished.
+type AdminSiteMarketSearchHit struct {
+	Title     string     `json:"title"`
+	URL       string     `json:"url"`
+	Authority int        `json:"authority"`
+	Date      *time.Time `json:"date,omitempty"`
 }
 
 // AdminSiteRelatedKeyword is one keyword Bing relates to a seed term, with its searches over the
@@ -91,6 +110,8 @@ type AdminSiteKeywordListRequest struct {
 	Name     string   `json:"name"`
 	SeedTerm string   `json:"seedTerm,omitempty"`
 	Keywords []string `json:"keywords"`
+	// MarketSampleEnabled allows sampling the public seed topic; it needs a SeedTerm.
+	MarketSampleEnabled bool `json:"marketSampleEnabled,omitempty"`
 }
 
 // AdminSiteKeywordCluster is one group of a list's keywords and their search numbers. Clicks,

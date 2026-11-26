@@ -1,0 +1,22 @@
+{
+  "maximal": {
+    "allowedEnvironments": [
+      "example"
+    ],
+    "clientId": "example",
+    "companySlug": "example",
+    "displayName": "example",
+    "environment": "example",
+    "producerSlug": "example",
+    "scopes": [
+      "example"
+    ]
+  },
+  "minimal": {
+    "allowedEnvironments": null,
+    "clientId": "example",
+    "companySlug": "example",
+    "producerSlug": "example",
+    "scopes": null
+  }
+}

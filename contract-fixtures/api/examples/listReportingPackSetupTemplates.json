@@ -1,0 +1,504 @@
+{
+  "maximal": {
+    "templates": [
+      {
+        "bindings": [
+          {
+            "key": "example",
+            "label": "example",
+            "required": true
+          }
+        ],
+        "definition": {
+          "accounting": {
+            "allocations": [
+              {
+                "key": "example",
+                "rounding": {
+                  "decimalPlaces": 1,
+                  "mode": "half_up"
+                },
+                "sourceSeriesKey": "example",
+                "targets": [
+                  {
+                    "seriesKey": "example",
+                    "weight": 1.5
+                  }
+                ]
+              }
+            ],
+            "schedules": [
+              {
+                "billingBoundary": "calendar_month",
+                "currency": "example",
+                "effectiveFrom": "2026-11-20T06:00:00Z",
+                "effectiveTo": "2026-11-20T06:00:00Z",
+                "key": "example",
+                "rounding": {
+                  "decimalPlaces": 1,
+                  "mode": "half_up"
+                },
+                "tiers": [
+                  {
+                    "lowerBound": 1.5,
+                    "pricePerUnit": 1.5,
+                    "upperBound": 1.5
+                  }
+                ],
+                "timezone": "example",
+                "usageMetric": "example",
+                "usageUnit": "W"
+              }
+            ],
+            "usageMetric": "example",
+            "version": 1
+          },
+          "activationRules": [
+            {
+              "cohortWindowDays": 1,
+              "identity": "subject",
+              "key": "example",
+              "predicate": {
+                "anyOf": [
+                  "example"
+                ],
+                "exact": "example",
+                "nonEmpty": true,
+                "pattern": "example",
+                "selector": "example"
+              }
+            }
+          ],
+          "activityRules": [
+            {
+              "bucketDays": 1,
+              "identity": "subject",
+              "key": "example"
+            }
+          ],
+          "assetHierarchy": {
+            "edges": [
+              {
+                "childKey": "example",
+                "mode": "inclusive",
+                "parentKey": "example",
+                "tenantKey": "example"
+              }
+            ],
+            "maxDepth": 1,
+            "nodes": [
+              {
+                "key": "example",
+                "label": "example",
+                "tenantKey": "example"
+              }
+            ],
+            "tenantKey": "example",
+            "version": 1
+          },
+          "dashboards": [
+            {
+              "defaultRange": "example",
+              "description": "example",
+              "executive": {
+                "actions": [
+                  "example"
+                ],
+                "comparisonBasis": "none",
+                "comparisonLabel": "example",
+                "findings": [
+                  "example"
+                ],
+                "primaryLabel": "example",
+                "primaryMetricKey": "example",
+                "primaryUnit": "example",
+                "primaryWidgetKey": "example",
+                "recipe": "blank",
+                "scopeLabel": "example",
+                "supportingWidgetKeys": [
+                  "example"
+                ],
+                "targetUnit": "example",
+                "targetValue": 1.5
+              },
+              "exportFormats": [
+                "csv"
+              ],
+              "group": "example",
+              "interactions": [
+                {
+                  "action": "filter",
+                  "comparisonPreset": "previous_period",
+                  "dimension": "example",
+                  "key": "example",
+                  "linkedFilterGroup": "example",
+                  "resetBehavior": "interaction",
+                  "sourceWidget": "example",
+                  "targetWidget": "example"
+                }
+              ],
+              "key": "example",
+              "packKey": "example",
+              "refreshSeconds": 1,
+              "requiredScopes": [
+                "example"
+              ],
+              "sections": [
+                {
+                  "columnSpan": 1,
+                  "key": "example",
+                  "layout": "lead",
+                  "narrative": [
+                    {
+                      "references": [
+                        {
+                          "value": "primary",
+                          "widgetKey": "example"
+                        }
+                      ],
+                      "text": "example"
+                    }
+                  ],
+                  "title": "example",
+                  "widgetKeys": [
+                    "example"
+                  ]
+                }
+              ],
+              "sharePolicy": {
+                "comparisonPresets": [
+                  "previous_period"
+                ],
+                "relativeRanges": [
+                  "1d"
+                ]
+              },
+              "title": "example",
+              "widgets": [
+                {
+                  "dimensions": [
+                    "example"
+                  ],
+                  "key": "example",
+                  "kind": "stat_tile",
+                  "metrics": [
+                    "example"
+                  ],
+                  "presentation": {
+                    "nonColorEncoding": "line_symbol_label",
+                    "presetId": "forecast_convergence_v1",
+                    "summaryTemplateId": "forecast_window_evidence",
+                    "version": 1
+                  },
+                  "template": "example",
+                  "title": "example"
+                }
+              ]
+            }
+          ],
+          "dimensions": [
+            {
+              "allowedValuePattern": "example",
+              "description": "example",
+              "fallback": "example",
+              "key": "example",
+              "label": "example",
+              "labelDefinitionKey": "example",
+              "labelDefinitionUuid": "example",
+              "labelValueUuids": [
+                "example"
+              ],
+              "maxCardinality": 1,
+              "selector": "example"
+            }
+          ],
+          "displayName": "example",
+          "enabled": true,
+          "eventTypes": [
+            "example"
+          ],
+          "exportFormats": [
+            "csv"
+          ],
+          "flowRules": [
+            {
+              "completionMarkers": [
+                "example"
+              ],
+              "correlationSelector": "example",
+              "familySelector": "example",
+              "familyValue": "example",
+              "includeUncorrelated": true,
+              "key": "example",
+              "startMarkers": [
+                "example"
+              ],
+              "stepSelector": "example"
+            }
+          ],
+          "identity": {
+            "cohort": {
+              "selector": "example",
+              "type": "string"
+            },
+            "correlation": {
+              "selector": "example",
+              "type": "string"
+            },
+            "entity": {
+              "selector": "example",
+              "type": "string"
+            },
+            "session": {
+              "selector": "example",
+              "type": "string"
+            },
+            "subject": {
+              "selector": "example",
+              "type": "string"
+            }
+          },
+          "key": "example",
+          "metrics": [
+            {
+              "calculation": "usage_charge",
+              "canonicalUnit": "W",
+              "denominatorMetric": "example",
+              "description": "example",
+              "distinct": {
+                "selector": "example",
+                "type": "string"
+              },
+              "flowResult": "steps",
+              "hierarchyRootKey": "example",
+              "key": "example",
+              "kind": "count",
+              "label": "example",
+              "match": [
+                {
+                  "anyOf": [
+                    "example"
+                  ],
+                  "exact": "example",
+                  "nonEmpty": true,
+                  "pattern": "example",
+                  "selector": "example"
+                }
+              ],
+              "maximumGapSeconds": 1,
+              "measurementKind": "gauge",
+              "numeratorMetric": "example",
+              "numeric": {
+                "selector": "example",
+                "type": "string",
+                "unit": "currency_per_unit"
+              },
+              "percentile": 1,
+              "resetPolicy": "as_increment",
+              "rolloverAt": 1.5,
+              "seriesKey": "example",
+              "unit": "example"
+            }
+          ],
+          "observation": {
+            "assets": [
+              {
+                "key": "example",
+                "label": "example"
+              }
+            ],
+            "series": [
+              {
+                "allowedSourceUnits": [
+                  "W"
+                ],
+                "assetKey": "example",
+                "assetKeys": [
+                  "example"
+                ],
+                "canonicalUnit": "W",
+                "expectedCadenceSeconds": 1,
+                "key": "example",
+                "maximumGapSeconds": 1,
+                "measurementKind": "gauge",
+                "sources": [
+                  {
+                    "priority": 1,
+                    "sourceKey": "example",
+                    "sourceSeriesKey": "example"
+                  }
+                ]
+              }
+            ],
+            "sources": [
+              {
+                "key": "example",
+                "label": "example"
+              }
+            ],
+            "version": 1
+          },
+          "owner": "example",
+          "proof": {
+            "forbiddenFields": [
+              "example"
+            ],
+            "key": "example",
+            "outputLayout": "example",
+            "safeMetadataFields": [
+              "example"
+            ],
+            "templates": [
+              "example"
+            ]
+          },
+          "reconciliations": [
+            {
+              "absoluteTolerance": 1.5,
+              "canonicalUnit": "W",
+              "maxAgeSeconds": 1,
+              "mode": "priority",
+              "relativeTolerance": 1.5,
+              "seriesKey": "example",
+              "sources": [
+                {
+                  "priority": 1,
+                  "sourceKey": "example",
+                  "sourceSeriesKey": "example"
+                }
+              ],
+              "tenantKey": "example",
+              "version": 1
+            }
+          ],
+          "redactionRules": [
+            {
+              "allowedFields": [
+                "example"
+              ],
+              "reasonClasses": [
+                "example"
+              ],
+              "resultShape": "example",
+              "selectorFields": [
+                "example"
+              ],
+              "sourceEventType": "example",
+              "sourceSystem": "example"
+            }
+          ],
+          "retentionRules": [
+            {
+              "activationRule": "example",
+              "key": "example",
+              "returnPredicate": {
+                "anyOf": [
+                  "example"
+                ],
+                "exact": "example",
+                "nonEmpty": true,
+                "pattern": "example",
+                "selector": "example"
+              },
+              "returnWindowDays": [
+                1
+              ]
+            }
+          ],
+          "rollupRules": [
+            {
+              "completenessRequired": true,
+              "dimensions": [
+                {
+                  "allowedValuePattern": "example",
+                  "dimension": "example",
+                  "selector": "example",
+                  "slot": 1
+                }
+              ],
+              "family": "example",
+              "match": [
+                {
+                  "anyOf": [
+                    "example"
+                  ],
+                  "exact": "example",
+                  "nonEmpty": true,
+                  "pattern": "example",
+                  "selector": "example"
+                }
+              ],
+              "metric": "example",
+              "sourceEventType": "example",
+              "templates": [
+                "example"
+              ]
+            }
+          ],
+          "templates": [
+            {
+              "aggregation": "count",
+              "allowedDimensions": [
+                "example"
+              ],
+              "allowedFilters": [
+                {
+                  "dimension": "example",
+                  "operators": [
+                    "eq"
+                  ]
+                }
+              ],
+              "allowedMetrics": [
+                "example"
+              ],
+              "compositionRules": [
+                "example"
+              ],
+              "defaultRange": "example",
+              "eventTypes": [
+                "example"
+              ],
+              "flowRule": "example",
+              "maxRows": 1,
+              "name": "example",
+              "sourceModes": [
+                "auto"
+              ],
+              "subjectScope": {
+                "dimension": "example",
+                "required": true
+              }
+            }
+          ],
+          "transitionRules": [
+            {
+              "identity": "subject",
+              "key": "example",
+              "maxDurationMs": 1,
+              "maxEvents": 1,
+              "stepSelector": "example",
+              "steps": [
+                "example"
+              ]
+            }
+          ],
+          "trust": {
+            "redactionGuard": [
+              "example"
+            ],
+            "safeFields": [
+              "example"
+            ]
+          },
+          "version": 1
+        },
+        "displayName": "example",
+        "kind": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "templates": null
+  }
+}

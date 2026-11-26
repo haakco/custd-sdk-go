@@ -21,25 +21,6 @@ type ReportingClient struct {
 	client *CustdClient
 }
 
-type ReportingDashboard struct {
-	Key            string            `json:"key"`
-	Title          string            `json:"title"`
-	Hidden         bool              `json:"hidden,omitempty"`
-	DefaultRange   string            `json:"defaultRange"`
-	RefreshSeconds int               `json:"refreshSeconds"`
-	RequiredScopes []string          `json:"requiredScopes"`
-	Widgets        []ReportingWidget `json:"widgets"`
-}
-
-type ReportingWidget struct {
-	Key        string   `json:"key"`
-	Title      string   `json:"title"`
-	Kind       string   `json:"kind"`
-	Template   string   `json:"template"`
-	Metrics    []string `json:"metrics"`
-	Dimensions []string `json:"dimensions,omitempty"`
-}
-
 type ReportingQueryRequest struct {
 	DashboardKey string            `json:"dashboardKey,omitempty"`
 	WidgetKey    string            `json:"widgetKey,omitempty"`
@@ -67,11 +48,9 @@ type SubjectInsightResponse struct {
 	Data RenderedWidgetData `json:"data"`
 }
 
+// PreparedDataStatus is the state shared by a receipt and an output status;
+// PreparedDataReceiptStatus and PreparedDataOutputStatus add the identity.
 type PreparedDataStatus struct {
-	// ReceiptUUID and OutputUUID name the artifact this status describes. Without them a caller
-	// holding a status cannot reach the receipt or output it reports on.
-	ReceiptUUID     string                 `json:"receiptUuid,omitempty"`
-	OutputUUID      string                 `json:"outputUuid,omitempty"`
 	TenantSlug      string                 `json:"tenantSlug"`
 	ProcessingState string                 `json:"processingState"`
 	Availability    string                 `json:"availability"`
@@ -127,7 +106,10 @@ type RenderedWidgetData struct {
 	DeltaPercent    float64                  `json:"deltaPercent,omitempty"`
 	DeltaLabel      string                   `json:"deltaLabel,omitempty"`
 	SecondaryLabel  string                   `json:"secondaryLabel,omitempty"`
+	LabelMetadata   []SnapshotLabelMetadata  `json:"labelMetadata,omitempty"`
 	Trust           *RenderedReportingTrust  `json:"trust,omitempty"`
+	Visual          *RenderedVisualResult    `json:"visual,omitempty"`
+	EmailDelivery   *EmailDeliveryRecipients `json:"emailDelivery,omitempty"`
 }
 
 type RenderedWidgetBucket struct {
@@ -141,12 +123,14 @@ type RenderedWidgetBucket struct {
 }
 
 type RenderedMetricValue struct {
-	Value           float64 `json:"value"`
-	Unit            string  `json:"unit"`
-	SampleCount     int     `json:"sampleCount"`
-	DataSufficiency string  `json:"dataSufficiency"`
-	Complete        bool    `json:"complete"`
-	Truncated       bool    `json:"truncated,omitempty"`
+	Value           float64        `json:"value"`
+	Unit            string         `json:"unit"`
+	Currency        string         `json:"currency,omitempty"`
+	SampleCount     int            `json:"sampleCount"`
+	DataSufficiency string         `json:"dataSufficiency"`
+	Complete        bool           `json:"complete"`
+	Truncated       bool           `json:"truncated,omitempty"`
+	Trust           *TemporalTrust `json:"trust,omitempty"`
 }
 
 type ReportingQueryMetadata struct {
@@ -202,8 +186,8 @@ func newReportingClient(client *CustdClient) *ReportingClient {
 	return &ReportingClient{client: client}
 }
 
-func (r *ReportingClient) Dashboard(ctx context.Context, key string) (*ReportingDashboard, error) {
-	var out ReportingDashboard
+func (r *ReportingClient) Dashboard(ctx context.Context, key string) (*DashboardDefinition, error) {
+	var out DashboardDefinition
 	err := r.request(ctx, http.MethodGet, "/dashboards/"+url.PathEscape(key), nil, &out)
 	return &out, err
 }
@@ -346,7 +330,7 @@ func decodeReportingResponse(body []byte, out any) error {
 	if out == nil || len(body) == 0 {
 		return nil
 	}
-	if err := json.Unmarshal(body, out); err != nil {
+	if err := unmarshalResponse(body, out); err != nil {
 		return fmt.Errorf("custd: decode reporting response: %w", err)
 	}
 	return nil
@@ -355,7 +339,7 @@ func decodeReportingResponse(body []byte, out any) error {
 func (r *SubjectInsightResponse) UnmarshalJSON(data []byte) error {
 	type subjectInsightResponseAlias SubjectInsightResponse
 	var decoded subjectInsightResponseAlias
-	if err := json.Unmarshal(data, &decoded); err != nil {
+	if err := unmarshalResponse(data, &decoded); err != nil {
 		return err
 	}
 	var fields map[string]json.RawMessage
@@ -372,14 +356,18 @@ func (r *SubjectInsightResponse) UnmarshalJSON(data []byte) error {
 func (d *RenderedWidgetData) UnmarshalJSON(data []byte) error {
 	type renderedWidgetAlias RenderedWidgetData
 	var decoded renderedWidgetAlias
-	if err := json.Unmarshal(data, &decoded); err != nil {
+	if err := unmarshalResponse(data, &decoded); err != nil {
 		return err
 	}
 	var fields map[string]json.RawMessage
 	if err := json.Unmarshal(data, &fields); err != nil {
 		return err
 	}
-	for _, field := range []string{"buckets", "value", "queryDurationMs", "snapshotAgeMs", "eventLagP95Ms"} {
+	// buckets may be null: the Go owner encodes an empty bucket list as null.
+	if _, ok := fields["buckets"]; !ok {
+		return fmt.Errorf("custd: rendered widget data missing buckets")
+	}
+	for _, field := range []string{"value", "queryDurationMs", "snapshotAgeMs", "eventLagP95Ms"} {
 		if raw, ok := fields[field]; !ok || string(raw) == "null" {
 			return fmt.Errorf("custd: rendered widget data missing %s", field)
 		}
@@ -391,7 +379,7 @@ func (d *RenderedWidgetData) UnmarshalJSON(data []byte) error {
 func (b *RenderedWidgetBucket) UnmarshalJSON(data []byte) error {
 	type renderedBucketAlias RenderedWidgetBucket
 	var decoded renderedBucketAlias
-	if err := json.Unmarshal(data, &decoded); err != nil {
+	if err := unmarshalResponse(data, &decoded); err != nil {
 		return err
 	}
 	var fields map[string]json.RawMessage
@@ -410,7 +398,7 @@ func (b *RenderedWidgetBucket) UnmarshalJSON(data []byte) error {
 func (v *RenderedMetricValue) UnmarshalJSON(data []byte) error {
 	type renderedValueAlias RenderedMetricValue
 	var decoded renderedValueAlias
-	if err := json.Unmarshal(data, &decoded); err != nil {
+	if err := unmarshalResponse(data, &decoded); err != nil {
 		return err
 	}
 	var fields map[string]json.RawMessage
@@ -432,7 +420,7 @@ func (t *RenderedReportingTrust) UnmarshalJSON(data []byte) error {
 	}
 	type trustAlias RenderedReportingTrust
 	var decoded trustAlias
-	if err := json.Unmarshal(data, &decoded); err != nil {
+	if err := unmarshalResponse(data, &decoded); err != nil {
 		return err
 	}
 	*t = RenderedReportingTrust(decoded)
@@ -473,7 +461,7 @@ func validateRenderedReportingTrustFields(data []byte) error {
 func (m *ReportingQueryMetadata) UnmarshalJSON(data []byte) error {
 	type metadataAlias ReportingQueryMetadata
 	var decoded metadataAlias
-	if err := json.Unmarshal(data, &decoded); err != nil {
+	if err := unmarshalResponse(data, &decoded); err != nil {
 		return err
 	}
 	*m = ReportingQueryMetadata(decoded)
@@ -514,7 +502,7 @@ func validateReportingQueryMetadataFields(data []byte) error {
 func (s *ReportingSourceSummary) UnmarshalJSON(data []byte) error {
 	type sourceAlias ReportingSourceSummary
 	var decoded sourceAlias
-	if err := json.Unmarshal(data, &decoded); err != nil {
+	if err := unmarshalResponse(data, &decoded); err != nil {
 		return err
 	}
 	*s = ReportingSourceSummary(decoded)

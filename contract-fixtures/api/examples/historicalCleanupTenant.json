@@ -1,0 +1,31 @@
+{
+  "maximal": {
+    "company_id": 1,
+    "completed_at": "2026-11-20T06:00:00Z",
+    "final_state": "preview",
+    "per_store": [
+      {
+        "deleted_count": 1,
+        "retained_exceptions_count": 1,
+        "retention_class": "example",
+        "store": "example"
+      }
+    ],
+    "requested_at": "2026-11-20T06:00:00Z",
+    "requested_by_kind": "example",
+    "sha256": "example",
+    "waiver": {
+      "role": "example",
+      "timestamp": "2026-11-20T06:00:00Z"
+    }
+  },
+  "minimal": {
+    "company_id": 1,
+    "completed_at": "2026-11-20T06:00:00Z",
+    "final_state": "preview",
+    "per_store": null,
+    "requested_at": "2026-11-20T06:00:00Z",
+    "requested_by_kind": "example",
+    "sha256": "example"
+  }
+}

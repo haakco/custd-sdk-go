@@ -1,0 +1,16 @@
+{
+  "maximal": {
+    "nextCursor": "example",
+    "principals": [
+      {
+        "directoryId": "0198a3b2-0000-7000-8000-000000000001",
+        "enabled": true,
+        "principalId": "0198a3b2-0000-7000-8000-000000000001",
+        "providerSubject": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "principals": null
+  }
+}

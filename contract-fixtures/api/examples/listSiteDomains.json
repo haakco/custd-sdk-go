@@ -1,0 +1,103 @@
+{
+  "maximal": {
+    "domains": [
+      {
+        "audit": {
+          "lastAuditedAt": "2026-11-20T06:00:00Z",
+          "lastFailure": "example",
+          "lastSummary": {
+            "high": 1,
+            "info": 1,
+            "low": 1,
+            "medium": 1,
+            "pagesChecked": 1,
+            "requests": 1,
+            "truncated": true
+          },
+          "requestedAt": "2026-11-20T06:00:00Z"
+        },
+        "checks": {
+          "chromeUx": {
+            "checkedAt": "2026-11-20T06:00:00Z",
+            "observation": {
+              "cls": 1.5,
+              "firstDate": "2026-11-20T06:00:00Z",
+              "inpMs": 1.5,
+              "lastDate": "2026-11-20T06:00:00Z",
+              "lcpMs": 1.5
+            }
+          },
+          "httpExpectations": {
+            "bodyContains": "example",
+            "json": {
+              "field": "example",
+              "value": "example"
+            },
+            "maxResponseMs": 1,
+            "statusCode": 1
+          },
+          "mode": "paused",
+          "openIncident": {
+            "acknowledgedAt": "2026-11-20T06:00:00Z",
+            "cause": "example",
+            "failedChecks": 1,
+            "incidentUuid": "example",
+            "openedAt": "2026-11-20T06:00:00Z",
+            "resolvedAt": "2026-11-20T06:00:00Z",
+            "startedAt": "2026-11-20T06:00:00Z"
+          },
+          "registration": {
+            "domain": "example",
+            "expiresAt": "2026-11-20T06:00:00Z",
+            "readAt": "2026-11-20T06:00:00Z",
+            "source": "example"
+          },
+          "tls": {
+            "issuer": "example",
+            "lastCheckedAt": "2026-11-20T06:00:00Z",
+            "lastFailure": "example",
+            "validTo": "2026-11-20T06:00:00Z"
+          },
+          "uptime": {
+            "consecutiveFailures": 1,
+            "lastCheckedAt": "2026-11-20T06:00:00Z",
+            "lastFailure": "example",
+            "responseMs": 1,
+            "status": "unknown",
+            "statusCode": 1
+          },
+          "warming": {
+            "lastWarmedAt": "2026-11-20T06:00:00Z",
+            "unwarmedResponseMs": 1,
+            "warmedResponseMs": 1
+          }
+        },
+        "createdAt": "2026-11-20T06:00:00Z",
+        "domainUuid": "example",
+        "host": "example",
+        "ownership": {
+          "attestation": {
+            "attestedAt": "2026-11-20T06:00:00Z",
+            "clientId": "example"
+          },
+          "instructions": {
+            "dnsRecordName": "example",
+            "dnsRecordValue": "example",
+            "fileContent": "example",
+            "fileUrl": "example"
+          },
+          "lastCheckFailure": "example",
+          "lastCheckedAt": "2026-11-20T06:00:00Z",
+          "verified": true,
+          "verifiedAt": "2026-11-20T06:00:00Z",
+          "verifiedBy": "example",
+          "verifiedViaDomainUuid": "example"
+        },
+        "siteUuid": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "domains": null
+  }
+}

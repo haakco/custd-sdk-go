@@ -1,0 +1,12 @@
+{
+  "maximal": {
+    "hourStart": "2026-11-20T06:00:00Z",
+    "previousStatus": "done",
+    "requestedAt": "2026-11-20T06:00:00Z"
+  },
+  "minimal": {
+    "hourStart": "2026-11-20T06:00:00Z",
+    "previousStatus": "done",
+    "requestedAt": "2026-11-20T06:00:00Z"
+  }
+}

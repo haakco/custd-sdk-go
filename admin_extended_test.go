@@ -3,6 +3,7 @@ package custd
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"testing"
 )
@@ -77,12 +78,12 @@ func TestPrivacyAdminClientLifecycle(t *testing.T) {
 	}
 
 	doer.status = http.StatusOK
-	doer.body = `[{"identifierId":"id-1","internalIdHash":"$2a$prefix","internalIdHashPrefix":"prefix","saltVersion":2}]`
+	doer.body = `{"companySlug":"acme","mappings":[{"identifierId":"id-1","internalIdHash":"$2a$prefix","internalIdHashPrefix":"prefix","saltVersion":2}]}`
 	mappings, err := client.Admin.Privacy.ListIdentifierMappings(context.Background(), "acme")
 	if err != nil {
 		t.Fatalf("ListIdentifierMappings error: %v", err)
 	}
-	if len(mappings) != 1 || mappings[0].IdentifierID != "id-1" {
+	if len(mappings.Mappings) != 1 || mappings.Mappings[0].IdentifierID != "id-1" {
 		t.Fatalf("mappings = %+v", mappings)
 	}
 	if doer.requests[3].URL != "http://localhost:8080/api/v1/admin/privacy/identifiers/acme" {
@@ -91,39 +92,40 @@ func TestPrivacyAdminClientLifecycle(t *testing.T) {
 }
 
 func TestRetentionAdminClientLifecycle(t *testing.T) {
-	doer := newCaptureDoer(http.StatusOK, `{"policies":[{"tenantSlug":"acme","maxAgeDays":365,"hardDeleteAfterDays":730,"applyToEventTypes":["page.view"],"applyToDataSpaces":["main"]}]}`)
+	const policy = `{"id":1,"scope":"tenant","retentionClass":"raw","maxAgeSeconds":%d,"precedence":0,` +
+		`"legalHold":false,"effectiveAt":"2026-07-31T10:00:00Z","lastAffectedCounts":{"raw":3}}`
+	doer := newCaptureDoer(http.StatusOK, `{"policies":[`+fmt.Sprintf(policy, 31536000)+`]}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080/")
 
 	list, err := client.Admin.Retention.List(context.Background())
 	if err != nil {
 		t.Fatalf("List error: %v", err)
 	}
-	if len(list.Policies) != 1 || list.Policies[0].TenantSlug != "acme" {
+	if len(list.Policies) != 1 || list.Policies[0].MaxAgeSeconds != 31536000 || list.Policies[0].LastAffectedCounts["raw"] != 3 {
 		t.Fatalf("policies = %+v", list.Policies)
 	}
 
-	doer.body = `{"tenantSlug":"acme","maxAgeDays":180,"hardDeleteAfterDays":365,"applyToEventTypes":[],"applyToDataSpaces":[]}`
+	doer.body = fmt.Sprintf(policy, 15552000)
 	upserted, err := client.Admin.Retention.Upsert(context.Background(), "acme", RetentionPolicyUpsertRequest{
-		MaxAgeDays:          180,
-		HardDeleteAfterDays: 365,
+		Scope: "tenant", RetentionClass: "raw", MaxAgeSeconds: 15552000,
 	})
 	if err != nil {
 		t.Fatalf("Upsert error: %v", err)
 	}
-	if upserted.MaxAgeDays != 180 {
-		t.Fatalf("upserted.MaxAgeDays = %d", upserted.MaxAgeDays)
+	if upserted.MaxAgeSeconds != 15552000 {
+		t.Fatalf("upserted.MaxAgeSeconds = %d", upserted.MaxAgeSeconds)
 	}
 	if doer.requests[1].Method != http.MethodPut ||
 		doer.requests[1].URL != "http://localhost:8080/api/v1/admin/retention/policies/acme" {
 		t.Fatalf("Upsert request = %+v", doer.requests[1])
 	}
 
-	doer.body = `{"tenantSlug":"acme","maxAgeDays":180,"hardDeleteAfterDays":365,"applyToEventTypes":[],"applyToDataSpaces":[]}`
+	doer.body = `{"policies":[` + fmt.Sprintf(policy, 15552000) + `]}`
 	got, err := client.Admin.Retention.Get(context.Background(), "acme")
 	if err != nil {
 		t.Fatalf("Get error: %v", err)
 	}
-	if got.TenantSlug != "acme" {
+	if len(got.Policies) != 1 || got.Policies[0].RetentionClass != "raw" {
 		t.Fatalf("get = %+v", got)
 	}
 
@@ -134,14 +136,15 @@ func TestRetentionAdminClientLifecycle(t *testing.T) {
 }
 
 func TestStorageAlertAdminClientLifecycle(t *testing.T) {
-	doer := newCaptureDoer(http.StatusOK, `{"rules":[{"ruleId":"rule-1","tenantSlug":"acme","metric":"ingest_bytes","thresholdPercent":80,"channel":"slack","enabled":true}]}`)
+	doer := newCaptureDoer(http.StatusOK, `{"rules":[{"ruleId":"rule-1","tenantSlug":"acme","metric":"ingest_bytes","thresholdPercent":80,"channel":"webhook","enabled":true,"createdAt":"2026-07-31T10:00:00Z","updatedAt":"2026-07-31T10:00:00Z","evaluation":{"breached":true,"measuredValue":85,"evaluatedAt":"2026-07-31T10:00:00Z"}}]}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080/")
 
 	list, err := client.Admin.StorageAlerts.ListRules(context.Background(), "acme")
 	if err != nil {
 		t.Fatalf("ListRules error: %v", err)
 	}
-	if len(list.Rules) != 1 || list.Rules[0].RuleID != "rule-1" {
+	if len(list.Rules) != 1 || list.Rules[0].RuleID != "rule-1" ||
+		list.Rules[0].Evaluation == nil || list.Rules[0].Evaluation.MeasuredValue != 85 {
 		t.Fatalf("rules = %+v", list.Rules)
 	}
 	if doer.requests[0].URL != "http://localhost:8080/api/v1/admin/storage/alerts/acme" {
@@ -154,6 +157,7 @@ func TestStorageAlertAdminClientLifecycle(t *testing.T) {
 		Metric:           "ingest_bytes",
 		ThresholdPercent: 90,
 		Channel:          "email",
+		EmailRecipient:   "ops@example.com",
 		Enabled:          true,
 	})
 	if err != nil {

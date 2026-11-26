@@ -1,0 +1,137 @@
+{
+  "maximal": {
+    "brandLogoUrl": "example",
+    "clientSync": {
+      "checkedAt": "2026-11-20T06:00:00Z",
+      "clientIds": [
+        "example"
+      ],
+      "current": true,
+      "errorCategory": "example",
+      "issuer": "example",
+      "registrations": [
+        {
+          "audience": "example",
+          "clientId": "example",
+          "observed": true
+        }
+      ],
+      "revision": 1
+    },
+    "companySlug": "example",
+    "companyUuid": "0198a3b2-0000-7000-8000-000000000001",
+    "desired": {
+      "applicationSessionPolicy": "offer_remember_me",
+      "audiences": [
+        {
+          "allowedOrigins": [
+            "example"
+          ],
+          "audience": "example",
+          "postLogoutRedirectUris": [
+            "example"
+          ],
+          "publicClient": true,
+          "redirectUris": [
+            "example"
+          ]
+        }
+      ],
+      "brandAccent": "example",
+      "displayName": "example",
+      "displayNameSource": "example",
+      "entryPath": "example",
+      "hosting": {
+        "capabilities": [
+          "example"
+        ],
+        "ingestTarget": {
+          "resourceUuid": "example",
+          "scopeUuid": "example"
+        },
+        "mode": "example"
+      },
+      "identityMode": "isolated",
+      "loginPaused": true,
+      "profileFields": [
+        {
+          "editableBy": "user",
+          "key": "example",
+          "required": true,
+          "visibleToApplication": true
+        }
+      ],
+      "registrationPolicy": "invite_only",
+      "signInMethods": [
+        "example"
+      ],
+      "socialSignIn": {
+        "providers": [
+          {
+            "clientId": "example",
+            "clientSecret": "example",
+            "clientSecretSet": true,
+            "mode": "shared",
+            "provider": "google"
+          }
+        ],
+        "status": {
+          "callbackUrls": [
+            {
+              "provider": "google",
+              "url": "example"
+            }
+          ],
+          "providers": [
+            {
+              "mode": "shared",
+              "note": "example",
+              "provider": "google",
+              "state": "active"
+            }
+          ]
+        }
+      },
+      "withdrawDisplayName": true
+    },
+    "environmentId": "example",
+    "hosting": {
+      "host": "example",
+      "origin": "example",
+      "signIn": {
+        "audience": "example",
+        "clientId": "example",
+        "postLogoutRedirectUri": "example",
+        "redirectUri": "example"
+      }
+    },
+    "loginNote": "example",
+    "loginReady": true,
+    "projectId": "example",
+    "reconcileNote": "example",
+    "reconciled": true,
+    "revision": 1
+  },
+  "minimal": {
+    "companyUuid": "0198a3b2-0000-7000-8000-000000000001",
+    "desired": {
+      "audiences": null,
+      "brandAccent": "example",
+      "displayName": "example",
+      "displayNameSource": "example",
+      "entryPath": "example",
+      "identityMode": "isolated",
+      "loginPaused": true,
+      "profileFields": null,
+      "registrationPolicy": "invite_only",
+      "signInMethods": null
+    },
+    "environmentId": "example",
+    "loginNote": "example",
+    "loginReady": true,
+    "projectId": "example",
+    "reconcileNote": "example",
+    "reconciled": true,
+    "revision": 1
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "maximal": {
+    "outboxes": [
+      {
+        "failed": 1,
+        "name": "example",
+        "pending": 1
+      }
+    ],
+    "queueCounts": [
+      {
+        "count": 1,
+        "kind": "example",
+        "oldestWaitingAt": "2026-11-20T06:00:00Z",
+        "queue": "example",
+        "state": "example"
+      }
+    ],
+    "realtimeEvents": 1,
+    "recentFailures": [
+      {
+        "attempts": 1,
+        "failedAt": "2026-11-20T06:00:00Z",
+        "jobId": 1,
+        "kind": "example",
+        "maxAttempts": 1,
+        "queue": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "outboxes": null,
+    "queueCounts": null,
+    "realtimeEvents": 1,
+    "recentFailures": null
+  }
+}

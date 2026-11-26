@@ -34,7 +34,6 @@ type NotificationWebhookSubscription struct {
 	Kind      NotificationWebhookKind `json:"kind"`
 	Endpoint  string                  `json:"endpoint"`
 	Enabled   bool                    `json:"enabled"`
-	Company   string                  `json:"companySlug,omitempty"`
 	CreatedAt string                  `json:"createdAt"`
 	UpdatedAt string                  `json:"updatedAt"`
 }
@@ -79,6 +78,12 @@ type NotificationDeliveryStatus struct {
 	LastErrorClass string `json:"lastErrorClass,omitempty"`
 	FailureReason  string `json:"failureReason,omitempty"`
 	NextAction     string `json:"nextAction,omitempty"`
+	// ProviderMessageID is the email or webhook provider's id once sent.
+	ProviderMessageID string `json:"providerMessageId,omitempty"`
+	CreatedAt         string `json:"createdAt"`
+	UpdatedAt         string `json:"updatedAt"`
+	SentAt            string `json:"sentAt,omitempty"`
+	TerminalAt        string `json:"terminalAt,omitempty"`
 }
 
 const (
@@ -137,7 +142,7 @@ func (c *NotificationWebhookAdminClient) RotateSecret(
 	uuid string,
 ) (*NotificationWebhookSecret, ResponseMetadata, error) {
 	var out NotificationWebhookSecret
-	path := tenantScopedPath(notificationWebhooksPath, uuid, company) + rotateSecretPathSegment
+	path := tenantScopedPath(notificationWebhooksPath+"/"+url.PathEscape(uuid)+rotateSecretPathSegment, "", company)
 	metadata, err := c.admin.requestWithMetadata(ctx, http.MethodPost, path, nil, &out)
 	return &out, metadata, err
 }
@@ -173,7 +178,7 @@ func (c *NotificationWebhookAdminClient) Replay(
 	uuid string,
 	reason string,
 ) (ResponseMetadata, error) {
-	path := tenantScopedPath(notificationDeliveriesPath, uuid, company) + notificationReplayPathPart
+	path := tenantScopedPath(notificationDeliveriesPath+"/"+url.PathEscape(uuid)+notificationReplayPathPart, "", company)
 	return c.admin.requestWithMetadata(
 		ctx, http.MethodPost, path, map[string]string{"reason": reason}, nil,
 	)

@@ -1,0 +1,36 @@
+{
+  "maximal": {
+    "allowedEnvironments": [
+      "example"
+    ],
+    "allowedOrigins": [
+      "example"
+    ],
+    "companySlug": "example",
+    "enabled": true,
+    "environment": "example",
+    "identityMode": "cookieless",
+    "ingestTarget": {
+      "resourceCode": "example",
+      "resourceUuid": "example",
+      "scopeCode": "example",
+      "scopeUuid": "example"
+    },
+    "name": "example",
+    "rateLimitPerMinute": 1,
+    "retentionDays": 1,
+    "siteUuid": "example"
+  },
+  "minimal": {
+    "allowedEnvironments": null,
+    "allowedOrigins": null,
+    "companySlug": "example",
+    "enabled": true,
+    "environment": "example",
+    "identityMode": "cookieless",
+    "name": "example",
+    "rateLimitPerMinute": 1,
+    "retentionDays": 1,
+    "siteUuid": "example"
+  }
+}

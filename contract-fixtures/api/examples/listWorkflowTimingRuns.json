@@ -1,0 +1,20 @@
+{
+  "maximal": {
+    "items": [
+      {
+        "externalRunId": "example",
+        "finishedAt": "2026-11-20T06:00:00Z",
+        "openAttempts": 1,
+        "pendingFacts": 1,
+        "receiptAt": "2026-11-20T06:00:00Z",
+        "runUuid": "example",
+        "startedAt": "2026-11-20T06:00:00Z",
+        "state": "running",
+        "workflowKey": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "items": null
+  }
+}

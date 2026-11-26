@@ -1,0 +1,19 @@
+{
+  "maximal": {
+    "runs": [
+      {
+        "createdAt": "2026-11-20T06:00:00Z",
+        "modelUuid": "example",
+        "runUuid": "example",
+        "sampleCount": 1,
+        "seed": 1,
+        "sourceForecastRunUuid": "example",
+        "trigger": "request",
+        "versionNumber": 1
+      }
+    ]
+  },
+  "minimal": {
+    "runs": null
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "maximal": {
+    "from": "2026-11-20T06:00:00Z",
+    "period": "day",
+    "rows": [
+      {
+        "attempts": 1,
+        "audioMilliseconds": 1,
+        "cachedInputTokens": 1,
+        "capAccountedUsdMicros": 1,
+        "confirmedCostUsdMicros": 1,
+        "estimatedCostUsdMicros": 1,
+        "failedAttempts": 1,
+        "feature": "example",
+        "inputTokens": 1,
+        "method": "example",
+        "model": "example",
+        "notSentAttempts": 1,
+        "outputTokens": 1,
+        "pages": 1,
+        "payer": "example",
+        "priceRevision": "example",
+        "provider": "example",
+        "samplingProduct": "hosting",
+        "searches": 1,
+        "tenantSlug": "example",
+        "unknownCostAttempts": 1,
+        "unsettledAttempts": 1
+      }
+    ],
+    "samplingMonthlyCapUsdMicros": 1,
+    "until": "2026-11-20T06:00:00Z"
+  },
+  "minimal": {
+    "from": "2026-11-20T06:00:00Z",
+    "period": "day",
+    "rows": null,
+    "samplingMonthlyCapUsdMicros": 1,
+    "until": "2026-11-20T06:00:00Z"
+  }
+}

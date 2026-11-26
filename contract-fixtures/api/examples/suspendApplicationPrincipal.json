@@ -1,0 +1,22 @@
+{
+  "maximal": {
+    "directoryId": "example",
+    "enabled": true,
+    "environmentId": "example",
+    "principalId": "example",
+    "projectId": "example",
+    "replayed": true,
+    "revision": 1,
+    "sessionsRevoked": 1
+  },
+  "minimal": {
+    "directoryId": "example",
+    "enabled": true,
+    "environmentId": "example",
+    "principalId": "example",
+    "projectId": "example",
+    "replayed": true,
+    "revision": 1,
+    "sessionsRevoked": 1
+  }
+}

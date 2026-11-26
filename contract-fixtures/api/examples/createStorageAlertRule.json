@@ -1,0 +1,29 @@
+{
+  "maximal": {
+    "channel": "email",
+    "createdAt": "2026-11-20T06:00:00Z",
+    "emailRecipient": "example",
+    "enabled": true,
+    "evaluation": {
+      "breached": true,
+      "evaluatedAt": "2026-11-20T06:00:00Z",
+      "firedAt": "2026-11-20T06:00:00Z",
+      "measuredValue": 1
+    },
+    "metric": "example",
+    "ruleId": "example",
+    "tenantSlug": "example",
+    "thresholdPercent": 1,
+    "updatedAt": "2026-11-20T06:00:00Z"
+  },
+  "minimal": {
+    "channel": "email",
+    "createdAt": "2026-11-20T06:00:00Z",
+    "enabled": true,
+    "metric": "example",
+    "ruleId": "example",
+    "tenantSlug": "example",
+    "thresholdPercent": 1,
+    "updatedAt": "2026-11-20T06:00:00Z"
+  }
+}

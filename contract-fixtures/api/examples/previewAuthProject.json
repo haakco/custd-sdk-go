@@ -1,0 +1,26 @@
+{
+  "maximal": {
+    "changes": [
+      {
+        "after": "example",
+        "before": "example",
+        "field": "example"
+      }
+    ],
+    "environmentId": "example",
+    "noOp": true,
+    "projectId": "example",
+    "revision": 1,
+    "sideEffects": [
+      "example"
+    ]
+  },
+  "minimal": {
+    "changes": null,
+    "environmentId": "example",
+    "noOp": true,
+    "projectId": "example",
+    "revision": 1,
+    "sideEffects": null
+  }
+}

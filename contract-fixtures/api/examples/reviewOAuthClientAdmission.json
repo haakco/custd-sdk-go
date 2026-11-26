@@ -1,0 +1,55 @@
+{
+  "maximal": {
+    "admission": {
+      "admissionUuid": "example",
+      "approvedAt": "2026-11-20T06:00:00Z",
+      "approvedGrants": [
+        {
+          "resourceUri": "example",
+          "scopes": [
+            "example"
+          ]
+        }
+      ],
+      "approvedSecurityRevision": "example",
+      "clientId": "example",
+      "companyUuid": "example",
+      "requestedGrants": [
+        {
+          "resourceUri": "example",
+          "scopes": [
+            "example"
+          ]
+        }
+      ],
+      "requestedSecurityRevision": "example",
+      "revision": 1,
+      "revokedAt": "2026-11-20T06:00:00Z"
+    },
+    "metadata": {
+      "clientName": "example",
+      "expiresAt": "2026-11-20T06:00:00Z",
+      "redirectUris": [
+        "example"
+      ],
+      "securityRevision": "example"
+    }
+  },
+  "minimal": {
+    "admission": {
+      "admissionUuid": "example",
+      "approvedGrants": null,
+      "clientId": "example",
+      "companyUuid": "example",
+      "requestedGrants": null,
+      "requestedSecurityRevision": "example",
+      "revision": 1
+    },
+    "metadata": {
+      "clientName": "example",
+      "expiresAt": "2026-11-20T06:00:00Z",
+      "redirectUris": null,
+      "securityRevision": "example"
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "maximal": {
+    "exports": [
+      {
+        "artifacts": [
+          {
+            "artifactKey": "example",
+            "fallbackForFormat": "csv",
+            "filename": "example",
+            "format": "csv",
+            "id": "example",
+            "mediaType": "example",
+            "objectBytes": 1,
+            "objectSha256": "example",
+            "rendererVersion": "example",
+            "warnings": [
+              "example"
+            ]
+          }
+        ],
+        "attemptCount": 1,
+        "cancellationReason": "example",
+        "cleanupAttempts": 1,
+        "cleanupState": "example",
+        "dashboardKey": "example",
+        "expiresAt": "2026-11-20T06:00:00Z",
+        "failureCategory": "example",
+        "failureMessage": "example",
+        "finishedAt": "2026-11-20T06:00:00Z",
+        "formats": [
+          "csv"
+        ],
+        "id": "example",
+        "nextAttemptAt": "2026-11-20T06:00:00Z",
+        "nextCleanupAt": "2026-11-20T06:00:00Z",
+        "packGeneration": 1,
+        "packKey": "example",
+        "parametersDigest": "example",
+        "progressCounters": [
+          {
+            "count": 1,
+            "key": "example"
+          }
+        ],
+        "progressStage": "example",
+        "queuedAt": "2026-11-20T06:00:00Z",
+        "snapshotSha256": "example",
+        "startedAt": "2026-11-20T06:00:00Z",
+        "state": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "exports": null
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "maximal": {
+    "auditedAt": "2026-11-20T06:00:00Z",
+    "domainUuid": "example",
+    "failure": "example",
+    "fixed": [
+      {
+        "dismissible": true,
+        "evidence": "example",
+        "findingUuid": "example",
+        "fix": "example",
+        "history": {
+          "firstSeenAt": "2026-11-20T06:00:00Z",
+          "fixed": true,
+          "fixedAt": "2026-11-20T06:00:00Z",
+          "lastSeenAt": "2026-11-20T06:00:00Z"
+        },
+        "recheckable": true,
+        "remedy": {
+          "element": "example",
+          "generated": {
+            "code": "example",
+            "format": "html"
+          },
+          "kind": "markup"
+        },
+        "rule": "example",
+        "severity": "example",
+        "source": "example",
+        "suggestion": {
+          "explanation": "example",
+          "nextStep": "example"
+        },
+        "title": "example",
+        "url": "example"
+      }
+    ],
+    "new": [
+      {
+        "dismissible": true,
+        "evidence": "example",
+        "findingUuid": "example",
+        "fix": "example",
+        "history": {
+          "firstSeenAt": "2026-11-20T06:00:00Z",
+          "fixed": true,
+          "fixedAt": "2026-11-20T06:00:00Z",
+          "lastSeenAt": "2026-11-20T06:00:00Z"
+        },
+        "recheckable": true,
+        "remedy": {
+          "element": "example",
+          "generated": {
+            "code": "example",
+            "format": "html"
+          },
+          "kind": "markup"
+        },
+        "rule": "example",
+        "severity": "example",
+        "source": "example",
+        "suggestion": {
+          "explanation": "example",
+          "nextStep": "example"
+        },
+        "title": "example",
+        "url": "example"
+      }
+    ],
+    "reopened": [
+      {
+        "dismissible": true,
+        "evidence": "example",
+        "findingUuid": "example",
+        "fix": "example",
+        "history": {
+          "firstSeenAt": "2026-11-20T06:00:00Z",
+          "fixed": true,
+          "fixedAt": "2026-11-20T06:00:00Z",
+          "lastSeenAt": "2026-11-20T06:00:00Z"
+        },
+        "recheckable": true,
+        "remedy": {
+          "element": "example",
+          "generated": {
+            "code": "example",
+            "format": "html"
+          },
+          "kind": "markup"
+        },
+        "rule": "example",
+        "severity": "example",
+        "source": "example",
+        "suggestion": {
+          "explanation": "example",
+          "nextStep": "example"
+        },
+        "title": "example",
+        "url": "example"
+      }
+    ],
+    "run": "not_audited"
+  },
+  "minimal": {
+    "domainUuid": "example",
+    "fixed": null,
+    "new": null,
+    "reopened": null,
+    "run": "not_audited"
+  }
+}

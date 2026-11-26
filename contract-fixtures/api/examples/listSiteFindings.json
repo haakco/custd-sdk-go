@@ -1,0 +1,39 @@
+{
+  "maximal": {
+    "findings": [
+      {
+        "dismissible": true,
+        "evidence": "example",
+        "findingUuid": "example",
+        "fix": "example",
+        "history": {
+          "firstSeenAt": "2026-11-20T06:00:00Z",
+          "fixed": true,
+          "fixedAt": "2026-11-20T06:00:00Z",
+          "lastSeenAt": "2026-11-20T06:00:00Z"
+        },
+        "recheckable": true,
+        "remedy": {
+          "element": "example",
+          "generated": {
+            "code": "example",
+            "format": "html"
+          },
+          "kind": "markup"
+        },
+        "rule": "example",
+        "severity": "example",
+        "source": "example",
+        "suggestion": {
+          "explanation": "example",
+          "nextStep": "example"
+        },
+        "title": "example",
+        "url": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "findings": null
+  }
+}

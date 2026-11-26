@@ -1,0 +1,64 @@
+{
+  "maximal": {
+    "coverageBeginsAt": "2026-11-20T06:00:00Z",
+    "events": [
+      {
+        "action": "example",
+        "actorDisplayName": "example",
+        "actorKind": "example",
+        "actorReference": "example",
+        "actorRoles": [
+          "example"
+        ],
+        "changes": [
+          {
+            "after": {},
+            "before": {},
+            "field": "example"
+          }
+        ],
+        "correlationId": "example",
+        "createdAt": "2026-11-20T06:00:00Z",
+        "details": {
+          "key": {}
+        },
+        "domainHistory": {
+          "action": "example",
+          "createdAt": "2026-11-20T06:00:00Z",
+          "currentState": "example",
+          "previousState": "example",
+          "resourceId": "example",
+          "resourceType": "example",
+          "source": "example",
+          "sourceId": "example",
+          "state": "example",
+          "streamVersion": 1
+        },
+        "eventId": "0198a3b2-0000-7000-8000-000000000001",
+        "network": {
+          "ipAddress": "example",
+          "ipAddressState": "available",
+          "userAgent": "example",
+          "userAgentState": "available"
+        },
+        "operationId": "example",
+        "outcome": "attempted",
+        "resourceId": "example",
+        "resourceType": "example",
+        "tenantSlug": "example"
+      }
+    ],
+    "nextCursor": {
+      "cursor": "example"
+    },
+    "retention": {
+      "eventMaxAgeSeconds": 1,
+      "ipAddressMaxAgeSeconds": 1,
+      "userAgentMaxAgeSeconds": 1
+    }
+  },
+  "minimal": {
+    "events": null,
+    "nextCursor": {}
+  }
+}

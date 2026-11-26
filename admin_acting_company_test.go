@@ -147,6 +147,19 @@ func TestActingCompanyTargetsByQueryOnMetadataRequestsOverHTTP(t *testing.T) {
 	assertTenantTargetedByQueryOnly(t, lastRequest(), "haakco")
 }
 
+// TestActingCompanyTargetsByQueryOnBinaryRequests proves the byte-response helper
+// (audit export) names the configured tenant like every other admin request.
+func TestActingCompanyTargetsByQueryOnBinaryRequests(t *testing.T) {
+	doer := newCaptureDoer(http.StatusOK, "id,action\n")
+	client := newAdminTestClient(t, doer, "http://localhost:8080")
+	client.config.ActingCompanySlug = "haakco"
+
+	if _, err := client.Admin.Audit.ExportEvents(context.Background(), AuditListOptions{}, "csv"); err != nil {
+		t.Fatalf("ExportEvents returned error: %v", err)
+	}
+	assertTenantTargetedByQueryOnly(t, recordDoerRequest(doer), "haakco")
+}
+
 // TestActingCompanyKeepsAnExplicitCompanySelector proves a method that names its own
 // company keeps that name: the configured default fills a gap, it never overrides the
 // caller's own selection.
@@ -155,7 +168,7 @@ func TestActingCompanyKeepsAnExplicitCompanySelector(t *testing.T) {
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
 	client.config.ActingCompanySlug = "haakco"
 
-	if _, err := client.Admin.AdminUsers.List(context.Background(), "awthy", false); err != nil {
+	if _, err := client.Admin.AdminUsers.List(context.Background(), AdminUserListOptions{CompanySlug: "awthy"}); err != nil {
 		t.Fatalf("List returned error: %v", err)
 	}
 	assertTenantTargetedByQueryOnly(t, recordDoerRequest(doer), "awthy")
@@ -306,5 +319,76 @@ func TestNonAdminRequestKeepsAuditLabelsAndRequestID(t *testing.T) {
 	assertAuditLabels(t, recordDoerRequest(doer), "custdctl", "sites indexnow show")
 	if recorder.RequestID != "req-site" {
 		t.Fatalf("recorded request id = %q, want req-site", recorder.RequestID)
+	}
+}
+
+// TestActingCompanyReachesTopLevelTenantRoutes proves the configured acting
+// company also targets the tenant-scoped routes outside /api/v1/admin.
+func TestActingCompanyReachesTopLevelTenantRoutes(t *testing.T) {
+	doer := newCaptureDoer(http.StatusOK, `{}`)
+	client := newAdminTestClient(t, doer, "http://localhost:8080")
+	client.config.ActingCompanySlug = "haakco"
+	calls := map[string]func() error{
+		"error issues": func() error {
+			_, err := client.Admin.ErrorIssues.List(context.Background(), ErrorIssueListOptions{})
+			return err
+		},
+		"notification destination": func() error {
+			_, err := client.Admin.NotificationDestinations.Get(context.Background(), "", "site.down")
+			return err
+		},
+	}
+	for name, call := range calls {
+		if err := call(); err != nil {
+			t.Fatalf("%s: %v", name, err)
+		}
+		assertTenantTargetedByQueryOnly(t, recordDoerRequest(doer), "haakco")
+	}
+}
+
+// cleanupJobCalls are the ingest-api cleanup-job routes. Reads and cancel take a
+// system administrator's tenant only from the support-context header; create
+// takes it from the body and still needs the header to act for another company.
+func cleanupJobCalls(ingest *IngestAdminClient) map[string]func() error {
+	ctx := context.Background()
+	return map[string]func() error{
+		"list":   func() error { _, err := ingest.ListCleanupJobs(ctx); return err },
+		"create": func() error { _, err := ingest.CreateCleanupJob(ctx, CleanupJobCreateRequest{}); return err },
+		"get":    func() error { _, err := ingest.GetCleanupJob(ctx, "job-1"); return err },
+		"cancel": func() error { _, err := ingest.CancelCleanupJob(ctx, "job-1"); return err },
+		"proof":  func() error { _, err := ingest.GetCleanupJobProof(ctx, "job-1"); return err },
+	}
+}
+
+// TestCleanupJobsSendActingCompanyAsSupportHeader proves the configured acting
+// company reaches ingest-api's cleanup-job routes, which take a system
+// administrator's tenant only from X-Custd-Effective-Company, on both transports,
+// and that an unset acting company sends no header.
+func TestCleanupJobsSendActingCompanyAsSupportHeader(t *testing.T) {
+	for _, company := range []string{"awthy", ""} {
+		doer := newCaptureDoer(http.StatusOK, `{}`)
+		client := newAdminTestClient(t, doer, "http://localhost:8080")
+		client.config.ActingCompanySlug = company
+		native, lastRequest := newNativeAdmin(t, `{}`)
+		native.client.config.ActingCompanySlug = company
+		transports := map[string]struct {
+			calls map[string]func() error
+			last  func() recordedAdminRequest
+		}{
+			"doer":   {cleanupJobCalls(client.Admin.Ingest), func() recordedAdminRequest { return recordDoerRequest(doer) }},
+			"native": {cleanupJobCalls(native.Ingest), lastRequest},
+		}
+		for transport, tt := range transports {
+			for name, call := range tt.calls {
+				if err := call(); err != nil {
+					t.Fatalf("%s %s: %v", transport, name, err)
+				}
+				got, present := tt.last().headers[supportContextHeader]
+				if got != company || present != (company != "") {
+					t.Fatalf("%s %s: %s = %q (present %v), want %q",
+						transport, name, supportContextHeader, got, present, company)
+				}
+			}
+		}
 	}
 }

@@ -1,0 +1,32 @@
+{
+  "maximal": {
+    "companySlug": "example",
+    "createdAt": "example",
+    "deleteReason": "example",
+    "deletedAt": "example",
+    "deletedByUserUuid": "example",
+    "email": "example",
+    "globalUserState": "enabled",
+    "lastLoginAt": "example",
+    "membershipState": "active",
+    "roles": [
+      "tenant_admin"
+    ],
+    "userUuid": "example",
+    "welcomeNotificationStatus": "example"
+  },
+  "minimal": {
+    "companySlug": "example",
+    "createdAt": "example",
+    "deleteReason": "example",
+    "deletedAt": "example",
+    "deletedByUserUuid": "example",
+    "email": "example",
+    "globalUserState": "enabled",
+    "lastLoginAt": "example",
+    "membershipState": "active",
+    "roles": [],
+    "userUuid": "example",
+    "welcomeNotificationStatus": "example"
+  }
+}

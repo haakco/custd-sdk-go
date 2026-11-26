@@ -1,0 +1,28 @@
+{
+  "maximal": {
+    "policies": [
+      {
+        "auditId": 1,
+        "companyId": 1,
+        "effectiveAt": "2026-11-20T06:00:00Z",
+        "expiresAt": "2026-11-20T06:00:00Z",
+        "id": 1,
+        "lastAffectedCounts": {
+          "key": 1
+        },
+        "lastError": "example",
+        "lastResult": "example",
+        "legalHold": true,
+        "legalHoldUntil": "2026-11-20T06:00:00Z",
+        "maxAgeSeconds": 1,
+        "nextRunAt": "2026-11-20T06:00:00Z",
+        "precedence": 1,
+        "retentionClass": "raw",
+        "scope": "tenant"
+      }
+    ]
+  },
+  "minimal": {
+    "policies": null
+  }
+}

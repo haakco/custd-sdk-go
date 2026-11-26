@@ -26,11 +26,20 @@ func TestDiagnosticsGetHealthUsesTheRootAndSendsNoCredential(t *testing.T) {
 
 // The account route is under /api/v1 but not under /api/v1/admin, so it is built explicitly.
 func TestDiagnosticsGetAccountUsesTheAccountRoute(t *testing.T) {
-	doer := newCaptureDoer(http.StatusOK, `{"companySlug":"acme"}`)
+	doer := newCaptureDoer(http.StatusOK, `{"userUuid":"u1","companySlug":"acme","companyName":"Acme",`+
+		`"email":"a@acme.test","principalKind":"human","roles":[],"permissions":[],"scopes":["admin"]}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
+	restore := unmarshalResponse
+	unmarshalResponse = unmarshalStrict
+	defer func() { unmarshalResponse = restore }()
 
-	if _, _, err := client.Admin.GetAccount(context.Background()); err != nil {
+	account, _, err := client.Admin.GetAccount(context.Background())
+	if err != nil {
 		t.Fatalf("GetAccount: %v", err)
+	}
+	if account.UserUUID != "u1" || account.CompanyName != "Acme" || account.PrincipalKind != AccountPrincipalHuman ||
+		len(account.Scopes) != 1 || account.Scopes[0] != "admin" {
+		t.Fatalf("account = %+v, want every field the ingest-api account handler writes", account)
 	}
 	if url := doer.requests[0].URL; url != "http://localhost:8080/api/v1/account/me" {
 		t.Fatalf("url = %s, want the account route", url)

@@ -1,0 +1,105 @@
+{
+  "maximal": {
+    "boundInputs": [
+      {
+        "detail": "example",
+        "forecastGeneratedAt": "2026-11-20T06:00:00Z",
+        "forecastRunUuid": "example",
+        "quantity": "example",
+        "source": {
+          "field": "completion_days",
+          "kind": "counter_forecast",
+          "projectUuid": "0198a3b2-0000-7000-8000-000000000001"
+        },
+        "state": "resolved",
+        "value": 1.5
+      }
+    ],
+    "createdAt": "2026-11-20T06:00:00Z",
+    "decision": {
+      "minimumWorthwhile": 1.5,
+      "output": "example",
+      "threshold": 1.5,
+      "valuePerUnit": 1.5
+    },
+    "information": {
+      "actProbability": 1.5,
+      "expectedValueOfPerfectInformation": 1.5,
+      "inputs": [
+        {
+          "expectedValueOfPerfectInformation": 1.5,
+          "name": "example"
+        }
+      ],
+      "recommended": "act",
+      "suggestedNextMeasurement": "example"
+    },
+    "modelUuid": "example",
+    "quantities": [
+      {
+        "error": {
+          "code": "example",
+          "detail": "example"
+        },
+        "name": "example",
+        "summary": {
+          "histogram": {
+            "counts": [
+              1
+            ],
+            "max": 1.5,
+            "min": 1.5
+          },
+          "mean": 1.5,
+          "percentiles": {
+            "p25": 1.5,
+            "p5": 1.5,
+            "p50": 1.5,
+            "p75": 1.5,
+            "p95": 1.5
+          },
+          "stdDev": 1.5
+        }
+      }
+    ],
+    "queuedRunFailure": {
+      "attempts": 1,
+      "error": "example",
+      "failedAt": "2026-11-20T06:00:00Z"
+    },
+    "runUuid": "example",
+    "sampleCount": 1,
+    "seed": 1,
+    "sensitivity": {
+      "inputs": [
+        {
+          "name": "example",
+          "rankCorrelation": 1.5,
+          "scatter": [
+            {
+              "input": 1.5,
+              "output": 1.5
+            }
+          ],
+          "share": 1.5
+        }
+      ],
+      "output": "example"
+    },
+    "sensitivityOutput": "example",
+    "sourceForecastRunUuid": "example",
+    "trigger": "request",
+    "versionNumber": 1
+  },
+  "minimal": {
+    "boundInputs": null,
+    "createdAt": "2026-11-20T06:00:00Z",
+    "modelUuid": "example",
+    "quantities": null,
+    "runUuid": "example",
+    "sampleCount": 1,
+    "seed": 1,
+    "trigger": "request",
+    "versionNumber": 1
+  }
+}

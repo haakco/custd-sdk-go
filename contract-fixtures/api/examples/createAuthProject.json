@@ -1,0 +1,32 @@
+{
+  "maximal": {
+    "operationId": "example",
+    "project": {
+      "audienceEntitlementMode": "organisation_membership",
+      "companyUuid": "0198a3b2-0000-7000-8000-000000000001",
+      "environmentId": "example",
+      "environmentSlug": "example",
+      "identityMode": "isolated",
+      "name": "example",
+      "projectId": "example",
+      "slug": "example"
+    },
+    "replayed": true,
+    "runtimeReady": true
+  },
+  "minimal": {
+    "operationId": "example",
+    "project": {
+      "audienceEntitlementMode": "organisation_membership",
+      "companyUuid": "0198a3b2-0000-7000-8000-000000000001",
+      "environmentId": "example",
+      "environmentSlug": "example",
+      "identityMode": "isolated",
+      "name": "example",
+      "projectId": "example",
+      "slug": "example"
+    },
+    "replayed": true,
+    "runtimeReady": true
+  }
+}

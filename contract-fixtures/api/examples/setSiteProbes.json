@@ -1,0 +1,51 @@
+{
+  "maximal": {
+    "probes": [
+      {
+        "detail": {
+          "addresses": [
+            "example"
+          ],
+          "bytesRead": 1,
+          "cache": {
+            "age": "example",
+            "cacheControl": "example",
+            "cacheStatus": "example",
+            "server": "example",
+            "via": "example"
+          },
+          "missingAddresses": [
+            "example"
+          ],
+          "negotiatedProtocol": "example",
+          "resolvedIp": "example",
+          "statusCode": 1,
+          "timings": {
+            "connectMs": 1,
+            "dnsMs": 1,
+            "firstByteMs": 1,
+            "tlsMs": 1,
+            "totalMs": 1
+          },
+          "tlsVersion": "example",
+          "unexpectedAddresses": [
+            "example"
+          ]
+        },
+        "expectedAddresses": [
+          "example"
+        ],
+        "kind": "ping",
+        "lastCheckedAt": "2026-11-20T06:00:00Z",
+        "lastFailure": "example",
+        "port": 1,
+        "protocol": "http1.1",
+        "responseMs": 1,
+        "status": "unknown"
+      }
+    ]
+  },
+  "minimal": {
+    "probes": null
+  }
+}

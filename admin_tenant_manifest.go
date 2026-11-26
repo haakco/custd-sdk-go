@@ -28,6 +28,22 @@ type TenantManifestResourceStatus struct {
 	Ready              bool   `json:"ready"`
 	SafeNextAction     string `json:"safeNextAction"`
 	SafeNextActionCode string `json:"safeNextActionCode"`
+	Detail             string `json:"detail,omitempty"`
+}
+
+// TenantManifestRetryFailure explains an unsuccessful reconcile attempt and
+// the resources that blocked it.
+type TenantManifestRetryFailure struct {
+	Code       string                         `json:"code"`
+	ObservedAt time.Time                      `json:"observedAt"`
+	Resources  []TenantManifestResourceStatus `json:"resources"`
+}
+
+// TenantManifestPendingStatus explains an unfinished operation: when it next
+// runs and why the last attempt did not become ready.
+type TenantManifestPendingStatus struct {
+	NextAttemptAt time.Time                   `json:"nextAttemptAt"`
+	LastFailure   *TenantManifestRetryFailure `json:"lastFailure,omitempty"`
 }
 
 // TenantManifestOperationStatus is the durable operation Apply enqueued.
@@ -39,6 +55,11 @@ type TenantManifestOperationStatus struct {
 	CreatedAt      time.Time  `json:"createdAt"`
 	UpdatedAt      time.Time  `json:"updatedAt"`
 	CompletedAt    *time.Time `json:"completedAt,omitempty"`
+	AttemptCount   int        `json:"attemptCount"`
+	// LeaseExpiresAt is when an in-flight reconcile gives up its claim, so a
+	// running reconcile reads differently from a waiting one.
+	LeaseExpiresAt *time.Time                   `json:"leaseExpiresAt,omitempty"`
+	Pending        *TenantManifestPendingStatus `json:"pending,omitempty"`
 }
 
 // TenantManifestApplyResponse is the reconciliation result.

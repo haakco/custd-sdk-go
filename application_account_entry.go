@@ -61,7 +61,7 @@ func (c *CustdClient) CreateAppAccountEntry(ctx context.Context, token string, r
 		return nil, err
 	}
 	var entry AppAccountEntry
-	if err := json.Unmarshal(response.Body, &entry); err != nil ||
+	if err := unmarshalResponse(response.Body, &entry); err != nil ||
 		entry.ActionURL != action || !validAppAccountEntryTicket(entry.Ticket) {
 		return nil, validationErrorf("custd: invalid app account entry response")
 	}

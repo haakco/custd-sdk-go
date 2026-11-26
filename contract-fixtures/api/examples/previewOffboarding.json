@@ -1,0 +1,34 @@
+{
+  "maximal": {
+    "complete": true,
+    "exclusions": [
+      {
+        "reason": "example",
+        "store": "example"
+      }
+    ],
+    "expiresAt": "2026-11-20T06:00:00Z",
+    "generatedAt": "2026-11-20T06:00:00Z",
+    "partial": true,
+    "previewInventoryDigest": "example",
+    "requestUuid": "example",
+    "stores": [
+      {
+        "estimated_count": 1,
+        "kind": "example",
+        "retention_class": "example",
+        "source_authority": "example",
+        "store": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "complete": true,
+    "expiresAt": "2026-11-20T06:00:00Z",
+    "generatedAt": "2026-11-20T06:00:00Z",
+    "partial": true,
+    "previewInventoryDigest": "example",
+    "requestUuid": "example",
+    "stores": null
+  }
+}

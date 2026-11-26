@@ -1,0 +1,16 @@
+{
+  "maximal": {
+    "usage": [
+      {
+        "definitionUuid": "example",
+        "eventTypeDefaults": 1,
+        "schemaFieldAssignments": 1,
+        "total": 1,
+        "valueUuid": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "usage": null
+  }
+}

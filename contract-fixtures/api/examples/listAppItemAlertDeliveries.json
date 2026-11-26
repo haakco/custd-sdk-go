@@ -1,0 +1,23 @@
+{
+  "maximal": {
+    "deliveries": [
+      {
+        "attempts": 1,
+        "channel": "webhook",
+        "createdAt": "2026-11-20T06:00:00Z",
+        "crossing": 1,
+        "deliveryUuid": "example",
+        "lastErrorClass": "example",
+        "lastStatusCode": 1,
+        "outcome": "pending",
+        "ruleType": "example",
+        "ruleUuid": "example",
+        "updatedAt": "2026-11-20T06:00:00Z",
+        "webhookUuid": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "deliveries": null
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "maximal": {
+    "activatedAt": "2026-11-20T06:00:00Z",
+    "contactId": "example",
+    "earliestReminderAt": "2026-11-20T06:00:00Z",
+    "reminderRunId": "example",
+    "version": "example",
+    "welcomeRunId": "example"
+  },
+  "minimal": {
+    "contactId": "example"
+  }
+}

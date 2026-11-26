@@ -1,5 +1,0 @@
-{
-  "error": "Execute requires a non-empty waiver_role for destructive action.",
-  "code": "waiver_required",
-  "safe_next_action": "escalate"
-}

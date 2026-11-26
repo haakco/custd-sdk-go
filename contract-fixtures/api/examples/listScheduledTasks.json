@@ -1,0 +1,43 @@
+{
+  "maximal": {
+    "tasks": [
+      {
+        "description": "example",
+        "displayName": "example",
+        "enabled": true,
+        "failedRuns": 1,
+        "forceRunsAllowed": true,
+        "latestRun": {
+          "completedAt": "2026-11-20T06:00:00Z",
+          "durationMs": 1,
+          "failureReason": "example",
+          "itemsCompleted": 1,
+          "itemsFailed": 1,
+          "itemsTotal": 1,
+          "runUuid": "example",
+          "scheduledFor": "2026-11-20T06:00:00Z",
+          "startedAt": "2026-11-20T06:00:00Z",
+          "status": "example",
+          "taskName": "example",
+          "trigger": "example",
+          "workerId": "example"
+        },
+        "lockBackend": "example",
+        "manualRunsAllowed": true,
+        "nextRunAt": "2026-11-20T06:00:00Z",
+        "overlapPolicy": "example",
+        "ownerService": "example",
+        "queuedRuns": 1,
+        "runningRuns": 1,
+        "scheduleExpression": "example",
+        "scheduleKind": "example",
+        "taskName": "example",
+        "timeoutSeconds": 1,
+        "timezone": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "tasks": null
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "maximal": {
+    "after": {
+      "key": {
+        "enabled": true,
+        "force": true,
+        "policy_name": "example"
+      }
+    },
+    "attempted_at": "2026-11-20T06:00:00Z",
+    "before": {
+      "key": {
+        "enabled": true,
+        "force": true,
+        "policy_name": "example"
+      }
+    },
+    "completed_at": "2026-11-20T06:00:00Z",
+    "diff": [
+      {
+        "converged": true,
+        "desired": {
+          "enabled": true,
+          "force": true,
+          "policy_name": "example"
+        },
+        "drift": [
+          "example"
+        ],
+        "live": {
+          "enabled": true,
+          "force": true,
+          "policy_name": "example"
+        },
+        "table": "example"
+      }
+    ],
+    "plan_uuid": "example",
+    "rollback_sql": "example"
+  },
+  "minimal": {
+    "after": {},
+    "attempted_at": "2026-11-20T06:00:00Z",
+    "before": {},
+    "completed_at": "2026-11-20T06:00:00Z",
+    "diff": null,
+    "plan_uuid": "example",
+    "rollback_sql": "example"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "maximal": {
+    "byteSize": 1,
+    "checksumSha256": "example",
+    "expiresAt": "2026-11-20T06:00:00Z",
+    "generatedAt": "2026-11-20T06:00:00Z",
+    "previewInventoryDigest": "example",
+    "recordCount": 1,
+    "requestUuid": "example"
+  },
+  "minimal": {
+    "byteSize": 1,
+    "checksumSha256": "example",
+    "expiresAt": "2026-11-20T06:00:00Z",
+    "generatedAt": "2026-11-20T06:00:00Z",
+    "previewInventoryDigest": "example",
+    "recordCount": 1,
+    "requestUuid": "example"
+  }
+}

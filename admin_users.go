@@ -34,6 +34,8 @@ type AdminUser struct {
 	MembershipState           string   `json:"membershipState"`
 	CreatedAt                 string   `json:"createdAt"`
 	WelcomeNotificationStatus string   `json:"welcomeNotificationStatus"`
+	// LastLoginAt is nil until the user first signs in.
+	LastLoginAt *string `json:"lastLoginAt"`
 	UserRemovalAttribution
 }
 
@@ -104,23 +106,49 @@ const (
 	adminUserRolesPath = "/user-roles"
 )
 
-// List returns the users visible to the caller. CompanySlug narrows the answer to one
-// tenant; IncludeEnded keeps removed memberships in the result so an operator can audit
-// them.
-func (c *AdminUsersAdminClient) List(
-	ctx context.Context,
-	companySlug string,
-	includeEnded bool,
-) (*AdminUserListResponse, error) {
+// AdminUserListOptions filters a user list. Empty fields are not sent.
+// CompanySlug narrows the answer to one tenant; IncludeEnded keeps ended
+// memberships so an operator can audit them; IncludeDeleted adds removed users
+// and is for system administrators only.
+type AdminUserListOptions struct {
+	CompanySlug     string
+	Role            string
+	GlobalState     string
+	MembershipState string
+	WelcomeStatus   string
+	IncludeEnded    bool
+	IncludeDeleted  bool
+}
+
+func (o AdminUserListOptions) values() url.Values {
 	query := url.Values{}
-	if companySlug != "" {
-		query.Set(companySlugQueryParameter, companySlug)
+	for name, value := range map[string]string{
+		companySlugQueryParameter: o.CompanySlug,
+		"role":                    o.Role,
+		"globalState":             o.GlobalState,
+		"membershipState":         o.MembershipState,
+		"welcomeStatus":           o.WelcomeStatus,
+	} {
+		if value != "" {
+			query.Set(name, value)
+		}
 	}
-	if includeEnded {
+	if o.IncludeEnded {
 		query.Set("includeEnded", "true")
 	}
+	if o.IncludeDeleted {
+		query.Set("includeDeleted", "true")
+	}
+	return query
+}
+
+// List returns the users visible to the caller, filtered by options.
+func (c *AdminUsersAdminClient) List(
+	ctx context.Context,
+	options AdminUserListOptions,
+) (*AdminUserListResponse, error) {
 	path := adminUsersPath
-	if encoded := query.Encode(); encoded != "" {
+	if encoded := options.values().Encode(); encoded != "" {
 		path += "?" + encoded
 	}
 	var out AdminUserListResponse

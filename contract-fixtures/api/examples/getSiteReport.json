@@ -1,0 +1,207 @@
+{
+  "maximal": {
+    "audit": {
+      "auditedAt": "2026-11-20T06:00:00Z",
+      "findings": [
+        {
+          "firstSeenAt": "2026-11-20T06:00:00Z",
+          "fix": "example",
+          "severity": "example",
+          "title": "example",
+          "url": "example"
+        }
+      ],
+      "summary": {
+        "high": 1,
+        "info": 1,
+        "low": 1,
+        "medium": 1,
+        "pagesChecked": 1,
+        "requests": 1,
+        "truncated": true
+      }
+    },
+    "certificate": {
+      "issuer": "example",
+      "problem": true,
+      "validTo": "2026-11-20T06:00:00Z"
+    },
+    "generatedAt": "2026-11-20T06:00:00Z",
+    "host": "example",
+    "nextActions": [
+      {
+        "affectedCount": 1,
+        "kind": "example",
+        "recheckable": true,
+        "rule": "example",
+        "severity": "high",
+        "target": {
+          "findingUuid": "example",
+          "pageUrl": "example",
+          "place": "example"
+        },
+        "title": "example",
+        "why": "example"
+      }
+    ],
+    "search": {
+      "connected": true,
+      "days": 1,
+      "sources": [
+        {
+          "daily": [
+            {
+              "clicks": 1,
+              "day": "example",
+              "impressions": 1
+            }
+          ],
+          "days": 1,
+          "from": "example",
+          "granularity": "daily",
+          "importedAt": "2026-11-20T06:00:00Z",
+          "previous": {
+            "clicks": 1,
+            "ctr": 1.5,
+            "impressions": 1,
+            "position": 1.5
+          },
+          "provider": "google",
+          "source": "example",
+          "to": "example",
+          "totals": {
+            "clicks": 1,
+            "ctr": 1.5,
+            "impressions": 1,
+            "position": 1.5
+          }
+        }
+      ],
+      "strikingDistance": [
+        {
+          "key": "example",
+          "provider": "google",
+          "totals": {
+            "clicks": 1,
+            "ctr": 1.5,
+            "impressions": 1,
+            "position": 1.5
+          }
+        }
+      ],
+      "topPages": [
+        {
+          "key": "example",
+          "provider": "google",
+          "totals": {
+            "clicks": 1,
+            "ctr": 1.5,
+            "impressions": 1,
+            "position": 1.5
+          }
+        }
+      ],
+      "topQueries": [
+        {
+          "key": "example",
+          "provider": "google",
+          "totals": {
+            "clicks": 1,
+            "ctr": 1.5,
+            "impressions": 1,
+            "position": 1.5
+          }
+        }
+      ]
+    },
+    "speed": [
+      {
+        "metrics": {
+          "cumulativeLayoutShift": 1.5,
+          "firstContentfulPaintMs": 1,
+          "largestContentfulPaintMs": 1,
+          "speedIndexMs": 1,
+          "totalBlockingTimeMs": 1
+        },
+        "observedAt": "2026-11-20T06:00:00Z",
+        "profile": "desktop",
+        "scores": {
+          "accessibility": 1,
+          "bestPractices": 1,
+          "performance": 1,
+          "seo": 1
+        }
+      }
+    ],
+    "template": "executive",
+    "uptime": {
+      "days": [
+        {
+          "checks": 1,
+          "date": "example",
+          "upChecks": 1,
+          "upPercent": 1.5
+        }
+      ],
+      "downSince": "2026-11-20T06:00:00Z",
+      "monitoredSince": "2026-11-20T06:00:00Z",
+      "responseMs": 1,
+      "status": "unknown",
+      "windows": {
+        "last24h": {
+          "checks": 1,
+          "upChecks": 1,
+          "upPercent": 1.5
+        },
+        "last30d": {
+          "checks": 1,
+          "upChecks": 1,
+          "upPercent": 1.5
+        },
+        "last7d": {
+          "checks": 1,
+          "upChecks": 1,
+          "upPercent": 1.5
+        }
+      }
+    }
+  },
+  "minimal": {
+    "audit": {
+      "findings": null
+    },
+    "certificate": {
+      "problem": true
+    },
+    "generatedAt": "2026-11-20T06:00:00Z",
+    "host": "example",
+    "search": {
+      "connected": true,
+      "days": 1,
+      "sources": null,
+      "strikingDistance": null,
+      "topPages": null,
+      "topQueries": null
+    },
+    "speed": null,
+    "template": "executive",
+    "uptime": {
+      "days": null,
+      "status": "unknown",
+      "windows": {
+        "last24h": {
+          "checks": 1,
+          "upChecks": 1
+        },
+        "last30d": {
+          "checks": 1,
+          "upChecks": 1
+        },
+        "last7d": {
+          "checks": 1,
+          "upChecks": 1
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "maximal": {
+    "deliveryAvailable": true,
+    "rules": [
+      {
+        "conditionMet": true,
+        "createdAt": "2026-11-20T06:00:00Z",
+        "crossings": 1,
+        "modelOutput": "example",
+        "ruleUuid": "example",
+        "staleDays": 1,
+        "threshold": 1.5,
+        "type": "deadline_probability_below"
+      }
+    ],
+    "subscription": {
+      "createdAt": "2026-11-20T06:00:00Z",
+      "subscriptionUuid": "example"
+    },
+    "webhooks": [
+      {
+        "createdAt": "2026-11-20T06:00:00Z",
+        "endpoint": "example",
+        "kind": "webhook",
+        "webhookUuid": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "deliveryAvailable": true,
+    "rules": null,
+    "webhooks": null
+  }
+}

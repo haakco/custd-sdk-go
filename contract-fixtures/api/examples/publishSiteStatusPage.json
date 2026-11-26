@@ -1,0 +1,10 @@
+{
+  "maximal": {
+    "publicKey": "example",
+    "publishedAt": "2026-11-20T06:00:00Z"
+  },
+  "minimal": {
+    "publicKey": "example",
+    "publishedAt": "2026-11-20T06:00:00Z"
+  }
+}

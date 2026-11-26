@@ -1,0 +1,19 @@
+{
+  "maximal": {
+    "clients": [
+      {
+        "clientId": "example",
+        "companySlug": "example",
+        "environment": "example",
+        "profile": "example",
+        "purposeProfile": "example",
+        "scopes": [
+          "example"
+        ]
+      }
+    ]
+  },
+  "minimal": {
+    "clients": null
+  }
+}

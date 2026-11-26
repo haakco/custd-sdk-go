@@ -1,0 +1,25 @@
+{
+  "maximal": {
+    "allowed": true,
+    "groups": [
+      "example"
+    ],
+    "note": "example",
+    "path": "example",
+    "robotsStatus": 1,
+    "rule": {
+      "directive": "allow",
+      "line": 1,
+      "pattern": "example"
+    },
+    "source": "pasted",
+    "userAgent": "example"
+  },
+  "minimal": {
+    "allowed": true,
+    "groups": null,
+    "path": "example",
+    "source": "pasted",
+    "userAgent": "example"
+  }
+}

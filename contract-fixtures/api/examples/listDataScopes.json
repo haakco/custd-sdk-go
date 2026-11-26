@@ -1,0 +1,17 @@
+{
+  "maximal": {
+    "scopes": [
+      {
+        "code": "example",
+        "createdAt": "2026-11-20T06:00:00Z",
+        "name": "example",
+        "status": "active",
+        "updatedAt": "2026-11-20T06:00:00Z",
+        "uuid": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "scopes": null
+  }
+}

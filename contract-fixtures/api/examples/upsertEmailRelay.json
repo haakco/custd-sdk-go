@@ -1,0 +1,26 @@
+{
+  "maximal": {
+    "createdAt": "2026-11-20T06:00:00Z",
+    "enabled": true,
+    "fromAddress": "example",
+    "fromDisplayName": "example",
+    "hasCredential": true,
+    "host": "example",
+    "port": 1,
+    "tlsMode": "example",
+    "updatedAt": "2026-11-20T06:00:00Z",
+    "username": "example"
+  },
+  "minimal": {
+    "createdAt": "2026-11-20T06:00:00Z",
+    "enabled": true,
+    "fromAddress": "example",
+    "fromDisplayName": "example",
+    "hasCredential": true,
+    "host": "example",
+    "port": 1,
+    "tlsMode": "example",
+    "updatedAt": "2026-11-20T06:00:00Z",
+    "username": "example"
+  }
+}

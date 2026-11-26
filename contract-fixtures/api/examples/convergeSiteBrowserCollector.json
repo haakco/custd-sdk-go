@@ -1,0 +1,13 @@
+{
+  "maximal": {
+    "allowedOrigin": "example",
+    "browserKey": "example",
+    "environment": "example",
+    "mode": "enabled",
+    "siteUuid": "example"
+  },
+  "minimal": {
+    "mode": "enabled",
+    "siteUuid": "example"
+  }
+}

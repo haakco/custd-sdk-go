@@ -1,0 +1,11 @@
+{
+  "maximal": {
+    "bingConfigured": true,
+    "googleConfigured": true,
+    "googleServiceAccountEmail": "example"
+  },
+  "minimal": {
+    "bingConfigured": true,
+    "googleConfigured": true
+  }
+}

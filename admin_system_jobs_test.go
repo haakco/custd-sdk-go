@@ -7,7 +7,7 @@ import (
 
 func TestSystemJobsStatusAndRetry(t *testing.T) {
 	const baseURL = "https://example.invalid"
-	doer := &lifecycleDoer{
+	doer := &captureDoer{
 		status: http.StatusOK,
 		body: `{
 			"queueCounts":[{"queue":"notifications","kind":"mail","state":"available","count":2,"oldestWaitingAt":"2026-11-18T09:30:00Z"}],
@@ -16,7 +16,7 @@ func TestSystemJobsStatusAndRetry(t *testing.T) {
 		}`,
 		headers: map[string]string{requestIDHeader: "status-request"},
 	}
-	client := newLifecycleTestClient(t, doer, baseURL).Admin.System
+	client := newAdminTestClient(t, doer, baseURL).Admin.System
 	status, metadata, err := client.ListJobs(t.Context())
 	if err != nil || metadata.RequestID != "status-request" {
 		t.Fatalf("list jobs metadata = %+v, error = %v", metadata, err)

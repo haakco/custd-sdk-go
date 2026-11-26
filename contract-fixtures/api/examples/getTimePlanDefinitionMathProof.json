@@ -1,0 +1,93 @@
+{
+  "maximal": {
+    "adjustments": [
+      {
+        "actualMs": 1,
+        "allocations": [
+          {
+            "blockId": "example",
+            "durationMs": 1,
+            "sequence": 1
+          }
+        ],
+        "elapsedMs": 1,
+        "exactConservation": true,
+        "horizonMs": 1,
+        "index": 1,
+        "markFutureNotRun": true,
+        "negativeAllocations": 1,
+        "overrunMs": 1,
+        "passed": true,
+        "reason": "late_start",
+        "remainingMs": 1,
+        "unusedMs": 1,
+        "vectorId": "example"
+      }
+    ],
+    "allocations": [
+      {
+        "allocations": [
+          {
+            "blockId": "example",
+            "durationMs": 1,
+            "sequence": 1
+          }
+        ],
+        "deterministicTieBreak": true,
+        "exactConservation": true,
+        "horizonMs": 1,
+        "index": 1,
+        "negativeAllocations": 1,
+        "passed": true,
+        "vectorId": "example"
+      }
+    ],
+    "allocatorVersion": "example",
+    "companySlug": "example",
+    "conformanceSchemaVersion": "example",
+    "definitions": [
+      {
+        "allocatedMs": 1,
+        "blockCount": 1,
+        "exactConservation": true,
+        "horizonMs": 1,
+        "index": 1,
+        "passed": true,
+        "runtimeVocabularyClean": true,
+        "vectorId": "example"
+      }
+    ],
+    "observedAt": "2026-11-20T06:00:00Z",
+    "schemaVersion": "example",
+    "source": "example",
+    "summary": {
+      "adjustmentVectorCount": 1,
+      "deterministicTieBreak": true,
+      "exactConservation": true,
+      "initialVectorCount": 1,
+      "negativeAllocations": 1,
+      "passed": true,
+      "vectorCount": 1
+    }
+  },
+  "minimal": {
+    "adjustments": null,
+    "allocations": null,
+    "allocatorVersion": "example",
+    "companySlug": "example",
+    "conformanceSchemaVersion": "example",
+    "definitions": null,
+    "observedAt": "2026-11-20T06:00:00Z",
+    "schemaVersion": "example",
+    "source": "example",
+    "summary": {
+      "adjustmentVectorCount": 1,
+      "deterministicTieBreak": true,
+      "exactConservation": true,
+      "initialVectorCount": 1,
+      "negativeAllocations": 1,
+      "passed": true,
+      "vectorCount": 1
+    }
+  }
+}

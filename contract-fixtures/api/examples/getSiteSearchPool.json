@@ -1,0 +1,18 @@
+{
+  "maximal": {
+    "acceptedTermsVersion": "example",
+    "joined": true,
+    "joinedAt": "2026-11-20T06:00:00Z",
+    "minContributors": 1,
+    "minImpressions": 1,
+    "termsVersion": "example",
+    "windowDays": 1
+  },
+  "minimal": {
+    "joined": true,
+    "minContributors": 1,
+    "minImpressions": 1,
+    "termsVersion": "example",
+    "windowDays": 1
+  }
+}

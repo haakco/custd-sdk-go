@@ -1,0 +1,27 @@
+{
+  "maximal": {
+    "apps": [
+      {
+        "activeReleaseId": "example",
+        "appId": "example",
+        "environmentId": "example",
+        "host": "example",
+        "name": "example",
+        "reason": {
+          "code": "example",
+          "message": "example"
+        },
+        "servingSince": "2026-11-20T06:00:00Z",
+        "signIn": true,
+        "siteUuid": "example",
+        "slug": "example",
+        "status": "needs_attention",
+        "url": "example"
+      }
+    ],
+    "nextAfter": "example"
+  },
+  "minimal": {
+    "apps": null
+  }
+}

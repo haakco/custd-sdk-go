@@ -1,0 +1,19 @@
+{
+  "maximal": {
+    "conditionMet": true,
+    "createdAt": "2026-11-20T06:00:00Z",
+    "crossings": 1,
+    "modelOutput": "example",
+    "ruleUuid": "example",
+    "staleDays": 1,
+    "threshold": 1.5,
+    "type": "deadline_probability_below"
+  },
+  "minimal": {
+    "conditionMet": true,
+    "createdAt": "2026-11-20T06:00:00Z",
+    "crossings": 1,
+    "ruleUuid": "example",
+    "type": "deadline_probability_below"
+  }
+}

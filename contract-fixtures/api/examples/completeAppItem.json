@@ -1,0 +1,238 @@
+{
+  "maximal": {
+    "counterProgress": {
+      "current": 1.5,
+      "forecastP50": "2026-11-20T06:00:00Z",
+      "percent": 1
+    },
+    "estimates": {
+      "deliveryTargetDate": "2026-11-20T06:00:00Z",
+      "estimates": [
+        {
+          "estimateUuid": "example",
+          "estimatedAt": "2026-11-20T06:00:00Z",
+          "highDate": "2026-11-20T06:00:00Z",
+          "lowDate": "2026-11-20T06:00:00Z",
+          "note": "example"
+        }
+      ],
+      "latest": {
+        "ageDays": 1.5,
+        "chanceByDeliveryTarget": 1.5,
+        "estimate": {
+          "estimateUuid": "example",
+          "estimatedAt": "2026-11-20T06:00:00Z",
+          "highDate": "2026-11-20T06:00:00Z",
+          "lowDate": "2026-11-20T06:00:00Z",
+          "note": "example"
+        },
+        "movementDays": 1.5
+      }
+    },
+    "item": {
+      "expiresAt": "2026-11-20T06:00:00Z",
+      "idleExpirySeconds": 1,
+      "itemUuid": "example",
+      "kind": "example",
+      "ownership": "unowned",
+      "role": "owner",
+      "updatedAt": "2026-11-20T06:00:00Z",
+      "version": 1
+    },
+    "linkCollection": {
+      "entries": [
+        {
+          "createdAt": "2026-11-20T06:00:00Z",
+          "entryUuid": "example",
+          "itemUuid": "example",
+          "kind": "example",
+          "position": 1,
+          "shareToken": "example"
+        }
+      ],
+      "name": "example"
+    },
+    "links": [
+      {
+        "createdAt": "2026-11-20T06:00:00Z",
+        "linkUuid": "example",
+        "role": "owner",
+        "shareToken": "example"
+      }
+    ],
+    "measurementProject": {
+      "createdAt": "2026-11-20T06:00:00Z",
+      "delivery": {
+        "completedAt": "2026-11-20T06:00:00Z",
+        "definitionOfDone": "example",
+        "targetDate": "2026-11-20T06:00:00Z"
+      },
+      "description": "example",
+      "kind": "example",
+      "name": "example",
+      "projectCode": "example",
+      "projectUuid": "example",
+      "run": {
+        "forecastMethod": "example",
+        "seriesRootUuid": "example",
+        "similar": true
+      },
+      "series": [
+        {
+          "completionDirection": "example",
+          "name": "example",
+          "seriesCode": "example",
+          "seriesUuid": "example",
+          "source": "example",
+          "unitLabel": "example",
+          "unitSlug": "example"
+        }
+      ],
+      "status": "example",
+      "target": {
+        "completedAt": "2026-11-20T06:00:00Z",
+        "name": "example",
+        "state": "example",
+        "targetCode": "example",
+        "targetDate": "2026-11-20T06:00:00Z",
+        "targetUuid": "example",
+        "targetValue": 1.5
+      },
+      "updatedAt": "2026-11-20T06:00:00Z"
+    },
+    "measurementRuns": {
+      "nextCursor": "0198a3b2-0000-7000-8000-000000000001",
+      "runs": [
+        {
+          "createdAt": "2026-11-20T06:00:00Z",
+          "name": "example",
+          "runUuid": "0198a3b2-0000-7000-8000-000000000001",
+          "status": "example"
+        }
+      ]
+    },
+    "meeting": {
+      "blocks": [
+        {
+          "actualMs": 1,
+          "allocatedMs": 1,
+          "blockUuid": "example",
+          "endedAt": "2026-11-20T06:00:00Z",
+          "position": 1,
+          "predictedMs": 1,
+          "startedAt": "2026-11-20T06:00:00Z",
+          "status": "pending",
+          "title": "example"
+        }
+      ],
+      "currentBlockUuid": "example",
+      "endsAt": "2026-11-20T06:00:00Z",
+      "name": "example",
+      "startedAt": "2026-11-20T06:00:00Z",
+      "status": "ready",
+      "summary": {
+        "finishedActualMs": 1,
+        "finishedBlocks": 1,
+        "finishedPredictedMs": 1,
+        "overrunMs": 1,
+        "predictedMs": 1
+      }
+    },
+    "meetingMinutes": {
+      "actions": [
+        {
+          "description": "example",
+          "partUuid": "example"
+        }
+      ],
+      "decisions": "example",
+      "minutes": "example",
+      "planUuid": "example",
+      "sharedSummary": "example"
+    },
+    "modelPreview": {
+      "p5": 1.5,
+      "p50": 1.5,
+      "p95": 1.5,
+      "quantity": "example"
+    },
+    "plan": {
+      "deadline": "2026-11-20T06:00:00Z",
+      "name": "example",
+      "parts": [
+        {
+          "itemUuid": "example",
+          "prerequisites": [
+            "example"
+          ],
+          "required": true
+        }
+      ],
+      "revision": 1
+    },
+    "planMeetingSummaries": [
+      {
+        "meetingUuid": "example",
+        "name": "example",
+        "summary": "example"
+      }
+    ],
+    "uncertaintyModel": {
+      "createdAt": "2026-11-20T06:00:00Z",
+      "description": "example",
+      "latestVersion": 1,
+      "modelUuid": "example",
+      "name": "example",
+      "queuedRunFailure": {
+        "attempts": 1,
+        "error": "example",
+        "failedAt": "2026-11-20T06:00:00Z"
+      },
+      "updatedAt": "2026-11-20T06:00:00Z",
+      "version": {
+        "createdAt": "2026-11-20T06:00:00Z",
+        "note": "example",
+        "quantities": [
+          {
+            "description": "example",
+            "formula": "example",
+            "input": {
+              "distribution": "normal",
+              "high": 1.5,
+              "low": 1.5,
+              "samples": [
+                1.5
+              ],
+              "shape": "point",
+              "source": {
+                "field": "completion_days",
+                "kind": "counter_forecast",
+                "projectUuid": "0198a3b2-0000-7000-8000-000000000001"
+              },
+              "successes": 1,
+              "trials": 1,
+              "value": 1.5
+            },
+            "kind": "input",
+            "name": "example",
+            "unit": "example"
+          }
+        ],
+        "versionNumber": 1,
+        "versionUuid": "example"
+      }
+    }
+  },
+  "minimal": {
+    "item": {
+      "expiresAt": "2026-11-20T06:00:00Z",
+      "idleExpirySeconds": 1,
+      "itemUuid": "example",
+      "kind": "example",
+      "ownership": "unowned",
+      "role": "owner",
+      "updatedAt": "2026-11-20T06:00:00Z",
+      "version": 1
+    }
+  }
+}

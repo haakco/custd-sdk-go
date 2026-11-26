@@ -1,0 +1,20 @@
+{
+  "maximal": {
+    "items": [
+      {
+        "asOf": "2026-11-20T06:00:00Z",
+        "baseline": 1.5,
+        "contributionCount": 1,
+        "generatedAt": "2026-11-20T06:00:00Z",
+        "horizonEnd": "2026-11-20T06:00:00Z",
+        "inputHash": "example",
+        "output": 1.5,
+        "overrideApplied": true,
+        "runUuid": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "items": null
+  }
+}

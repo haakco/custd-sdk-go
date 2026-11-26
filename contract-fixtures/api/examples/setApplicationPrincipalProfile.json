@@ -1,0 +1,29 @@
+{
+  "maximal": {
+    "directoryId": "example",
+    "environmentId": "example",
+    "fields": [
+      {
+        "editable": true,
+        "editableBy": "user",
+        "fieldKey": "example",
+        "present": true,
+        "required": true,
+        "value": "example"
+      }
+    ],
+    "missingRequired": [
+      "example"
+    ],
+    "principalId": "example",
+    "projectId": "example"
+  },
+  "minimal": {
+    "directoryId": "example",
+    "environmentId": "example",
+    "fields": null,
+    "missingRequired": null,
+    "principalId": "example",
+    "projectId": "example"
+  }
+}

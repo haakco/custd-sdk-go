@@ -1,0 +1,20 @@
+{
+  "maximal": {
+    "brier_score": 1.5,
+    "log_loss": 1.5,
+    "negative_count": 1,
+    "positive_count": 1,
+    "resolved_run_count": 1,
+    "sparse_bucket_count": 1,
+    "window_end_at": "2026-11-20T06:00:00Z",
+    "window_start_at": "2026-11-20T06:00:00Z"
+  },
+  "minimal": {
+    "negative_count": 1,
+    "positive_count": 1,
+    "resolved_run_count": 1,
+    "sparse_bucket_count": 1,
+    "window_end_at": "2026-11-20T06:00:00Z",
+    "window_start_at": "2026-11-20T06:00:00Z"
+  }
+}

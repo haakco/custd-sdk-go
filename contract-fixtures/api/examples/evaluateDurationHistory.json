@@ -1,0 +1,171 @@
+{
+  "maximal": {
+    "artifact": {
+      "content_sha256": "example",
+      "evaluation": {
+        "as_of": "2026-11-20T06:00:00Z",
+        "definition": {
+          "method": "nominal",
+          "method_version": "example",
+          "minimum_history": 1,
+          "prior_weight": 1,
+          "schema_version": "example"
+        },
+        "fold_count": 1,
+        "folds": [
+          {
+            "actual_ms": 1,
+            "fold_number": 1,
+            "held_out_run_id": "example",
+            "nominal_absolute_error_ms": 1,
+            "nominal_point_ms": 1,
+            "observed_at": "2026-11-20T06:00:00Z",
+            "shrinkage_absolute_error_ms": 1,
+            "shrinkage_interval": {
+              "p10_ms": 1,
+              "p90_ms": 1
+            },
+            "shrinkage_point_ms": 1,
+            "training_sample_count": 1
+          }
+        ],
+        "input_hash": "example",
+        "metrics": {
+          "nominal": {
+            "evaluated_fold_count": 1,
+            "interval": {
+              "available_fold_count": 1,
+              "coverage": 1.5,
+              "covered_fold_count": 1,
+              "mean_width_ms": 1.5
+            },
+            "mean_absolute_error_ms": 1.5,
+            "method": "nominal"
+          },
+          "shrinkage": {
+            "evaluated_fold_count": 1,
+            "interval": {
+              "available_fold_count": 1,
+              "coverage": 1.5,
+              "covered_fold_count": 1,
+              "mean_width_ms": 1.5
+            },
+            "mean_absolute_error_ms": 1.5,
+            "method": "nominal"
+          }
+        },
+        "minimum_training_history": 1,
+        "primary_metric": "example",
+        "project_id": "example",
+        "series_id": "example",
+        "tenant_id": "example"
+      },
+      "prediction_version_uuid": "example",
+      "schema_version": "example",
+      "source": "example"
+    },
+    "definitionUuid": "example",
+    "outcomes": {
+      "cancelled": 1,
+      "censored": 1,
+      "eligible": 1,
+      "notRun": 1,
+      "skipped": 1
+    },
+    "planUuid": "example",
+    "semanticKey": "example",
+    "versionEvidence": {
+      "activeVersionUuid": "example",
+      "history": {
+        "items": [
+          {
+            "actor": "example",
+            "fromStatus": "example",
+            "reason": "example",
+            "toStatus": "example",
+            "transitionKind": "example",
+            "transitionedAt": "2026-11-20T06:00:00Z",
+            "versionUuid": "example"
+          }
+        ]
+      },
+      "selected": {
+        "createdAt": "2026-11-20T06:00:00Z",
+        "status": "example",
+        "uuid": "example",
+        "versionNumber": 1
+      }
+    }
+  },
+  "minimal": {
+    "artifact": {
+      "content_sha256": "example",
+      "evaluation": {
+        "as_of": "2026-11-20T06:00:00Z",
+        "definition": {
+          "method": "nominal",
+          "method_version": "example",
+          "minimum_history": 1,
+          "prior_weight": 1,
+          "schema_version": "example"
+        },
+        "fold_count": 1,
+        "folds": null,
+        "input_hash": "example",
+        "metrics": {
+          "nominal": {
+            "evaluated_fold_count": 1,
+            "interval": {
+              "available_fold_count": 1,
+              "coverage": 1.5,
+              "covered_fold_count": 1,
+              "mean_width_ms": 1.5
+            },
+            "mean_absolute_error_ms": 1.5,
+            "method": "nominal"
+          },
+          "shrinkage": {
+            "evaluated_fold_count": 1,
+            "interval": {
+              "available_fold_count": 1,
+              "coverage": 1.5,
+              "covered_fold_count": 1,
+              "mean_width_ms": 1.5
+            },
+            "mean_absolute_error_ms": 1.5,
+            "method": "nominal"
+          }
+        },
+        "minimum_training_history": 1,
+        "primary_metric": "example",
+        "project_id": "example",
+        "series_id": "example",
+        "tenant_id": "example"
+      },
+      "prediction_version_uuid": "example",
+      "schema_version": "example",
+      "source": "example"
+    },
+    "definitionUuid": "example",
+    "outcomes": {
+      "cancelled": 1,
+      "censored": 1,
+      "eligible": 1,
+      "notRun": 1,
+      "skipped": 1
+    },
+    "planUuid": "example",
+    "semanticKey": "example",
+    "versionEvidence": {
+      "history": {
+        "items": null
+      },
+      "selected": {
+        "createdAt": "2026-11-20T06:00:00Z",
+        "status": "example",
+        "uuid": "example",
+        "versionNumber": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "maximal": {
+    "tenants": [
+      {
+        "autoCreateEnvironments": true,
+        "companyId": 1,
+        "companyName": "example",
+        "companyUuid": "example",
+        "enabled": true,
+        "purpose": "customer",
+        "slug": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "tenants": null
+  }
+}

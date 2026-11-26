@@ -11,13 +11,26 @@ import (
 	"strings"
 )
 
+// AccountPrincipalKind says whether the caller is a person or a machine client.
+type AccountPrincipalKind string
+
+const (
+	AccountPrincipalHuman   AccountPrincipalKind = "human"
+	AccountPrincipalMachine AccountPrincipalKind = "machine"
+)
+
 // Account is the authenticated caller's own account, as the API publishes it.
+// UserUUID is set only for a human principal; a machine has no user.
 type Account struct {
-	CompanySlug          string   `json:"companySlug"`
-	EffectiveCompanySlug string   `json:"effectiveCompanySlug,omitempty"`
-	Email                string   `json:"email"`
-	Roles                []string `json:"roles"`
-	Permissions          []string `json:"permissions"`
+	UserUUID             string               `json:"userUuid,omitempty"`
+	CompanySlug          string               `json:"companySlug"`
+	CompanyName          string               `json:"companyName,omitempty"`
+	EffectiveCompanySlug string               `json:"effectiveCompanySlug,omitempty"`
+	Email                string               `json:"email"`
+	PrincipalKind        AccountPrincipalKind `json:"principalKind,omitempty"`
+	Roles                []string             `json:"roles"`
+	Permissions          []string             `json:"permissions"`
+	Scopes               []string             `json:"scopes,omitempty"`
 }
 
 // AuthorizationServerMetadata is the trusted discovery subset an OAuth

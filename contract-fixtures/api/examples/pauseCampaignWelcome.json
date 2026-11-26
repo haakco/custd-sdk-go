@@ -1,0 +1,10 @@
+{
+  "maximal": {
+    "paused": true,
+    "version": "example"
+  },
+  "minimal": {
+    "paused": true,
+    "version": "example"
+  }
+}

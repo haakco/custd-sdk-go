@@ -1,0 +1,25 @@
+{
+  "maximal": {
+    "directoryId": "example",
+    "environmentId": "example",
+    "principalId": "example",
+    "projectId": "example",
+    "sessions": [
+      {
+        "active": true,
+        "authenticatedAt": "example",
+        "authenticatorAssuranceLevel": "example",
+        "expiresAt": "example",
+        "issuedAt": "example",
+        "sessionId": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "directoryId": "example",
+    "environmentId": "example",
+    "principalId": "example",
+    "projectId": "example",
+    "sessions": null
+  }
+}

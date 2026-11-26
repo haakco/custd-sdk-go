@@ -336,7 +336,7 @@ func decodeAnalyticsResponse(body []byte, out any) error {
 	if out == nil || len(body) == 0 {
 		return nil
 	}
-	if err := json.Unmarshal(body, out); err != nil {
+	if err := unmarshalResponse(body, out); err != nil {
 		return fmt.Errorf("custd: decode analytics response: %w", err)
 	}
 	return nil
@@ -375,7 +375,7 @@ func decodeAnalyticsRangeResponse(data []byte) (*AnalyticsEventRangeQueryRespons
 		return nil, err
 	}
 	var response AnalyticsEventRangeQueryResponse
-	if err := json.Unmarshal(data, &response); err != nil {
+	if err := unmarshalResponse(data, &response); err != nil {
 		return nil, validationWrap(fmt.Sprintf("custd: decode %s", context), err)
 	}
 	return &response, nil

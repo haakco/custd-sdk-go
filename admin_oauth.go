@@ -19,14 +19,10 @@ const PurposeSiteInsights = "site_insights"
 type AdminOAuthClient struct {
 	ClientID       string   `json:"clientId"`
 	CompanySlug    string   `json:"companySlug"`
-	Scopes         []string `json:"scopes"`
 	Environment    string   `json:"environment,omitempty"`
-	Profile        string   `json:"profile,omitempty"`
+	Scopes         []string `json:"scopes"`
+	Profile        string   `json:"profile"`
 	PurposeProfile string   `json:"purposeProfile,omitempty"`
-	ClientSecret   string   `json:"clientSecret,omitempty"`
-	// LoginSetup is present instead of ClientSecret when a login client is created: a
-	// public client has no secret, and the caller needs the values to configure itself.
-	LoginSetup *OAuthClientLoginSetup `json:"loginSetup,omitempty"`
 }
 
 // OAuthClientLoginSetup is what a login client must be configured with. It carries no
@@ -48,10 +44,10 @@ type AdminOAuthClientCreateResponse struct {
 	ClientID       string   `json:"clientId"`
 	CompanySlug    string   `json:"companySlug"`
 	Scopes         []string `json:"scopes"`
-	Environment    string   `json:"environment,omitempty"`
-	Profile        string   `json:"profile,omitempty"`
+	Profile        string   `json:"profile"`
 	PurposeProfile string   `json:"purposeProfile,omitempty"`
-	ClientSecret   string   `json:"clientSecret"`
+	// ClientSecret is empty for a public client, which has no secret.
+	ClientSecret string `json:"clientSecret,omitempty"`
 	// LoginSetup is present instead of ClientSecret for a public login client: it has no
 	// secret, and what the caller needs is the configuration to run.
 	LoginSetup *OAuthClientLoginSetup `json:"loginSetup,omitempty"`

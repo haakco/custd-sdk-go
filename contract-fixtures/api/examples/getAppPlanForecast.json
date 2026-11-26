@@ -1,0 +1,44 @@
+{
+  "maximal": {
+    "asOf": "2026-11-20T06:00:00Z",
+    "completedParts": 1,
+    "deadlineProbability": 1.5,
+    "horizon": "2026-11-20T06:00:00Z",
+    "horizonMissFraction": 1.5,
+    "lower": "2026-11-20T06:00:00Z",
+    "median": "2026-11-20T06:00:00Z",
+    "missingParts": [
+      "example"
+    ],
+    "model": "example",
+    "observedProgress": [
+      {
+        "at": "2026-11-20T06:00:00Z",
+        "completed": 1
+      }
+    ],
+    "previousMedian": "2026-11-20T06:00:00Z",
+    "projectedProgress": [
+      {
+        "at": "2026-11-20T06:00:00Z",
+        "lower": 1,
+        "median": 1,
+        "upper": 1
+      }
+    ],
+    "requiredParts": 1,
+    "revision": 1,
+    "upper": "2026-11-20T06:00:00Z"
+  },
+  "minimal": {
+    "asOf": "2026-11-20T06:00:00Z",
+    "completedParts": 1,
+    "horizon": "2026-11-20T06:00:00Z",
+    "missingParts": null,
+    "model": "example",
+    "observedProgress": null,
+    "projectedProgress": null,
+    "requiredParts": 1,
+    "revision": 1
+  }
+}

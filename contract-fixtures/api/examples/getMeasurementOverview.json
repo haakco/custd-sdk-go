@@ -1,0 +1,35 @@
+{
+  "maximal": {
+    "areas": [
+      {
+        "detail": "example",
+        "headline": "example",
+        "key": "example",
+        "points": [
+          {
+            "label": "example",
+            "value": "example"
+          }
+        ],
+        "provenance": "example",
+        "state": "example",
+        "title": "example",
+        "value": "example",
+        "widgetKind": "example"
+      }
+    ],
+    "generatedAt": "2026-11-20T06:00:00Z",
+    "tenant": {
+      "companySlug": "example",
+      "label": "example"
+    }
+  },
+  "minimal": {
+    "areas": null,
+    "generatedAt": "2026-11-20T06:00:00Z",
+    "tenant": {
+      "companySlug": "example",
+      "label": "example"
+    }
+  }
+}

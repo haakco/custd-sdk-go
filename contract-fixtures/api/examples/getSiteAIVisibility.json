@@ -1,0 +1,63 @@
+{
+  "maximal": {
+    "answerSample": {
+      "answer": "example",
+      "observedAt": "2026-11-20T06:00:00Z",
+      "product": "hosting"
+    },
+    "assistants": [
+      {
+        "key": "example",
+        "requests": 1
+      }
+    ],
+    "coverage": {
+      "complete": true,
+      "hoursExpected": 1,
+      "hoursFailed": 1,
+      "hoursMissing": 1,
+      "hoursPartial": 1,
+      "hoursRead": 1
+    },
+    "crawlers": [
+      {
+        "ai": true,
+        "crawler": "example",
+        "identity": "verified",
+        "notFound": 1,
+        "requests": 1
+      }
+    ],
+    "domainUuid": "example",
+    "from": "example",
+    "generatedAt": "2026-11-20T06:00:00Z",
+    "pages": [
+      {
+        "claimedCrawlerHits": 1,
+        "path": "example",
+        "referralVisits": 1,
+        "verifiedCrawlerHits": 1
+      }
+    ],
+    "siteUuid": "example",
+    "to": "example"
+  },
+  "minimal": {
+    "assistants": null,
+    "coverage": {
+      "complete": true,
+      "hoursExpected": 1,
+      "hoursFailed": 1,
+      "hoursMissing": 1,
+      "hoursPartial": 1,
+      "hoursRead": 1
+    },
+    "crawlers": null,
+    "domainUuid": "example",
+    "from": "example",
+    "generatedAt": "2026-11-20T06:00:00Z",
+    "pages": null,
+    "siteUuid": "example",
+    "to": "example"
+  }
+}

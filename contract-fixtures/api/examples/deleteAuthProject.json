@@ -1,0 +1,54 @@
+{
+  "maximal": {
+    "hosting": [
+      {
+        "environmentId": "example",
+        "removed": {
+          "alertDeliveries": 1,
+          "alertRules": 1,
+          "alertSubscriptions": 1,
+          "alertWebhooks": 1,
+          "collectionEntries": 1,
+          "items": 1,
+          "links": 1,
+          "measurementProjects": 1,
+          "meetings": 1,
+          "releaseObjects": 1,
+          "releases": 1,
+          "requestSummaries": 1,
+          "shareCardObjects": 1,
+          "sites": 1,
+          "uncertaintyModels": 1
+        },
+        "slug": "example"
+      }
+    ],
+    "name": "example",
+    "projectId": "example",
+    "released": {
+      "audienceBindings": 1,
+      "directories": 1,
+      "environments": 1,
+      "invitations": 1,
+      "memberships": 1,
+      "operations": 1,
+      "organisations": 1
+    },
+    "slug": "example"
+  },
+  "minimal": {
+    "hosting": null,
+    "name": "example",
+    "projectId": "example",
+    "released": {
+      "audienceBindings": 1,
+      "directories": 1,
+      "environments": 1,
+      "invitations": 1,
+      "memberships": 1,
+      "operations": 1,
+      "organisations": 1
+    },
+    "slug": "example"
+  }
+}

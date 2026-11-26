@@ -1,0 +1,55 @@
+{
+  "maximal": {
+    "assignments": [
+      {
+        "definitionUuid": "example",
+        "eventTypeSlug": "example",
+        "fieldPath": "example",
+        "schemaUuid": "example",
+        "scope": "example",
+        "valueUuid": "example"
+      }
+    ],
+    "catalogue": {
+      "labels": [
+        {
+          "definitionUuid": "example",
+          "description": "example",
+          "displayName": "example",
+          "enabled": true,
+          "intendedUse": "example",
+          "key": "example",
+          "sensitivity": "example",
+          "synonyms": [
+            "example"
+          ]
+        }
+      ]
+    },
+    "fingerprint": "example",
+    "reportingPacks": [
+      {
+        "datasets": [
+          {
+            "definitionUuid": "example",
+            "displayName": "example",
+            "unit": "example",
+            "valueUuids": [
+              "example"
+            ]
+          }
+        ],
+        "displayName": "example",
+        "enabled": true
+      }
+    ]
+  },
+  "minimal": {
+    "assignments": null,
+    "catalogue": {
+      "labels": null
+    },
+    "fingerprint": "example",
+    "reportingPacks": null
+  }
+}

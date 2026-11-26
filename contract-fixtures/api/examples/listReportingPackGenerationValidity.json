@@ -1,0 +1,16 @@
+{
+  "maximal": {
+    "generations": [
+      {
+        "generationNumber": 1,
+        "id": 1,
+        "packKey": "example",
+        "state": "example",
+        "validationError": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "generations": null
+  }
+}

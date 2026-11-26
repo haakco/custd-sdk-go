@@ -1,0 +1,31 @@
+{
+  "maximal": {
+    "requests": [
+      {
+        "completedAt": "2026-11-20T06:00:00Z",
+        "error": "example",
+        "expiresAt": "2026-11-20T06:00:00Z",
+        "id": "example",
+        "idempotencyKey": "example",
+        "lastActionSafeNext": "example",
+        "lastProgressAt": "2026-11-20T06:00:00Z",
+        "opaqueSubjectId": "example",
+        "perStoreProgress": [
+          {
+            "deletedCount": 1,
+            "lastCompletedAt": "2026-11-20T06:00:00Z",
+            "lastError": "example",
+            "retainedExceptions": 1,
+            "store": "example"
+          }
+        ],
+        "requestedAt": "2026-11-20T06:00:00Z",
+        "scope": "access",
+        "state": "queued"
+      }
+    ]
+  },
+  "minimal": {
+    "requests": null
+  }
+}

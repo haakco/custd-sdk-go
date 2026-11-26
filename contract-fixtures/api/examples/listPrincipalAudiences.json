@@ -1,0 +1,16 @@
+{
+  "maximal": {
+    "audienceEntitlementMode": "organisation_membership",
+    "audiences": [
+      {
+        "audience": "example",
+        "granted": true,
+        "managed": true
+      }
+    ]
+  },
+  "minimal": {
+    "audienceEntitlementMode": "organisation_membership",
+    "audiences": null
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "maximal": {
+    "acknowledgedAt": "2026-11-20T06:00:00Z",
+    "cause": "example",
+    "failedChecks": 1,
+    "incidentUuid": "example",
+    "openedAt": "2026-11-20T06:00:00Z",
+    "resolvedAt": "2026-11-20T06:00:00Z",
+    "startedAt": "2026-11-20T06:00:00Z"
+  },
+  "minimal": {
+    "cause": "example",
+    "failedChecks": 1,
+    "incidentUuid": "example",
+    "openedAt": "2026-11-20T06:00:00Z",
+    "startedAt": "2026-11-20T06:00:00Z"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "maximal": {
+    "grants": [
+      {
+        "action": "read",
+        "principal": {
+          "clientId": "example",
+          "kind": "human",
+          "userUuid": "example"
+        },
+        "target": {
+          "kind": "parent",
+          "resourceUuid": "example",
+          "scopeUuid": "example"
+        }
+      }
+    ]
+  },
+  "minimal": {
+    "grants": null
+  }
+}

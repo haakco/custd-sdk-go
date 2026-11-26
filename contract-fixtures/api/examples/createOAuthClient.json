@@ -1,0 +1,32 @@
+{
+  "maximal": {
+    "clientId": "example",
+    "clientSecret": "example",
+    "companySlug": "example",
+    "loginSetup": {
+      "apiUrl": "example",
+      "audience": "example",
+      "clientId": "example",
+      "configInitCommand": "example",
+      "issuerUrl": "example",
+      "profileName": "example",
+      "redirectUris": [
+        "example"
+      ],
+      "scopes": [
+        "example"
+      ]
+    },
+    "profile": "example",
+    "purposeProfile": "example",
+    "scopes": [
+      "example"
+    ]
+  },
+  "minimal": {
+    "clientId": "example",
+    "companySlug": "example",
+    "profile": "example",
+    "scopes": null
+  }
+}

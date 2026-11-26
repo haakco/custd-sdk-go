@@ -1,0 +1,58 @@
+{
+  "maximal": {
+    "createdAt": "2026-11-20T06:00:00Z",
+    "delivery": {
+      "completedAt": "2026-11-20T06:00:00Z",
+      "definitionOfDone": "example",
+      "targetDate": "2026-11-20T06:00:00Z"
+    },
+    "description": "example",
+    "kind": "example",
+    "name": "example",
+    "projectCode": "example",
+    "projectUuid": "example",
+    "run": {
+      "forecastMethod": "example",
+      "seriesRootUuid": "example",
+      "similar": true
+    },
+    "series": [
+      {
+        "completionDirection": "example",
+        "name": "example",
+        "seriesCode": "example",
+        "seriesUuid": "example",
+        "source": "example",
+        "unitLabel": "example",
+        "unitSlug": "example"
+      }
+    ],
+    "status": "example",
+    "target": {
+      "completedAt": "2026-11-20T06:00:00Z",
+      "name": "example",
+      "state": "example",
+      "targetCode": "example",
+      "targetDate": "2026-11-20T06:00:00Z",
+      "targetUuid": "example",
+      "targetValue": 1.5
+    },
+    "updatedAt": "2026-11-20T06:00:00Z"
+  },
+  "minimal": {
+    "createdAt": "2026-11-20T06:00:00Z",
+    "delivery": {
+      "definitionOfDone": "example"
+    },
+    "description": "example",
+    "kind": "example",
+    "name": "example",
+    "projectCode": "example",
+    "projectUuid": "example",
+    "run": {
+      "similar": true
+    },
+    "status": "example",
+    "updatedAt": "2026-11-20T06:00:00Z"
+  }
+}

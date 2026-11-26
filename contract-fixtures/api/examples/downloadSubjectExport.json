@@ -1,0 +1,28 @@
+{
+  "maximal": {
+    "byteSize": 1,
+    "checksumSha256": "example",
+    "encryptionKeyId": "example",
+    "expiresAt": "2026-11-20T06:00:00Z",
+    "generatedAt": "2026-11-20T06:00:00Z",
+    "id": "example",
+    "objectKey": "example",
+    "recordCount": 1,
+    "requestId": "example",
+    "s3Key": "example",
+    "scope": "access"
+  },
+  "minimal": {
+    "byteSize": 1,
+    "checksumSha256": "example",
+    "encryptionKeyId": "example",
+    "expiresAt": "2026-11-20T06:00:00Z",
+    "generatedAt": "2026-11-20T06:00:00Z",
+    "id": "example",
+    "objectKey": "example",
+    "recordCount": 1,
+    "requestId": "example",
+    "s3Key": "example",
+    "scope": "access"
+  }
+}

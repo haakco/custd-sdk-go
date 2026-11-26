@@ -659,20 +659,66 @@ func (c *WorkflowTimingAdminClient) Rebuild(
 
 // WorkflowTimingRebuildResult reports one bounded, deterministic projection rebuild.
 type WorkflowTimingRebuildResult struct {
-	RunUUID             string `json:"runUuid"`
-	WorkflowKey         string `json:"workflowKey"`
-	ExternalRunID       string `json:"externalRunId"`
-	Facts               int    `json:"facts"`
-	Status              string `json:"status"`
-	ObservationsWritten int    `json:"observationsWritten"`
-	Projection          struct {
-		Facts   int `json:"facts"`
-		Pending int `json:"pending"`
-	} `json:"projection"`
-	Durations struct {
-		Observations int `json:"observations"`
-		Pending      int `json:"pending"`
-	} `json:"durations"`
+	RunUUID             string                           `json:"runUuid"`
+	WorkflowKey         string                           `json:"workflowKey"`
+	ExternalRunID       string                           `json:"externalRunId"`
+	Facts               int                              `json:"facts"`
+	Status              WorkflowTimingProjectionStatus   `json:"status"`
+	ObservationsWritten int                              `json:"observationsWritten"`
+	Projection          WorkflowTimingRunProjection      `json:"projection"`
+	Durations           WorkflowTimingDurationProjection `json:"durations"`
+}
+
+// WorkflowTimingRunProjection is the run state folded from its ledger facts.
+type WorkflowTimingRunProjection struct {
+	RunUUID         string                  `json:"runUuid"`
+	State           string                  `json:"state"`
+	Corrected       bool                    `json:"corrected"`
+	StartedAt       string                  `json:"startedAt,omitempty"`
+	FinishedAt      string                  `json:"finishedAt,omitempty"`
+	OccurredAt      string                  `json:"occurredAt,omitempty"`
+	ReceiptAt       string                  `json:"receiptAt"`
+	Dimensions      map[string]string       `json:"dimensions"`
+	Attempts        []WorkflowTimingAttempt `json:"attempts"`
+	AppliedLedgerID int64                   `json:"appliedLedgerId"`
+	OpenAttempts    int                     `json:"openAttempts"`
+}
+
+// WorkflowTimingDurationProjection is the duration split a rebuild wrote.
+type WorkflowTimingDurationProjection struct {
+	RunEligible  bool                         `json:"runEligible"`
+	Run          WorkflowTimingRunDuration    `json:"run"`
+	Steps        []WorkflowTimingStepDuration `json:"steps"`
+	Excluded     []WorkflowTimingExcludedStep `json:"excluded"`
+	ActiveMS     int64                        `json:"activeMs"`
+	WaitMS       int64                        `json:"waitMs"`
+	OpenAttempts int                          `json:"openAttempts"`
+}
+
+// WorkflowTimingRunDuration is the whole-run duration fact.
+type WorkflowTimingRunDuration struct {
+	ValueMS    int64  `json:"valueMs"`
+	BaselineMS int64  `json:"baselineMs"`
+	StartedAt  string `json:"startedAt"`
+	FinishedAt string `json:"finishedAt"`
+}
+
+// WorkflowTimingStepDuration is one step attempt's duration fact.
+type WorkflowTimingStepDuration struct {
+	StepKey    string `json:"stepKey"`
+	Attempt    int    `json:"attempt"`
+	ValueMS    int64  `json:"valueMs"`
+	BaselineMS int64  `json:"baselineMs"`
+	StartedAt  string `json:"startedAt"`
+	FinishedAt string `json:"finishedAt"`
+	ReceiptAt  string `json:"receiptAt"`
+}
+
+// WorkflowTimingExcludedStep is a step attempt left out of the duration with its outcome.
+type WorkflowTimingExcludedStep struct {
+	StepKey string `json:"stepKey"`
+	Attempt int    `json:"attempt"`
+	Outcome string `json:"outcome"`
 }
 
 type workflowTimingObservationRequest struct {

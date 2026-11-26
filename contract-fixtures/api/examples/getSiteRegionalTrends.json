@@ -1,0 +1,44 @@
+{
+  "maximal": {
+    "hasSavedTerms": true,
+    "markets": [
+      {
+        "checkedAt": "2026-11-20T06:00:00Z",
+        "country": "example",
+        "matches": [
+          {
+            "discussionUrl": "example",
+            "matchedTerm": "example",
+            "publishedAt": "2026-11-20T06:00:00Z",
+            "sourceUrl": "example",
+            "topic": "example"
+          }
+        ],
+        "stale": true,
+        "supported": true
+      }
+    ],
+    "siteUuid": "example",
+    "source": "example",
+    "technical": {
+      "checkedAt": "2026-11-20T06:00:00Z",
+      "matches": [
+        {
+          "discussionUrl": "example",
+          "matchedTerm": "example",
+          "publishedAt": "2026-11-20T06:00:00Z",
+          "sourceUrl": "example",
+          "topic": "example"
+        }
+      ],
+      "source": "example",
+      "stale": true
+    }
+  },
+  "minimal": {
+    "hasSavedTerms": true,
+    "markets": null,
+    "siteUuid": "example",
+    "source": "example"
+  }
+}

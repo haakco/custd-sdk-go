@@ -1,0 +1,42 @@
+{
+  "maximal": {
+    "availability": "complete",
+    "nextAction": {
+      "action": "none",
+      "maxRetries": 1,
+      "pollAfterSeconds": 1
+    },
+    "observedAt": "2026-11-20T06:00:00Z",
+    "outputUuid": "0198a3b2-0000-7000-8000-000000000001",
+    "processingState": "accepted",
+    "provenance": {
+      "generation": "example",
+      "owner": "example",
+      "sourceUrn": "example",
+      "watermark": "2026-11-20T06:00:00Z"
+    },
+    "retryability": "none",
+    "tenantSlug": "example",
+    "warnings": [
+      {
+        "code": "example",
+        "message": "example"
+      }
+    ],
+    "watermark": "2026-11-20T06:00:00Z"
+  },
+  "minimal": {
+    "availability": "complete",
+    "nextAction": {
+      "action": "none"
+    },
+    "observedAt": "2026-11-20T06:00:00Z",
+    "outputUuid": "0198a3b2-0000-7000-8000-000000000001",
+    "processingState": "accepted",
+    "provenance": {
+      "owner": "example"
+    },
+    "retryability": "none",
+    "tenantSlug": "example"
+  }
+}

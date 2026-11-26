@@ -1,0 +1,33 @@
+{
+  "maximal": {
+    "accepted": 1,
+    "completedAt": "2026-11-20T06:00:00Z",
+    "createdAt": "2026-11-20T06:00:00Z",
+    "importId": "example",
+    "projectCode": "example",
+    "rejected": 1,
+    "results": [
+      {
+        "detail": "example",
+        "observationUuid": "example",
+        "rowIndex": 1,
+        "status": 1,
+        "success": true,
+        "title": "example",
+        "type": "example"
+      }
+    ],
+    "rowCount": 1,
+    "source": "example"
+  },
+  "minimal": {
+    "accepted": 1,
+    "createdAt": "2026-11-20T06:00:00Z",
+    "importId": "example",
+    "projectCode": "example",
+    "rejected": 1,
+    "results": null,
+    "rowCount": 1,
+    "source": "example"
+  }
+}

@@ -50,14 +50,18 @@ func TestReportingUnavailablePreservesCanonicalProblem(t *testing.T) {
 }
 
 func TestReportingDashboardReadsGenericPackDashboard(t *testing.T) {
-	doer := newCaptureDoer(http.StatusOK, string(readContractFixture(t, "reporting-dashboard-security.json")))
+	// The server answers a pack's DashboardDefinition, whose widget kind is a closed union.
+	doer := newCaptureDoer(http.StatusOK, `{"key":"security_operations","title":"Security operations",`+
+		`"packKey":"security","defaultRange":"14d","refreshSeconds":300,"requiredScopes":["reporting:read"],`+
+		`"widgets":[{"key":"security_events_by_severity","title":"Security events by severity","kind":"time_series",`+
+		`"template":"security_events","metrics":["event_count"],"dimensions":["severity"]}]}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
 
 	dashboard, err := client.Reporting.Dashboard(context.Background(), "security_operations")
 	if err != nil {
 		t.Fatalf("Dashboard returned error: %v", err)
 	}
-	if dashboard.Key != "security_operations" || len(dashboard.Widgets) != 1 {
+	if dashboard.Key != "security_operations" || dashboard.PackKey != "security" || len(dashboard.Widgets) != 1 {
 		t.Fatalf("dashboard = %#v", dashboard)
 	}
 	if dashboard.DefaultRange != "14d" || dashboard.RefreshSeconds != 300 || !reflect.DeepEqual(dashboard.RequiredScopes, []string{"reporting:read"}) {

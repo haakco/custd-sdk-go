@@ -1,0 +1,22 @@
+{
+  "maximal": {
+    "domain": "example",
+    "next": "example",
+    "pages": [
+      {
+        "firstSeen": "example",
+        "lastSeen": "example",
+        "sources": [
+          "example"
+        ],
+        "url": "example"
+      }
+    ],
+    "siteUuid": "example"
+  },
+  "minimal": {
+    "domain": "example",
+    "pages": null,
+    "siteUuid": "example"
+  }
+}

@@ -73,7 +73,7 @@ func TestAdminOAuthClientsReturnSecretOnlyFromSecretEndpoints(t *testing.T) {
 	if req.URL != "http://localhost:8080/api/v1/admin/oauth-clients" {
 		t.Fatalf("url = %s", req.URL)
 	}
-	assertOAuthClientListDoesNotLeakSecret(t, client, doer)
+	assertOAuthClientListDecodes(t, client, doer)
 }
 
 func TestAdminSitesManageBrowserSites(t *testing.T) {
@@ -196,19 +196,10 @@ func TestAdminSitesListGetDeleteDoNotExposeWriteKeys(t *testing.T) {
 	})
 }
 
-func TestAdminSchemasRegisterAndVersionSchemas(t *testing.T) {
-	doer := newCaptureDoer(http.StatusOK, `{"schemas":[{"eventTypeSlug":"courib.delivery.created","version":"1.0.0"}]}`)
+func TestAdminSchemasRegister(t *testing.T) {
+	doer := newCaptureDoer(http.StatusCreated, `{"eventTypeSlug":"courib.delivery.created","version":"1.0.0","jsonSchema":{"type":"object"}}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
 
-	list, err := client.Admin.Schemas.List(context.Background())
-	if err != nil {
-		t.Fatalf("List returned error: %v", err)
-	}
-	if len(list.Schemas) != 1 || list.Schemas[0].EventTypeSlug != "courib.delivery.created" {
-		t.Fatalf("schemas = %+v", list.Schemas)
-	}
-	doer.status = http.StatusCreated
-	doer.body = `{"eventTypeSlug":"courib.delivery.created","version":"1.0.0","jsonSchema":{"type":"object"}}`
 	registered, err := client.Admin.Schemas.Register(
 		context.Background(), "acme", "courib.delivery.created", AdminSchemaRegister{
 			TenantSlug:    "acme",
@@ -223,21 +214,11 @@ func TestAdminSchemasRegisterAndVersionSchemas(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Register returned error: %v", err)
 	}
-	doer.body = `{"eventTypeSlug":"courib.delivery.created","version":"1.1.0","jsonSchema":{"type":"object"}}`
-	next, err := client.Admin.Schemas.CreateVersion(context.Background(), "courib.delivery.created", AdminSchemaVersionCreate{
-		Version:    "1.1.0",
-		JSONSchema: map[string]any{"type": "object"},
-	})
-	if err != nil {
-		t.Fatalf("CreateVersion returned error: %v", err)
-	}
-	if registered.Version != "1.0.0" || next.Version != "1.1.0" {
-		t.Fatalf("registered=%+v next=%+v", registered, next)
+	if registered.Version != "1.0.0" {
+		t.Fatalf("registered=%+v", registered)
 	}
 	assertSiteRequests(t, doer.requests, []string{
-		"GET http://localhost:8080/api/v1/admin/schemas",
 		"POST http://localhost:8080/api/v1/admin/schema/acme/courib.delivery.created/register",
-		"POST http://localhost:8080/api/v1/admin/schemas/courib.delivery.created/versions",
 	})
 }
 
@@ -254,7 +235,7 @@ func assertSiteRequests(t *testing.T, requests []*HTTPRequest, want []string) {
 	}
 }
 
-func assertOAuthClientListDoesNotLeakSecret(t *testing.T, client *CustdClient, doer *captureDoer) {
+func assertOAuthClientListDecodes(t *testing.T, client *CustdClient, doer *captureDoer) {
 	t.Helper()
 	doer.status = http.StatusOK
 	doer.body = `{"clients":[{"clientId":"custd-acme","companySlug":"acme","scopes":["events.write"]}]}`
@@ -262,11 +243,8 @@ func assertOAuthClientListDoesNotLeakSecret(t *testing.T, client *CustdClient, d
 	if err != nil {
 		t.Fatalf("List returned error: %v", err)
 	}
-	if len(list.Clients) != 1 {
+	if len(list.Clients) != 1 || list.Clients[0].ClientID != "custd-acme" {
 		t.Fatalf("clients = %+v", list.Clients)
-	}
-	if list.Clients[0].ClientSecret != "" {
-		t.Fatalf("listed client leaked secret: %+v", list.Clients[0])
 	}
 }
 

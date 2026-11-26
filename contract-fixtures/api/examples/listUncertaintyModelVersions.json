@@ -1,0 +1,16 @@
+{
+  "maximal": {
+    "versions": [
+      {
+        "createdAt": "2026-11-20T06:00:00Z",
+        "note": "example",
+        "quantityCount": 1,
+        "versionNumber": 1,
+        "versionUuid": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "versions": null
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "maximal": {
+    "companyName": "example",
+    "enabled": true,
+    "parentCompanySlug": "example",
+    "slug": "example"
+  },
+  "minimal": {
+    "companyName": "example",
+    "enabled": true,
+    "parentCompanySlug": "example",
+    "slug": "example"
+  }
+}

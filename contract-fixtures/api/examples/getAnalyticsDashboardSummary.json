@@ -1,0 +1,81 @@
+{
+  "maximal": {
+    "coverage": {
+      "firstDay": "example",
+      "lastDay": "example",
+      "loadedDayCount": 1
+    },
+    "dogfood": {
+      "metrics": [
+        {
+          "metricKind": "example",
+          "metricName": "example",
+          "route": "example",
+          "service": "example",
+          "sourceSystem": "example",
+          "status": "example",
+          "unit": "example",
+          "value": 1.5,
+          "windowEnd": "2026-11-20T06:00:00Z",
+          "windowStart": "2026-11-20T06:00:00Z"
+        }
+      ],
+      "sources": [
+        {
+          "environment": "example",
+          "eventCount": 1,
+          "failureCount": 1,
+          "latestEventAt": "2026-11-20T06:00:00Z",
+          "latestEventType": "example",
+          "rejectionCount": 1,
+          "sourceCompany": "example",
+          "sourceSystem": "example",
+          "status": "example"
+        }
+      ]
+    },
+    "events": {
+      "latestEventAt": "2026-11-20T06:00:00Z",
+      "latestReceivedAt": "2026-11-20T06:00:00Z",
+      "loadedDayCount": 1,
+      "oldestEventAt": "2026-11-20T06:00:00Z",
+      "total": 1
+    },
+    "generatedAt": "2026-11-20T06:00:00Z",
+    "loadedDays": [
+      {
+        "archiveStatus": "example",
+        "archiveVerifiedAt": "2026-11-20T06:00:00Z",
+        "date": "example",
+        "eventCount": 1,
+        "queryHref": "example"
+      }
+    ],
+    "tenant": {
+      "companySlug": "example"
+    }
+  },
+  "minimal": {
+    "coverage": {
+      "firstDay": "example",
+      "lastDay": "example",
+      "loadedDayCount": 1
+    },
+    "dogfood": {
+      "metrics": null,
+      "sources": null
+    },
+    "events": {
+      "latestEventAt": "2026-11-20T06:00:00Z",
+      "latestReceivedAt": "2026-11-20T06:00:00Z",
+      "loadedDayCount": 1,
+      "oldestEventAt": "2026-11-20T06:00:00Z",
+      "total": 1
+    },
+    "generatedAt": "2026-11-20T06:00:00Z",
+    "loadedDays": null,
+    "tenant": {
+      "companySlug": "example"
+    }
+  }
+}

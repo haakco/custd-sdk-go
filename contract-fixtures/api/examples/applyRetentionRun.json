@@ -1,0 +1,32 @@
+{
+  "maximal": {
+    "completedAt": "2026-11-20T06:00:00Z",
+    "lastAffectedCounts": {
+      "key": 1
+    },
+    "lastError": "example",
+    "lastResult": "example",
+    "nextRunAt": "2026-11-20T06:00:00Z",
+    "perStore": [
+      {
+        "candidateCount": 1,
+        "estimatedAffected": 1,
+        "legalHoldCount": 1,
+        "retentionClass": "example",
+        "sampleSubjects": [
+          "example"
+        ],
+        "store": "example"
+      }
+    ],
+    "safeNextAction": "example",
+    "startedAt": "2026-11-20T06:00:00Z"
+  },
+  "minimal": {
+    "completedAt": "2026-11-20T06:00:00Z",
+    "lastResult": "example",
+    "perStore": null,
+    "safeNextAction": "example",
+    "startedAt": "2026-11-20T06:00:00Z"
+  }
+}

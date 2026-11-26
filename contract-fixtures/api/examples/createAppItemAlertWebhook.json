@@ -1,0 +1,20 @@
+{
+  "maximal": {
+    "signingSecret": "example",
+    "webhook": {
+      "createdAt": "2026-11-20T06:00:00Z",
+      "endpoint": "example",
+      "kind": "webhook",
+      "webhookUuid": "example"
+    }
+  },
+  "minimal": {
+    "signingSecret": "example",
+    "webhook": {
+      "createdAt": "2026-11-20T06:00:00Z",
+      "endpoint": "example",
+      "kind": "webhook",
+      "webhookUuid": "example"
+    }
+  }
+}

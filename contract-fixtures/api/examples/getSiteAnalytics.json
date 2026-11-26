@@ -1,0 +1,53 @@
+{
+  "maximal": {
+    "channels": [
+      {
+        "engagedSessions": 1,
+        "key": "example",
+        "keyEvents": 1.5,
+        "sessions": 1
+      }
+    ],
+    "connection": {
+      "lastFailure": "example",
+      "lastImportedAt": "2026-11-20T06:00:00Z",
+      "propertyId": "example",
+      "provider": "ga4",
+      "status": "pending"
+    },
+    "domainUuid": "example",
+    "keyEvents": [
+      {
+        "engagedSessions": 1,
+        "key": "example",
+        "keyEvents": 1.5,
+        "sessions": 1
+      }
+    ],
+    "keyEventsRecorded": true,
+    "landingPages": [
+      {
+        "engagedSessions": 1,
+        "key": "example",
+        "keyEvents": 1.5,
+        "sessions": 1
+      }
+    ],
+    "unavailable": [
+      {
+        "reason": "example",
+        "report": "ecommerce"
+      }
+    ],
+    "windowFrom": "example",
+    "windowTo": "example"
+  },
+  "minimal": {
+    "channels": null,
+    "domainUuid": "example",
+    "keyEvents": null,
+    "keyEventsRecorded": true,
+    "landingPages": null,
+    "unavailable": null
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "maximal": {
+    "actor_id": "example",
+    "catalog_digest": "example",
+    "catalog_version": "example",
+    "created_at": "2026-11-20T06:00:00Z",
+    "expected_state": {},
+    "expires_at": "2026-11-20T06:00:00Z",
+    "git_commit": "example",
+    "idempotency_key": "example",
+    "label": "example",
+    "plan_uuid": "example",
+    "reversible_sql_digest": "example",
+    "target_tables": [
+      "example"
+    ]
+  },
+  "minimal": {
+    "actor_id": "example",
+    "catalog_digest": "example",
+    "catalog_version": "example",
+    "created_at": "2026-11-20T06:00:00Z",
+    "expected_state": {},
+    "expires_at": "2026-11-20T06:00:00Z",
+    "git_commit": "example",
+    "idempotency_key": "example",
+    "label": "example",
+    "plan_uuid": "example",
+    "reversible_sql_digest": "example",
+    "target_tables": null
+  }
+}

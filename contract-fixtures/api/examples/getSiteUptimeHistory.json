@@ -1,0 +1,63 @@
+{
+  "maximal": {
+    "days": [
+      {
+        "checks": 1,
+        "date": "example",
+        "upChecks": 1,
+        "upPercent": 1.5
+      }
+    ],
+    "domainUuid": "example",
+    "generatedAt": "2026-11-20T06:00:00Z",
+    "hours": [
+      {
+        "avgMs": 1,
+        "checks": 1,
+        "hourStart": "2026-11-20T06:00:00Z",
+        "maxMs": 1,
+        "upChecks": 1
+      }
+    ],
+    "monitoredSince": "2026-11-20T06:00:00Z",
+    "responseDays": 1,
+    "windows": {
+      "last24h": {
+        "checks": 1,
+        "upChecks": 1,
+        "upPercent": 1.5
+      },
+      "last30d": {
+        "checks": 1,
+        "upChecks": 1,
+        "upPercent": 1.5
+      },
+      "last7d": {
+        "checks": 1,
+        "upChecks": 1,
+        "upPercent": 1.5
+      }
+    }
+  },
+  "minimal": {
+    "days": null,
+    "domainUuid": "example",
+    "generatedAt": "2026-11-20T06:00:00Z",
+    "hours": null,
+    "responseDays": 1,
+    "windows": {
+      "last24h": {
+        "checks": 1,
+        "upChecks": 1
+      },
+      "last30d": {
+        "checks": 1,
+        "upChecks": 1
+      },
+      "last7d": {
+        "checks": 1,
+        "upChecks": 1
+      }
+    }
+  }
+}

@@ -39,6 +39,12 @@ type ScheduledTaskRun struct {
 	FailureReason  string     `json:"failureReason,omitempty"`
 }
 
+// scheduledTaskRunResponse is the envelope the server wraps a triggered or
+// retried run in.
+type scheduledTaskRunResponse struct {
+	Run ScheduledTaskRun `json:"run"`
+}
+
 // ScheduledTaskSummary is one durable task's schedule and current pressure.
 type ScheduledTaskSummary struct {
 	TaskName           string            `json:"taskName"`
@@ -61,6 +67,41 @@ type ScheduledTaskSummary struct {
 	LatestRun          *ScheduledTaskRun `json:"latestRun,omitempty"`
 }
 
+// ScheduledTaskRunProof is the numeric proof a run records. Zero means the
+// task does not report that count.
+type ScheduledTaskRunProof struct {
+	JobsCompacted         int64 `json:"jobsCompacted,omitempty"`
+	RowsCompacted         int64 `json:"rowsCompacted,omitempty"`
+	BytesCompacted        int64 `json:"bytesCompacted,omitempty"`
+	SourcesRetired        int64 `json:"sourcesRetired,omitempty"`
+	BytesRetired          int64 `json:"bytesRetired,omitempty"`
+	RegionalTrendReads    int64 `json:"regionalTrendReads,omitempty"`
+	RegionalTrendItems    int64 `json:"regionalTrendItems,omitempty"`
+	RegionalTrendFailures int64 `json:"regionalTrendFailures,omitempty"`
+	HackerNewsReads       int64 `json:"hackerNewsReads,omitempty"`
+	HackerNewsItems       int64 `json:"hackerNewsItems,omitempty"`
+	HackerNewsFailures    int64 `json:"hackerNewsFailures,omitempty"`
+}
+
+// ScheduledTaskRunDetail is one run in a task's history, with its proof.
+type ScheduledTaskRunDetail struct {
+	ScheduledTaskRun
+	ScheduledTaskRunProof
+}
+
+// ScheduledTaskDetailSummary is the task a detail read returns; its latest run
+// carries proof, unlike the list view's.
+type ScheduledTaskDetailSummary struct {
+	ScheduledTaskSummary
+	LatestRun *ScheduledTaskRunDetail `json:"latestRun,omitempty"`
+}
+
+// ScheduledTaskDetail is one task and its recent run history.
+type ScheduledTaskDetail struct {
+	Task ScheduledTaskDetailSummary `json:"task"`
+	Runs []ScheduledTaskRunDetail   `json:"runs"`
+}
+
 // ScheduledTaskListResponse lists the durable tasks.
 type ScheduledTaskListResponse struct {
 	Tasks []ScheduledTaskSummary `json:"tasks"`
@@ -68,44 +109,132 @@ type ScheduledTaskListResponse struct {
 
 // SystemStatusStorage is the fleet-wide storage position.
 type SystemStatusStorage struct {
-	TenantCount          int       `json:"tenantCount"`
-	RetainedLogicalBytes int64     `json:"retainedLogicalBytes"`
-	EffectiveLimitBytes  int64     `json:"effectiveLimitBytes"`
-	PercentUsed          float64   `json:"percentUsed"`
-	MeasuredAt           time.Time `json:"measuredAt"`
+	TenantCount            int       `json:"tenantCount"`
+	RetainedLogicalBytes   int64     `json:"retainedLogicalBytes"`
+	AttributedStorageBytes int64     `json:"attributedStorageBytes"`
+	EffectiveLimitBytes    int64     `json:"effectiveLimitBytes"`
+	PercentUsed            float64   `json:"percentUsed"`
+	MeasuredAt             time.Time `json:"measuredAt"`
 }
 
 // SystemStatusTenant is one tenant's storage position, ranked by the server.
 type SystemStatusTenant struct {
-	CompanySlug          string  `json:"companySlug"`
-	CompanyName          string  `json:"companyName"`
-	RankReason           string  `json:"rankReason,omitempty"`
-	RetainedLogicalBytes int64   `json:"retainedLogicalBytes"`
-	EffectiveLimitBytes  int64   `json:"effectiveLimitBytes"`
-	PercentUsed          float64 `json:"percentUsed"`
-	WarningState         string  `json:"warningState"`
-	RejectedEvents       int64   `json:"rejectedEvents,omitempty"`
+	CompanySlug            string  `json:"companySlug"`
+	CompanyName            string  `json:"companyName"`
+	RankReason             string  `json:"rankReason,omitempty"`
+	RetainedLogicalBytes   int64   `json:"retainedLogicalBytes"`
+	AttributedStorageBytes int64   `json:"attributedStorageBytes"`
+	EffectiveLimitBytes    int64   `json:"effectiveLimitBytes"`
+	PercentUsed            float64 `json:"percentUsed"`
+	WarningState           string  `json:"warningState"`
+	RejectedEvents         int64   `json:"rejectedEvents,omitempty"`
+	ClaimQueued            int64   `json:"claimQueued,omitempty"`
 }
 
-// SystemStatusStage is one pipeline stage's health. The per-stage progress and
-// signal detail is not modelled here yet; a caller that needs it reads the
-// raw answer until those shapes are added.
+// SystemStageProgress is how a pipeline stage's backlog is trending.
+type SystemStageProgress struct {
+	Classification         string  `json:"classification,omitempty"`
+	Depth                  int64   `json:"depth,omitempty"`
+	DrainRatePerSecond     float64 `json:"drainRatePerSecond,omitempty"`
+	EtaSeconds             int64   `json:"etaSeconds,omitempty"`
+	RetentionExpirySeconds int64   `json:"retentionExpirySeconds,omitempty"`
+	Note                   string  `json:"note,omitempty"`
+}
+
+// SystemStageSignals are the per-stage diagnostic readings behind a stage's
+// status. A nil probe means the probe did not run.
+type SystemStageSignals struct {
+	HealthProbeOK                    *bool   `json:"healthProbeOk,omitempty"`
+	MetricsProbeOK                   *bool   `json:"metricsProbeOk,omitempty"`
+	ResourceMetricsOK                *bool   `json:"resourceMetricsOk,omitempty"`
+	Pending                          int64   `json:"pending,omitempty"`
+	AckPending                       int64   `json:"ackPending,omitempty"`
+	Redelivered                      int64   `json:"redelivered,omitempty"`
+	ConsumerActive                   *bool   `json:"consumerActive,omitempty"`
+	RetentionSecondsLeft             int64   `json:"retentionSecondsLeft,omitempty"`
+	DeliveredStreamSequence          int64   `json:"deliveredStreamSequence,omitempty"`
+	AckFloorStreamSequence           int64   `json:"ackFloorStreamSequence,omitempty"`
+	AckPendingUtilization            float64 `json:"ackPendingUtilization,omitempty"`
+	SlowConsumer                     bool    `json:"slowConsumer,omitempty"`
+	AcceptedRawLandingPending        int64   `json:"acceptedRawLandingPending,omitempty"`
+	AcceptedRawLandingFailed         int64   `json:"acceptedRawLandingFailed,omitempty"`
+	AcceptedRawLandingUploadFailures int64   `json:"acceptedRawLandingUploadFailures,omitempty"`
+	SegmentPending                   int64   `json:"segmentPending,omitempty"`
+	CompactionBacklog                int64   `json:"compactionBacklog,omitempty"`
+	CompactionBacklogAgeSeconds      int64   `json:"compactionBacklogAgeSeconds,omitempty"`
+	RollupBacklog                    int64   `json:"rollupBacklog,omitempty"`
+	MemoryUsageBytes                 int64   `json:"memoryUsageBytes,omitempty"`
+	MemoryLimitBytes                 int64   `json:"memoryLimitBytes,omitempty"`
+	CPUMilli                         int64   `json:"cpuMilli,omitempty"`
+	CPULimitMilli                    int64   `json:"cpuLimitMilli,omitempty"`
+	RestartCount                     int64   `json:"restartCount,omitempty"`
+	OOMKillCount                     int64   `json:"oomKillCount,omitempty"`
+	LivenessFlapCount                int64   `json:"livenessFlapCount,omitempty"`
+}
+
+// SystemStatusStage is one pipeline stage's health, with its backlog trend and
+// the signals behind the status when the server measured them.
 type SystemStatusStage struct {
-	Name   string `json:"name"`
-	Status string `json:"status"`
-	Reason string `json:"reason,omitempty"`
+	Name     string               `json:"name"`
+	Status   string               `json:"status"`
+	Reason   string               `json:"reason,omitempty"`
+	Progress *SystemStageProgress `json:"progress,omitempty"`
+	Signals  *SystemStageSignals  `json:"signals,omitempty"`
+}
+
+// DesiredStateDiagnostics counts the desired-state reconciliation queue.
+type DesiredStateDiagnostics struct {
+	Backlog                 int64 `json:"backlog,omitempty"`
+	OldestPendingAgeSeconds int64 `json:"oldestPendingAgeSeconds,omitempty"`
+	TerminalTotal           int64 `json:"terminalTotal,omitempty"`
+	ExhaustedTotal          int64 `json:"exhaustedTotal,omitempty"`
 }
 
 // SystemStatusKPIs are the fleet counters. A zero value means "not measured",
 // not "measured as zero", for the fields the server marks omitempty.
 type SystemStatusKPIs struct {
-	EventsPerMinute          float64 `json:"eventsPerMinute,omitempty"`
-	BacklogDepth             int64   `json:"backlogDepth,omitempty"`
-	InvariantViolations      int64   `json:"invariantViolations,omitempty"`
-	ClaimBacklog             int64   `json:"claimBacklog,omitempty"`
-	ClaimBacklogOldestAge    int64   `json:"claimBacklogOldestAgeSeconds,omitempty"`
-	FailedRawLandingObjects  int64   `json:"failedRawLandingObjects,omitempty"`
-	RawLandingUploadFailures int64   `json:"rawLandingUploadFailures,omitempty"`
+	EventsPerMinute          float64                 `json:"eventsPerMinute,omitempty"`
+	BacklogDepth             int64                   `json:"backlogDepth,omitempty"`
+	InvariantViolations      int64                   `json:"invariantViolations,omitempty"`
+	ClaimBacklog             int64                   `json:"claimBacklog,omitempty"`
+	ClaimBacklogOldestAge    int64                   `json:"claimBacklogOldestAgeSeconds,omitempty"`
+	FailedRawLandingObjects  int64                   `json:"failedRawLandingObjects,omitempty"`
+	RawLandingUploadFailures int64                   `json:"rawLandingUploadFailures,omitempty"`
+	DesiredState             DesiredStateDiagnostics `json:"desiredState"`
+}
+
+// SystemRealmCapacity is the deployment's auth realm slot pool. When Observed
+// is false the pool could not be read: the counts are zero and Reason says why.
+type SystemRealmCapacity struct {
+	Observed    bool   `json:"observed"`
+	Declared    int    `json:"declared"`
+	Occupied    int    `json:"occupied"`
+	Quarantined int    `json:"quarantined"`
+	Unavailable int    `json:"unavailable"`
+	Exhausted   bool   `json:"exhausted"`
+	Reason      string `json:"reason,omitempty"`
+}
+
+// OperationalStageSummary is one step of the received, durable, queryable flow.
+type OperationalStageSummary struct {
+	Status string `json:"status"`
+	Reason string `json:"reason,omitempty"`
+}
+
+// OperationalBacklogSummary is the pipeline backlog and how it is trending.
+type OperationalBacklogSummary struct {
+	Depth          int64  `json:"depth"`
+	Classification string `json:"classification"`
+}
+
+// OperationalSummary is the one-line answer to "is data flowing": whether
+// events are received, durable and queryable, and the backlog between them.
+type OperationalSummary struct {
+	Status    string                    `json:"status"`
+	Received  OperationalStageSummary   `json:"received"`
+	Durable   OperationalStageSummary   `json:"durable"`
+	Queryable OperationalStageSummary   `json:"queryable"`
+	Backlog   OperationalBacklogSummary `json:"backlog"`
 }
 
 // SystemStatus is the single high-level view: one overall status first, then
@@ -113,6 +242,8 @@ type SystemStatusKPIs struct {
 type SystemStatus struct {
 	OverallStatus string               `json:"overallStatus"`
 	GeneratedAt   time.Time            `json:"generatedAt"`
+	Summary       OperationalSummary   `json:"summary"`
+	RealmCapacity SystemRealmCapacity  `json:"realmCapacity"`
 	KPIs          SystemStatusKPIs     `json:"kpis"`
 	Stages        []SystemStatusStage  `json:"stages"`
 	Storage       SystemStatusStorage  `json:"storage"`
@@ -195,12 +326,12 @@ func (c *SystemAdminClient) ListSiteInsightsTasks(
 	return &out, metadata, err
 }
 
-// GetScheduledTask reads one task.
+// GetScheduledTask reads one task and its recent runs.
 func (c *SystemAdminClient) GetScheduledTask(
 	ctx context.Context,
 	taskName string,
-) (*ScheduledTaskSummary, ResponseMetadata, error) {
-	var out ScheduledTaskSummary
+) (*ScheduledTaskDetail, ResponseMetadata, error) {
+	var out ScheduledTaskDetail
 	metadata, err := c.admin.requestWithMetadata(
 		ctx, http.MethodGet, scheduledTasksPath+"/"+url.PathEscape(taskName), nil, &out,
 	)
@@ -213,11 +344,11 @@ func (c *SystemAdminClient) RunScheduledTask(
 	ctx context.Context,
 	taskName string,
 ) (*ScheduledTaskRun, ResponseMetadata, error) {
-	var out ScheduledTaskRun
+	var out scheduledTaskRunResponse
 	metadata, err := c.admin.requestWithMetadata(
 		ctx, http.MethodPost, scheduledTasksPath+"/"+url.PathEscape(taskName)+"/run", nil, &out,
 	)
-	return &out, metadata, err
+	return &out.Run, metadata, err
 }
 
 // PauseScheduledTask stops future runs. There is no body, so the metadata is
@@ -237,13 +368,15 @@ func (c *SystemAdminClient) ResumeScheduledTask(
 	return c.taskAction(ctx, taskName, "/resume")
 }
 
-// RetryScheduledTaskRun re-queues one failed run.
+// RetryScheduledTaskRun re-queues one failed run and returns the queued run.
 func (c *SystemAdminClient) RetryScheduledTaskRun(
 	ctx context.Context,
 	runUUID string,
-) (ResponseMetadata, error) {
+) (*ScheduledTaskRun, ResponseMetadata, error) {
+	var out scheduledTaskRunResponse
 	path := scheduledTaskRunsPath + url.PathEscape(runUUID) + "/retry"
-	return c.admin.requestWithMetadata(ctx, http.MethodPost, path, nil, nil)
+	metadata, err := c.admin.requestWithMetadata(ctx, http.MethodPost, path, nil, &out)
+	return &out.Run, metadata, err
 }
 
 func (c *SystemAdminClient) taskAction(

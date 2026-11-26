@@ -1,0 +1,20 @@
+{
+  "maximal": {
+    "createdAt": "2026-11-20T06:00:00Z",
+    "description": "example",
+    "displayName": "example",
+    "enabled": true,
+    "updatedAt": "2026-11-20T06:00:00Z",
+    "uuid": "example",
+    "value": "example"
+  },
+  "minimal": {
+    "createdAt": "2026-11-20T06:00:00Z",
+    "description": "example",
+    "displayName": "example",
+    "enabled": true,
+    "updatedAt": "2026-11-20T06:00:00Z",
+    "uuid": "example",
+    "value": "example"
+  }
+}

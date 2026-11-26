@@ -1,0 +1,21 @@
+{
+  "maximal": {
+    "invitations": [
+      {
+        "acceptedPrincipalId": "0198a3b2-0000-7000-8000-000000000001",
+        "createdAt": "2026-11-20T06:00:00Z",
+        "delivered": true,
+        "email": "example",
+        "expiresAt": "2026-11-20T06:00:00Z",
+        "invitationId": "example",
+        "membershipRole": "example",
+        "organisationId": "example",
+        "poolId": "example",
+        "state": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "invitations": null
+  }
+}

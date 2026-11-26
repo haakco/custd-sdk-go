@@ -1,0 +1,108 @@
+{
+  "maximal": {
+    "defaultRange": "example",
+    "description": "example",
+    "executive": {
+      "actions": [
+        "example"
+      ],
+      "comparisonBasis": "none",
+      "comparisonLabel": "example",
+      "findings": [
+        "example"
+      ],
+      "primaryLabel": "example",
+      "primaryMetricKey": "example",
+      "primaryUnit": "example",
+      "primaryWidgetKey": "example",
+      "recipe": "blank",
+      "scopeLabel": "example",
+      "supportingWidgetKeys": [
+        "example"
+      ],
+      "targetUnit": "example",
+      "targetValue": 1.5
+    },
+    "exportFormats": [
+      "csv"
+    ],
+    "group": "example",
+    "interactions": [
+      {
+        "action": "filter",
+        "comparisonPreset": "previous_period",
+        "dimension": "example",
+        "key": "example",
+        "linkedFilterGroup": "example",
+        "resetBehavior": "interaction",
+        "sourceWidget": "example",
+        "targetWidget": "example"
+      }
+    ],
+    "key": "example",
+    "packKey": "example",
+    "refreshSeconds": 1,
+    "requiredScopes": [
+      "example"
+    ],
+    "sections": [
+      {
+        "columnSpan": 1,
+        "key": "example",
+        "layout": "lead",
+        "narrative": [
+          {
+            "references": [
+              {
+                "value": "primary",
+                "widgetKey": "example"
+              }
+            ],
+            "text": "example"
+          }
+        ],
+        "title": "example",
+        "widgetKeys": [
+          "example"
+        ]
+      }
+    ],
+    "sharePolicy": {
+      "comparisonPresets": [
+        "previous_period"
+      ],
+      "relativeRanges": [
+        "1d"
+      ]
+    },
+    "title": "example",
+    "widgets": [
+      {
+        "dimensions": [
+          "example"
+        ],
+        "key": "example",
+        "kind": "stat_tile",
+        "metrics": [
+          "example"
+        ],
+        "presentation": {
+          "nonColorEncoding": "line_symbol_label",
+          "presetId": "forecast_convergence_v1",
+          "summaryTemplateId": "forecast_window_evidence",
+          "version": 1
+        },
+        "template": "example",
+        "title": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "defaultRange": "example",
+    "key": "example",
+    "refreshSeconds": 1,
+    "requiredScopes": null,
+    "title": "example",
+    "widgets": null
+  }
+}

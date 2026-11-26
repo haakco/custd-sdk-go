@@ -1,0 +1,25 @@
+{
+  "maximal": {
+    "archivedAt": "2026-11-20T06:00:00Z",
+    "campaign": "example",
+    "content": "example",
+    "createdAt": "2026-11-20T06:00:00Z",
+    "linkUuid": "example",
+    "medium": "example",
+    "source": "example",
+    "taggedUrl": "example",
+    "term": "example",
+    "url": "example"
+  },
+  "minimal": {
+    "campaign": "example",
+    "content": "example",
+    "createdAt": "2026-11-20T06:00:00Z",
+    "linkUuid": "example",
+    "medium": "example",
+    "source": "example",
+    "taggedUrl": "example",
+    "term": "example",
+    "url": "example"
+  }
+}

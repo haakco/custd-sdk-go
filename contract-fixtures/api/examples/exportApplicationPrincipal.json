@@ -1,0 +1,50 @@
+{
+  "maximal": {
+    "createdAt": "example",
+    "directoryId": "example",
+    "enabled": true,
+    "environmentId": "example",
+    "identities": [
+      {
+        "providerIssuer": "example",
+        "providerSubject": "example",
+        "traits": [
+          {
+            "name": "example",
+            "value": {}
+          }
+        ],
+        "traitsStatus": "included"
+      }
+    ],
+    "memberships": [
+      {
+        "createdAt": "example",
+        "organisationId": "example",
+        "organisationName": "example",
+        "organisationSlug": "example",
+        "removedAt": "example",
+        "role": "administrator"
+      }
+    ],
+    "principalId": "example",
+    "profileValues": [
+      {
+        "fieldKey": "example",
+        "value": "example"
+      }
+    ],
+    "projectId": "example"
+  },
+  "minimal": {
+    "createdAt": "example",
+    "directoryId": "example",
+    "enabled": true,
+    "environmentId": "example",
+    "identities": null,
+    "memberships": null,
+    "principalId": "example",
+    "profileValues": null,
+    "projectId": "example"
+  }
+}

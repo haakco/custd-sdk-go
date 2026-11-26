@@ -20,6 +20,9 @@ const (
 	commandLabelHeader = "X-Custd-Command"
 	// clientLabelHeader names the calling program.
 	clientLabelHeader = "X-Custd-Client"
+	// effectiveCompanyHeader asks the server for grant-backed support context for
+	// one company. Only the routes that read the tenant nowhere else send it.
+	effectiveCompanyHeader = "X-Custd-Effective-Company"
 )
 
 // actingCompanyPath adds the tenant query parameter the admin routes actually read.
@@ -70,29 +73,41 @@ func (c *AdminClient) applyRequestLabels(headers map[string]string) {
 }
 
 type AdminClient struct {
-	Tenants               *TenantAdminClient
-	OAuthClients          *OAuthClientAdminClient
-	OAuthClientAdmissions *OAuthClientAdmissionAdminClient
-	Sites                 *SiteAdminClient
-	SiteDomains           *SiteDomainAdminClient
-	Schemas               *SchemaAdminClient
-	Measurement           *MeasurementAdminClient
-	Predictions           *PredictionAdminClient
-	WorkflowTimings       *WorkflowTimingAdminClient
-	Privacy               *PrivacyAdminClient
-	Retention             *RetentionAdminClient
-	StorageAlerts         *StorageAlertAdminClient
-	Audit                 *AuditAdminClient
-	Offboarding           *OffboardingAdminClient
-	ReportingPacks        *ReportingPacksAdminClient
-	TenantStorage         *TenantStorageAdminClient
-	SubjectExports        *SubjectExportAdminClient
-	Erasures              *PrivacyErasureAdminClient
-	DataLabels            *DataLabelAdminClient
-	TimePlans             *TimePlanAdminClient
-	Usage                 *UsageAdminClient
-	AuthProjects          *AuthProjectAdminClient
-	DataScopes            *DataScopeAdminClient
+	Tenants                  *TenantAdminClient
+	OAuthClients             *OAuthClientAdminClient
+	OAuthClientAdmissions    *OAuthClientAdmissionAdminClient
+	Sites                    *SiteAdminClient
+	SiteDomains              *SiteDomainAdminClient
+	Schemas                  *SchemaAdminClient
+	Measurement              *MeasurementAdminClient
+	Predictions              *PredictionAdminClient
+	WorkflowTimings          *WorkflowTimingAdminClient
+	Privacy                  *PrivacyAdminClient
+	Retention                *RetentionAdminClient
+	StorageAlerts            *StorageAlertAdminClient
+	Audit                    *AuditAdminClient
+	Offboarding              *OffboardingAdminClient
+	ReportingPacks           *ReportingPacksAdminClient
+	TenantStorage            *TenantStorageAdminClient
+	SubjectExports           *SubjectExportAdminClient
+	Erasures                 *PrivacyErasureAdminClient
+	DataLabels               *DataLabelAdminClient
+	TimePlans                *TimePlanAdminClient
+	Usage                    *UsageAdminClient
+	AuthProjects             *AuthProjectAdminClient
+	DataScopes               *DataScopeAdminClient
+	UncertaintyModels        *UncertaintyModelAdminClient
+	CampaignEmail            *CampaignEmailAdminClient
+	EmailRelay               *EmailRelayAdminClient
+	SDKUsage                 *SDKUsageAdminClient
+	AccountingEvidence       *AccountingEvidenceAdminClient
+	NotificationDestinations *NotificationDestinationAdminClient
+	EventTypes               *EventTypeAdminClient
+	IngestClaims             *IngestClaimAdminClient
+	RLS                      *RLSAdminClient
+	ErrorIssues              *ErrorIssueAdminClient
+	ManagedAudit             *ManagedAuditAdminClient
+	Ingest                   *IngestAdminClient
 
 	// Surfaces added for custdctl parity (M6.2). Each returns
 	// ResponseMetadata so a caller can quote the server's request identifier.
@@ -148,6 +163,18 @@ func newAdminClient(client *CustdClient) *AdminClient {
 	admin.Usage = &UsageAdminClient{admin: admin}
 	admin.AuthProjects = &AuthProjectAdminClient{admin: admin}
 	admin.DataScopes = newDataScopeAdminClient(admin)
+	admin.UncertaintyModels = &UncertaintyModelAdminClient{admin: admin}
+	admin.CampaignEmail = &CampaignEmailAdminClient{admin: admin}
+	admin.EmailRelay = &EmailRelayAdminClient{admin: admin}
+	admin.SDKUsage = &SDKUsageAdminClient{admin: admin}
+	admin.AccountingEvidence = &AccountingEvidenceAdminClient{admin: admin}
+	admin.NotificationDestinations = &NotificationDestinationAdminClient{admin: admin}
+	admin.EventTypes = &EventTypeAdminClient{admin: admin}
+	admin.IngestClaims = &IngestClaimAdminClient{admin: admin}
+	admin.RLS = &RLSAdminClient{admin: admin}
+	admin.ErrorIssues = &ErrorIssueAdminClient{admin: admin}
+	admin.ManagedAudit = &ManagedAuditAdminClient{admin: admin}
+	admin.Ingest = &IngestAdminClient{admin: admin}
 	admin.SupportAccess = &SupportAccessAdminClient{admin: admin}
 	admin.Impersonation = &ImpersonationAdminClient{admin: admin}
 	admin.Webhooks = &NotificationWebhookAdminClient{admin: admin}
@@ -366,32 +393,6 @@ func (c *SchemaAdminClient) Register(
 		return nil, err
 	}
 	return &schema, nil
-}
-
-func (c *SchemaAdminClient) List(ctx context.Context) (*AdminSchemaList, error) {
-	var schemas AdminSchemaList
-	err := c.admin.request(ctx, http.MethodGet, "/schemas", nil, &schemas)
-	return &schemas, err
-}
-
-func (c *SchemaAdminClient) Get(ctx context.Context, eventTypeSlug string) (*AdminSchema, error) {
-	return adminGetByID[AdminSchema](ctx, c.admin, "/schemas/", eventTypeSlug)
-}
-
-func (c *SchemaAdminClient) CreateVersion(
-	ctx context.Context,
-	eventTypeSlug string,
-	req AdminSchemaVersionCreate,
-) (*AdminSchema, error) {
-	var schema AdminSchema
-	err := c.admin.request(
-		ctx,
-		http.MethodPost,
-		"/schemas/"+url.PathEscape(eventTypeSlug)+"/versions",
-		req,
-		&schema,
-	)
-	return &schema, err
 }
 
 // Validate runs the stateless dialect validator (jsonschema or avro).
@@ -630,6 +631,14 @@ func (c *AdminClient) endpoint(path string) string {
 // top-level /api/v1 surface (e.g. tenant-storage-locations). It reuses the
 // same auth headers, body encoding, and status decoding as request.
 func (c *AdminClient) requestNonAdmin(ctx context.Context, method string, path string, payload any, out any) error {
+	return c.requestNonAdminWithHeaders(ctx, method, path, payload, out, nil)
+}
+
+// requestNonAdminWithHeaders is requestNonAdmin plus extra request headers, for
+// the routes that read a value only from a header.
+func (c *AdminClient) requestNonAdminWithHeaders(
+	ctx context.Context, method, path string, payload, out any, extraHeaders map[string]string,
+) error {
 	var body []byte
 	var err error
 	if payload != nil {
@@ -640,10 +649,14 @@ func (c *AdminClient) requestNonAdmin(ctx context.Context, method string, path s
 	}
 	url := strings.TrimRight(c.client.config.BaseURL, "/") + "/api/v1" + path
 	if c.client.config.HTTPClient != nil {
+		headers := c.client.headers(false)
+		for key, value := range extraHeaders {
+			headers[key] = value
+		}
 		resp, err := c.client.config.HTTPClient.Do(&HTTPRequest{
 			Method:  method,
 			URL:     url,
-			Headers: c.client.headers(false),
+			Headers: headers,
 			Body:    body,
 		})
 		if err != nil {
@@ -660,6 +673,9 @@ func (c *AdminClient) requestNonAdmin(ctx context.Context, method string, path s
 		return fmt.Errorf("custd: create non-admin request: %w", err)
 	}
 	for k, v := range c.client.headers(false) {
+		req.Header.Set(k, v)
+	}
+	for k, v := range extraHeaders {
 		req.Header.Set(k, v)
 	}
 	resp, err := c.client.httpClient.Do(req)
@@ -680,6 +696,7 @@ func (c *AdminClient) requestNonAdmin(ctx context.Context, method string, path s
 const maxAdminBinaryResponseBytes = 64 << 20
 
 func (c *AdminClient) requestBytes(ctx context.Context, method, path string) ([]byte, map[string]string, error) {
+	path = c.actingCompanyPath(path)
 	if c.client.config.HTTPClient != nil {
 		resp, err := c.client.config.HTTPClient.Do(&HTTPRequest{
 			Method: method, URL: c.endpoint(path), Headers: c.client.headers(false),
@@ -730,7 +747,7 @@ func decodeAdminResponse(body []byte, out any) error {
 	if out == nil || len(body) == 0 {
 		return nil
 	}
-	if err := json.Unmarshal(body, out); err != nil {
+	if err := unmarshalResponse(body, out); err != nil {
 		return fmt.Errorf("custd: decode admin response: %w", err)
 	}
 	return nil

@@ -1,0 +1,17 @@
+{
+  "maximal": {
+    "allowedOrigins": [
+      "example"
+    ],
+    "environment": "example",
+    "identityMode": "cookieless",
+    "pageViewSchemaVersion": "example",
+    "siteUuid": "example"
+  },
+  "minimal": {
+    "allowedOrigins": null,
+    "environment": "example",
+    "identityMode": "cookieless",
+    "siteUuid": "example"
+  }
+}

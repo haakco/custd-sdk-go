@@ -67,23 +67,36 @@ func newProvisioningClient(client *CustdClient) *ProvisioningClient {
 	return provisioning
 }
 
+// Create adds a data space under a parent. An empty parentCompanySlug uses the
+// credential's own company; a platform administrator may name another parent.
 func (c *DataSpaceProvisioningClient) Create(
 	ctx context.Context,
 	req DataSpaceCreate,
+	parentCompanySlug string,
 ) (*DataSpace, error) {
 	var space DataSpace
-	err := c.provisioning.request(ctx, http.MethodPost, "/data-spaces", req, &space)
+	err := c.provisioning.request(ctx, http.MethodPost, dataSpacePath("/data-spaces", parentCompanySlug), req, &space)
 	return &space, err
 }
 
-func (c *DataSpaceProvisioningClient) List(ctx context.Context) (*DataSpaceList, error) {
+// List returns a parent's data spaces and entitlement. An empty parentCompanySlug
+// uses the credential's own company.
+func (c *DataSpaceProvisioningClient) List(ctx context.Context, parentCompanySlug string) (*DataSpaceList, error) {
 	var spaces DataSpaceList
-	err := c.provisioning.request(ctx, http.MethodGet, "/data-spaces", nil, &spaces)
+	err := c.provisioning.request(ctx, http.MethodGet, dataSpacePath("/data-spaces", parentCompanySlug), nil, &spaces)
 	return &spaces, err
 }
 
-func (c *DataSpaceProvisioningClient) Revoke(ctx context.Context, slug string) error {
-	return c.provisioning.request(ctx, http.MethodDelete, "/data-spaces/"+url.PathEscape(slug), nil, nil)
+// Revoke removes one data space from a parent. An empty parentCompanySlug uses
+// the credential's own company.
+func (c *DataSpaceProvisioningClient) Revoke(ctx context.Context, slug, parentCompanySlug string) error {
+	path := dataSpacePath("/data-spaces/"+url.PathEscape(slug), parentCompanySlug)
+	return c.provisioning.request(ctx, http.MethodDelete, path, nil, nil)
+}
+
+// dataSpacePath adds the parentCompanySlug a platform administrator names.
+func dataSpacePath(path, parentCompanySlug string) string {
+	return siteQueryPath(path, url.Values{"parentCompanySlug": {parentCompanySlug}})
 }
 
 func (c *ProducerProvisioningClient) Provision(
@@ -113,8 +126,8 @@ func (c *ProducerProvisioningClient) List(
 func (c *ProducerProvisioningClient) RotateSecret(
 	ctx context.Context,
 	clientID string,
-) (*ProducerProvisionResponse, error) {
-	var producer ProducerProvisionResponse
+) (*ProducerSecretRotationResponse, error) {
+	var producer ProducerSecretRotationResponse
 	err := c.provisioning.request(
 		ctx,
 		http.MethodPost,
@@ -157,34 +170,39 @@ func (c *ProducerProvisioningClient) Revoke(ctx context.Context, clientID string
 	return c.provisioning.request(ctx, http.MethodDelete, "/producer-provisioning/"+url.PathEscape(clientID), nil, nil)
 }
 
+// ProducerReservationScope names the parent company a platform administrator
+// acts for. Omit it to act for the caller's own company.
+type ProducerReservationScope struct {
+	ParentCompanySlug string
+}
+
+// producerReservationPath builds a reservation route with the optional parent.
+func producerReservationPath(dataSpaceSlug, suffix string, scope []ProducerReservationScope) string {
+	parent := ""
+	if len(scope) > 0 {
+		parent = scope[0].ParentCompanySlug
+	}
+	return dataSpacePath("/data-spaces/"+url.PathEscape(dataSpaceSlug)+"/producer-reservations"+suffix, parent)
+}
+
 func (c *ProducerReservationsClient) Reserve(
 	ctx context.Context,
 	dataSpaceSlug string,
 	req ProducerReservationCreateRequest,
+	scope ...ProducerReservationScope,
 ) (*ProducerReservation, error) {
 	var out ProducerReservation
-	err := c.provisioning.request(
-		ctx,
-		http.MethodPost,
-		"/data-spaces/"+url.PathEscape(dataSpaceSlug)+"/producer-reservations",
-		req,
-		&out,
-	)
+	err := c.provisioning.request(ctx, http.MethodPost, producerReservationPath(dataSpaceSlug, "", scope), req, &out)
 	return &out, err
 }
 
 func (c *ProducerReservationsClient) List(
 	ctx context.Context,
 	dataSpaceSlug string,
+	scope ...ProducerReservationScope,
 ) (*ProducerReservationListResponse, error) {
 	var out ProducerReservationListResponse
-	err := c.provisioning.request(
-		ctx,
-		http.MethodGet,
-		"/data-spaces/"+url.PathEscape(dataSpaceSlug)+"/producer-reservations",
-		nil,
-		&out,
-	)
+	err := c.provisioning.request(ctx, http.MethodGet, producerReservationPath(dataSpaceSlug, "", scope), nil, &out)
 	return &out, err
 }
 
@@ -193,26 +211,19 @@ func (c *ProducerReservationsClient) Claim(
 	dataSpaceSlug string,
 	producerSlug string,
 	req ProducerReservationClaimRequest,
+	scope ...ProducerReservationScope,
 ) (*ProducerReservation, error) {
 	var out ProducerReservation
-	err := c.provisioning.request(
-		ctx,
-		http.MethodPost,
-		"/data-spaces/"+url.PathEscape(dataSpaceSlug)+"/producer-reservations/"+url.PathEscape(producerSlug)+"/claim",
-		req,
-		&out,
-	)
+	path := producerReservationPath(dataSpaceSlug, "/"+url.PathEscape(producerSlug)+"/claim", scope)
+	err := c.provisioning.request(ctx, http.MethodPost, path, req, &out)
 	return &out, err
 }
 
-func (c *ProducerReservationsClient) Release(ctx context.Context, dataSpaceSlug string, producerSlug string) error {
-	return c.provisioning.request(
-		ctx,
-		http.MethodDelete,
-		"/data-spaces/"+url.PathEscape(dataSpaceSlug)+"/producer-reservations/"+url.PathEscape(producerSlug),
-		nil,
-		nil,
-	)
+func (c *ProducerReservationsClient) Release(
+	ctx context.Context, dataSpaceSlug string, producerSlug string, scope ...ProducerReservationScope,
+) error {
+	path := producerReservationPath(dataSpaceSlug, "/"+url.PathEscape(producerSlug), scope)
+	return c.provisioning.request(ctx, http.MethodDelete, path, nil, nil)
 }
 
 func (c *ProvisioningClient) request(ctx context.Context, method string, path string, payload any, out any) error {

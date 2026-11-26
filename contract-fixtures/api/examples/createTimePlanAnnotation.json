@@ -1,0 +1,28 @@
+{
+  "maximal": {
+    "actionStatus": "example",
+    "actorKind": "example",
+    "actorRef": "example",
+    "assigneeRef": "example",
+    "decisionStatus": "example",
+    "dueDate": "2026-11-20T06:00:00Z",
+    "markerLabel": "example",
+    "recordedAt": "2026-11-20T06:00:00Z",
+    "redactedAt": "2026-11-20T06:00:00Z",
+    "redactionReason": "example",
+    "runBlockUuid": "example",
+    "runUuid": "example",
+    "supersedesUuid": "example",
+    "text": "example",
+    "type": "note",
+    "uuid": "example"
+  },
+  "minimal": {
+    "actorKind": "example",
+    "actorRef": "example",
+    "recordedAt": "2026-11-20T06:00:00Z",
+    "runUuid": "example",
+    "type": "note",
+    "uuid": "example"
+  }
+}

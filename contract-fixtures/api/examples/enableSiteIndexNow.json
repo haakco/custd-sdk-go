@@ -1,0 +1,32 @@
+{
+  "maximal": {
+    "dailyUrlLimit": 1,
+    "enabled": true,
+    "key": "example",
+    "keyLocation": "example",
+    "lastCheckFailure": "example",
+    "submissions": [
+      {
+        "failure": "example",
+        "providerStatus": 1,
+        "requestedAt": "2026-11-20T06:00:00Z",
+        "status": "queued",
+        "submissionUuid": "example",
+        "submittedAt": "2026-11-20T06:00:00Z",
+        "urls": [
+          "example"
+        ]
+      }
+    ],
+    "urlsToday": 1,
+    "verified": true,
+    "verifiedAt": "2026-11-20T06:00:00Z"
+  },
+  "minimal": {
+    "dailyUrlLimit": 1,
+    "enabled": true,
+    "submissions": null,
+    "urlsToday": 1,
+    "verified": true
+  }
+}

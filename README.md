@@ -320,20 +320,32 @@ only these two calls.
 Custd 3.46.0 and earlier send no report `Template` (their reports are the full
 template) and no Lighthouse history `URL` or `Pages`; those decode as empty.
 
-## Schema Admin Helpers
+## Event schemas
 
-Use `CustdClient.Admin.Schemas` from setup code:
-
-Supported feature parity and intentionally missing helpers are documented in the SDK
-root README.
+`CustdClient.Schemas` calls the schema registry for the credential's tenant:
+`List`, `ListVersions`, `Get`, `Register`, `Validate`, `DryRun`, `Infer`,
+`Activate`, `Enable`, `Disable` and `DisableEventType`.
 
 ```go
-_, err := client.Admin.Schemas.Register(ctx, custd.AdminSchemaRegister{
-    EventTypeSlug: "courib.delivery.created",
-    Version:       "1.0.0",
-    JSONSchema:    map[string]any{"type": "object"},
+eventType, err := client.Schemas.Register(ctx, custd.EventSchemaRegisterRequest{
+    Slug:       "courib.delivery.created",
+    Name:       "Delivery created",
+    Version:    "1.0.0",
+    JSONSchema: `{"type":"object"}`,
+    Enabled:    true,
+    IsActive:   true,
 })
 ```
+
+`CustdClient.Admin.Schemas` keeps the admin helpers that name the tenant in the
+path (`Register`, `EnableVersion`, `DryRun`, `Validate`, `Audit`).
+
+## Hosted app items
+
+`NewAppItemClient(client, custd.AppItemClientConfig{SiteKey, Origin})` calls the
+`/api/v1/app` item, forecast and model routes with the app's Site key. Each call
+takes a `custd.AppItemAccess` with the item's link token and, when someone is
+signed in, their user token. The client's own API credential is never sent.
 
 ## Lifecycle administration
 
@@ -342,24 +354,24 @@ namespaces. Every method takes `context.Context` and returns server
 responses verbatim. Forward-only: no deprecated aliases.
 
 ```go
-admin := client.Admin()
+admin := client.Admin
 
-// Tenant storage: list/create/get/revoke.
-loc, err := admin.TenantStorage.Create(ctx, custd.TenantStorageCreateRequest{
-    TenantSlug:    "acme",
-    ClientLocation: "s3://acme-prod-warehouse/events/",
-})
+// Tenant storage: list/create/get/revoke. Custd generates the location.
+loc, err := admin.TenantStorage.Create(ctx, custd.TenantStorageCreateRequest{})
 
 // Subject exports: full request lifecycle.
 exp, err := admin.SubjectExports.Create(ctx, custd.SubjectExportCreateRequest{
-    TenantSlug:     "acme",
-    Subject:        custd.Subject{Type: "userUuid", Value: "01J5..."},
-    Scope:          "portability",
-    IdempotencyKey: "acme-2026-07-31",
+    OpaqueSubjectID: "01J5...",
+    Scope:           "portability",
+    IdempotencyKey:  "acme-2026-07-31",
 })
+// Each artifact downloads by scope: access or portability.
+art, err := admin.SubjectExports.Download(ctx, exp.ID, custd.SubjectExportScopePortability)
 
-// Physical erasures: NO cancel/retry — server has none.
-force, err := admin.PrivacyErasures.Force(ctx, "pe_01J5...")
+// Physical erasures: NO cancel/retry — server has none. Reads take an optional
+// companySlug; empty reads the credential's own tenant.
+erasures, err := admin.Erasures.List(ctx, "")
+force, err := admin.Erasures.Force(ctx, "pe_01J5...")
 
 // Retention policies: list/get/upsert/delete + preview/apply/listRuns.
 runs, err := admin.Retention.ListRuns(ctx, "acme")

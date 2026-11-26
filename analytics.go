@@ -47,9 +47,10 @@ func (c *AdminClient) CountEvents(
 	if query.Source == "" {
 		return nil, fmt.Errorf("custd: analytics query source is required")
 	}
-	var out AnalyticsEventCount
+	// The route answers with the whole query result; only its count is kept.
+	var out AnalyticsEventQueryResponse
 	if err := c.requestNonAdmin(ctx, http.MethodPost, analyticsQueryPath, query, &out); err != nil {
 		return nil, err
 	}
-	return &out, nil
+	return &AnalyticsEventCount{Count: out.Count}, nil
 }

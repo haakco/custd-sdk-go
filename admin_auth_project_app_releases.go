@@ -59,6 +59,14 @@ type AppReleaseRouting struct {
 	Headers         []AppReleaseHeaderRule     `json:"headers,omitempty"`
 	Cache           []AppReleaseCacheRule      `json:"cache,omitempty"`
 	ShareableRoutes []AppReleaseShareableRoute `json:"shareableRoutes,omitempty"`
+	SiteCard        *AppReleaseSiteCard        `json:"siteCard,omitempty"`
+}
+
+// AppReleaseSiteCard is the link preview a shared link to the site shows.
+type AppReleaseSiteCard struct {
+	Title        string `json:"title"`
+	Description  string `json:"description,omitempty"`
+	CardTemplate string `json:"cardTemplate"`
 }
 
 // AppReleaseSPAFallback serves File for any path under Prefix that names no file.
@@ -88,7 +96,11 @@ type AppReleaseCacheRule struct {
 
 // AppReleaseShareableRoute is a route the host may serve with share previews.
 type AppReleaseShareableRoute struct {
-	Route string `json:"route"`
+	Route        string `json:"route"`
+	Kind         string `json:"kind"`
+	Title        string `json:"title"`
+	Description  string `json:"description,omitempty"`
+	CardTemplate string `json:"cardTemplate"`
 }
 
 // AppReleaseCreateRequest is a new release's files and routing. The server
@@ -112,6 +124,7 @@ type AppRelease struct {
 	ReleaseID  string             `json:"releaseId"`
 	State      AppReleaseState    `json:"state"`
 	Active     bool               `json:"active"`
+	Label      string             `json:"label,omitempty"`
 	FileCount  int                `json:"fileCount"`
 	TotalBytes int64              `json:"totalBytes"`
 	CreatedAt  string             `json:"createdAt"`

@@ -1,0 +1,22 @@
+{
+  "maximal": {
+    "runs": [
+      {
+        "as_of_at": "2026-11-20T06:00:00Z",
+        "baseline": 1.5,
+        "duration_milliseconds": 1,
+        "engine_version": "example",
+        "generated_at": "2026-11-20T06:00:00Z",
+        "horizon_end_at": "2026-11-20T06:00:00Z",
+        "input_hash": "example",
+        "output": 1.5,
+        "override_applied": true,
+        "run_uuid": "example",
+        "warning_count": 1
+      }
+    ]
+  },
+  "minimal": {
+    "runs": null
+  }
+}

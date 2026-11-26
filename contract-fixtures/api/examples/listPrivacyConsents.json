@@ -1,0 +1,23 @@
+{
+  "maximal": {
+    "companySlug": "example",
+    "records": [
+      {
+        "expiresAt": "2026-11-20T06:00:00Z",
+        "granted": true,
+        "grantedAt": "2026-11-20T06:00:00Z",
+        "purpose": "analytics",
+        "recordedAt": "2026-11-20T06:00:00Z",
+        "revokedAt": "2026-11-20T06:00:00Z",
+        "source": "example",
+        "subjectId": "example"
+      }
+    ],
+    "subjectId": "example"
+  },
+  "minimal": {
+    "companySlug": "example",
+    "records": null,
+    "subjectId": "example"
+  }
+}

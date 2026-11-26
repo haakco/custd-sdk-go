@@ -1,0 +1,38 @@
+{
+  "maximal": {
+    "affectedSegmentCount": 1,
+    "archiveRecompactedAt": "2026-11-20T06:00:00Z",
+    "createdAt": "2026-11-20T06:00:00Z",
+    "failedRewriteCount": 1,
+    "forceRequestedAt": "2026-11-20T06:00:00Z",
+    "latestFailureReason": "example",
+    "latestRecompactedAt": "2026-11-20T06:00:00Z",
+    "matchedEventCount": 1,
+    "oldestPendingRewriteAt": "2026-11-20T06:00:00Z",
+    "pendingRewriteCount": 1,
+    "recompactedRewriteCount": 1,
+    "redactedEventCount": 1,
+    "requestUuid": "example",
+    "requestedBy": "example",
+    "rewriteCount": 1,
+    "rewritingRewriteCount": 1,
+    "rewrittenRewriteCount": 1,
+    "s3PropagationLagSeconds": 1,
+    "selectorDisplay": "example",
+    "selectorType": "example",
+    "slaDeadlineAt": "2026-11-20T06:00:00Z",
+    "slaState": "example",
+    "source": "example",
+    "status": "example",
+    "updatedAt": "2026-11-20T06:00:00Z"
+  },
+  "minimal": {
+    "affectedSegmentCount": 1,
+    "matchedEventCount": 1,
+    "redactedEventCount": 1,
+    "requestUuid": "example",
+    "selectorDisplay": "example",
+    "selectorType": "example",
+    "status": "example"
+  }
+}

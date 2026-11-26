@@ -1,0 +1,65 @@
+{
+  "maximal": {
+    "contributions": [
+      {
+        "attempts": 1,
+        "baselineMs": 1,
+        "contributionPermille": 1,
+        "stepKey": "example",
+        "totalMs": 1
+      }
+    ],
+    "entries": [
+      {
+        "baselineMs": 1,
+        "corrected": true,
+        "observedAt": "2026-11-20T06:00:00Z",
+        "outcome": "example",
+        "revisionNumber": 1,
+        "revisionUuid": "example",
+        "runUuid": "example",
+        "stepKey": "example",
+        "valueMs": 1
+      }
+    ],
+    "latestCompletedRun": {
+      "activeMs": 1,
+      "nominalMs": 1,
+      "runUuid": "example",
+      "waitMs": 1,
+      "wallClockMs": 1
+    },
+    "outcomes": {
+      "cancelledRuns": 1,
+      "cancelledSteps": 1,
+      "completedRuns": 1,
+      "completedSteps": 1,
+      "failedAttempts": 1,
+      "failedRuns": 1,
+      "openAttempts": 1,
+      "retries": 1,
+      "runningRuns": 1,
+      "skippedAttempts": 1
+    },
+    "workflowKey": "example",
+    "workflowUuid": "example"
+  },
+  "minimal": {
+    "contributions": null,
+    "entries": null,
+    "outcomes": {
+      "cancelledRuns": 1,
+      "cancelledSteps": 1,
+      "completedRuns": 1,
+      "completedSteps": 1,
+      "failedAttempts": 1,
+      "failedRuns": 1,
+      "openAttempts": 1,
+      "retries": 1,
+      "runningRuns": 1,
+      "skippedAttempts": 1
+    },
+    "workflowKey": "example",
+    "workflowUuid": "example"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "maximal": {
+    "eventCategories": [
+      {
+        "isAudit": true,
+        "name": "example",
+        "retentionDays": 1,
+        "rollupDimensions": {},
+        "slug": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "eventCategories": null
+  }
+}

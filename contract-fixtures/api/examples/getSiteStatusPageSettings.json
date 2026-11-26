@@ -1,0 +1,18 @@
+{
+  "maximal": {
+    "draft": {
+      "components": [
+        {
+          "domainUuid": "0198a3b2-0000-7000-8000-000000000001",
+          "label": "example"
+        }
+      ],
+      "title": "example"
+    },
+    "publication": {
+      "publicKey": "example",
+      "publishedAt": "2026-11-20T06:00:00Z"
+    }
+  },
+  "minimal": {}
+}

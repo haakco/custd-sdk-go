@@ -1,0 +1,91 @@
+{
+  "maximal": {
+    "connections": [
+      {
+        "importedThrough": "example",
+        "lastFailure": "example",
+        "lastImportedAt": "2026-11-20T06:00:00Z",
+        "property": "example",
+        "provider": "google",
+        "status": "pending"
+      }
+    ],
+    "days": 1,
+    "domainUuid": "example",
+    "sources": [
+      {
+        "daily": [
+          {
+            "clicks": 1,
+            "day": "example",
+            "impressions": 1
+          }
+        ],
+        "days": 1,
+        "from": "example",
+        "granularity": "daily",
+        "importedAt": "2026-11-20T06:00:00Z",
+        "previous": {
+          "clicks": 1,
+          "ctr": 1.5,
+          "impressions": 1,
+          "position": 1.5
+        },
+        "provider": "google",
+        "source": "example",
+        "to": "example",
+        "totals": {
+          "clicks": 1,
+          "ctr": 1.5,
+          "impressions": 1,
+          "position": 1.5
+        }
+      }
+    ],
+    "strikingDistance": [
+      {
+        "key": "example",
+        "provider": "google",
+        "totals": {
+          "clicks": 1,
+          "ctr": 1.5,
+          "impressions": 1,
+          "position": 1.5
+        }
+      }
+    ],
+    "topPages": [
+      {
+        "key": "example",
+        "provider": "google",
+        "totals": {
+          "clicks": 1,
+          "ctr": 1.5,
+          "impressions": 1,
+          "position": 1.5
+        }
+      }
+    ],
+    "topQueries": [
+      {
+        "key": "example",
+        "provider": "google",
+        "totals": {
+          "clicks": 1,
+          "ctr": 1.5,
+          "impressions": 1,
+          "position": 1.5
+        }
+      }
+    ]
+  },
+  "minimal": {
+    "connections": null,
+    "days": 1,
+    "domainUuid": "example",
+    "sources": null,
+    "strikingDistance": null,
+    "topPages": null,
+    "topQueries": null
+  }
+}

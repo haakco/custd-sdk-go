@@ -122,27 +122,46 @@ type ProducerProvisionRequest struct {
 	ProducerSlug  string   `json:"producerSlug"`
 	DisplayName   string   `json:"displayName,omitempty"`
 	Environment   string   `json:"environment,omitempty"`
-	Scopes        []string `json:"scopes,omitempty"`
 	ScopeTemplate string   `json:"scopeTemplate,omitempty"`
+	Scopes        []string `json:"scopes,omitempty"`
+	// AllowedEnvironments optionally restricts the producer at creation time.
+	// Nil or empty allows every environment.
+	AllowedEnvironments *[]string `json:"allowedEnvironments,omitempty"`
 }
 
 type ProducerProvisionResponse struct {
-	BaseURL      string            `json:"baseUrl,omitempty"`
-	TokenURL     string            `json:"tokenUrl,omitempty"`
-	Audience     string            `json:"audience,omitempty"`
-	ClientID     string            `json:"clientId"`
-	ClientSecret string            `json:"clientSecret"`
-	CompanySlug  string            `json:"companySlug"`
-	ProducerSlug string            `json:"producerSlug"`
-	Scopes       []string          `json:"scopes"`
-	Metadata     map[string]string `json:"metadata,omitempty"`
+	BaseURL      string   `json:"baseUrl"`
+	TokenURL     string   `json:"tokenUrl"`
+	Audience     string   `json:"audience"`
+	CompanySlug  string   `json:"companySlug"`
+	ProducerSlug string   `json:"producerSlug"`
+	ClientID     string   `json:"clientId"`
+	ClientSecret string   `json:"clientSecret"`
+	Scopes       []string `json:"scopes"`
+	Environment  string   `json:"environment,omitempty"`
+	// AllowedEnvironments is the credential's optional restriction. An empty
+	// list allows every environment, which is the default.
+	AllowedEnvironments []string `json:"allowedEnvironments"`
+}
+
+// ProducerSecretRotationResponse is the one-time credential a producer secret
+// rotation returns.
+type ProducerSecretRotationResponse struct {
+	BaseURL      string `json:"baseUrl"`
+	TokenURL     string `json:"tokenUrl"`
+	Audience     string `json:"audience"`
+	ClientID     string `json:"clientId"`
+	ClientSecret string `json:"clientSecret"`
 }
 
 type ProducerProvisionPublicClient struct {
-	ClientID     string            `json:"clientId"`
-	CompanySlug  string            `json:"companySlug"`
-	ProducerSlug string            `json:"producerSlug"`
-	Scopes       []string          `json:"scopes"`
-	Environment  string            `json:"environment,omitempty"`
-	Metadata     map[string]string `json:"metadata,omitempty"`
+	ClientID     string   `json:"clientId"`
+	CompanySlug  string   `json:"companySlug"`
+	ProducerSlug string   `json:"producerSlug"`
+	DisplayName  string   `json:"displayName,omitempty"`
+	Scopes       []string `json:"scopes"`
+	Environment  string   `json:"environment,omitempty"`
+	// AllowedEnvironments is the credential's optional restriction. An empty
+	// list allows every environment, which is the default.
+	AllowedEnvironments []string `json:"allowedEnvironments"`
 }

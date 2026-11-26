@@ -1,0 +1,34 @@
+{
+  "maximal": {
+    "countsRecorded": true,
+    "directoryId": "example",
+    "environmentId": "example",
+    "invitations": 1,
+    "magicLinks": 1,
+    "mappings": 1,
+    "memberships": 1,
+    "principalId": "example",
+    "principals": 1,
+    "profileValues": 1,
+    "projectId": "example",
+    "replayed": true,
+    "revision": 1,
+    "status": "example"
+  },
+  "minimal": {
+    "countsRecorded": true,
+    "directoryId": "example",
+    "environmentId": "example",
+    "invitations": 1,
+    "magicLinks": 1,
+    "mappings": 1,
+    "memberships": 1,
+    "principalId": "example",
+    "principals": 1,
+    "profileValues": 1,
+    "projectId": "example",
+    "replayed": true,
+    "revision": 1,
+    "status": "example"
+  }
+}

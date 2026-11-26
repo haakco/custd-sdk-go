@@ -1,0 +1,28 @@
+{
+  "maximal": {
+    "generatedAt": "2026-11-20T06:00:00Z",
+    "tasks": [
+      {
+        "backlog": [
+          {
+            "count": 1,
+            "meaning": "example",
+            "name": "example"
+          }
+        ],
+        "enabled": true,
+        "lastFailure": "example",
+        "lastFailureAt": "2026-11-20T06:00:00Z",
+        "lastRunAt": "2026-11-20T06:00:00Z",
+        "lastRunStatus": "example",
+        "nextRunAt": "2026-11-20T06:00:00Z",
+        "registered": true,
+        "taskName": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "generatedAt": "2026-11-20T06:00:00Z",
+    "tasks": null
+  }
+}

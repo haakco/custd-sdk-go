@@ -1,0 +1,15 @@
+{
+  "maximal": {
+    "importedThrough": "example",
+    "lastFailure": "example",
+    "lastImportedAt": "2026-11-20T06:00:00Z",
+    "property": "example",
+    "provider": "google",
+    "status": "pending"
+  },
+  "minimal": {
+    "property": "example",
+    "provider": "google",
+    "status": "pending"
+  }
+}

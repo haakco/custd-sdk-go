@@ -1,0 +1,32 @@
+{
+  "maximal": {
+    "allocations": [
+      {
+        "blockId": "example",
+        "durationMs": 1,
+        "sequence": 1
+      }
+    ],
+    "allocatorVersion": "example",
+    "blockCount": 1,
+    "definitionHash": "example",
+    "horizonMs": 1,
+    "planUuid": "example",
+    "publishedAt": "2026-11-20T06:00:00Z",
+    "schemaVersion": "example",
+    "uuid": "example",
+    "versionNumber": 1
+  },
+  "minimal": {
+    "allocations": null,
+    "allocatorVersion": "example",
+    "blockCount": 1,
+    "definitionHash": "example",
+    "horizonMs": 1,
+    "planUuid": "example",
+    "publishedAt": "2026-11-20T06:00:00Z",
+    "schemaVersion": "example",
+    "uuid": "example",
+    "versionNumber": 1
+  }
+}

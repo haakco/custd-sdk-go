@@ -1,0 +1,29 @@
+{
+  "maximal": {
+    "allowedEnvironments": [
+      "example"
+    ],
+    "audience": "example",
+    "baseUrl": "example",
+    "clientId": "example",
+    "clientSecret": "example",
+    "companySlug": "example",
+    "environment": "example",
+    "producerSlug": "example",
+    "scopes": [
+      "example"
+    ],
+    "tokenUrl": "example"
+  },
+  "minimal": {
+    "allowedEnvironments": null,
+    "audience": "example",
+    "baseUrl": "example",
+    "clientId": "example",
+    "clientSecret": "example",
+    "companySlug": "example",
+    "producerSlug": "example",
+    "scopes": null,
+    "tokenUrl": "example"
+  }
+}

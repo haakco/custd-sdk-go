@@ -36,6 +36,7 @@ type CustdClient struct {
 	Parsers      *ParserClient
 	Provisioning *ProvisioningClient
 	Reporting    *ReportingClient
+	Schemas      *SchemaRegistryClient
 	config       ClientConfig
 	q            *queue
 	retrySet     map[int]bool
@@ -67,6 +68,7 @@ func NewClient(config *ClientConfig) *CustdClient {
 	c.Parsers = newParserClient(c)
 	c.Provisioning = newProvisioningClient(c)
 	c.Reporting = newReportingClient(c)
+	c.Schemas = newSchemaRegistryClient(c)
 	c.startFlusher()
 	return c
 }

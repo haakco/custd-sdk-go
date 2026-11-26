@@ -1,0 +1,27 @@
+{
+  "maximal": {
+    "accepted": 1,
+    "duplicates": 1,
+    "rejected": 1,
+    "results": [
+      {
+        "accepted": true,
+        "duplicate": true,
+        "errorCode": "example",
+        "errorMessage": "example",
+        "externalRunId": "example",
+        "factUuid": "example",
+        "idempotencyKey": "example",
+        "index": 1,
+        "runUuid": "example",
+        "workflowKey": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "accepted": 1,
+    "duplicates": 1,
+    "rejected": 1,
+    "results": null
+  }
+}

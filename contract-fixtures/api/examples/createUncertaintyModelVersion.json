@@ -1,0 +1,41 @@
+{
+  "maximal": {
+    "createdAt": "2026-11-20T06:00:00Z",
+    "note": "example",
+    "quantities": [
+      {
+        "description": "example",
+        "formula": "example",
+        "input": {
+          "distribution": "normal",
+          "high": 1.5,
+          "low": 1.5,
+          "samples": [
+            1.5
+          ],
+          "shape": "point",
+          "source": {
+            "field": "completion_days",
+            "kind": "counter_forecast",
+            "projectUuid": "0198a3b2-0000-7000-8000-000000000001"
+          },
+          "successes": 1,
+          "trials": 1,
+          "value": 1.5
+        },
+        "kind": "input",
+        "name": "example",
+        "unit": "example"
+      }
+    ],
+    "versionNumber": 1,
+    "versionUuid": "example"
+  },
+  "minimal": {
+    "createdAt": "2026-11-20T06:00:00Z",
+    "note": "example",
+    "quantities": null,
+    "versionNumber": 1,
+    "versionUuid": "example"
+  }
+}

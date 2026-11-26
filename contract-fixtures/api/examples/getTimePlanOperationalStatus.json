@@ -1,0 +1,19 @@
+{
+  "maximal": {
+    "activeRuns": 1,
+    "checkedAt": "2026-11-20T06:00:00Z",
+    "failedOutbox": 1,
+    "oldestFailureAt": "2026-11-20T06:00:00Z",
+    "pendingOutbox": 1,
+    "publishedOutbox": 1,
+    "staleRuns": 1
+  },
+  "minimal": {
+    "activeRuns": 1,
+    "checkedAt": "2026-11-20T06:00:00Z",
+    "failedOutbox": 1,
+    "pendingOutbox": 1,
+    "publishedOutbox": 1,
+    "staleRuns": 1
+  }
+}

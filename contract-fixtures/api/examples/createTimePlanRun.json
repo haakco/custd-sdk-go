@@ -1,0 +1,26 @@
+{
+  "maximal": {
+    "baselineHorizonMs": 1,
+    "blockAllocations": [
+      {
+        "blockId": "example",
+        "durationMs": 1,
+        "sequence": 1
+      }
+    ],
+    "createdAt": "2026-11-20T06:00:00Z",
+    "planUuid": "example",
+    "status": "example",
+    "uuid": "example",
+    "versionUuid": "example"
+  },
+  "minimal": {
+    "baselineHorizonMs": 1,
+    "blockAllocations": null,
+    "createdAt": "2026-11-20T06:00:00Z",
+    "planUuid": "example",
+    "status": "example",
+    "uuid": "example",
+    "versionUuid": "example"
+  }
+}
