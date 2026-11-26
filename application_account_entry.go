@@ -10,13 +10,20 @@ import (
 	"strings"
 )
 
-const appSettingsEntryPath = "/settings/entry"
+const (
+	appSettingsEntryPath = "/settings/entry"
+	// appAccountReturnPathMaxBytes is the issuer's bound on the page hosted settings links back to.
+	appAccountReturnPathMaxBytes = 512
+)
 
 // AppAccountEntryRequest binds a ticket to a registered application origin.
 // Use the issuer and application origin from trusted deployment configuration.
 type AppAccountEntryRequest struct {
 	Issuer            string
 	ApplicationOrigin string
+	// ReturnPath is the page on ApplicationOrigin hosted settings links back to, such as "/mine".
+	// Empty links to the application's home. It never carries a fragment.
+	ReturnPath string
 }
 
 // AppAccountEntry is for a same-tab form POST. The ticket is a short-lived,
@@ -39,9 +46,13 @@ func (c *CustdClient) CreateAppAccountEntry(ctx context.Context, token string, r
 	if err != nil {
 		return nil, err
 	}
+	if request.ReturnPath != "" && !validAppAccountReturnPath(request.ReturnPath) {
+		return nil, fmt.Errorf("custd: app account return path must be a path on the application origin")
+	}
 	body, err := json.Marshal(struct {
 		ApplicationOrigin string `json:"applicationOrigin"`
-	}{ApplicationOrigin: applicationOrigin})
+		ReturnPath        string `json:"returnPath,omitempty"`
+	}{ApplicationOrigin: applicationOrigin, ReturnPath: request.ReturnPath})
 	if err != nil {
 		return nil, fmt.Errorf("custd: encode app account entry request: %w", err)
 	}
@@ -75,6 +86,21 @@ func accountEntryOrigin(raw string) (string, error) {
 		return "", fmt.Errorf("custd: app account entry requires a serialized HTTPS origin")
 	}
 	return raw, nil
+}
+
+// validAppAccountReturnPath mirrors the issuer: an absolute path with an optional query, without a
+// fragment, backslash, control character or scheme-relative form.
+func validAppAccountReturnPath(path string) bool {
+	if len(path) > appAccountReturnPathMaxBytes || !strings.HasPrefix(path, "/") || strings.HasPrefix(path, "//") ||
+		strings.ContainsAny(path, `\#`) {
+		return false
+	}
+	for _, char := range path {
+		if char <= ' ' || char == 0x7f {
+			return false
+		}
+	}
+	return true
 }
 
 func validAppAccountEntryTicket(ticket string) bool {

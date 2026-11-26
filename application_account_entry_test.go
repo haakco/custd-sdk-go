@@ -43,3 +43,28 @@ func TestAppAccountEntryRejectsUntrustedAction(t *testing.T) {
 		t.Fatal("untrusted form action must be refused")
 	}
 }
+
+func TestAppAccountEntrySendsAReturnPathOnTheAppOrigin(t *testing.T) {
+	action := "https://auth.canvas.test/settings/entry"
+	doer := newCaptureDoer(http.StatusOK, `{"actionUrl":"`+action+`","ticket":"`+strings.Repeat("A", 43)+`"}`)
+	client := newAdminTestClient(t, doer, "https://api.custd.test")
+	request := AppAccountEntryRequest{Issuer: "https://auth.canvas.test", ApplicationOrigin: "https://canvas.test", ReturnPath: "/mine?view=all"}
+	if _, err := client.CreateAppAccountEntry(t.Context(), "application-token", request); err != nil {
+		t.Fatalf("entry with a return path: %v", err)
+	}
+	var body struct {
+		ReturnPath string `json:"returnPath"`
+	}
+	if err := json.Unmarshal(doer.requests[0].Body, &body); err != nil || body.ReturnPath != "/mine?view=all" {
+		t.Fatal("entry request must carry the return path")
+	}
+	for _, path := range []string{"//evil.test", "/a#owner", "mine", `/\evil`, "/" + strings.Repeat("a", 512)} {
+		request.ReturnPath = path
+		if _, err := client.CreateAppAccountEntry(t.Context(), "application-token", request); err == nil {
+			t.Errorf("return path %q must be refused before any request", path)
+		}
+	}
+	if len(doer.requests) != 1 {
+		t.Fatal("a refused return path must not reach the issuer")
+	}
+}
