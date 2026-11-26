@@ -1,8 +1,8 @@
 {
   "source": {
-    "custdCommit": "82873e00c6ff0ac02de8eb1f7eef3763aafa0245",
+    "custdCommit": "391f1d8271c3ec97c4d0588731ae314e7aabadb7",
     "apiParityReviewedAt": "2026-11-26",
-    "apiParitySha256": "367a6b4f07fc97e537da5b0ec5bf07b984aa2d6cc1296bfc74ac539bb75d5662"
+    "apiParitySha256": "5807cc5dfae1d0e9fe56fb9070b6fc4e4206891504cfae2e4439ce27423c6217"
   },
   "operations": [
     {
@@ -1351,6 +1351,10 @@
         {
           "name": "companySlug",
           "required": false
+        },
+        {
+          "name": "pageSize",
+          "required": false
         }
       ],
       "example": "examples/listPredictionOutcomes.json"
@@ -1365,6 +1369,10 @@
       "query": [
         {
           "name": "companySlug",
+          "required": false
+        },
+        {
+          "name": "pageSize",
           "required": false
         }
       ],
@@ -2374,6 +2382,10 @@
         {
           "name": "limit",
           "required": false
+        },
+        {
+          "name": "format",
+          "required": false
         }
       ],
       "example": "examples/exportUsage.json"
@@ -2794,6 +2806,21 @@
         }
       ],
       "example": "examples/getDataSpaceUsage.json"
+    },
+    {
+      "id": "admin-api GET /api/v1/data-spaces/{slug}/erasure",
+      "service": "admin-api",
+      "method": "GET",
+      "path": "/api/v1/data-spaces/{slug}/erasure",
+      "sdk": "required",
+      "operationId": "getDataSpaceErasure",
+      "query": [
+        {
+          "name": "parentCompanySlug",
+          "required": false
+        }
+      ],
+      "example": "examples/getDataSpaceErasure.json"
     },
     {
       "id": "admin-api GET /api/v1/data-spaces/{slug}/producer-reservations",
@@ -5675,7 +5702,8 @@
       "method": "POST",
       "path": "/api/v1/admin/scheduled-task-runs/{runUuid}/retry",
       "sdk": "required",
-      "operationId": "retryScheduledTaskRun"
+      "operationId": "retryScheduledTaskRun",
+      "example": "examples/retryScheduledTaskRun.json"
     },
     {
       "id": "admin-api POST /api/v1/admin/scheduled-tasks/{taskName}/pause",
@@ -6581,6 +6609,21 @@
       "example": "examples/createDataSpace.json"
     },
     {
+      "id": "admin-api POST /api/v1/data-spaces/{slug}/erasure",
+      "service": "admin-api",
+      "method": "POST",
+      "path": "/api/v1/data-spaces/{slug}/erasure",
+      "sdk": "required",
+      "operationId": "eraseDataSpace",
+      "query": [
+        {
+          "name": "parentCompanySlug",
+          "required": false
+        }
+      ],
+      "example": "examples/eraseDataSpace.json"
+    },
+    {
       "id": "admin-api POST /api/v1/data-spaces/{slug}/producer-reservations",
       "service": "admin-api",
       "method": "POST",
@@ -7147,6 +7190,14 @@
       "example": "examples/createTenantStorageLocation.json"
     },
     {
+      "id": "admin-api POST /internal/app-alert-recipient",
+      "service": "admin-api",
+      "method": "POST",
+      "path": "/internal/app-alert-recipient",
+      "sdk": "excluded",
+      "reason": "infrastructure, debug or private internal transport"
+    },
+    {
       "id": "admin-api POST /internal/application-profile",
       "service": "admin-api",
       "method": "POST",
@@ -7299,10 +7350,26 @@
       "reason": "identity-provider callback or gateway hook"
     },
     {
-      "id": "admin-api POST /oauth/invitation-verify",
+      "id": "admin-api POST /oauth/invitation-join",
       "service": "admin-api",
       "method": "POST",
-      "path": "/oauth/invitation-verify",
+      "path": "/oauth/invitation-join",
+      "sdk": "excluded",
+      "reason": "identity-provider callback or gateway hook"
+    },
+    {
+      "id": "admin-api POST /oauth/invitation-offers",
+      "service": "admin-api",
+      "method": "POST",
+      "path": "/oauth/invitation-offers",
+      "sdk": "excluded",
+      "reason": "identity-provider callback or gateway hook"
+    },
+    {
+      "id": "admin-api POST /oauth/invitation-preview",
+      "service": "admin-api",
+      "method": "POST",
+      "path": "/oauth/invitation-preview",
       "sdk": "excluded",
       "reason": "identity-provider callback or gateway hook"
     },
@@ -7538,6 +7605,15 @@
         }
       ],
       "example": "examples/putNotificationDestination.json"
+    },
+    {
+      "id": "admin-api PUT /api/v1/producer-provisioning/{clientId}/signing-keys",
+      "service": "admin-api",
+      "method": "PUT",
+      "path": "/api/v1/producer-provisioning/{clientId}/signing-keys",
+      "sdk": "required",
+      "operationId": "setProducerSigningKeys",
+      "example": "examples/setProducerSigningKeys.json"
     },
     {
       "id": "admin-api PUT /api/v1/site-ai-owner/consent",
@@ -8114,6 +8190,12 @@
       "path": "/api/v1/reporting/exports",
       "sdk": "required",
       "operationId": "listReportExports",
+      "query": [
+        {
+          "name": "limit",
+          "required": false
+        }
+      ],
       "example": "examples/listReportExports.json"
     },
     {

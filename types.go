@@ -117,6 +117,14 @@ const ScopeTemplateSiteInsightsRead = "site-insights-read"
 // ScopeTemplateSiteAIRead permits reads of a tenant’s Site Insights AI settings and usage.
 const ScopeTemplateSiteAIRead = "site-ai-read"
 
+// ScopeTemplateHostingEmailDelivery mints a producer that writes only hosting-email-delivery events
+// into an owned data space, each verified with the keys set by Producers.SetSigningKeys.
+const ScopeTemplateHostingEmailDelivery = "hosting-email-delivery"
+
+// ScopeTemplateHostingPanelRead mints the read-only credential a parent's panel reads one data
+// space's reporting and Site Insights with.
+const ScopeTemplateHostingPanelRead = "hosting-panel-read"
+
 type ProducerProvisionRequest struct {
 	CompanySlug   string   `json:"companySlug"`
 	ProducerSlug  string   `json:"producerSlug"`

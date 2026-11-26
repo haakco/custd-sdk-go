@@ -151,6 +151,30 @@ var clientSurfaceRows = []surfaceRow{
 		},
 	},
 	{
+		id:   "admin-api POST /api/v1/data-spaces/{slug}/erasure",
+		path: "/api/v1/data-spaces/a1/erasure",
+		call: func(e *surfaceEnv) error {
+			_, err := e.client.Provisioning.DataSpaces.Erase(context.Background(), "a1", "p1")
+			return err
+		},
+	},
+	{
+		id:   "admin-api GET /api/v1/data-spaces/{slug}/erasure",
+		path: "/api/v1/data-spaces/a1/erasure",
+		call: func(e *surfaceEnv) error {
+			_, err := e.client.Provisioning.DataSpaces.GetErasure(context.Background(), "a1", "p1")
+			return err
+		},
+	},
+	{
+		id:   "admin-api PUT /api/v1/producer-provisioning/{clientId}/signing-keys",
+		path: "/api/v1/producer-provisioning/a1/signing-keys",
+		call: func(e *surfaceEnv) error {
+			_, err := e.client.Provisioning.Producers.SetSigningKeys(context.Background(), "a1", ProducerSigningKeysUpdateRequest{PublicKeys: []string{"AAAA"}})
+			return err
+		},
+	},
+	{
 		id:   "admin-api GET /api/v1/producer-provisioning",
 		path: "/api/v1/producer-provisioning",
 		call: func(e *surfaceEnv) error {

@@ -1,0 +1,14 @@
+{
+  "maximal": {
+    "clientId": "example",
+    "companySlug": "example",
+    "publicKeys": [
+      "example"
+    ]
+  },
+  "minimal": {
+    "clientId": "example",
+    "companySlug": "example",
+    "publicKeys": null
+  }
+}

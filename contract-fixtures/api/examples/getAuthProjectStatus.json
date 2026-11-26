@@ -39,7 +39,7 @@
       ],
       "brandAccent": "example",
       "displayName": "example",
-      "displayNameSource": "example",
+      "displayNameSource": "",
       "entryPath": "example",
       "hosting": {
         "capabilities": [
@@ -118,7 +118,7 @@
       "audiences": null,
       "brandAccent": "example",
       "displayName": "example",
-      "displayNameSource": "example",
+      "displayNameSource": "",
       "entryPath": "example",
       "identityMode": "isolated",
       "loginPaused": true,

@@ -94,6 +94,42 @@ func (c *DataSpaceProvisioningClient) Revoke(ctx context.Context, slug, parentCo
 	return c.provisioning.request(ctx, http.MethodDelete, path, nil, nil)
 }
 
+// DataSpaceErasureStatus is where a data space erasure is in its life.
+type DataSpaceErasureStatus string
+
+const (
+	DataSpaceErasureRequested DataSpaceErasureStatus = "requested"
+	DataSpaceErasureErasing   DataSpaceErasureStatus = "erasing"
+	DataSpaceErasureCompleted DataSpaceErasureStatus = "completed"
+	DataSpaceErasureFailed    DataSpaceErasureStatus = "failed"
+)
+
+// DataSpaceErasure is the erasure request for one data space and how far it has got.
+type DataSpaceErasure struct {
+	RequestUUID       string                 `json:"requestUuid"`
+	DataSpaceSlug     string                 `json:"dataSpaceSlug"`
+	ParentCompanySlug string                 `json:"parentCompanySlug"`
+	Status            DataSpaceErasureStatus `json:"status"`
+	RequestedAt       string                 `json:"requestedAt"`
+}
+
+// Erase asks Custd to erase everything one data space holds. The answer is the
+// accepted request, not the finished erasure; read its progress with GetErasure.
+func (c *DataSpaceProvisioningClient) Erase(ctx context.Context, slug, parentCompanySlug string) (*DataSpaceErasure, error) {
+	var erasure DataSpaceErasure
+	path := dataSpacePath("/data-spaces/"+url.PathEscape(slug)+"/erasure", parentCompanySlug)
+	err := c.provisioning.request(ctx, http.MethodPost, path, nil, &erasure)
+	return &erasure, err
+}
+
+// GetErasure reads the erasure request of one data space.
+func (c *DataSpaceProvisioningClient) GetErasure(ctx context.Context, slug, parentCompanySlug string) (*DataSpaceErasure, error) {
+	var erasure DataSpaceErasure
+	path := dataSpacePath("/data-spaces/"+url.PathEscape(slug)+"/erasure", parentCompanySlug)
+	err := c.provisioning.request(ctx, http.MethodGet, path, nil, &erasure)
+	return &erasure, err
+}
+
 // dataSpacePath adds the parentCompanySlug a platform administrator names.
 func dataSpacePath(path, parentCompanySlug string) string {
 	return siteQueryPath(path, url.Values{"parentCompanySlug": {parentCompanySlug}})
@@ -164,6 +200,37 @@ func (c *ProducerProvisioningClient) UpdateEnvironment(
 		&producer,
 	)
 	return &producer, err
+}
+
+// ProducerSigningKeysUpdateRequest replaces the Ed25519 public keys a signing
+// producer's events are verified with: one or two base64 keys, two while rotating.
+type ProducerSigningKeysUpdateRequest struct {
+	PublicKeys []string `json:"publicKeys"`
+}
+
+// ProducerSigningKeys is the set of public keys Custd now verifies a producer's events with.
+type ProducerSigningKeys struct {
+	ClientID    string   `json:"clientId"`
+	CompanySlug string   `json:"companySlug"`
+	PublicKeys  []string `json:"publicKeys"`
+}
+
+// SetSigningKeys replaces the public keys of a producer minted with
+// ScopeTemplateHostingEmailDelivery.
+func (c *ProducerProvisioningClient) SetSigningKeys(
+	ctx context.Context,
+	clientID string,
+	req ProducerSigningKeysUpdateRequest,
+) (*ProducerSigningKeys, error) {
+	var keys ProducerSigningKeys
+	err := c.provisioning.request(
+		ctx,
+		http.MethodPut,
+		"/producer-provisioning/"+url.PathEscape(clientID)+"/signing-keys",
+		req,
+		&keys,
+	)
+	return &keys, err
 }
 
 func (c *ProducerProvisioningClient) Revoke(ctx context.Context, clientID string) error {

@@ -231,23 +231,23 @@
       "identity": {
         "cohort": {
           "selector": "example",
-          "type": "string"
+          "type": ""
         },
         "correlation": {
           "selector": "example",
-          "type": "string"
+          "type": ""
         },
         "entity": {
           "selector": "example",
-          "type": "string"
+          "type": ""
         },
         "session": {
           "selector": "example",
-          "type": "string"
+          "type": ""
         },
         "subject": {
           "selector": "example",
-          "type": "string"
+          "type": ""
         }
       },
       "key": "example",
@@ -259,7 +259,7 @@
           "description": "example",
           "distinct": {
             "selector": "example",
-            "type": "string"
+            "type": ""
           },
           "flowResult": "steps",
           "hierarchyRootKey": "example",

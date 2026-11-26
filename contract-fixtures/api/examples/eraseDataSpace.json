@@ -1,0 +1,16 @@
+{
+  "maximal": {
+    "dataSpaceSlug": "example",
+    "parentCompanySlug": "example",
+    "requestUuid": "example",
+    "requestedAt": "2026-11-20T06:00:00Z",
+    "status": "requested"
+  },
+  "minimal": {
+    "dataSpaceSlug": "example",
+    "parentCompanySlug": "example",
+    "requestUuid": "example",
+    "requestedAt": "2026-11-20T06:00:00Z",
+    "status": "requested"
+  }
+}
