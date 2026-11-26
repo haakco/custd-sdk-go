@@ -31,10 +31,10 @@ func (r TimePlanCommandRequest) Validate() error {
 			return err
 		}
 	}
-	if r.Type != "append_correction" && (r.Corrected != nil || strings.TrimSpace(r.SupersedesTransitionUUID) != "") {
+	if r.Type != TimePlanCommandTypeAppendCorrection && (r.Corrected != nil || strings.TrimSpace(r.SupersedesTransitionUUID) != "") {
 		return fmt.Errorf("custd: non-correction command cannot contain correction fields")
 	}
-	if r.Type == "append_correction" {
+	if r.Type == TimePlanCommandTypeAppendCorrection {
 		if !validTimePlanUUID(r.SupersedesTransitionUUID) || r.Corrected == nil {
 			return fmt.Errorf("custd: correction requires a superseded transition and replacement")
 		}
@@ -46,7 +46,7 @@ func (r TimePlanCommandRequest) Validate() error {
 }
 
 func (c TimePlanCorrectedCommand) Validate() error {
-	if !validTimePlanCommandType(c.Type) || c.Type == "append_correction" {
+	if !validTimePlanCommandType(c.Type) || c.Type == TimePlanCommandTypeAppendCorrection {
 		return fmt.Errorf("custd: corrected time-plan command type is invalid")
 	}
 	return validateRequiredTime("effectiveAt", c.EffectiveAt)
@@ -127,9 +127,11 @@ func validTimePlanUUID(value string) bool {
 	return timePlanUUIDPattern.MatchString(strings.TrimSpace(value))
 }
 
-func validTimePlanCommandType(value string) bool {
+func validTimePlanCommandType(value TimePlanCommandType) bool {
 	switch value {
-	case "schedule_run", "start_run", "start_block", "complete_block", "skip_block", "change_boundary", "complete_run", "cancel_run", "append_correction":
+	case TimePlanCommandTypeScheduleRun, TimePlanCommandTypeStartRun, TimePlanCommandTypeStartBlock,
+		TimePlanCommandTypeCompleteBlock, TimePlanCommandTypeSkipBlock, TimePlanCommandTypeChangeBoundary,
+		TimePlanCommandTypeCompleteRun, TimePlanCommandTypeCancelRun, TimePlanCommandTypeAppendCorrection:
 		return true
 	default:
 		return false

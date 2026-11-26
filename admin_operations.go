@@ -66,13 +66,31 @@ func (c *TenantAdminClient) HistoricalCleanup(
 	return &out, err
 }
 
+// ErrorIssueStateFilter selects error issues by triage state; all lists every state.
+type ErrorIssueStateFilter string
+
+const (
+	ErrorIssueStateFilterOpen     ErrorIssueStateFilter = "open"
+	ErrorIssueStateFilterResolved ErrorIssueStateFilter = "resolved"
+	ErrorIssueStateFilterIgnored  ErrorIssueStateFilter = "ignored"
+	ErrorIssueStateFilterAll      ErrorIssueStateFilter = "all"
+)
+
+// ErrorIssueSort orders an error issue list.
+type ErrorIssueSort string
+
+const (
+	ErrorIssueSortRecent   ErrorIssueSort = "recent"
+	ErrorIssueSortFrequent ErrorIssueSort = "frequent"
+)
+
 // ErrorIssueListOptions filters and pages a tenant's error issues. Empty
 // fields and a zero Limit use the server defaults.
 type ErrorIssueListOptions struct {
 	CompanySlug string
 	SiteUUID    string
-	State       string
-	Sort        string
+	State       ErrorIssueStateFilter
+	Sort        ErrorIssueSort
 	Limit       int64
 	Cursor      string
 }
@@ -109,28 +127,28 @@ type AuthDomainImageOverrideStatus struct {
 }
 
 type AuthDomainImages struct {
-	Convergence string                         `json:"convergence"`
+	Convergence AuthProjectDomainConvergence   `json:"convergence"`
 	Expected    AuthDomainImageSet             `json:"expected"`
 	Override    *AuthDomainImageOverrideStatus `json:"override,omitempty"`
 	Running     AuthDomainImageSet             `json:"running"`
-	Source      string                         `json:"source"`
+	Source      AuthProjectDomainImageSource   `json:"source"`
 }
 
 type AuthDomainBinding struct {
-	CertificateExpiresAt *time.Time          `json:"certificateExpiresAt,omitempty"`
-	CreatedAt            time.Time           `json:"createdAt"`
-	DNSProof             *AuthDomainDNSProof `json:"dnsProof,omitempty"`
-	DNSTarget            string              `json:"dnsTarget,omitempty"`
-	EnvironmentID        string              `json:"environmentId"`
-	Host                 string              `json:"host"`
-	Images               AuthDomainImages    `json:"images"`
-	IntentRevision       int64               `json:"intentRevision"`
-	Issuer               string              `json:"issuer"`
-	Lifecycle            string              `json:"lifecycle"`
-	ObservedAt           *time.Time          `json:"observedAt,omitempty"`
-	SiteDomainID         string              `json:"siteDomainId,omitempty"`
-	SlotRef              string              `json:"slotRef,omitempty"`
-	Status               string              `json:"status"`
+	CertificateExpiresAt *time.Time                 `json:"certificateExpiresAt,omitempty"`
+	CreatedAt            time.Time                  `json:"createdAt"`
+	DNSProof             *AuthDomainDNSProof        `json:"dnsProof,omitempty"`
+	DNSTarget            string                     `json:"dnsTarget,omitempty"`
+	EnvironmentID        string                     `json:"environmentId"`
+	Host                 string                     `json:"host"`
+	Images               AuthDomainImages           `json:"images"`
+	IntentRevision       int64                      `json:"intentRevision"`
+	Issuer               string                     `json:"issuer"`
+	Lifecycle            AuthProjectDomainLifecycle `json:"lifecycle"`
+	ObservedAt           *time.Time                 `json:"observedAt,omitempty"`
+	SiteDomainID         string                     `json:"siteDomainId,omitempty"`
+	SlotRef              string                     `json:"slotRef,omitempty"`
+	Status               AuthProjectDomainStatus    `json:"status"`
 }
 
 type MintAuthDomainRequest struct {
@@ -140,11 +158,11 @@ type MintAuthDomainRequest struct {
 type AppItemEnvironmentLink struct {
 	CreatedAt time.Time `json:"createdAt"`
 	// When the item expires unless it changes; its links stop working then.
-	ItemExpiresAt time.Time `json:"itemExpiresAt"`
-	ItemUUID      string    `json:"itemUuid"`
-	Kind          string    `json:"kind"`
-	LinkUUID      string    `json:"linkUuid"`
-	Role          string    `json:"role"`
+	ItemExpiresAt time.Time   `json:"itemExpiresAt"`
+	ItemUUID      string      `json:"itemUuid"`
+	Kind          AppItemKind `json:"kind"`
+	LinkUUID      string      `json:"linkUuid"`
+	Role          AppItemRole `json:"role"`
 }
 
 type AppItemEnvironmentLinkList struct {
@@ -160,9 +178,18 @@ type AppDeployCredentialList struct {
 	Credentials []AppDeployCredentialSummary `json:"credentials"`
 }
 
+// AppSignInMode is who may sign in to an app.
+type AppSignInMode string
+
+const (
+	AppSignInModeOff        AppSignInMode = "off"
+	AppSignInModeInviteOnly AppSignInMode = "invite_only"
+	AppSignInModeOpen       AppSignInMode = "open"
+)
+
 type AppSignInRequest struct {
-	ExpectedRevision int64  `json:"expectedRevision"`
-	Mode             string `json:"mode"`
+	ExpectedRevision int64         `json:"expectedRevision"`
+	Mode             AppSignInMode `json:"mode"`
 }
 
 type StorageLimitUpdateRequest struct {
@@ -179,15 +206,24 @@ type StorageLimit struct {
 	WarnPercent           int64 `json:"warnPercent"`
 }
 
+// PrivacyConsentPurpose is the purpose a consent record covers.
+type PrivacyConsentPurpose string
+
+const (
+	PrivacyConsentPurposeAnalytics          PrivacyConsentPurpose = "analytics"
+	PrivacyConsentPurposeProductImprovement PrivacyConsentPurpose = "product_improvement"
+	PrivacyConsentPurposeMarketing          PrivacyConsentPurpose = "marketing"
+)
+
 type PrivacyConsentRecord struct {
-	ExpiresAt  *time.Time `json:"expiresAt,omitempty"`
-	Granted    bool       `json:"granted"`
-	GrantedAt  *time.Time `json:"grantedAt,omitempty"`
-	Purpose    string     `json:"purpose"`
-	RecordedAt time.Time  `json:"recordedAt"`
-	RevokedAt  *time.Time `json:"revokedAt,omitempty"`
-	Source     string     `json:"source"`
-	SubjectID  string     `json:"subjectId"`
+	ExpiresAt  *time.Time            `json:"expiresAt,omitempty"`
+	Granted    bool                  `json:"granted"`
+	GrantedAt  *time.Time            `json:"grantedAt,omitempty"`
+	Purpose    PrivacyConsentPurpose `json:"purpose"`
+	RecordedAt time.Time             `json:"recordedAt"`
+	RevokedAt  *time.Time            `json:"revokedAt,omitempty"`
+	Source     string                `json:"source"`
+	SubjectID  string                `json:"subjectId"`
 }
 
 type PrivacyConsentListResponse struct {
@@ -197,12 +233,12 @@ type PrivacyConsentListResponse struct {
 }
 
 type PrivacyConsentRecordRequest struct {
-	CompanySlug string     `json:"companySlug"`
-	ExpiresAt   *time.Time `json:"expiresAt,omitempty"`
-	Granted     bool       `json:"granted"`
-	Purpose     string     `json:"purpose"`
-	Source      string     `json:"source"`
-	SubjectID   string     `json:"subjectId"`
+	CompanySlug string                `json:"companySlug"`
+	ExpiresAt   *time.Time            `json:"expiresAt,omitempty"`
+	Granted     bool                  `json:"granted"`
+	Purpose     PrivacyConsentPurpose `json:"purpose"`
+	Source      string                `json:"source"`
+	SubjectID   string                `json:"subjectId"`
 }
 
 type StorageAlertDelivery struct {
@@ -219,7 +255,7 @@ type StorageAlertMeasurement struct {
 }
 
 type StorageAlertEvent struct {
-	Channel        string                  `json:"channel"`
+	Channel        StorageAlertChannel     `json:"channel"`
 	Delivery       StorageAlertDelivery    `json:"delivery"`
 	EmailRecipient string                  `json:"emailRecipient,omitempty"`
 	EventID        string                  `json:"eventId"`
@@ -448,13 +484,22 @@ type RLSPolicyDiff struct {
 	Table     string        `json:"table"`
 }
 
+// RLSExecuteOutcome is how an RLS reconciliation execution ended.
+type RLSExecuteOutcome string
+
+const (
+	RLSExecuteOutcomeAttempted RLSExecuteOutcome = "attempted"
+	RLSExecuteOutcomeSuccess   RLSExecuteOutcome = "success"
+	RLSExecuteOutcomeFailure   RLSExecuteOutcome = "failure"
+)
+
 type RLSExecuteResponse struct {
-	Diff        []RLSPolicyDiff `json:"diff"`
-	FinishedAt  time.Time       `json:"finished_at"`
-	Outcome     string          `json:"outcome"`
-	PlanUUID    string          `json:"plan_uuid"`
-	RollbackSQL string          `json:"rollback_sql"`
-	StartedAt   time.Time       `json:"started_at"`
+	Diff        []RLSPolicyDiff   `json:"diff"`
+	FinishedAt  time.Time         `json:"finished_at"`
+	Outcome     RLSExecuteOutcome `json:"outcome"`
+	PlanUUID    string            `json:"plan_uuid"`
+	RollbackSQL string            `json:"rollback_sql"`
+	StartedAt   time.Time         `json:"started_at"`
 }
 
 type RLSProofResponse struct {
@@ -467,25 +512,34 @@ type RLSProofResponse struct {
 	RollbackSQL string                   `json:"rollback_sql"`
 }
 
+// ErrorIssueState is the triage state of an error issue.
+type ErrorIssueState string
+
+const (
+	ErrorIssueStateOpen     ErrorIssueState = "open"
+	ErrorIssueStateResolved ErrorIssueState = "resolved"
+	ErrorIssueStateIgnored  ErrorIssueState = "ignored"
+)
+
 type ErrorIssue struct {
-	Culprit         string     `json:"culprit"`
-	Environments    []string   `json:"environments"`
-	EventCount      int64      `json:"eventCount"`
-	ExceptionType   string     `json:"exceptionType"`
-	Fingerprint     string     `json:"fingerprint"`
-	FirstRelease    string     `json:"firstRelease"`
-	FirstSeenAt     time.Time  `json:"firstSeenAt"`
-	LastRelease     string     `json:"lastRelease"`
-	LastSeenAt      time.Time  `json:"lastSeenAt"`
-	Platform        string     `json:"platform"`
-	RegressedAt     *time.Time `json:"regressedAt,omitempty"`
-	ResolvedAt      *time.Time `json:"resolvedAt,omitempty"`
-	ResolvedRelease string     `json:"resolvedRelease,omitempty"`
-	SiteName        string     `json:"siteName"`
-	SiteUUID        string     `json:"siteUuid"`
-	State           string     `json:"state"`
-	Title           string     `json:"title"`
-	UUID            string     `json:"uuid"`
+	Culprit         string          `json:"culprit"`
+	Environments    []string        `json:"environments"`
+	EventCount      int64           `json:"eventCount"`
+	ExceptionType   string          `json:"exceptionType"`
+	Fingerprint     string          `json:"fingerprint"`
+	FirstRelease    string          `json:"firstRelease"`
+	FirstSeenAt     time.Time       `json:"firstSeenAt"`
+	LastRelease     string          `json:"lastRelease"`
+	LastSeenAt      time.Time       `json:"lastSeenAt"`
+	Platform        string          `json:"platform"`
+	RegressedAt     *time.Time      `json:"regressedAt,omitempty"`
+	ResolvedAt      *time.Time      `json:"resolvedAt,omitempty"`
+	ResolvedRelease string          `json:"resolvedRelease,omitempty"`
+	SiteName        string          `json:"siteName"`
+	SiteUUID        string          `json:"siteUuid"`
+	State           ErrorIssueState `json:"state"`
+	Title           string          `json:"title"`
+	UUID            string          `json:"uuid"`
 }
 
 type ErrorIssueListResponse struct {
@@ -509,10 +563,11 @@ type ErrorIssueFrame struct {
 type ErrorIssueException struct {
 	Frames        []ErrorIssueFrame `json:"frames,omitempty"`
 	FramesOmitted int64             `json:"framesOmitted,omitempty"`
-	Handled       bool              `json:"handled,omitempty"`
-	Module        string            `json:"module,omitempty"`
-	Type          string            `json:"type"`
-	Value         string            `json:"value,omitempty"`
+	// Handled is nil when the reporting SDK did not say; an explicit false is kept.
+	Handled *bool  `json:"handled,omitempty"`
+	Module  string `json:"module,omitempty"`
+	Type    string `json:"type"`
+	Value   string `json:"value,omitempty"`
 }
 
 type ErrorIssueEvent struct {
@@ -538,15 +593,15 @@ type ErrorIssueDetail struct {
 }
 
 type ErrorIssueStateRequest struct {
-	State string `json:"state"`
+	State ErrorIssueState `json:"state"`
 }
 
 type PublicSiteConfig struct {
-	AllowedOrigins        []string `json:"allowedOrigins"`
-	Environment           string   `json:"environment"`
-	IdentityMode          string   `json:"identityMode"`
-	PageViewSchemaVersion string   `json:"pageViewSchemaVersion,omitempty"`
-	SiteUUID              string   `json:"siteUuid"`
+	AllowedOrigins        []string            `json:"allowedOrigins"`
+	Environment           string              `json:"environment"`
+	IdentityMode          BrowserIdentityMode `json:"identityMode"`
+	PageViewSchemaVersion string              `json:"pageViewSchemaVersion,omitempty"`
+	SiteUUID              string              `json:"siteUuid"`
 }
 
 // REUSED existing: AppSummary ProducerProvisionPublicClient
@@ -793,8 +848,8 @@ func (c *RLSAdminClient) GetPlanProof(ctx context.Context, planUUID string) (*RL
 func (c *ErrorIssueAdminClient) List(ctx context.Context, options ErrorIssueListOptions) (*ErrorIssueListResponse, error) {
 	var out ErrorIssueListResponse
 	path := siteQueryPath("/error-issues", url.Values{
-		companySlugQueryParameter: {options.CompanySlug}, "siteUuid": {options.SiteUUID}, "state": {options.State},
-		"sort": {options.Sort}, "limit": {positiveIntQuery(options.Limit)}, "cursor": {options.Cursor},
+		companySlugQueryParameter: {options.CompanySlug}, "siteUuid": {options.SiteUUID}, "state": {string(options.State)},
+		"sort": {string(options.Sort)}, "limit": {positiveIntQuery(options.Limit)}, "cursor": {options.Cursor},
 	})
 	err := c.admin.requestNonAdmin(ctx, http.MethodGet, c.admin.actingCompanyPath(path), nil, &out)
 	return &out, err

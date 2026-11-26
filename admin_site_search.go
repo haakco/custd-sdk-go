@@ -74,17 +74,25 @@ type AdminSiteSearchTotals struct {
 	Position    float64 `json:"position,omitempty"`
 }
 
+// AdminSiteSearchGranularity is how finely a search source reports numbers.
+type AdminSiteSearchGranularity string
+
+const (
+	AdminSiteSearchGranularityDaily  AdminSiteSearchGranularity = "daily"
+	AdminSiteSearchGranularityWeekly AdminSiteSearchGranularity = "weekly"
+)
+
 // AdminSiteSearchSource is one provider's totals for the window, with the dates it covers.
 // Granularity is "daily" or "weekly".
 type AdminSiteSearchSource struct {
-	Provider    AdminSiteSearchProvider `json:"provider"`
-	Source      string                  `json:"source"`
-	Granularity string                  `json:"granularity"`
-	From        string                  `json:"from,omitempty"`
-	To          string                  `json:"to,omitempty"`
-	Days        int                     `json:"days"`
-	ImportedAt  *time.Time              `json:"importedAt,omitempty"`
-	Totals      AdminSiteSearchTotals   `json:"totals"`
+	Provider    AdminSiteSearchProvider    `json:"provider"`
+	Source      string                     `json:"source"`
+	Granularity AdminSiteSearchGranularity `json:"granularity"`
+	From        string                     `json:"from,omitempty"`
+	To          string                     `json:"to,omitempty"`
+	Days        int                        `json:"days"`
+	ImportedAt  *time.Time                 `json:"importedAt,omitempty"`
+	Totals      AdminSiteSearchTotals      `json:"totals"`
 	// Previous are the totals for the same number of days before the window, when there are any.
 	Previous *AdminSiteSearchTotals `json:"previous,omitempty"`
 	// Daily is each imported day's totals, oldest first; Bing's are week buckets.
@@ -177,19 +185,22 @@ func siteSearchConnectionPath(domainUUID string, provider AdminSiteSearchProvide
 	return siteDomainPath(domainUUID) + "/search/" + url.PathEscape(string(provider))
 }
 
+// AdminSiteSearchDimension is the dimension imported search rows are broken down by.
+type AdminSiteSearchDimension string
+
 // The dimensions AdminSiteSearchRowsQuery.Dimension reads.
 const (
-	AdminSiteSearchDimensionPage    = "page"
-	AdminSiteSearchDimensionQuery   = "query"
-	AdminSiteSearchDimensionCountry = "country"
-	AdminSiteSearchDimensionDevice  = "device"
+	AdminSiteSearchDimensionPage    AdminSiteSearchDimension = "page"
+	AdminSiteSearchDimensionQuery   AdminSiteSearchDimension = "query"
+	AdminSiteSearchDimensionCountry AdminSiteSearchDimension = "country"
+	AdminSiteSearchDimensionDevice  AdminSiteSearchDimension = "device"
 )
 
 // AdminSiteSearchRowsQuery pages through one dimension of a domain's imported search rows. Zero
 // values let the server default: the query dimension, every provider, 28 days, offset 0 and 100
 // rows (Limit at most 1000).
 type AdminSiteSearchRowsQuery struct {
-	Dimension string
+	Dimension AdminSiteSearchDimension
 	Provider  AdminSiteSearchProvider
 	Days      int
 	Offset    int
@@ -199,7 +210,7 @@ type AdminSiteSearchRowsQuery struct {
 func (q AdminSiteSearchRowsQuery) values() url.Values {
 	values := url.Values{}
 	if q.Dimension != "" {
-		values.Set("dimension", q.Dimension)
+		values.Set("dimension", string(q.Dimension))
 	}
 	if q.Provider != "" {
 		values.Set("provider", string(q.Provider))
@@ -223,7 +234,7 @@ type AdminSiteSearchUnavailable struct {
 // Provider is empty when every provider was read.
 type AdminSiteSearchRowPage struct {
 	DomainUUID  string                       `json:"domainUuid"`
-	Dimension   string                       `json:"dimension"`
+	Dimension   AdminSiteSearchDimension     `json:"dimension"`
 	Provider    AdminSiteSearchProvider      `json:"provider,omitempty"`
 	Days        int                          `json:"days"`
 	Offset      int                          `json:"offset"`

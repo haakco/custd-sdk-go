@@ -49,7 +49,7 @@ func TestSiteAuditDeltaDecodesEachRun(t *testing.T) {
 
 	delta, err := domains.GetAuditDelta(ctx, "d-1")
 	if err != nil || delta.Run != AdminSiteAuditRunComplete || len(delta.New) != 1 || len(delta.Reopened) != 1 ||
-		delta.New[0].Rule != SiteRuleBrokenFragment || delta.Reopened[0].Rule != SiteRuleSitemapBlockedURL ||
+		delta.New[0].Rule != string(SiteRuleBrokenFragment) || delta.Reopened[0].Rule != string(SiteRuleSitemapBlockedURL) ||
 		!delta.Fixed[0].History.Fixed || delta.Fixed[0].History.FixedAt == nil {
 		t.Fatalf("delta = %+v, %v", delta, err)
 	}

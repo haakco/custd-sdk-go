@@ -7,12 +7,15 @@ import (
 	"time"
 )
 
+// AdminSiteSearchImpactStatus is whether a fix's search impact could be measured.
+type AdminSiteSearchImpactStatus string
+
 // The values of AdminSiteFindingImpact.Status and of a source's or period's Status (measured or
 // insufficient).
 const (
-	AdminSiteSearchImpactOpen         = "open"
-	AdminSiteSearchImpactMeasured     = "measured"
-	AdminSiteSearchImpactInsufficient = "insufficient"
+	AdminSiteSearchImpactOpen         AdminSiteSearchImpactStatus = "open"
+	AdminSiteSearchImpactMeasured     AdminSiteSearchImpactStatus = "measured"
+	AdminSiteSearchImpactInsufficient AdminSiteSearchImpactStatus = "insufficient"
 )
 
 // The bounds of GetFindingSearchImpact's days.
@@ -22,11 +25,14 @@ const (
 	AdminSiteSearchImpactMaxDays     = 90
 )
 
+// AdminSiteSearchValueStatus is whether a domain's search goal value could be measured.
+type AdminSiteSearchValueStatus string
+
 // The values of AdminSiteSearchValue.GoalStatus.
 const (
-	AdminSiteSearchValueMeasured    = "measured"
-	AdminSiteSearchValuePartial     = "partial"
-	AdminSiteSearchValueUnavailable = "unavailable"
+	AdminSiteSearchValueMeasured    AdminSiteSearchValueStatus = "measured"
+	AdminSiteSearchValuePartial     AdminSiteSearchValueStatus = "partial"
+	AdminSiteSearchValueUnavailable AdminSiteSearchValueStatus = "unavailable"
 )
 
 // The bounds of GetSearchValue: days, goals per request and pages returned.
@@ -46,21 +52,21 @@ type AdminSiteSearchImpactWindow struct {
 // AdminSiteSearchImpactPeriod is one provider's numbers for one period. An insufficient period
 // says why in Reason and has nil Clicks, Impressions and CTR, never 0.
 type AdminSiteSearchImpactPeriod struct {
-	Status       string   `json:"status"`
-	CoveredDays  int      `json:"coveredDays"`
-	ExpectedDays int      `json:"expectedDays"`
-	Reason       string   `json:"reason,omitempty"`
-	Clicks       *int64   `json:"clicks,omitempty"`
-	Impressions  *int64   `json:"impressions,omitempty"`
-	CTR          *float64 `json:"ctr,omitempty"`
+	Status       AdminSiteSearchImpactStatus `json:"status"`
+	CoveredDays  int                         `json:"coveredDays"`
+	ExpectedDays int                         `json:"expectedDays"`
+	Reason       string                      `json:"reason,omitempty"`
+	Clicks       *int64                      `json:"clicks,omitempty"`
+	Impressions  *int64                      `json:"impressions,omitempty"`
+	CTR          *float64                    `json:"ctr,omitempty"`
 }
 
 // AdminSiteFindingImpactSource is one provider's numbers before and after the fix.
 type AdminSiteFindingImpactSource struct {
 	Provider    AdminSiteSearchProvider     `json:"provider"`
 	Source      string                      `json:"source"`
-	Granularity string                      `json:"granularity"`
-	Status      string                      `json:"status"`
+	Granularity AdminSiteSearchGranularity  `json:"granularity"`
+	Status      AdminSiteSearchImpactStatus `json:"status"`
 	Before      AdminSiteSearchImpactPeriod `json:"before"`
 	After       AdminSiteSearchImpactPeriod `json:"after"`
 }
@@ -72,7 +78,7 @@ type AdminSiteFindingImpact struct {
 	Rule        string                         `json:"rule"`
 	URL         string                         `json:"url"`
 	PageURL     string                         `json:"pageUrl"`
-	Status      string                         `json:"status"`
+	Status      AdminSiteSearchImpactStatus    `json:"status"`
 	FixedAt     *time.Time                     `json:"fixedAt,omitempty"`
 	WindowDays  int                            `json:"windowDays"`
 	Before      *AdminSiteSearchImpactWindow   `json:"before,omitempty"`
@@ -102,7 +108,7 @@ type AdminSiteSearchValue struct {
 	From        string                     `json:"from"`
 	To          string                     `json:"to"`
 	Goals       []string                   `json:"goals"`
-	GoalStatus  string                     `json:"goalStatus"`
+	GoalStatus  AdminSiteSearchValueStatus `json:"goalStatus"`
 	GoalReason  string                     `json:"goalReason,omitempty"`
 	Attribution string                     `json:"attribution"`
 	Pages       []AdminSiteSearchValuePage `json:"pages"`

@@ -88,9 +88,9 @@ type AdminSiteDomainChecks struct {
 	TLS              AdminSiteTLS               `json:"tls"`
 	Warming          AdminSiteWarming           `json:"warming"`
 	OpenIncident     *AdminSiteIncident         `json:"openIncident,omitempty"`
-	ChromeUX         *AdminSiteChromeUX         `json:"chromeUx,omitempty"`
 	HTTPExpectations *AdminSiteHTTPExpectations `json:"httpExpectations,omitempty"`
 	Registration     *AdminSiteRegistration     `json:"registration,omitempty"`
+	ChromeUX         *AdminSiteChromeUX         `json:"chromeUx,omitempty"`
 }
 
 // AdminSiteRegistration records the registry lookup. A missing ExpiresAt means

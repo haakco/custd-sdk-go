@@ -24,7 +24,7 @@ type AnalyticsEventQuery struct {
 	Date         string                      `json:"date"`
 	EventType    string                      `json:"eventType,omitempty"`
 	Limit        int                         `json:"limit"`
-	Source       string                      `json:"source"`
+	Source       AnalyticsQuerySource        `json:"source"`
 	LabelFilters []AnalyticsEventLabelFilter `json:"labelFilters,omitempty"`
 }
 

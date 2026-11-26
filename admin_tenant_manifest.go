@@ -46,16 +46,26 @@ type TenantManifestPendingStatus struct {
 	LastFailure   *TenantManifestRetryFailure `json:"lastFailure,omitempty"`
 }
 
+// TenantManifestOperationState is how one tenant manifest operation went.
+type TenantManifestOperationState string
+
+const (
+	TenantManifestOperationStatePending TenantManifestOperationState = "pending"
+	TenantManifestOperationStateSuccess TenantManifestOperationState = "success"
+	TenantManifestOperationStateFailure TenantManifestOperationState = "failure"
+	TenantManifestOperationStateUnknown TenantManifestOperationState = "unknown"
+)
+
 // TenantManifestOperationStatus is the durable operation Apply enqueued.
 type TenantManifestOperationStatus struct {
-	UUID           string     `json:"uuid"`
-	IdempotencyKey string     `json:"idempotencyKey"`
-	State          string     `json:"state"`
-	ErrorCode      string     `json:"errorCode,omitempty"`
-	CreatedAt      time.Time  `json:"createdAt"`
-	UpdatedAt      time.Time  `json:"updatedAt"`
-	CompletedAt    *time.Time `json:"completedAt,omitempty"`
-	AttemptCount   int        `json:"attemptCount"`
+	UUID           string                       `json:"uuid"`
+	IdempotencyKey string                       `json:"idempotencyKey"`
+	State          TenantManifestOperationState `json:"state"`
+	ErrorCode      string                       `json:"errorCode,omitempty"`
+	CreatedAt      time.Time                    `json:"createdAt"`
+	UpdatedAt      time.Time                    `json:"updatedAt"`
+	CompletedAt    *time.Time                   `json:"completedAt,omitempty"`
+	AttemptCount   int                          `json:"attemptCount"`
 	// LeaseExpiresAt is when an in-flight reconcile gives up its claim, so a
 	// running reconcile reads differently from a waiting one.
 	LeaseExpiresAt *time.Time                   `json:"leaseExpiresAt,omitempty"`

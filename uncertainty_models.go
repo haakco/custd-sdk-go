@@ -32,35 +32,88 @@ type UncertaintyModel struct {
 	UpdatedAt     time.Time `json:"updatedAt"`
 }
 
+// UncertaintyModelSource selects uncertainty models by where they were made; all lists both.
+type UncertaintyModelSource string
+
+const (
+	UncertaintyModelSourceAll   UncertaintyModelSource = "all"
+	UncertaintyModelSourceAdmin UncertaintyModelSource = "admin"
+	UncertaintyModelSourceApp   UncertaintyModelSource = "app"
+)
+
 type UncertaintyModelList struct {
 	Models []UncertaintyModel `json:"models"`
 }
 
+// UncertaintyInputSourceKind is the kind of source an uncertainty input reads.
+type UncertaintyInputSourceKind string
+
+const (
+	UncertaintyInputSourceKindCounterForecast UncertaintyInputSourceKind = "counter_forecast"
+)
+
+// UncertaintyInputField is the forecast field an uncertainty input reads.
+type UncertaintyInputField string
+
+const (
+	UncertaintyInputFieldCompletionDays      UncertaintyInputField = "completion_days"
+	UncertaintyInputFieldDeadlineProbability UncertaintyInputField = "deadline_probability"
+	UncertaintyInputFieldRatePerDay          UncertaintyInputField = "rate_per_day"
+)
+
 type UncertaintyInputSource struct {
-	Field       string `json:"field"`
-	Kind        string `json:"kind"`
-	ProjectUUID string `json:"projectUuid"`
+	Field       UncertaintyInputField      `json:"field"`
+	Kind        UncertaintyInputSourceKind `json:"kind"`
+	ProjectUUID string                     `json:"projectUuid"`
 }
 
+// UncertaintyInputShape is how an uncertainty input is stated.
+type UncertaintyInputShape string
+
+const (
+	UncertaintyInputShapePoint      UncertaintyInputShape = "point"
+	UncertaintyInputShapeRange      UncertaintyInputShape = "range"
+	UncertaintyInputShapeProportion UncertaintyInputShape = "proportion"
+	UncertaintyInputShapeSamples    UncertaintyInputShape = "samples"
+	UncertaintyInputShapeBound      UncertaintyInputShape = "bound"
+)
+
+// UncertaintyDistribution is the distribution an uncertainty input samples from.
+type UncertaintyDistribution string
+
+const (
+	UncertaintyDistributionNormal    UncertaintyDistribution = "normal"
+	UncertaintyDistributionLognormal UncertaintyDistribution = "lognormal"
+	UncertaintyDistributionUniform   UncertaintyDistribution = "uniform"
+)
+
 type UncertaintyInput struct {
-	Distribution string                  `json:"distribution,omitempty"`
+	Distribution UncertaintyDistribution `json:"distribution,omitempty"`
 	High         *float64                `json:"high,omitempty"`
 	Low          *float64                `json:"low,omitempty"`
 	Samples      []float64               `json:"samples,omitempty"`
-	Shape        string                  `json:"shape"`
+	Shape        UncertaintyInputShape   `json:"shape"`
 	Source       *UncertaintyInputSource `json:"source,omitempty"`
 	Successes    *int64                  `json:"successes,omitempty"`
 	Trials       *int64                  `json:"trials,omitempty"`
 	Value        *float64                `json:"value,omitempty"`
 }
 
+// UncertaintyQuantityKind is whether a quantity is an input or a formula.
+type UncertaintyQuantityKind string
+
+const (
+	UncertaintyQuantityKindInput   UncertaintyQuantityKind = "input"
+	UncertaintyQuantityKindFormula UncertaintyQuantityKind = "formula"
+)
+
 type UncertaintyQuantity struct {
-	Description string            `json:"description,omitempty"`
-	Formula     string            `json:"formula,omitempty"`
-	Input       *UncertaintyInput `json:"input,omitempty"`
-	Kind        string            `json:"kind"`
-	Name        string            `json:"name"`
-	Unit        string            `json:"unit,omitempty"`
+	Description string                  `json:"description,omitempty"`
+	Formula     string                  `json:"formula,omitempty"`
+	Input       *UncertaintyInput       `json:"input,omitempty"`
+	Kind        UncertaintyQuantityKind `json:"kind"`
+	Name        string                  `json:"name"`
+	Unit        string                  `json:"unit,omitempty"`
 }
 
 type UncertaintyCreateModelRequest struct {
@@ -117,15 +170,23 @@ type UncertaintyCreateVersionRequest struct {
 	Quantities []UncertaintyQuantity `json:"quantities"`
 }
 
+// UncertaintyRunTrigger is what started an uncertainty model run.
+type UncertaintyRunTrigger string
+
+const (
+	UncertaintyRunTriggerRequest       UncertaintyRunTrigger = "request"
+	UncertaintyRunTriggerSourceChanged UncertaintyRunTrigger = "source_changed"
+)
+
 type UncertaintyRunSummary struct {
-	CreatedAt             time.Time `json:"createdAt"`
-	ModelUUID             string    `json:"modelUuid"`
-	RunUUID               string    `json:"runUuid"`
-	SampleCount           int64     `json:"sampleCount"`
-	Seed                  int64     `json:"seed"`
-	SourceForecastRunUUID string    `json:"sourceForecastRunUuid,omitempty"`
-	Trigger               string    `json:"trigger"`
-	VersionNumber         int64     `json:"versionNumber"`
+	CreatedAt             time.Time             `json:"createdAt"`
+	ModelUUID             string                `json:"modelUuid"`
+	RunUUID               string                `json:"runUuid"`
+	SampleCount           int64                 `json:"sampleCount"`
+	Seed                  int64                 `json:"seed"`
+	SourceForecastRunUUID string                `json:"sourceForecastRunUuid,omitempty"`
+	Trigger               UncertaintyRunTrigger `json:"trigger"`
+	VersionNumber         int64                 `json:"versionNumber"`
 }
 
 type UncertaintyRunList struct {
@@ -147,14 +208,23 @@ type UncertaintyRunRequest struct {
 	VersionNumber     *int64               `json:"versionNumber,omitempty"`
 }
 
+// UncertaintyBoundInputState is whether a bound input resolved to a value.
+type UncertaintyBoundInputState string
+
+const (
+	UncertaintyBoundInputStateResolved      UncertaintyBoundInputState = "resolved"
+	UncertaintyBoundInputStateSourceMissing UncertaintyBoundInputState = "source_missing"
+	UncertaintyBoundInputStateValueMissing  UncertaintyBoundInputState = "value_missing"
+)
+
 type UncertaintyBoundInput struct {
-	Detail              string                 `json:"detail,omitempty"`
-	ForecastGeneratedAt *time.Time             `json:"forecastGeneratedAt,omitempty"`
-	ForecastRunUUID     string                 `json:"forecastRunUuid,omitempty"`
-	Quantity            string                 `json:"quantity"`
-	Source              UncertaintyInputSource `json:"source"`
-	State               string                 `json:"state"`
-	Value               float64                `json:"value,omitempty"`
+	Detail              string                     `json:"detail,omitempty"`
+	ForecastGeneratedAt *time.Time                 `json:"forecastGeneratedAt,omitempty"`
+	ForecastRunUUID     string                     `json:"forecastRunUuid,omitempty"`
+	Quantity            string                     `json:"quantity"`
+	Source              UncertaintyInputSource     `json:"source"`
+	State               UncertaintyBoundInputState `json:"state"`
+	Value               float64                    `json:"value,omitempty"`
 }
 
 type UncertaintyInputInformation struct {
@@ -162,11 +232,19 @@ type UncertaintyInputInformation struct {
 	Name                              string  `json:"name"`
 }
 
+// UncertaintyRecommendation is what the value of information recommends.
+type UncertaintyRecommendation string
+
+const (
+	UncertaintyRecommendationAct  UncertaintyRecommendation = "act"
+	UncertaintyRecommendationHold UncertaintyRecommendation = "hold"
+)
+
 type UncertaintyInformation struct {
 	ActProbability                    float64                       `json:"actProbability"`
 	ExpectedValueOfPerfectInformation float64                       `json:"expectedValueOfPerfectInformation"`
 	Inputs                            []UncertaintyInputInformation `json:"inputs"`
-	Recommended                       string                        `json:"recommended"`
+	Recommended                       UncertaintyRecommendation     `json:"recommended"`
 	SuggestedNextMeasurement          string                        `json:"suggestedNextMeasurement,omitempty"`
 }
 
@@ -233,14 +311,14 @@ type UncertaintyRunDetail struct {
 	Sensitivity           *UncertaintySensitivity      `json:"sensitivity,omitempty"`
 	SensitivityOutput     string                       `json:"sensitivityOutput,omitempty"`
 	SourceForecastRunUUID string                       `json:"sourceForecastRunUuid,omitempty"`
-	Trigger               string                       `json:"trigger"`
+	Trigger               UncertaintyRunTrigger        `json:"trigger"`
 	VersionNumber         int64                        `json:"versionNumber"`
 }
 
 // List lists the tenant's uncertainty models.
-func (c *UncertaintyModelAdminClient) List(ctx context.Context, companySlug string, source string) (*UncertaintyModelList, error) {
+func (c *UncertaintyModelAdminClient) List(ctx context.Context, companySlug string, source UncertaintyModelSource) (*UncertaintyModelList, error) {
 	var out UncertaintyModelList
-	err := c.admin.request(ctx, http.MethodGet, siteQueryPath("/uncertainty-models", url.Values{companySlugQueryParameter: {companySlug}, "source": {source}}), nil, &out)
+	err := c.admin.request(ctx, http.MethodGet, siteQueryPath("/uncertainty-models", url.Values{companySlugQueryParameter: {companySlug}, "source": {string(source)}}), nil, &out)
 	return &out, err
 }
 

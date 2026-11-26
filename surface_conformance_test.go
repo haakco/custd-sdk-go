@@ -3,6 +3,7 @@ package custd
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -11,6 +12,7 @@ import (
 	"sort"
 	"strings"
 	"testing"
+	"time"
 )
 
 // surfaceRow proves one public SDK call sends one Custd operation. The id is
@@ -65,6 +67,8 @@ type surfaceExample struct {
 	Minimal json.RawMessage `json:"minimal"`
 	Maximal json.RawMessage `json:"maximal"`
 }
+
+var exampleUUID = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
 
 var surfacePathParameter = regexp.MustCompile(`\\\{[^}]+\\\}`)
 
@@ -212,17 +216,109 @@ func assertSurfaceExampleDecodes(t *testing.T, row surfaceRow, operation surface
 		t.Fatalf("skipExample %q needs a skipReason", row.skipExample)
 	}
 	restore := unmarshalResponse
-	unmarshalResponse = unmarshalStrict
 	defer func() { unmarshalResponse = restore }()
-	for name, body := range map[string]json.RawMessage{"minimal": example.Minimal, "maximal": example.Maximal} {
-		if name == row.skipExample || row.skipExample == "both" {
+	bodies := map[string]json.RawMessage{
+		"minimal": example.Minimal, "maximal": example.Maximal, "zeroed minimal": zeroedExample(t, example.Minimal),
+	}
+	for name, body := range bodies {
+		if row.skipExample != "" && (strings.HasSuffix(name, row.skipExample) || row.skipExample == "both") {
 			t.Logf("%s example not replayed: %s", name, row.skipReason)
 			continue
+		}
+		var dropped []string
+		unmarshalResponse = func(data []byte, out any) error {
+			err := unmarshalStrict(data, out)
+			if err == nil && name != "maximal" {
+				for _, key := range droppedExampleKeys(data, out) {
+					dropped = append(dropped, fmt.Sprintf("%T%s", out, key))
+				}
+			}
+			return err
 		}
 		if err := row.call(newSurfaceEnv(t, string(body))); err != nil {
 			t.Errorf("%s example does not decode: %v", name, err)
 		}
+		if len(dropped) > 0 {
+			t.Errorf("%s example: re-encoding the SDK type drops server fields %v", name, dropped)
+		}
 	}
+}
+
+// zeroedExample keeps every key of the minimal example, which the server always sends, and sets
+// each value to its zero: an SDK field marked omitempty for one of them then drops it. Timestamps
+// and UUIDs keep their value so they still decode; lists become empty.
+func zeroedExample(t *testing.T, minimal json.RawMessage) json.RawMessage {
+	t.Helper()
+	if len(minimal) == 0 {
+		return nil
+	}
+	var value any
+	if err := json.Unmarshal(minimal, &value); err != nil {
+		t.Fatalf("parse minimal example: %v", err)
+	}
+	zeroed, err := json.Marshal(zeroValue(value))
+	if err != nil {
+		t.Fatalf("encode zeroed example: %v", err)
+	}
+	return zeroed
+}
+
+func zeroValue(value any) any {
+	switch value := value.(type) {
+	case map[string]any:
+		for key, field := range value {
+			value[key] = zeroValue(field)
+		}
+		return value
+	case []any:
+		return []any{}
+	case string:
+		if _, err := time.Parse(time.RFC3339, value); err == nil || exampleUUID.MatchString(value) {
+			return value
+		}
+		return ""
+	case float64:
+		return 0
+	case bool:
+		return false
+	}
+	return value
+}
+
+// droppedExampleKeys re-encodes a decoded response and names every key the server example sent
+// that the SDK type no longer writes, such as an always-present field marked omitempty.
+func droppedExampleKeys(data []byte, out any) []string {
+	encoded, err := json.Marshal(out)
+	if err != nil {
+		return []string{"(re-encode failed: " + err.Error() + ")"}
+	}
+	var sent, kept any
+	if json.Unmarshal(data, &sent) != nil || json.Unmarshal(encoded, &kept) != nil {
+		return nil
+	}
+	return missingKeys("", sent, kept)
+}
+
+func missingKeys(path string, sent, kept any) []string {
+	var missing []string
+	switch sent := sent.(type) {
+	case map[string]any:
+		keptObject, _ := kept.(map[string]any)
+		for key, value := range sent {
+			keptValue, ok := keptObject[key]
+			if !ok {
+				missing = append(missing, path+"."+key)
+				continue
+			}
+			missing = append(missing, missingKeys(path+"."+key, value, keptValue)...)
+		}
+	case []any:
+		keptList, _ := kept.([]any)
+		for i := 0; i < len(sent) && i < len(keptList); i++ {
+			missing = append(missing, missingKeys(path+"[]", sent[i], keptList[i])...)
+		}
+	}
+	return missing
 }
 
 // unmarshalStrict rejects a field the SDK type lacks, so a server field the

@@ -3,20 +3,11 @@ package custd
 import (
 	"context"
 	"net/http"
-	"net/url"
-	"strings"
 )
 
-// PreparedDataClient owns the client-facing prepared-data surfaces: the tenant
-// bootstrap projection and the prepared-data receipt, output catalogue and
-// output query.
-//
-// The six routes live under three different roots. /api/v1/admin is the admin
-// namespace, so the admin request helper addresses it with a path relative to
-// that namespace. /api/v1/processing and /api/v1/reporting are tenant-scoped
-// roots outside the admin namespace, so their paths are built in full here and
-// requested against the configured base URL with the same credentials the admin
-// client uses.
+// PreparedDataClient owns the tenant's prepared-data bootstrap projection in the
+// admin namespace. The prepared-data receipt, output catalogue and output query
+// are served by the reporting API and live on ReportingClient.
 //
 // The client is not wired onto AdminClient, because that would change
 // admin.go. Construct it explicitly:
@@ -58,14 +49,23 @@ type PreparedDataBootstrapSubmitRequest struct {
 	Proofs       []PreparedDataBootstrapProof `json:"proofs,omitempty"`
 }
 
+// ClientBootstrapState is whether a client's prepared-data bootstrap can be used.
+type ClientBootstrapState string
+
+const (
+	ClientBootstrapStateReady             ClientBootstrapState = "ready"
+	ClientBootstrapStateAttentionRequired ClientBootstrapState = "attention_required"
+	ClientBootstrapStateSuspended         ClientBootstrapState = "suspended"
+)
+
 // PreparedDataBootstrapStatus is the bootstrap projection of one tenant: where
 // the tenant stands, what Custd produced it from, and the next safe action.
 type PreparedDataBootstrapStatus struct {
 	TenantSlug   string                 `json:"tenantSlug"`
-	State        string                 `json:"state"`
+	State        ClientBootstrapState   `json:"state"`
 	ObservedAt   string                 `json:"observedAt"`
 	Provenance   PreparedDataProvenance `json:"provenance"`
-	Retryability string                 `json:"retryability"`
+	Retryability Retryability           `json:"retryability"`
 	Warnings     []PreparedDataWarning  `json:"warnings,omitempty"`
 	NextAction   PreparedDataNextAction `json:"nextAction"`
 }
@@ -73,12 +73,6 @@ type PreparedDataBootstrapStatus struct {
 const (
 	// preparedDataBootstrapPath is the admin-namespace-relative bootstrap path.
 	preparedDataBootstrapPath = "/bootstrap"
-	// preparedDataProcessingRoot is the receipt root. It is not under the admin
-	// namespace, so the path is built in full.
-	preparedDataProcessingRoot = "/api/v1/processing"
-	// preparedDataReportingRoot is the prepared-output catalogue root. It is not
-	// under the admin namespace, so the path is built in full.
-	preparedDataReportingRoot = "/api/v1/reporting/outputs"
 )
 
 // GetClientBootstrap reads the tenant's bootstrap projection.
@@ -102,81 +96,4 @@ func (c *PreparedDataClient) SubmitClientBootstrap(
 		ctx, http.MethodPost, preparedDataBootstrapPath, req, &out,
 	)
 	return &out, metadata, err
-}
-
-// GetPreparedDataReceipt reads the status of one accepted submission.
-//
-// The receipt identifier is escaped into the path. The server owns identifier
-// validation: an identifier it does not know answers exactly like one that
-// does not exist.
-func (c *PreparedDataClient) GetPreparedDataReceipt(
-	ctx context.Context, receiptUUID string,
-) (*PreparedDataReceiptStatus, ResponseMetadata, error) {
-	var out PreparedDataReceiptStatus
-	metadata, err := c.requestAtRoot(
-		ctx, http.MethodGet, preparedDataProcessingRoot+"/"+url.PathEscape(receiptUUID), nil, &out,
-	)
-	return &out, metadata, err
-}
-
-// ListPreparedDataOutputs lists the tenant's prepared outputs.
-func (c *PreparedDataClient) ListPreparedDataOutputs(
-	ctx context.Context,
-) (*PreparedDataOutputList, ResponseMetadata, error) {
-	var out PreparedDataOutputList
-	metadata, err := c.requestAtRoot(ctx, http.MethodGet, preparedDataReportingRoot, nil, &out)
-	return &out, metadata, err
-}
-
-// GetPreparedDataOutput reads the status of one prepared output.
-func (c *PreparedDataClient) GetPreparedDataOutput(
-	ctx context.Context, outputUUID string,
-) (*PreparedDataOutputStatus, ResponseMetadata, error) {
-	var out PreparedDataOutputStatus
-	metadata, err := c.requestAtRoot(
-		ctx, http.MethodGet, preparedDataReportingRoot+"/"+url.PathEscape(outputUUID), nil, &out,
-	)
-	return &out, metadata, err
-}
-
-// QueryPreparedDataOutput runs one query against a ready prepared output and
-// returns the output status together with the rendered data.
-//
-// The query body is the same validated reporting request the reporting
-// namespace accepts, so one request type serves both surfaces.
-func (c *PreparedDataClient) QueryPreparedDataOutput(
-	ctx context.Context, outputUUID string, req ReportingQueryRequest,
-) (*PreparedDataQueryEnvelope, ResponseMetadata, error) {
-	var out PreparedDataQueryEnvelope
-	metadata, err := c.requestAtRoot(
-		ctx,
-		http.MethodPost,
-		preparedDataReportingRoot+"/"+url.PathEscape(outputUUID)+"/query",
-		req,
-		&out,
-	)
-	return &out, metadata, err
-}
-
-// requestAtRoot issues one request against a prepared-data root that is not
-// the admin namespace.
-//
-// The admin request helper always prefixes /api/v1/admin and rewrites the
-// acting-company tenant query parameter, so it cannot address these roots. The path
-// is therefore built in full and requested against the configured base URL
-// with the same credential and audit labels the admin client sends.
-func (c *PreparedDataClient) requestAtRoot(
-	ctx context.Context, method, path string, payload, out any,
-) (ResponseMetadata, error) {
-	endpoint := strings.TrimRight(c.admin.client.config.BaseURL, "/") + path
-	headers := c.admin.client.headers(false)
-	c.admin.applyRequestLabels(headers)
-	metadata, body, err := c.admin.requestOutsideAdmin(ctx, method, endpoint, headers, payload)
-	if err != nil {
-		return metadata, err
-	}
-	if err := decodeAdminResponse(body, out); err != nil {
-		return metadata, err
-	}
-	return metadata, nil
 }

@@ -7,10 +7,13 @@ import (
 	"time"
 )
 
+// AdminSiteWebRole is whether a domain is the tenant's own or a competitor.
+type AdminSiteWebRole string
+
 // The roles of AdminSiteWebDomain.Role.
 const (
-	AdminSiteWebRoleOwn        = "own"
-	AdminSiteWebRoleCompetitor = "competitor"
+	AdminSiteWebRoleOwn        AdminSiteWebRole = "own"
+	AdminSiteWebRoleCompetitor AdminSiteWebRole = "competitor"
 )
 
 // The sources a page was listed in (AdminSiteWebPage.Sources).
@@ -19,61 +22,76 @@ const (
 	AdminSiteWebSourceWayback = "wayback"
 )
 
+// AdminSiteWebStatus is the inventory state of a domain's sitemap or Wayback read.
+type AdminSiteWebStatus string
+
 // The inventory states of AdminSiteWebDomain.SitemapStatus and WaybackStatus. Compare against
 // these rather than assuming the set is closed.
 const (
-	AdminSiteWebStatusPending     = "pending"
-	AdminSiteWebStatusDone        = "done"
-	AdminSiteWebStatusPartial     = "partial"
-	AdminSiteWebStatusUnavailable = "unavailable"
-	AdminSiteWebStatusFailed      = "failed"
+	AdminSiteWebStatusPending     AdminSiteWebStatus = "pending"
+	AdminSiteWebStatusDone        AdminSiteWebStatus = "done"
+	AdminSiteWebStatusPartial     AdminSiteWebStatus = "partial"
+	AdminSiteWebStatusUnavailable AdminSiteWebStatus = "unavailable"
+	AdminSiteWebStatusFailed      AdminSiteWebStatus = "failed"
 )
+
+// AdminSiteTrancoBand is a domain's Tranco rank band.
+type AdminSiteTrancoBand string
 
 // The Tranco rank bands of AdminSiteWebDomain.TrancoBand. Unranked means the domain is outside
 // the top million; unknown means no list has been read yet.
 const (
-	AdminSiteTrancoBandTop1K    = "top-1k"
-	AdminSiteTrancoBandTop10K   = "top-10k"
-	AdminSiteTrancoBandTop100K  = "top-100k"
-	AdminSiteTrancoBandTop1M    = "top-1m"
-	AdminSiteTrancoBandUnranked = "unranked"
-	AdminSiteTrancoBandUnknown  = "unknown"
+	AdminSiteTrancoBandTop1K    AdminSiteTrancoBand = "top-1k"
+	AdminSiteTrancoBandTop10K   AdminSiteTrancoBand = "top-10k"
+	AdminSiteTrancoBandTop100K  AdminSiteTrancoBand = "top-100k"
+	AdminSiteTrancoBandTop1M    AdminSiteTrancoBand = "top-1m"
+	AdminSiteTrancoBandUnranked AdminSiteTrancoBand = "unranked"
+	AdminSiteTrancoBandUnknown  AdminSiteTrancoBand = "unknown"
 )
+
+// AdminSiteTrendStatus is where a topic trend lookup stands.
+type AdminSiteTrendStatus string
 
 // The states of AdminSiteTopicTrend.Status.
 const (
-	AdminSiteTrendStatusPending   = "pending"
-	AdminSiteTrendStatusFound     = "found"
-	AdminSiteTrendStatusNoArticle = "no_article"
-	AdminSiteTrendStatusFailed    = "failed"
+	AdminSiteTrendStatusPending   AdminSiteTrendStatus = "pending"
+	AdminSiteTrendStatusFound     AdminSiteTrendStatus = "found"
+	AdminSiteTrendStatusNoArticle AdminSiteTrendStatus = "no_article"
+	AdminSiteTrendStatusFailed    AdminSiteTrendStatus = "failed"
 )
+
+// AdminSiteTrendSource is where a topic trend's term came from.
+type AdminSiteTrendSource string
 
 // Where an AdminSiteTopicTrend's term came from.
 const (
-	AdminSiteTrendSourceBrand = "brand"
-	AdminSiteTrendSourceSeed  = "seed"
+	AdminSiteTrendSourceBrand AdminSiteTrendSource = "brand"
+	AdminSiteTrendSourceSeed  AdminSiteTrendSource = "seed"
 )
+
+// AdminSiteGapCoverage is whether the Site's own pages could be read for a content gap.
+type AdminSiteGapCoverage string
 
 // The values of AdminSiteContentGap.OwnCoverage: whether the Site's own pages could be read.
 const (
-	AdminSiteGapCoverageAvailable   = "available"
-	AdminSiteGapCoverageUnavailable = "unavailable"
+	AdminSiteGapCoverageAvailable   AdminSiteGapCoverage = "available"
+	AdminSiteGapCoverageUnavailable AdminSiteGapCoverage = "unavailable"
 )
 
 // AdminSiteWebDomain is one of the Site's own or competitor domains, its Tranco rank and its
 // page inventory. TrancoRank and InventoryAt are nil when not known.
 type AdminSiteWebDomain struct {
-	Domain          string     `json:"domain"`
-	Role            string     `json:"role"`
-	TrancoBand      string     `json:"trancoBand"`
-	TrancoRank      *int       `json:"trancoRank,omitempty"`
-	TrancoListDay   string     `json:"trancoListDay,omitempty"`
-	SitemapStatus   string     `json:"sitemapStatus"`
-	WaybackStatus   string     `json:"waybackStatus"`
-	PageCount       int        `json:"pageCount"`
-	LastFailure     string     `json:"lastFailure,omitempty"`
-	InventoryAt     *time.Time `json:"inventoryAt,omitempty"`
-	NextInventoryAt time.Time  `json:"nextInventoryAt"`
+	Domain          string              `json:"domain"`
+	Role            AdminSiteWebRole    `json:"role"`
+	TrancoBand      AdminSiteTrancoBand `json:"trancoBand"`
+	TrancoRank      *int                `json:"trancoRank,omitempty"`
+	TrancoListDay   string              `json:"trancoListDay,omitempty"`
+	SitemapStatus   AdminSiteWebStatus  `json:"sitemapStatus"`
+	WaybackStatus   AdminSiteWebStatus  `json:"waybackStatus"`
+	PageCount       int                 `json:"pageCount"`
+	LastFailure     string              `json:"lastFailure,omitempty"`
+	InventoryAt     *time.Time          `json:"inventoryAt,omitempty"`
+	NextInventoryAt time.Time           `json:"nextInventoryAt"`
 }
 
 // AdminSiteWebDomains lists a Site's own and competitor domains.
@@ -117,10 +135,10 @@ type AdminSiteTrendMonth struct {
 // nil before the first check.
 type AdminSiteTopicTrend struct {
 	Term        string                `json:"term"`
-	Source      string                `json:"source"`
+	Source      AdminSiteTrendSource  `json:"source"`
 	Project     string                `json:"project"`
 	Article     string                `json:"article"`
-	Status      string                `json:"status"`
+	Status      AdminSiteTrendStatus  `json:"status"`
 	LastFailure string                `json:"lastFailure,omitempty"`
 	CheckedAt   *time.Time            `json:"checkedAt,omitempty"`
 	Months      []AdminSiteTrendMonth `json:"months"`
@@ -163,7 +181,7 @@ type AdminSiteGapCompetitor struct {
 type AdminSiteContentGap struct {
 	SiteUUID    string                   `json:"siteUuid"`
 	Seed        string                   `json:"seed,omitempty"`
-	OwnCoverage string                   `json:"ownCoverage"`
+	OwnCoverage AdminSiteGapCoverage     `json:"ownCoverage"`
 	OwnPages    int                      `json:"ownPages"`
 	OwnQueries  int                      `json:"ownQueries"`
 	Partial     bool                     `json:"partial"`

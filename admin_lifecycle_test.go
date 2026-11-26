@@ -1,15 +1,19 @@
 package custd
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
+	"net/http/httptest"
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 )
 
 // These tests cover lifecycle behaviour the route conformance rows do not:
@@ -194,17 +198,21 @@ func TestOffboarding_DownloadAndExecute(t *testing.T) {
 	doer.headers = map[string]string{
 		"Content-Length":    strconv.Itoa(len(archive)),
 		"X-Checksum-SHA256": hex.EncodeToString(sum[:]),
+		"Content-Type":      "application/octet-stream",
+		"X-Request-Id":      "req-download",
 	}
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
 	ctx := context.Background()
 
-	download, err := client.Admin.Offboarding.Download(ctx, "ob-1")
+	var written bytes.Buffer
+	download, err := client.Admin.Offboarding.Download(ctx, "ob-1", &written)
 	if err != nil {
 		t.Fatalf("Download: %v", err)
 	}
-	if string(download.Bytes) != archive || download.ChecksumSHA256 != hex.EncodeToString(sum[:]) ||
-		download.ByteSize != int64(len(archive)) {
-		t.Fatalf("download = %+v", download)
+	if written.String() != archive || download.ChecksumSHA256 != hex.EncodeToString(sum[:]) ||
+		download.ByteSize != int64(len(archive)) || download.ContentType != "application/octet-stream" ||
+		download.Metadata.RequestID != "req-download" {
+		t.Fatalf("download = %+v, wrote %q", download, written.String())
 	}
 	if got := doer.requests[0].Headers["Authorization"]; got != "Bearer admin-token" {
 		t.Fatalf("download authorization = %q", got)
@@ -227,14 +235,13 @@ func TestOffboarding_DownloadFailsClosedOnInvalidIntegrityMetadata(t *testing.T)
 		{"missing checksum", map[string]string{"Content-Length": "3"}},
 		{"wrong checksum", map[string]string{"Content-Length": "3", "X-Checksum-SHA256": strings.Repeat("0", 64)}},
 		{"length mismatch", map[string]string{"Content-Length": "2", "X-Checksum-SHA256": strings.Repeat("0", 64)}},
-		{"declared oversize", map[string]string{"Content-Length": strconv.FormatInt(maxOffboardingDownloadBytes+1, 10), "X-Checksum-SHA256": strings.Repeat("0", 64)}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			doer := newCaptureDoer(http.StatusOK, "abc")
 			doer.headers = tt.headers
 			client := newAdminTestClient(t, doer, "http://localhost:8080")
-			if _, err := client.Admin.Offboarding.Download(context.Background(), "request-1"); err == nil {
+			if _, err := client.Admin.Offboarding.Download(context.Background(), "request-1", io.Discard); err == nil {
 				t.Fatal("Download succeeded with invalid integrity metadata")
 			}
 		})
@@ -256,5 +263,29 @@ func TestOffboarding_ErasureIncompleteBlocksConfirm(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "retry_erasure") {
 		t.Fatalf("error did not surface safeNextAction retry_erasure: %s", err)
+	}
+}
+
+// TestOffboarding_DownloadStreamsOverHTTP proves the built-in client copies the bundle into the
+// caller's writer, verified against the server's integrity headers.
+func TestOffboarding_DownloadStreamsOverHTTP(t *testing.T) {
+	archive := strings.Repeat("bundle-", 4096)
+	sum := sha256.Sum256([]byte(archive))
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Length", strconv.Itoa(len(archive)))
+		w.Header().Set("X-Checksum-SHA256", hex.EncodeToString(sum[:]))
+		w.Header().Set(requestIDHeader, "req-bundle")
+		_, _ = io.WriteString(w, archive)
+	}))
+	t.Cleanup(server.Close)
+	client := NewClient(&ClientConfig{BaseURL: server.URL, APIKey: "admin-token", FlushInterval: time.Hour})
+	t.Cleanup(func() { _ = client.Close(context.Background()) })
+	var written bytes.Buffer
+	download, err := client.Admin.Offboarding.Download(context.Background(), "ob-1", &written)
+	if err != nil {
+		t.Fatalf("Download: %v", err)
+	}
+	if written.String() != archive || download.ByteSize != int64(len(archive)) || download.Metadata.RequestID != "req-bundle" {
+		t.Fatalf("download = %+v, wrote %d bytes", download, written.Len())
 	}
 }

@@ -26,13 +26,14 @@ type MeasurementProjectRun struct {
 }
 
 type MeasurementProjectUpdate struct {
-	DefinitionOfDone   string     `json:"definitionOfDone,omitempty"`
-	DeliveryTargetDate *time.Time `json:"deliveryTargetDate,omitempty"`
-	Description        string     `json:"description,omitempty"`
-	ForecastMethod     string     `json:"forecastMethod,omitempty"`
-	Name               string     `json:"name,omitempty"`
-	RunSimilar         *bool      `json:"runSimilar,omitempty"`
-	Status             string     `json:"status,omitempty"`
+	// DefinitionOfDone and Description are left unchanged when nil and cleared by "".
+	DefinitionOfDone   *string                   `json:"definitionOfDone,omitempty"`
+	DeliveryTargetDate *time.Time                `json:"deliveryTargetDate,omitempty"`
+	Description        *string                   `json:"description,omitempty"`
+	ForecastMethod     MeasurementForecastMethod `json:"forecastMethod,omitempty"`
+	Name               string                    `json:"name,omitempty"`
+	RunSimilar         *bool                     `json:"runSimilar,omitempty"`
+	Status             string                    `json:"status,omitempty"`
 }
 
 type MeasurementProjectComplete struct {
@@ -48,10 +49,12 @@ type MeasurementEstimate struct {
 }
 
 type MeasurementEstimateStatus struct {
-	AgeDays                float64             `json:"ageDays"`
-	ChanceByDeliveryTarget float64             `json:"chanceByDeliveryTarget,omitempty"`
+	AgeDays float64 `json:"ageDays"`
+	// ChanceByDeliveryTarget is nil when the project has no delivery target.
+	ChanceByDeliveryTarget *float64            `json:"chanceByDeliveryTarget,omitempty"`
 	Estimate               MeasurementEstimate `json:"estimate"`
-	MovementDays           float64             `json:"movementDays,omitempty"`
+	// MovementDays is nil for the first estimate, which has nothing to move from.
+	MovementDays *float64 `json:"movementDays,omitempty"`
 }
 
 type MeasurementEstimateList struct {

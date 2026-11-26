@@ -7,15 +7,18 @@ import (
 	"time"
 )
 
+// AdminSiteAuditPageIndexability is whether an audited page can be indexed, and if not why.
+type AdminSiteAuditPageIndexability string
+
 // The values of AdminSiteAuditPage.Indexability. Compare against these rather than assuming the
 // set is closed.
 const (
-	AdminSiteAuditPageIndexable     = "indexable"
-	AdminSiteAuditPageNoindex       = "noindex"
-	AdminSiteAuditPageCanonicalized = "canonicalized"
-	AdminSiteAuditPageRedirected    = "redirected"
-	AdminSiteAuditPageError         = "error"
-	AdminSiteAuditPageNotHTML       = "not_html"
+	AdminSiteAuditPageIndexable     AdminSiteAuditPageIndexability = "indexable"
+	AdminSiteAuditPageNoindex       AdminSiteAuditPageIndexability = "noindex"
+	AdminSiteAuditPageCanonicalized AdminSiteAuditPageIndexability = "canonicalized"
+	AdminSiteAuditPageRedirected    AdminSiteAuditPageIndexability = "redirected"
+	AdminSiteAuditPageError         AdminSiteAuditPageIndexability = "error"
+	AdminSiteAuditPageNotHTML       AdminSiteAuditPageIndexability = "not_html"
 )
 
 // The paging bounds of ListAuditPages.
@@ -24,12 +27,15 @@ const (
 	AdminSiteAuditPagesMaxLimit     = 200
 )
 
+// AdminSiteAuditRun is how the audit a delta compares against ran.
+type AdminSiteAuditRun string
+
 // The values of AdminSiteAuditDelta.Run.
 const (
-	AdminSiteAuditRunNotAudited = "not_audited"
-	AdminSiteAuditRunFailed     = "failed"
-	AdminSiteAuditRunTruncated  = "truncated"
-	AdminSiteAuditRunComplete   = "complete"
+	AdminSiteAuditRunNotAudited AdminSiteAuditRun = "not_audited"
+	AdminSiteAuditRunFailed     AdminSiteAuditRun = "failed"
+	AdminSiteAuditRunTruncated  AdminSiteAuditRun = "truncated"
+	AdminSiteAuditRunComplete   AdminSiteAuditRun = "complete"
 )
 
 // AdminSiteLighthouseMaxExtraPages is how many pages beyond the home page Lighthouse measures.
@@ -42,13 +48,13 @@ const SiteLighthousePageNotExtraCode = "site_lighthouse_page_not_extra"
 // AdminSiteAuditPage is one URL the last audit crawled. FinalURL is empty unless it redirected;
 // Status is 0 when the request failed. Depth and InboundLinks are nil when not known.
 type AdminSiteAuditPage struct {
-	URL          string `json:"url"`
-	FinalURL     string `json:"finalUrl,omitempty"`
-	Status       int    `json:"status"`
-	Indexability string `json:"indexability"`
-	Depth        *int   `json:"depth,omitempty"`
-	InboundLinks *int   `json:"inboundLinks,omitempty"`
-	OpenFindings int    `json:"openFindings"`
+	URL          string                         `json:"url"`
+	FinalURL     string                         `json:"finalUrl,omitempty"`
+	Status       int                            `json:"status"`
+	Indexability AdminSiteAuditPageIndexability `json:"indexability"`
+	Depth        *int                           `json:"depth,omitempty"`
+	InboundLinks *int                           `json:"inboundLinks,omitempty"`
+	OpenFindings int                            `json:"openFindings"`
 }
 
 // AdminSiteAuditPageList is one page of the last audit's crawled URLs. AuditedAt is nil before
@@ -67,7 +73,7 @@ type AdminSiteAuditPageList struct {
 // A failed run says why in Failure.
 type AdminSiteAuditDelta struct {
 	DomainUUID string             `json:"domainUuid"`
-	Run        string             `json:"run"`
+	Run        AdminSiteAuditRun  `json:"run"`
 	AuditedAt  *time.Time         `json:"auditedAt,omitempty"`
 	Failure    string             `json:"failure,omitempty"`
 	New        []AdminSiteFinding `json:"new"`
@@ -78,13 +84,13 @@ type AdminSiteAuditDelta struct {
 // AdminSiteLighthousePageComparison is one measured page and profile's latest score and the one
 // before it; PreviousAt and PreviousScore are nil after a single run.
 type AdminSiteLighthousePageComparison struct {
-	URL            string     `json:"url"`
-	Profile        string     `json:"profile"`
-	LatestAt       time.Time  `json:"latestAt"`
-	LatestScore    int        `json:"latestScore"`
-	PreviousAt     *time.Time `json:"previousAt,omitempty"`
-	PreviousScore  *int       `json:"previousScore,omitempty"`
-	RegressionOpen bool       `json:"regressionOpen"`
+	URL            string                     `json:"url"`
+	Profile        AdminSiteLighthouseProfile `json:"profile"`
+	LatestAt       time.Time                  `json:"latestAt"`
+	LatestScore    int                        `json:"latestScore"`
+	PreviousAt     *time.Time                 `json:"previousAt,omitempty"`
+	PreviousScore  *int                       `json:"previousScore,omitempty"`
+	RegressionOpen bool                       `json:"regressionOpen"`
 }
 
 // AdminSiteLighthousePages are the extra pages Lighthouse measures beside HomePage.

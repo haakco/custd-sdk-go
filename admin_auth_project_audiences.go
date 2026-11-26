@@ -15,8 +15,8 @@ type PrincipalAudience struct {
 
 // PrincipalAudiences lists the addressed principal's audience admission states.
 type PrincipalAudiences struct {
-	AudienceEntitlementMode string              `json:"audienceEntitlementMode"`
-	Audiences               []PrincipalAudience `json:"audiences"`
+	AudienceEntitlementMode AuthProjectAudienceEntitlementMode `json:"audienceEntitlementMode"`
+	Audiences               []PrincipalAudience                `json:"audiences"`
 }
 
 // AudienceGrantRequest names the directory, organisation and exact registered audience to change.

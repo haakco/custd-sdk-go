@@ -48,6 +48,15 @@ type AuthProjectDomainImageSet struct {
 	Hydra   string `json:"hydra,omitempty"`
 }
 
+// AuthProjectDomainImageSource is where a realm's expected image identity comes from.
+type AuthProjectDomainImageSource string
+
+const (
+	AuthProjectDomainImageSourceReleaseDefault AuthProjectDomainImageSource = "release-default"
+	AuthProjectDomainImageSourceOverride       AuthProjectDomainImageSource = "override"
+	AuthProjectDomainImageSourceUndeclared     AuthProjectDomainImageSource = "undeclared"
+)
+
 // AuthProjectDomainImages reports the identity a realm should run against the identity it was
 // observed running. A paused, retiring or retired realm runs no container, so it answers
 // not-running with no running identity rather than reading as drift.
@@ -56,7 +65,7 @@ type AuthProjectDomainImages struct {
 	Running     AuthProjectDomainImageSet    `json:"running"`
 	Convergence AuthProjectDomainConvergence `json:"convergence"`
 	// Source names where Expected comes from: release-default, override or undeclared.
-	Source string `json:"source"`
+	Source AuthProjectDomainImageSource `json:"source"`
 	// Override is the incident image override in force, nil when there is none.
 	Override *AuthDomainImageOverrideStatus `json:"override,omitempty"`
 }

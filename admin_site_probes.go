@@ -16,12 +16,20 @@ const (
 	AdminSiteProbeHTTPDelivery AdminSiteProbeKind = "http-delivery"
 )
 
+// AdminSiteProbeProtocol is the HTTP version an http-delivery probe uses.
+type AdminSiteProbeProtocol string
+
+const (
+	AdminSiteProbeProtocolHTTP11 AdminSiteProbeProtocol = "http1.1"
+	AdminSiteProbeProtocolHTTP2  AdminSiteProbeProtocol = "http2"
+)
+
 // AdminSiteProbeSpec configures one network check.
 type AdminSiteProbeSpec struct {
-	Kind              AdminSiteProbeKind `json:"kind"`
-	Port              int                `json:"port,omitempty"`
-	ExpectedAddresses []string           `json:"expectedAddresses,omitempty"`
-	Protocol          string             `json:"protocol,omitempty"`
+	Kind              AdminSiteProbeKind     `json:"kind"`
+	Port              int                    `json:"port,omitempty"`
+	ExpectedAddresses []string               `json:"expectedAddresses,omitempty"`
+	Protocol          AdminSiteProbeProtocol `json:"protocol,omitempty"`
 }
 
 // AdminSiteProbe is a configured check and its latest result.

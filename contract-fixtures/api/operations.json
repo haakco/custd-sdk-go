@@ -1,8 +1,11 @@
 {
   "source": {
-    "custdCommit": "391f1d8271c3ec97c4d0588731ae314e7aabadb7",
-    "apiParityReviewedAt": "2026-11-26",
-    "apiParitySha256": "5807cc5dfae1d0e9fe56fb9070b6fc4e4206891504cfae2e4439ce27423c6217"
+    "apiReviewedAt": "2026-11-26",
+    "sha256": {
+      "admin-api.openapi.yaml": "132b3568c718dc5f99f79e1a709bd23a0f1b627b7af58e5e5a6c70482bac78ff",
+      "analytics-api.openapi.yaml": "e521f61d1cffb8c8a9fdd7f4d50e2afbfad93f83e8a295b9dc6398dde3747997",
+      "api-operations.json": "08475e882b57acd4a9382cebfce602abdedd7b7f8dfd6a7783984e6abfc44d87"
+    }
   },
   "operations": [
     {
@@ -2618,7 +2621,9 @@
       "service": "admin-api",
       "method": "GET",
       "path": "/api/v1/app-hosts/{host}/discovery",
-      "sdk": "required"
+      "sdk": "required",
+      "operationId": "getAppDiscovery",
+      "example": "examples/getAppDiscovery.json"
     },
     {
       "id": "admin-api GET /api/v1/app/item",
@@ -5586,7 +5591,8 @@
           "name": "companySlug",
           "required": false
         }
-      ]
+      ],
+      "example": "examples/forcePrivacyErasure.json"
     },
     {
       "id": "admin-api POST /api/v1/admin/privacy/identifiers/{companySlug}/map",

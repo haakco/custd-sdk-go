@@ -76,9 +76,9 @@ type TimePlanDefinitionMathAdjustmentTiming struct {
 
 // TimePlanDefinitionMathAdjustment records one adjustment allocation vector.
 type TimePlanDefinitionMathAdjustment struct {
-	VectorID string `json:"vectorId"`
-	Index    int    `json:"index"`
-	Reason   string `json:"reason"`
+	VectorID string                   `json:"vectorId"`
+	Index    int                      `json:"index"`
+	Reason   TimePlanAdjustmentReason `json:"reason"`
 	TimePlanDefinitionMathAdjustmentTiming
 	MarkFutureNotRun    bool                                    `json:"markFutureNotRun"`
 	Allocations         []TimePlanDefinitionMathAllocationValue `json:"allocations"`

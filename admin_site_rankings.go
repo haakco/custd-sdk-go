@@ -7,17 +7,23 @@ import (
 	"time"
 )
 
+// AdminSiteRankState is whether a tracked keyword ranked in an observation.
+type AdminSiteRankState string
+
 // The states of AdminSiteRankObservation.State.
 const (
-	AdminSiteRankStateRanking    = "ranking"
-	AdminSiteRankStateNotRanking = "not_ranking"
-	AdminSiteRankStateNoData     = "no_data"
+	AdminSiteRankStateRanking    AdminSiteRankState = "ranking"
+	AdminSiteRankStateNotRanking AdminSiteRankState = "not_ranking"
+	AdminSiteRankStateNoData     AdminSiteRankState = "no_data"
 )
+
+// AdminSiteTrackedKeywordStatus is whether a tracked keyword is still checked.
+type AdminSiteTrackedKeywordStatus string
 
 // The values of AdminSiteTrackedKeyword.Status.
 const (
-	AdminSiteTrackedKeywordActive = "active"
-	AdminSiteTrackedKeywordPaused = "paused"
+	AdminSiteTrackedKeywordActive AdminSiteTrackedKeywordStatus = "active"
+	AdminSiteTrackedKeywordPaused AdminSiteTrackedKeywordStatus = "paused"
 )
 
 // AdminSiteRankAll is the country or device that tracks every country or device.
@@ -64,41 +70,52 @@ const SiteRankingsDaysInvalidCode = "site_rankings_days_invalid"
 // AdminSiteRankObservation is one day's rank. Position and RankingURL are absent unless State is
 // AdminSiteRankStateRanking; a nil Position is not position 0.
 type AdminSiteRankObservation struct {
-	Day         string   `json:"day"`
-	State       string   `json:"state"`
-	RankingURL  string   `json:"rankingUrl,omitempty"`
-	Position    *float64 `json:"position,omitempty"`
-	Clicks      int64    `json:"clicks"`
-	Impressions int64    `json:"impressions"`
+	Day         string             `json:"day"`
+	State       AdminSiteRankState `json:"state"`
+	RankingURL  string             `json:"rankingUrl,omitempty"`
+	Position    *float64           `json:"position,omitempty"`
+	Clicks      int64              `json:"clicks"`
+	Impressions int64              `json:"impressions"`
 }
 
 // AdminSiteTrackedKeyword is one keyword a domain tracks, its latest rank and its daily ranks.
 type AdminSiteTrackedKeyword struct {
-	KeywordUUID    string                     `json:"keywordUuid"`
-	Keyword        string                     `json:"keyword"`
-	Country        string                     `json:"country"`
-	Device         string                     `json:"device"`
-	Status         string                     `json:"status"`
-	NotifyPosition int                        `json:"notifyPosition"`
-	CreatedAt      time.Time                  `json:"createdAt"`
-	Latest         AdminSiteRankObservation   `json:"latest"`
-	Observations   []AdminSiteRankObservation `json:"observations"`
+	KeywordUUID    string                        `json:"keywordUuid"`
+	Keyword        string                        `json:"keyword"`
+	Country        string                        `json:"country"`
+	Device         string                        `json:"device"`
+	Status         AdminSiteTrackedKeywordStatus `json:"status"`
+	NotifyPosition int                           `json:"notifyPosition"`
+	CreatedAt      time.Time                     `json:"createdAt"`
+	Latest         AdminSiteRankObservation      `json:"latest"`
+	Observations   []AdminSiteRankObservation    `json:"observations"`
 	// Pool is the shared search pool's bands for the keyword; nil when the tenant has not joined
 	// the pool, the keyword is below its threshold, or the server predates the pool.
 	Pool *AdminSiteSearchPoolBand `json:"pool,omitempty"`
 }
 
+// AdminSiteRankingsSource is the state of the search connection rankings are read from.
+type AdminSiteRankingsSource string
+
+const (
+	AdminSiteRankingsSourceNotConnected AdminSiteRankingsSource = "not_connected"
+	AdminSiteRankingsSourcePending      AdminSiteRankingsSource = "pending"
+	AdminSiteRankingsSourceActive       AdminSiteRankingsSource = "active"
+	AdminSiteRankingsSourceFailing      AdminSiteRankingsSource = "failing"
+	AdminSiteRankingsSourceRevoked      AdminSiteRankingsSource = "revoked"
+)
+
 // AdminSiteRankings are a domain's tracked keywords over From..To; SourceFailure says why a
 // failing Search Console connection failed. Pool is AdminSiteSearchPoolJoined or
-// AdminSiteSearchPoolNotJoined, and empty from a server that predates the shared search pool.
+// AdminSiteSearchPoolNotJoined.
 type AdminSiteRankings struct {
-	Source        string                    `json:"source"`
-	Pool          string                    `json:"pool,omitempty"`
-	SourceFailure string                    `json:"sourceFailure,omitempty"`
-	From          string                    `json:"from"`
-	To            string                    `json:"to"`
-	MaxKeywords   int                       `json:"maxKeywords"`
-	Keywords      []AdminSiteTrackedKeyword `json:"keywords"`
+	Source        AdminSiteRankingsSource       `json:"source"`
+	Pool          AdminSiteSearchPoolMembership `json:"pool"`
+	SourceFailure string                        `json:"sourceFailure,omitempty"`
+	From          string                        `json:"from"`
+	To            string                        `json:"to"`
+	MaxKeywords   int                           `json:"maxKeywords"`
+	Keywords      []AdminSiteTrackedKeyword     `json:"keywords"`
 }
 
 // AdminSiteTrackKeywordRequest tracks a keyword. Country and Device are omitted when empty (the

@@ -32,15 +32,26 @@ type AdminSiteHeartbeatReceipt struct {
 	ReceivedAt time.Time           `json:"receivedAt"`
 }
 
+// AdminSiteHeartbeatMonitorStatus is whether a heartbeat monitor's job reported on time.
+type AdminSiteHeartbeatMonitorStatus string
+
+const (
+	AdminSiteHeartbeatMonitorStatusPending AdminSiteHeartbeatMonitorStatus = "pending"
+	AdminSiteHeartbeatMonitorStatusOnTime  AdminSiteHeartbeatMonitorStatus = "on-time"
+	AdminSiteHeartbeatMonitorStatusLate    AdminSiteHeartbeatMonitorStatus = "late"
+	AdminSiteHeartbeatMonitorStatusMissed  AdminSiteHeartbeatMonitorStatus = "missed"
+	AdminSiteHeartbeatMonitorStatusFailed  AdminSiteHeartbeatMonitorStatus = "failed"
+)
+
 // AdminSiteHeartbeatMonitor contains a monitor and its latest observed state.
 type AdminSiteHeartbeatMonitor struct {
-	MonitorUUID    string                     `json:"monitorUuid"`
-	Name           string                     `json:"name"`
-	Schedule       AdminSiteHeartbeatSchedule `json:"schedule"`
-	StartedAt      time.Time                  `json:"startedAt"`
-	Latest         *AdminSiteHeartbeatReceipt `json:"latest,omitempty"`
-	NextExpectedAt time.Time                  `json:"nextExpectedAt"`
-	Status         string                     `json:"status"`
+	MonitorUUID    string                          `json:"monitorUuid"`
+	Name           string                          `json:"name"`
+	Schedule       AdminSiteHeartbeatSchedule      `json:"schedule"`
+	StartedAt      time.Time                       `json:"startedAt"`
+	Latest         *AdminSiteHeartbeatReceipt      `json:"latest,omitempty"`
+	NextExpectedAt time.Time                       `json:"nextExpectedAt"`
+	Status         AdminSiteHeartbeatMonitorStatus `json:"status"`
 }
 
 // AdminSiteHeartbeatCredential holds the one-time credential returned by create or rotate.

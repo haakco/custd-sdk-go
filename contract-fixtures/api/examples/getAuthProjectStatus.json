@@ -116,15 +116,10 @@
     "companyUuid": "0198a3b2-0000-7000-8000-000000000001",
     "desired": {
       "audiences": null,
-      "brandAccent": "example",
       "displayName": "example",
       "displayNameSource": "",
-      "entryPath": "example",
       "identityMode": "isolated",
-      "loginPaused": true,
-      "profileFields": null,
-      "registrationPolicy": "invite_only",
-      "signInMethods": null
+      "registrationPolicy": "invite_only"
     },
     "environmentId": "example",
     "loginNote": "example",

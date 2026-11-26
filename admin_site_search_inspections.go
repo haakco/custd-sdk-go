@@ -6,11 +6,14 @@ import (
 	"time"
 )
 
+// AdminSiteSearchInspectionStatus is where a URL inspection stands.
+type AdminSiteSearchInspectionStatus string
+
 // The states of AdminSiteSearchInspection.Status.
 const (
-	AdminSiteSearchInspectionQueued = "queued"
-	AdminSiteSearchInspectionDone   = "done"
-	AdminSiteSearchInspectionFailed = "failed"
+	AdminSiteSearchInspectionQueued AdminSiteSearchInspectionStatus = "queued"
+	AdminSiteSearchInspectionDone   AdminSiteSearchInspectionStatus = "done"
+	AdminSiteSearchInspectionFailed AdminSiteSearchInspectionStatus = "failed"
 )
 
 // SiteSearchInspectionURLInvalidCode is the problem code a 400 carries when the URL to inspect is
@@ -28,23 +31,23 @@ const SiteSearchInspectionLimitCode = "site_search_inspection_limit"
 // AdminSiteSearchInspection is one Search Console URL Inspection and, once done, Google's answer.
 // Every result field is Google's own value and is empty or nil when Google did not report it.
 type AdminSiteSearchInspection struct {
-	InspectionUUID         string     `json:"inspectionUuid"`
-	URL                    string     `json:"url"`
-	Status                 string     `json:"status"`
-	RequestedAt            time.Time  `json:"requestedAt"`
-	InspectedAt            *time.Time `json:"inspectedAt,omitempty"`
-	Failure                string     `json:"failure,omitempty"`
-	Verdict                string     `json:"verdict,omitempty"`
-	CoverageState          string     `json:"coverageState,omitempty"`
-	IndexingState          string     `json:"indexingState,omitempty"`
-	RobotsTxtState         string     `json:"robotsTxtState,omitempty"`
-	PageFetchState         string     `json:"pageFetchState,omitempty"`
-	LastCrawlAt            *time.Time `json:"lastCrawlAt,omitempty"`
-	GoogleCanonical        string     `json:"googleCanonical,omitempty"`
-	UserCanonical          string     `json:"userCanonical,omitempty"`
-	CrawledAs              string     `json:"crawledAs,omitempty"`
-	MobileUsabilityVerdict string     `json:"mobileUsabilityVerdict,omitempty"`
-	ResultLink             string     `json:"resultLink,omitempty"`
+	InspectionUUID         string                          `json:"inspectionUuid"`
+	URL                    string                          `json:"url"`
+	Status                 AdminSiteSearchInspectionStatus `json:"status"`
+	RequestedAt            time.Time                       `json:"requestedAt"`
+	InspectedAt            *time.Time                      `json:"inspectedAt,omitempty"`
+	Failure                string                          `json:"failure,omitempty"`
+	Verdict                string                          `json:"verdict,omitempty"`
+	CoverageState          string                          `json:"coverageState,omitempty"`
+	IndexingState          string                          `json:"indexingState,omitempty"`
+	RobotsTxtState         string                          `json:"robotsTxtState,omitempty"`
+	PageFetchState         string                          `json:"pageFetchState,omitempty"`
+	LastCrawlAt            *time.Time                      `json:"lastCrawlAt,omitempty"`
+	GoogleCanonical        string                          `json:"googleCanonical,omitempty"`
+	UserCanonical          string                          `json:"userCanonical,omitempty"`
+	CrawledAs              string                          `json:"crawledAs,omitempty"`
+	MobileUsabilityVerdict string                          `json:"mobileUsabilityVerdict,omitempty"`
+	ResultLink             string                          `json:"resultLink,omitempty"`
 }
 
 // AdminSiteSearchInspectionList is a domain's latest inspections and the tenant's daily use.

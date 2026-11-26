@@ -16,7 +16,7 @@ func TestReportingExportLifecycleUsesAuthenticatedRoutes(t *testing.T) {
 	uuid := "123e4567-e89b-42d3-a456-426614174000"
 	doer := newCaptureDoer(http.StatusOK, `{"id":"`+uuid+`","state":"queued","queuedAt":"2026-08-13T00:00:00Z","attemptCount":0,"cleanupState":"pending","cleanupAttempts":0}`)
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
-	if _, err := client.Reporting.CreateExport(context.Background(), ReportExportCreateRequest{DashboardKey: "executive", Formats: []string{"csv"}, Parameters: ReportExportParameters{}}); err != nil {
+	if _, err := client.Reporting.CreateExport(context.Background(), ReportExportCreateRequest{DashboardKey: "executive", Formats: []ExportFormat{FormatCSV}, Parameters: ReportExportParameters{}}); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := client.Reporting.GetExport(context.Background(), uuid); err != nil {
@@ -377,5 +377,97 @@ func TestReportingSubjectInsightRejectsMalformedOptionalTrust(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "trust") {
 		t.Fatalf("error = %v, want mention of trust", err)
+	}
+}
+
+// TestClientsRecordTheRequestID proves the measurement, reporting, analytics and parser clients
+// report the server's request id on the context recorder through a caller's doer and through the
+// built-in HTTP client, including on a refusal, which is when a caller needs to quote it.
+func TestClientsRecordTheRequestID(t *testing.T) {
+	calls := map[string]func(ctx context.Context, client *CustdClient) error{
+		"measurement": func(ctx context.Context, client *CustdClient) error {
+			_, err := client.Measurement.Overview(ctx)
+			return err
+		},
+		"reporting": func(ctx context.Context, client *CustdClient) error {
+			_, err := client.Reporting.Outputs(ctx)
+			return err
+		},
+		"analytics": func(ctx context.Context, client *CustdClient) error {
+			_, err := client.Analytics.DashboardSummary(ctx)
+			return err
+		},
+		"parsers": func(ctx context.Context, client *CustdClient) error {
+			_, err := client.Parsers.List(ctx)
+			return err
+		},
+	}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set(requestIDHeader, "req-http")
+		w.Header().Set("Content-Type", "application/problem+json")
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(`{"type":"not_found","status":404}`))
+	}))
+	t.Cleanup(server.Close)
+	for name, call := range calls {
+		doer := &captureDoer{status: http.StatusNotFound, body: `{"type":"not_found","status":404}`,
+			headers: map[string]string{requestIDHeader: "req-doer"}}
+		transports := map[string]*CustdClient{
+			"doer": newAdminTestClient(t, doer, "http://localhost:8080"),
+			"http": NewClient(&ClientConfig{BaseURL: server.URL, APIKey: "admin-token", FlushInterval: time.Hour}),
+		}
+		t.Cleanup(func() { _ = transports["http"].Close(context.Background()) })
+		for transport, client := range transports {
+			var recorder MetadataRecorder
+			if err := call(WithMetadataRecorder(context.Background(), &recorder), client); err == nil {
+				t.Fatalf("%s via %s: expected the 404", name, transport)
+			}
+			if want := "req-" + transport; recorder.RequestID != want {
+				t.Errorf("%s via %s recorded %q, want %q", name, transport, recorder.RequestID, want)
+			}
+		}
+	}
+}
+
+// TestReportingPreparedDataRoutes proves the receipt, output catalogue and output query reach the
+// reporting API with the caller's body, a stored query document unchanged.
+func TestReportingPreparedDataRoutes(t *testing.T) {
+	const receipt, output = "11111111-1111-4111-8111-111111111111", "22222222-2222-4222-8222-222222222222"
+	document := `{"template":"count","metrics":["events"],"futureOption":true}`
+	cases := []struct {
+		name, body, method, path, wantBody string
+		call                               func(*CustdClient) error
+	}{
+		{"receipt", preparedDataReceiptBody, http.MethodGet, "/api/v1/processing/" + receipt, "", func(c *CustdClient) error {
+			_, err := c.Reporting.Receipt(context.Background(), receipt)
+			return err
+		}},
+		{"outputs", preparedDataOutputListBody, http.MethodGet, "/api/v1/reporting/outputs", "", func(c *CustdClient) error {
+			_, err := c.Reporting.Outputs(context.Background())
+			return err
+		}},
+		{"output", preparedDataOutputBody, http.MethodGet, "/api/v1/reporting/outputs/" + output, "", func(c *CustdClient) error {
+			_, err := c.Reporting.Output(context.Background(), output)
+			return err
+		}},
+		{"typed query", preparedDataQueryBody, http.MethodPost, "/api/v1/reporting/outputs/" + output + "/query",
+			`{"template":"count","metrics":["events"]}`, func(c *CustdClient) error {
+				_, err := c.Reporting.QueryOutput(context.Background(), output, ReportingQueryRequest{Template: "count", Metrics: []string{"events"}})
+				return err
+			}},
+		{"query document", preparedDataQueryBody, http.MethodPost, "/api/v1/reporting/outputs/" + output + "/query",
+			document, func(c *CustdClient) error {
+				_, err := c.Reporting.QueryOutputDocument(context.Background(), output, json.RawMessage(document))
+				return err
+			}},
+	}
+	for _, testCase := range cases {
+		t.Run(testCase.name, func(t *testing.T) {
+			doer := newCaptureDoer(http.StatusOK, testCase.body)
+			if err := testCase.call(newAdminTestClient(t, doer, "http://localhost:8080")); err != nil {
+				t.Fatalf("call error: %v", err)
+			}
+			assertPreparedDataRequest(t, doer, testCase.method, testCase.path, testCase.wantBody)
+		})
 	}
 }

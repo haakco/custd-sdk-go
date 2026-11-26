@@ -21,8 +21,8 @@
           },
           "kind": "markup"
         },
-        "rule": "example",
-        "severity": "example",
+        "rule": "crawl.page-status",
+        "severity": "high",
         "source": "example",
         "suggestion": {
           "explanation": "example",

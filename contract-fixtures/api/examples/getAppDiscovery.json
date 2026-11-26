@@ -1,0 +1,37 @@
+{
+  "maximal": {
+    "allowedOrigins": [
+      "example"
+    ],
+    "apiBaseUrl": "example",
+    "browserKey": "example",
+    "capabilities": [
+      "example"
+    ],
+    "environment": "example",
+    "host": "example",
+    "identityMode": "cookieless",
+    "pageViewSchemaVersion": "example",
+    "signIn": {
+      "audience": "example",
+      "authorizationEndpoint": "example",
+      "clientId": "example",
+      "endSessionEndpoint": "example",
+      "issuer": "example",
+      "postLogoutRedirectUri": "example",
+      "redirectUri": "example",
+      "tokenEndpoint": "example"
+    },
+    "siteUuid": "example"
+  },
+  "minimal": {
+    "allowedOrigins": null,
+    "apiBaseUrl": "example",
+    "browserKey": "example",
+    "capabilities": null,
+    "environment": "example",
+    "host": "example",
+    "identityMode": "cookieless",
+    "siteUuid": "example"
+  }
+}

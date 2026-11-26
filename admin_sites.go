@@ -36,27 +36,35 @@ type AdminSiteCreate struct {
 // AdminSiteUpdate replaces a site's recording configuration. AllowedEnvironments is
 // always sent, because an omitted field must never silently widen a restriction.
 type AdminSiteUpdate struct {
-	IdentityMode        string   `json:"identityMode"`
-	Environment         string   `json:"environment"`
-	AllowedOrigins      []string `json:"allowedOrigins"`
-	AllowedEnvironments []string `json:"allowedEnvironments"`
+	IdentityMode        BrowserIdentityMode `json:"identityMode"`
+	Environment         string              `json:"environment"`
+	AllowedOrigins      []string            `json:"allowedOrigins"`
+	AllowedEnvironments []string            `json:"allowedEnvironments"`
 	// IngestTarget states the site's destination. An omitted target leaves the existing
 	// destination and its write grant unchanged; submitting one is an explicit request
 	// to route the site there and hold exactly that resource's write authority.
 	IngestTarget *AdminSiteIngestTarget `json:"ingestTarget,omitempty"`
 }
 
+// BrowserIdentityMode is how a site's browser collector identifies visitors.
+type BrowserIdentityMode string
+
+const (
+	BrowserIdentityModeCookieless BrowserIdentityMode = "cookieless"
+	BrowserIdentityModeExtended   BrowserIdentityMode = "extended"
+)
+
 type AdminSite struct {
-	SiteUUID            string   `json:"siteUuid"`
-	CompanySlug         string   `json:"companySlug"`
-	Name                string   `json:"name"`
-	IdentityMode        string   `json:"identityMode"`
-	Environment         string   `json:"environment,omitempty"`
-	AllowedOrigins      []string `json:"allowedOrigins"`
-	AllowedEnvironments []string `json:"allowedEnvironments"`
-	RateLimitPerMinute  int      `json:"rateLimitPerMinute"`
-	RetentionDays       int      `json:"retentionDays"`
-	Enabled             bool     `json:"enabled"`
+	SiteUUID            string              `json:"siteUuid"`
+	CompanySlug         string              `json:"companySlug"`
+	Name                string              `json:"name"`
+	IdentityMode        BrowserIdentityMode `json:"identityMode"`
+	Environment         string              `json:"environment"`
+	AllowedOrigins      []string            `json:"allowedOrigins"`
+	AllowedEnvironments []string            `json:"allowedEnvironments"`
+	RateLimitPerMinute  int                 `json:"rateLimitPerMinute"`
+	RetentionDays       int                 `json:"retentionDays"`
+	Enabled             bool                `json:"enabled"`
 	// IngestTarget is empty for a site created before destinations existed. Such a
 	// site keeps its previous authorisation and is not resource-isolated.
 	IngestTarget *AdminSiteIngestTarget `json:"ingestTarget,omitempty"`

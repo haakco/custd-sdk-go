@@ -152,3 +152,15 @@ func decodeSiteFixture(t *testing.T, body string, into any) {
 		t.Fatal(err)
 	}
 }
+
+// Saving a list with independent market sampling sends the opt-in the server needs.
+func TestSiteKeywordListSaveSendsMarketSample(t *testing.T) {
+	doer := newCaptureDoer(http.StatusOK, siteWebDataFixture(t, "keywordList"))
+	domains := newAdminTestClient(t, doer, "http://localhost:8080").Admin.SiteDomains
+	req := AdminSiteKeywordListRequest{Name: "Trail", SeedTerm: "trail running", Keywords: []string{"trail shoes"}, MarketSampleEnabled: true}
+	if _, err := domains.SaveKeywordList(context.Background(), "s-1", req); err != nil {
+		t.Fatal(err)
+	}
+	assertSiteBody(t, doer.requests[0],
+		`{"name":"Trail","seedTerm":"trail running","keywords":["trail shoes"],"marketSampleEnabled":true}`)
+}

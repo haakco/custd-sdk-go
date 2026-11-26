@@ -6,37 +6,43 @@ import (
 	"net/url"
 )
 
+// AdminSiteBacklinkSource is a source of referring-domain data.
+type AdminSiteBacklinkSource string
+
 // The sources a referring domain can come from (AdminSiteReferringDomain.Sources and
 // AdminSiteLinkSourceTotal.Source).
 const (
-	AdminSiteLinkSourceBing        = "bing"
-	AdminSiteLinkSourceCommonCrawl = "commoncrawl"
-	AdminSiteLinkSourceCrawl       = "crawl"
+	AdminSiteLinkSourceBing        AdminSiteBacklinkSource = "bing"
+	AdminSiteLinkSourceCommonCrawl AdminSiteBacklinkSource = "commoncrawl"
+	AdminSiteLinkSourceCrawl       AdminSiteBacklinkSource = "crawl"
 )
+
+// AdminSiteLinkStatus is whether a link source has read a domain.
+type AdminSiteLinkStatus string
 
 // The states of AdminSiteLinkSourceTotal.Status and AdminSiteLostLinks.Status. Unavailable means
 // the source cannot say anything for the domain and pending that it has not read yet; neither is
 // zero links.
 const (
-	AdminSiteLinkStatusAvailable   = "available"
-	AdminSiteLinkStatusPending     = "pending"
-	AdminSiteLinkStatusFailed      = "failed"
-	AdminSiteLinkStatusUnavailable = "unavailable"
+	AdminSiteLinkStatusAvailable   AdminSiteLinkStatus = "available"
+	AdminSiteLinkStatusPending     AdminSiteLinkStatus = "pending"
+	AdminSiteLinkStatusFailed      AdminSiteLinkStatus = "failed"
+	AdminSiteLinkStatusUnavailable AdminSiteLinkStatus = "unavailable"
 )
 
 // AdminSiteLinkSourceTotal is what one source says about a domain, over Scope as of AsOf (a day,
 // or the Common Crawl release). ReferringDomains and Links are nil when the source has no number,
 // never 0 for missing data.
 type AdminSiteLinkSourceTotal struct {
-	Source           string `json:"source"`
-	Status           string `json:"status"`
-	Scope            string `json:"scope"`
-	AsOf             string `json:"asOf,omitempty"`
-	ReferringDomains *int64 `json:"referringDomains,omitempty"`
-	Links            *int64 `json:"links,omitempty"`
-	Listed           int    `json:"listed"`
-	Complete         bool   `json:"complete"`
-	LastFailure      string `json:"lastFailure,omitempty"`
+	Source           AdminSiteBacklinkSource `json:"source"`
+	Status           AdminSiteLinkStatus     `json:"status"`
+	Scope            string                  `json:"scope"`
+	AsOf             string                  `json:"asOf,omitempty"`
+	ReferringDomains *int64                  `json:"referringDomains,omitempty"`
+	Links            *int64                  `json:"links,omitempty"`
+	Listed           int                     `json:"listed"`
+	Complete         bool                    `json:"complete"`
+	LastFailure      string                  `json:"lastFailure,omitempty"`
 }
 
 // AdminSiteDomainAuthority is a registrable domain's place in one Common Crawl domain graph. The
@@ -74,7 +80,7 @@ type AdminSiteLostReferringDomain struct {
 
 // AdminSiteLostLinks is the quarter-to-quarter diff of Common Crawl referring domains.
 type AdminSiteLostLinks struct {
-	Status          string                         `json:"status"`
+	Status          AdminSiteLinkStatus            `json:"status"`
 	Release         string                         `json:"release,omitempty"`
 	PreviousRelease string                         `json:"previousRelease,omitempty"`
 	Scope           string                         `json:"scope"`
@@ -86,7 +92,7 @@ type AdminSiteLostLinks struct {
 type AdminSiteReferringDomains struct {
 	SiteUUID         string                     `json:"siteUuid"`
 	Domain           string                     `json:"domain"`
-	Role             string                     `json:"role"`
+	Role             AdminSiteWebRole           `json:"role"`
 	Sources          []AdminSiteLinkSourceTotal `json:"sources"`
 	Authority        *AdminSiteDomainAuthority  `json:"authority,omitempty"`
 	ReferringDomains []AdminSiteReferringDomain `json:"referringDomains"`

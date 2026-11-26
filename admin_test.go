@@ -275,3 +275,26 @@ func createAcmeOAuthClient(client *CustdClient) (*AdminOAuthClientCreateResponse
 		Scopes:      []string{"events.write"},
 	}, OAuthClientRequestOptions{IdempotencyKey: key})
 }
+
+// TestNullableAnswersKeepWhatTheServerSaid proves a tenant on Custd's relay reads as a nil relay
+// and an exception reported as not handled keeps its explicit false.
+func TestNullableAnswersKeepWhatTheServerSaid(t *testing.T) {
+	var view EmailRelayView
+	if err := json.Unmarshal([]byte(`{"relay":null,"effective":{"relay":"custd"}}`), &view); err != nil {
+		t.Fatal(err)
+	}
+	if view.Relay != nil {
+		t.Fatalf("relay = %+v, want nil for Custd's relay", view.Relay)
+	}
+	var exception ErrorIssueException
+	if err := json.Unmarshal([]byte(`{"type":"Error","handled":false}`), &exception); err != nil {
+		t.Fatal(err)
+	}
+	encoded, err := json.Marshal(exception)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(encoded), `"handled":false`) {
+		t.Fatalf("re-encoded exception %s lost handled=false", encoded)
+	}
+}

@@ -62,7 +62,7 @@ type ReportingPackPreviewResponse struct {
 
 // ExecutiveReport is the optional executive view of the same preview.
 type ExecutiveReport struct {
-	Recipe            string                    `json:"recipe"`
+	Recipe            ExecutiveRecipe           `json:"recipe"`
 	TenantDisplayName string                    `json:"tenantDisplayName"`
 	Title             string                    `json:"title"`
 	Period            ExecutivePeriod           `json:"period"`
@@ -91,28 +91,28 @@ type ExecutivePrimaryResult struct {
 }
 
 type ExecutiveComparisonResult struct {
-	Basis         string               `json:"basis"`
-	Label         string               `json:"label"`
-	Available     bool                 `json:"available"`
-	Value         *RenderedMetricValue `json:"value,omitempty"`
-	PercentChange *float64             `json:"percentChange,omitempty"`
-	TargetValue   *float64             `json:"targetValue,omitempty"`
+	Basis         ExecutiveComparisonBasis `json:"basis"`
+	Label         string                   `json:"label"`
+	Available     bool                     `json:"available"`
+	Value         *RenderedMetricValue     `json:"value,omitempty"`
+	PercentChange *float64                 `json:"percentChange,omitempty"`
+	TargetValue   *float64                 `json:"targetValue,omitempty"`
 }
 
 type ExecutiveConfidence struct {
-	Status       string   `json:"status"`
-	Coverage     string   `json:"coverage"`
-	Completeness string   `json:"completeness"`
-	Freshness    string   `json:"freshness"`
-	Warnings     []string `json:"warnings,omitempty"`
+	Status       ReportingTrustStatus `json:"status"`
+	Coverage     string               `json:"coverage"`
+	Completeness string               `json:"completeness"`
+	Freshness    string               `json:"freshness"`
+	Warnings     []string             `json:"warnings,omitempty"`
 }
 
 // PresentationPreset names the presentation choice the preview was rendered with.
 type PresentationPreset struct {
-	PresetID          string `json:"presetId"`
-	Version           int    `json:"version"`
-	NonColorEncoding  string `json:"nonColorEncoding"`
-	SummaryTemplateID string `json:"summaryTemplateId"`
+	PresetID          PresentationPresetID          `json:"presetId"`
+	Version           int                           `json:"version"`
+	NonColorEncoding  PresentationNonColorEncoding  `json:"nonColorEncoding"`
+	SummaryTemplateID PresentationSummaryTemplateID `json:"summaryTemplateId"`
 }
 
 // QueryHint mirrors the reporting contract's browser-supplied query. The SDK cannot import
@@ -122,25 +122,25 @@ type PresentationPreset struct {
 // rejects a hint without a positive maxRows, so an omitted field is a refused preview rather
 // than a defaulted one.
 type QueryHint struct {
-	DashboardKey string            `json:"dashboardKey,omitempty"`
-	WidgetKey    string            `json:"widgetKey,omitempty"`
-	Template     string            `json:"template"`
-	Metrics      []string          `json:"metrics"`
-	Dimensions   []string          `json:"dimensions,omitempty"`
-	Filters      []RequestedFilter `json:"filters,omitempty"`
-	From         string            `json:"from,omitempty"`
-	To           string            `json:"to,omitempty"`
-	RangeDays    int               `json:"rangeDays,omitempty"`
-	MaxRows      int               `json:"maxRows,omitempty"`
-	CountOnly    bool              `json:"countOnly,omitempty"`
-	Comparison   string            `json:"comparison,omitempty"`
+	DashboardKey string                    `json:"dashboardKey,omitempty"`
+	WidgetKey    string                    `json:"widgetKey,omitempty"`
+	Template     string                    `json:"template"`
+	Metrics      []string                  `json:"metrics"`
+	Dimensions   []string                  `json:"dimensions,omitempty"`
+	Filters      []RequestedFilter         `json:"filters,omitempty"`
+	From         string                    `json:"from,omitempty"`
+	To           string                    `json:"to,omitempty"`
+	RangeDays    int                       `json:"rangeDays,omitempty"`
+	MaxRows      int                       `json:"maxRows,omitempty"`
+	CountOnly    bool                      `json:"countOnly,omitempty"`
+	Comparison   DashboardComparisonPreset `json:"comparison,omitempty"`
 }
 
 // RequestedFilter is one exact predicate on a query dimension.
 type RequestedFilter struct {
-	Dimension string `json:"dimension"`
-	Operator  string `json:"operator"`
-	Value     string `json:"value,omitempty"`
+	Dimension string         `json:"dimension"`
+	Operator  FilterOperator `json:"operator"`
+	Value     string         `json:"value,omitempty"`
 }
 
 type ReportingPackGeneration struct {
@@ -175,7 +175,7 @@ type ReportingPackGenerationAcknowledgement struct {
 type ReportingPackRollupProvenance struct {
 	GenerationID          int64                                    `json:"generationId"`
 	DefinitionFingerprint string                                   `json:"definitionFingerprint"`
-	TenantSlug            string                                   `json:"tenantSlug,omitempty"`
+	TenantSlug            string                                   `json:"tenantSlug"`
 	Materializations      []ReportingPackMaterializationProvenance `json:"materializations"`
 }
 

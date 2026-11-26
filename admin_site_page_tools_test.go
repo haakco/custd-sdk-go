@@ -101,7 +101,7 @@ func TestSitePageRecheckRoutesAndStates(t *testing.T) {
 	doer.status, doer.body = http.StatusOK, sitePageToolsFixture(t, "pageRecheckChecked")
 	checked, err := domains.GetPageRecheck(ctx, "d-1", queued.RecheckUUID)
 	if err != nil || checked.State != AdminSitePageRecheckChecked || checked.CheckedAt == nil ||
-		checked.OpenRules[0] != SiteRuleCanonicalMissing || checked.FixedRules[0] != SiteRuleTitleMissing {
+		checked.OpenRules[0] != string(SiteRuleCanonicalMissing) || checked.FixedRules[0] != string(SiteRuleTitleMissing) {
 		t.Fatalf("checked = %+v, %v", checked, err)
 	}
 	doer.body = sitePageToolsFixture(t, "pageRecheckFailed")
@@ -209,7 +209,7 @@ func TestSitePageCheckDraftTools(t *testing.T) {
 	phrase := check.Phrase
 	if check.Slug != "cafe-hosting-plans-for-small-teams" || check.Redirect == nil ||
 		check.Redirect.Format != AdminSiteGeneratedFormatRedirect || phrase == nil || phrase.Count != 2 ||
-		!phrase.InDescription || phrase.InH1 || phrase.DensityPercent == nil || *phrase.DensityPercent != 3.85 {
+		!phrase.InDescription || phrase.InH1 || phrase.DensityPercent != 3.85 {
 		t.Fatalf("draft tools = %q %+v %+v", check.Slug, check.Redirect, phrase)
 	}
 	if check.Page.ShareImage != "https://example.com/img/team.jpg" || check.Page.FAQSchema == nil ||
@@ -222,11 +222,6 @@ func TestSitePageCheckDraftTools(t *testing.T) {
 		older.Page.FAQSchema != nil {
 		t.Fatalf("older = %+v, %v", older, err)
 	}
-	var empty AdminSitePhraseUse
-	if err := json.Unmarshal([]byte(`{"phrase":"x","count":0,"wordCount":0,"densityPercent":0}`), &empty); err != nil ||
-		empty.DensityPercent != nil {
-		t.Fatalf("no words = %+v, %v", empty, err)
-	}
 }
 
 func TestSiteWordingCompareRouteAndNotCompared(t *testing.T) {
@@ -238,14 +233,14 @@ func TestSiteWordingCompareRouteAndNotCompared(t *testing.T) {
 	}
 
 	compared, err := domains.CompareWording(context.Background(), "d-1", req)
-	if err != nil || !compared.Compared || compared.SharedPercent == nil || *compared.SharedPercent != 91 ||
+	if err != nil || !compared.Compared || compared.SharedPercent != 91 ||
 		!compared.NearDuplicate || compared.ThresholdPercent != 90 {
 		t.Fatalf("compared = %+v, %v", compared, err)
 	}
 	assertSiteBody(t, doer.requests[0], sitePageToolsFixture(t, "wordingCompareRequest"))
 	doer.body = sitePageToolsFixture(t, "wordingCompareNotCompared")
 	short, err := domains.CompareWording(context.Background(), "d-1", AdminSiteWordingCompareRequest{First: "a", Second: "b"})
-	if err != nil || short.Compared || short.SharedPercent != nil || short.MinWords != 200 || short.FirstWords != 5 {
+	if err != nil || short.Compared || short.SharedPercent != 0 || short.MinWords != 200 || short.FirstWords != 5 {
 		t.Fatalf("short = %+v, %v", short, err)
 	}
 	assertSiteRequests(t, doer.requests, []string{
@@ -263,8 +258,7 @@ func TestSiteObservedWordingRouteAndEvidenceStates(t *testing.T) {
 	ready, err := domains.ComparePageWording(ctx, "d-1", query)
 	if err != nil || ready.First.State != AdminSiteWordingReady || ready.First.ObservedAt == nil ||
 		ready.Second.State != AdminSiteWordingReady || ready.Second.ObservedAt == nil ||
-		ready.Comparison == nil || !ready.Comparison.Compared || ready.Comparison.SharedPercent == nil ||
-		*ready.Comparison.SharedPercent != 96 {
+		ready.Comparison == nil || !ready.Comparison.Compared || ready.Comparison.SharedPercent != 96 {
 		t.Fatalf("ready evidence = %+v, %v", ready, err)
 	}
 
@@ -279,7 +273,7 @@ func TestSiteObservedWordingRouteAndEvidenceStates(t *testing.T) {
 	doer.body = sitePageToolsFixture(t, "observedWordingShort")
 	short, err := domains.ComparePageWording(ctx, "d-1", query)
 	if err != nil || short.First.State != AdminSiteWordingShort || short.Comparison == nil || short.Comparison.Compared ||
-		short.Comparison.SharedPercent != nil || short.Comparison.FirstWords != 80 {
+		short.Comparison.SharedPercent != 0 || short.Comparison.FirstWords != 80 {
 		t.Fatalf("short evidence = %+v, %v", short, err)
 	}
 	route := "GET " + siteTestBase + "/page-wording?firstUrl=https%3A%2F%2Fexample.com%2Fplans%3Flocale%3Den%26view%3Dfull&secondUrl=https%3A%2F%2Fexample.com%2Fsupport"

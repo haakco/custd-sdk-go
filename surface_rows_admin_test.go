@@ -2,6 +2,7 @@ package custd
 
 import (
 	"context"
+	"io"
 	"net/http"
 )
 
@@ -692,7 +693,7 @@ var adminSurfaceRows = []surfaceRow{
 		id:   "admin-api GET /api/v1/admin/offboarding/requests/{requestUuid}/download",
 		path: "/api/v1/admin/offboarding/requests/a1/download",
 		call: func(e *surfaceEnv) error {
-			_, err := e.client.Admin.Offboarding.Download(context.Background(), "a1")
+			_, err := e.client.Admin.Offboarding.Download(context.Background(), "a1", io.Discard)
 			return err
 		},
 	},

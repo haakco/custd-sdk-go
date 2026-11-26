@@ -9,7 +9,7 @@
       "fromAddress": "example",
       "fromDisplayName": "example",
       "hasCredential": true,
-      "relay": "example"
+      "relay": "client"
     }
   },
   "minimal": {
@@ -20,7 +20,7 @@
       "fromAddress": "example",
       "fromDisplayName": "example",
       "hasCredential": true,
-      "relay": "example"
+      "relay": "client"
     }
   }
 }

@@ -104,7 +104,7 @@
         "companySlug": "example",
         "effectiveLimitBytes": 1,
         "percentUsed": 1.5,
-        "rankReason": "example",
+        "rankReason": "largest-storage",
         "rejectedEvents": 1,
         "retainedLogicalBytes": 1,
         "warningState": "example"

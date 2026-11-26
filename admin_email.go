@@ -168,9 +168,11 @@ type EmailRelay struct {
 	Username        string    `json:"username"`
 }
 
+// EmailRelayView is a tenant's own relay and the sender its next message carries. Relay is nil
+// when the tenant has set no relay of its own and sends through Custd's.
 type EmailRelayView struct {
 	Effective EmailRelayEffectiveSender `json:"effective"`
-	Relay     EmailRelay                `json:"relay"`
+	Relay     *EmailRelay               `json:"relay"`
 }
 
 type EmailRelayWriteRequest struct {
@@ -224,22 +226,31 @@ type SDKVersionDeprecationRequest struct {
 	RecommendedVersion string `json:"recommendedVersion"`
 }
 
+// AccountingEvidenceKind is what one accounting evidence record states, or what it targets.
+type AccountingEvidenceKind string
+
+const (
+	AccountingEvidenceKindPurchase   AccountingEvidenceKind = "purchase"
+	AccountingEvidenceKindBalance    AccountingEvidenceKind = "balance"
+	AccountingEvidenceKindCorrection AccountingEvidenceKind = "correction"
+)
+
 type AccountingEvidence struct {
-	Actor              string    `json:"actor"`
-	AuditCorrelationID string    `json:"auditCorrelationId"`
-	Balance            float64   `json:"balance,omitempty"`
-	Delta              float64   `json:"delta,omitempty"`
-	EffectiveAt        time.Time `json:"effectiveAt"`
-	ID                 string    `json:"id"`
-	Kind               string    `json:"kind"`
-	ObservedAt         time.Time `json:"observedAt"`
-	Quantity           float64   `json:"quantity,omitempty"`
-	Reason             string    `json:"reason"`
-	SupersedesID       string    `json:"supersedesId,omitempty"`
-	TargetID           string    `json:"targetId,omitempty"`
-	TargetKind         string    `json:"targetKind,omitempty"`
-	TenantKey          string    `json:"tenantKey"`
-	Unit               string    `json:"unit"`
+	Actor              string                 `json:"actor"`
+	AuditCorrelationID string                 `json:"auditCorrelationId"`
+	Balance            float64                `json:"balance,omitempty"`
+	Delta              float64                `json:"delta,omitempty"`
+	EffectiveAt        time.Time              `json:"effectiveAt"`
+	ID                 string                 `json:"id"`
+	Kind               AccountingEvidenceKind `json:"kind"`
+	ObservedAt         time.Time              `json:"observedAt"`
+	Quantity           float64                `json:"quantity,omitempty"`
+	Reason             string                 `json:"reason"`
+	SupersedesID       string                 `json:"supersedesId,omitempty"`
+	TargetID           string                 `json:"targetId,omitempty"`
+	TargetKind         AccountingEvidenceKind `json:"targetKind,omitempty"`
+	TenantKey          string                 `json:"tenantKey"`
+	Unit               Unit                   `json:"unit"`
 }
 
 type AccountingEvidenceListResponse struct {
@@ -247,37 +258,73 @@ type AccountingEvidenceListResponse struct {
 }
 
 type AccountingEvidenceCreateRequest struct {
-	AuditCorrelationID string    `json:"auditCorrelationId"`
-	Balance            *float64  `json:"balance,omitempty"`
-	Delta              *float64  `json:"delta,omitempty"`
-	EffectiveAt        time.Time `json:"effectiveAt"`
-	ID                 string    `json:"id"`
-	Kind               string    `json:"kind"`
-	ObservedAt         time.Time `json:"observedAt"`
-	Quantity           *float64  `json:"quantity,omitempty"`
-	Reason             string    `json:"reason"`
-	SupersedesID       string    `json:"supersedesId,omitempty"`
-	TargetID           string    `json:"targetId,omitempty"`
-	TargetKind         string    `json:"targetKind,omitempty"`
-	Unit               string    `json:"unit"`
+	AuditCorrelationID string                 `json:"auditCorrelationId"`
+	Balance            *float64               `json:"balance,omitempty"`
+	Delta              *float64               `json:"delta,omitempty"`
+	EffectiveAt        time.Time              `json:"effectiveAt"`
+	ID                 string                 `json:"id"`
+	Kind               AccountingEvidenceKind `json:"kind"`
+	ObservedAt         time.Time              `json:"observedAt"`
+	Quantity           *float64               `json:"quantity,omitempty"`
+	Reason             string                 `json:"reason"`
+	SupersedesID       string                 `json:"supersedesId,omitempty"`
+	TargetID           string                 `json:"targetId,omitempty"`
+	TargetKind         AccountingEvidenceKind `json:"targetKind,omitempty"`
+	Unit               Unit                   `json:"unit"`
 }
 
 type AccountingEvidenceResponse struct {
 	Evidence AccountingEvidence `json:"evidence"`
 }
 
+// NotificationEventSlug is an event a notification destination can carry.
+type NotificationEventSlug string
+
+const (
+	NotificationEventSlugEmailRelayTestSend    NotificationEventSlug = "email_relay_test_send"
+	NotificationEventSlugIdentityVerifyEmail   NotificationEventSlug = "identity_verify_email"
+	NotificationEventSlugIdentityResetPassword NotificationEventSlug = "identity_reset_password"
+	NotificationEventSlugUserWelcome           NotificationEventSlug = "user_welcome"
+	NotificationEventSlugApplicationInvitation NotificationEventSlug = "application_invitation"
+	NotificationEventSlugErrorIssueAlert       NotificationEventSlug = "error_issue_alert"
+	NotificationEventSlugSiteFindingOpened     NotificationEventSlug = "site_finding_opened"
+	NotificationEventSlugSiteIncident          NotificationEventSlug = "site_incident"
+	NotificationEventSlugSiteAIAllowance       NotificationEventSlug = "site_ai_allowance"
+	NotificationEventSlugSiteStatusPageConfirm NotificationEventSlug = "site_status_page_confirm"
+	NotificationEventSlugSiteStatusPageUpdate  NotificationEventSlug = "site_status_page_update"
+)
+
+// NotificationDestinationEvent is an event whose destination a tenant can read and set.
+type NotificationDestinationEvent string
+
+const (
+	NotificationDestinationEventErrorIssueAlert   NotificationDestinationEvent = "error_issue_alert"
+	NotificationDestinationEventSiteFindingOpened NotificationDestinationEvent = "site_finding_opened"
+	NotificationDestinationEventSiteIncident      NotificationDestinationEvent = "site_incident"
+	NotificationDestinationEventSiteAIAllowance   NotificationDestinationEvent = "site_ai_allowance"
+)
+
+// NotificationChannel is how a notification destination is delivered.
+type NotificationChannel string
+
+const (
+	NotificationChannelEmail   NotificationChannel = "email"
+	NotificationChannelWebhook NotificationChannel = "webhook"
+	NotificationChannelSlack   NotificationChannel = "slack"
+)
+
 type NotificationDestination struct {
-	Channel        string `json:"channel"`
-	Configured     bool   `json:"configured"`
-	EmailRecipient string `json:"emailRecipient,omitempty"`
-	Enabled        bool   `json:"enabled"`
-	EventSlug      string `json:"eventSlug"`
+	Channel        NotificationChannel   `json:"channel"`
+	Configured     bool                  `json:"configured"`
+	EmailRecipient string                `json:"emailRecipient,omitempty"`
+	Enabled        bool                  `json:"enabled"`
+	EventSlug      NotificationEventSlug `json:"eventSlug"`
 }
 
 type NotificationDestinationRequest struct {
-	Channel        string `json:"channel"`
-	EmailRecipient string `json:"emailRecipient,omitempty"`
-	Enabled        bool   `json:"enabled"`
+	Channel        NotificationChannel `json:"channel"`
+	EmailRecipient string              `json:"emailRecipient,omitempty"`
+	Enabled        bool                `json:"enabled"`
 }
 
 // REUSED existing:
@@ -440,15 +487,15 @@ func (c *AccountingEvidenceAdminClient) Create(ctx context.Context, req Accounti
 }
 
 // Get gets where one event is sent for the tenant.
-func (c *NotificationDestinationAdminClient) Get(ctx context.Context, companySlug string, eventSlug string) (*NotificationDestination, error) {
+func (c *NotificationDestinationAdminClient) Get(ctx context.Context, companySlug string, eventSlug NotificationDestinationEvent) (*NotificationDestination, error) {
 	var out NotificationDestination
-	err := c.admin.requestNonAdmin(ctx, http.MethodGet, c.admin.actingCompanyPath(siteQueryPath("/notification-destinations/"+url.PathEscape(eventSlug), url.Values{companySlugQueryParameter: {companySlug}})), nil, &out)
+	err := c.admin.requestNonAdmin(ctx, http.MethodGet, c.admin.actingCompanyPath(siteQueryPath("/notification-destinations/"+url.PathEscape(string(eventSlug)), url.Values{companySlugQueryParameter: {companySlug}})), nil, &out)
 	return &out, err
 }
 
 // Put sets where one event is sent for the tenant.
-func (c *NotificationDestinationAdminClient) Put(ctx context.Context, companySlug string, eventSlug string, req NotificationDestinationRequest) (*NotificationDestination, error) {
+func (c *NotificationDestinationAdminClient) Put(ctx context.Context, companySlug string, eventSlug NotificationDestinationEvent, req NotificationDestinationRequest) (*NotificationDestination, error) {
 	var out NotificationDestination
-	err := c.admin.requestNonAdmin(ctx, http.MethodPut, c.admin.actingCompanyPath(siteQueryPath("/notification-destinations/"+url.PathEscape(eventSlug), url.Values{companySlugQueryParameter: {companySlug}})), req, &out)
+	err := c.admin.requestNonAdmin(ctx, http.MethodPut, c.admin.actingCompanyPath(siteQueryPath("/notification-destinations/"+url.PathEscape(string(eventSlug)), url.Values{companySlugQueryParameter: {companySlug}})), req, &out)
 	return &out, err
 }

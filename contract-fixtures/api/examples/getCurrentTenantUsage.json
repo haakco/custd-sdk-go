@@ -8,7 +8,7 @@
       {
         "accountCompanySlug": "example",
         "calculationVersion": 1,
-        "completenessState": "example",
+        "completenessState": "provisional",
         "correctionGeneration": 1,
         "dataSpaceCompanySlug": "example",
         "meterSlug": "example",

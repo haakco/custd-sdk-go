@@ -19,7 +19,7 @@
           "enabled": true,
           "intendedUse": "example",
           "key": "example",
-          "sensitivity": "example",
+          "sensitivity": "public",
           "synonyms": [
             "example"
           ]

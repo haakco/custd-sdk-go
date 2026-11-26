@@ -7,6 +7,14 @@ import (
 	"strings"
 )
 
+// Retryability is whether a failed operation may be retried.
+type Retryability string
+
+const (
+	RetryabilityNone    Retryability = "none"
+	RetryabilityBounded Retryability = "bounded"
+)
+
 // Problem is the RFC 9457 problem detail the ingest API returns for error
 // responses (and for failed per-event results inside a batch). Optional fields
 // are omitempty on the server side and may be absent.
@@ -33,7 +41,7 @@ type Problem struct {
 	// envelope carries. Useful for operator lookup; never echo into
 	// per-subject logs.
 	RequestID    string         `json:"requestId,omitempty"`
-	Retryability string         `json:"retryability,omitempty"`
+	Retryability Retryability   `json:"retryability,omitempty"`
 	NextAction   map[string]any `json:"nextAction,omitempty"`
 }
 

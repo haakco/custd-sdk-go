@@ -8,34 +8,46 @@ import (
 	"time"
 )
 
+// AdminSiteRemedyKind is what kind of change a remedy asks for.
+type AdminSiteRemedyKind string
+
 // What a finding's fix changes, in AdminSiteRemedy.Kind. A rule Custd has no remedy for carries
 // an empty kind, so compare against these rather than assuming the set is closed.
 const (
-	AdminSiteRemedyKindMarkup  = "markup"
-	AdminSiteRemedyKindSetting = "setting"
-	AdminSiteRemedyKindContent = "content"
-	AdminSiteRemedyKindServer  = "server"
+	AdminSiteRemedyKindMarkup  AdminSiteRemedyKind = "markup"
+	AdminSiteRemedyKindSetting AdminSiteRemedyKind = "setting"
+	AdminSiteRemedyKindContent AdminSiteRemedyKind = "content"
+	AdminSiteRemedyKindServer  AdminSiteRemedyKind = "server"
 )
+
+// AdminSiteGeneratedFormat is the format of a generated fix.
+type AdminSiteGeneratedFormat string
 
 // The formats of AdminSiteGeneratedFix.Format. A redirect is one Apache line and one nginx line.
 const (
-	AdminSiteGeneratedFormatHTML      = "html"
-	AdminSiteGeneratedFormatRobotsTxt = "robots.txt"
-	AdminSiteGeneratedFormatRedirect  = "redirect"
+	AdminSiteGeneratedFormatHTML      AdminSiteGeneratedFormat = "html"
+	AdminSiteGeneratedFormatRobotsTxt AdminSiteGeneratedFormat = "robots.txt"
+	AdminSiteGeneratedFormatRedirect  AdminSiteGeneratedFormat = "redirect"
 )
+
+// AdminSitePageRecheckState is where a page recheck stands.
+type AdminSitePageRecheckState string
 
 // The states of AdminSitePageRecheck.State.
 const (
-	AdminSitePageRecheckQueued  = "queued"
-	AdminSitePageRecheckChecked = "checked"
-	AdminSitePageRecheckFailed  = "failed"
+	AdminSitePageRecheckQueued  AdminSitePageRecheckState = "queued"
+	AdminSitePageRecheckChecked AdminSitePageRecheckState = "checked"
+	AdminSitePageRecheckFailed  AdminSitePageRecheckState = "failed"
 )
+
+// AdminSiteRobotsSource is where a robots.txt test read its rules from.
+type AdminSiteRobotsSource string
 
 // The sources of AdminSiteRobotsTestResult.Source: the robots.txt the caller pasted, or the
 // domain's live file.
 const (
-	AdminSiteRobotsSourcePasted = "pasted"
-	AdminSiteRobotsSourceLive   = "live"
+	AdminSiteRobotsSourcePasted AdminSiteRobotsSource = "pasted"
+	AdminSiteRobotsSourceLive   AdminSiteRobotsSource = "live"
 )
 
 // SitePageNotOnDomainCode is the problem code a 400 carries when a page tool is given a URL on
@@ -46,11 +58,14 @@ const SitePageNotOnDomainCode = "site_page_not_on_domain"
 // tenant's verified domain but no audit or recheck has read it yet; RequestPageRecheck reads it.
 const SitePageNotReadCode = "site_page_not_read"
 
+// AdminSitePageCheckScope is how much of a page a check covers.
+type AdminSitePageCheckScope string
+
 // The scopes of AdminSitePageCheckRequest.Scope: the whole page, or only the body content an
 // editor writes, which the site's template wraps in its own head, navigation and h1.
 const (
-	AdminSitePageCheckScopePage    = "page"
-	AdminSitePageCheckScopeContent = "content"
+	AdminSitePageCheckScopePage    AdminSitePageCheckScope = "page"
+	AdminSitePageCheckScopeContent AdminSitePageCheckScope = "content"
 )
 
 // SitePageRecheckReadLimit bounds how many rechecks ListPageRechecks reads in one call.
@@ -68,15 +83,15 @@ const SitePageRecheckLimitCode = "site_page_recheck_limit"
 // Fix text. Generated is set only for rules with a generator: code to copy, never a published
 // change.
 type AdminSiteRemedy struct {
-	Kind      string                 `json:"kind"`
+	Kind      AdminSiteRemedyKind    `json:"kind"`
 	Element   string                 `json:"element"`
 	Generated *AdminSiteGeneratedFix `json:"generated,omitempty"`
 }
 
 // AdminSiteGeneratedFix is ready-to-copy code for one finding.
 type AdminSiteGeneratedFix struct {
-	Format string `json:"format"`
-	Code   string `json:"code"`
+	Format AdminSiteGeneratedFormat `json:"format"`
+	Code   string                   `json:"code"`
 }
 
 // AdminSitePageFacts is what the latest audit, recheck or draft check read from one page.
@@ -99,7 +114,7 @@ type AdminSitePageFacts struct {
 	Headings    []AdminSitePageHeading   `json:"headings"`
 	WordCount   int                      `json:"wordCount"`
 	Readability AdminSitePageReadability `json:"readability"`
-	ShareImage  string                   `json:"shareImage,omitempty"`
+	ShareImage  string                   `json:"shareImage"`
 	FAQSchema   *AdminSiteGeneratedFix   `json:"faqSchema,omitempty"`
 }
 
@@ -153,14 +168,14 @@ type AdminSitePageReadability struct {
 // AdminSitePageRecheck is one queued check of one page. CheckedAt is nil until the scheduler
 // checks it; OpenRules and FixedRules are the one-page rules it opened and fixed.
 type AdminSitePageRecheck struct {
-	RecheckUUID string     `json:"recheckUuid"`
-	URL         string     `json:"url"`
-	State       string     `json:"state"`
-	RequestedAt time.Time  `json:"requestedAt"`
-	CheckedAt   *time.Time `json:"checkedAt,omitempty"`
-	Failure     string     `json:"failure,omitempty"`
-	OpenRules   []string   `json:"openRules"`
-	FixedRules  []string   `json:"fixedRules"`
+	RecheckUUID string                    `json:"recheckUuid"`
+	URL         string                    `json:"url"`
+	State       AdminSitePageRecheckState `json:"state"`
+	RequestedAt time.Time                 `json:"requestedAt"`
+	CheckedAt   *time.Time                `json:"checkedAt,omitempty"`
+	Failure     string                    `json:"failure,omitempty"`
+	OpenRules   []string                  `json:"openRules"`
+	FixedRules  []string                  `json:"fixedRules"`
 }
 
 // AdminSitePageRecheckList is the rechecks ListPageRechecks found, in the order asked. An id that
@@ -172,14 +187,14 @@ type AdminSitePageRecheckList struct {
 // AdminSitePageFinding is one problem a draft check found on a page. Unlike AdminSiteFinding it is
 // not stored, so it has no UUID or history.
 type AdminSitePageFinding struct {
-	Rule     string          `json:"rule"`
-	Severity string          `json:"severity"`
-	Title    string          `json:"title"`
-	URL      string          `json:"url"`
-	Evidence string          `json:"evidence"`
-	Fix      string          `json:"fix"`
-	Source   string          `json:"source"`
-	Remedy   AdminSiteRemedy `json:"remedy"`
+	Rule     SiteRule                 `json:"rule"`
+	Severity AdminSiteFindingSeverity `json:"severity"`
+	Title    string                   `json:"title"`
+	URL      string                   `json:"url"`
+	Evidence string                   `json:"evidence"`
+	Fix      string                   `json:"fix"`
+	Source   string                   `json:"source"`
+	Remedy   AdminSiteRemedy          `json:"remedy"`
 }
 
 // AdminSitePageCheck is what the page checks found on draft HTML, and the page's facts. The draft
@@ -189,37 +204,25 @@ type AdminSitePageFinding struct {
 // older server); with scope content, CheckedRules lists the only rules checked, so a rule absent
 // from Findings passed rather than went unchecked, and the head facts of Page are empty.
 type AdminSitePageCheck struct {
-	Page         AdminSitePageFacts     `json:"page"`
-	Findings     []AdminSitePageFinding `json:"findings"`
-	Slug         string                 `json:"slug,omitempty"`
-	Redirect     *AdminSiteGeneratedFix `json:"redirect,omitempty"`
-	Phrase       *AdminSitePhraseUse    `json:"phrase,omitempty"`
-	Scope        string                 `json:"scope,omitempty"`
-	CheckedRules []string               `json:"checkedRules,omitempty"`
+	Page         AdminSitePageFacts      `json:"page"`
+	Findings     []AdminSitePageFinding  `json:"findings"`
+	Slug         string                  `json:"slug,omitempty"`
+	Redirect     *AdminSiteGeneratedFix  `json:"redirect,omitempty"`
+	Phrase       *AdminSitePhraseUse     `json:"phrase,omitempty"`
+	Scope        AdminSitePageCheckScope `json:"scope,omitempty"`
+	CheckedRules []SiteRule              `json:"checkedRules,omitempty"`
 }
 
 // AdminSitePhraseUse is where one phrase appears in a draft and how often, with no target or
-// verdict. DensityPercent is Count over WordCount as a percentage, nil when the draft has no words.
+// verdict. DensityPercent is Count over WordCount as a percentage, 0 when the draft has no words.
 type AdminSitePhraseUse struct {
-	Phrase         string   `json:"phrase"`
-	InTitle        bool     `json:"inTitle"`
-	InDescription  bool     `json:"inDescription"`
-	InH1           bool     `json:"inH1"`
-	Count          int      `json:"count"`
-	WordCount      int      `json:"wordCount"`
-	DensityPercent *float64 `json:"densityPercent,omitempty"`
-}
-
-// UnmarshalJSON drops the density the server sends as 0 for a draft without words.
-func (p *AdminSitePhraseUse) UnmarshalJSON(data []byte) error {
-	type wire AdminSitePhraseUse
-	if err := unmarshalResponse(data, (*wire)(p)); err != nil {
-		return err
-	}
-	if p.WordCount == 0 {
-		p.DensityPercent = nil
-	}
-	return nil
+	Phrase         string  `json:"phrase"`
+	InTitle        bool    `json:"inTitle"`
+	InDescription  bool    `json:"inDescription"`
+	InH1           bool    `json:"inH1"`
+	Count          int     `json:"count"`
+	WordCount      int     `json:"wordCount"`
+	DensityPercent float64 `json:"densityPercent"`
 }
 
 // AdminSitePageCheckRequest checks HTML as if URL, on the domain's host, served it. HTML is the
@@ -228,11 +231,11 @@ func (p *AdminSitePhraseUse) UnmarshalJSON(data []byte) error {
 // appears. Both are left out when empty. Scope AdminSitePageCheckScopeContent checks body content
 // only (the template supplies the head and h1); empty is the whole page.
 type AdminSitePageCheckRequest struct {
-	URL         string `json:"url"`
-	HTML        string `json:"html"`
-	PreviousURL string `json:"previousUrl,omitempty"`
-	Phrase      string `json:"phrase,omitempty"`
-	Scope       string `json:"scope,omitempty"`
+	URL         string                  `json:"url"`
+	HTML        string                  `json:"html"`
+	PreviousURL string                  `json:"previousUrl,omitempty"`
+	Phrase      string                  `json:"phrase,omitempty"`
+	Scope       AdminSitePageCheckScope `json:"scope,omitempty"`
 }
 
 // AdminSiteWordingCompareRequest is two drafts, as HTML or plain text (each at most 512 KiB), to
@@ -244,27 +247,15 @@ type AdminSiteWordingCompareRequest struct {
 
 // AdminSiteWordingCompare is how much wording two texts share, measured as the crawl's
 // content.near-duplicate rule measures it; wording overlap, not plagiarism. Texts under MinWords
-// are not compared: Compared is false and SharedPercent nil.
+// are not compared: Compared is false and SharedPercent 0.
 type AdminSiteWordingCompare struct {
 	FirstWords       int  `json:"firstWords"`
 	SecondWords      int  `json:"secondWords"`
 	MinWords         int  `json:"minWords"`
 	Compared         bool `json:"compared"`
-	SharedPercent    *int `json:"sharedPercent,omitempty"`
+	SharedPercent    int  `json:"sharedPercent"`
 	ThresholdPercent int  `json:"thresholdPercent"`
 	NearDuplicate    bool `json:"nearDuplicate"`
-}
-
-// UnmarshalJSON drops the share the server sends as 0 when it did not compare the texts.
-func (w *AdminSiteWordingCompare) UnmarshalJSON(data []byte) error {
-	type wire AdminSiteWordingCompare
-	if err := unmarshalResponse(data, (*wire)(w)); err != nil {
-		return err
-	}
-	if !w.Compared {
-		w.SharedPercent = nil
-	}
-	return nil
 }
 
 // AdminSitePageWordingQuery names two distinct absolute URLs on the same verified domain.
@@ -305,25 +296,33 @@ type AdminSiteRobotsTestRequest struct {
 	RobotsTxt string `json:"robotsTxt,omitempty"`
 }
 
+// AdminSiteRobotsDirective is a robots.txt rule's directive.
+type AdminSiteRobotsDirective string
+
+const (
+	AdminSiteRobotsDirectiveAllow    AdminSiteRobotsDirective = "allow"
+	AdminSiteRobotsDirectiveDisallow AdminSiteRobotsDirective = "disallow"
+)
+
 // AdminSiteRobotsRule is the robots.txt rule that decided a test.
 type AdminSiteRobotsRule struct {
-	Line      int    `json:"line"`
-	Directive string `json:"directive"`
-	Pattern   string `json:"pattern"`
+	Line      int                      `json:"line"`
+	Directive AdminSiteRobotsDirective `json:"directive"`
+	Pattern   string                   `json:"pattern"`
 }
 
 // AdminSiteRobotsTestResult is the RFC 9309 answer. RobotsStatus is nil for a pasted file or an
 // unreachable live one; Rule is nil when no rule matched; Note says why a live file decided
 // without a rule.
 type AdminSiteRobotsTestResult struct {
-	Allowed      bool                 `json:"allowed"`
-	UserAgent    string               `json:"userAgent"`
-	Path         string               `json:"path"`
-	Source       string               `json:"source"`
-	RobotsStatus *int                 `json:"robotsStatus,omitempty"`
-	Groups       []string             `json:"groups"`
-	Rule         *AdminSiteRobotsRule `json:"rule,omitempty"`
-	Note         string               `json:"note,omitempty"`
+	Allowed      bool                  `json:"allowed"`
+	UserAgent    string                `json:"userAgent"`
+	Path         string                `json:"path"`
+	Source       AdminSiteRobotsSource `json:"source"`
+	RobotsStatus *int                  `json:"robotsStatus,omitempty"`
+	Groups       []string              `json:"groups"`
+	Rule         *AdminSiteRobotsRule  `json:"rule,omitempty"`
+	Note         string                `json:"note,omitempty"`
 }
 
 type adminSitePageRecheckRequest struct {

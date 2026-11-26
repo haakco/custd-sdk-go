@@ -35,15 +35,25 @@ type ProducerReservationsClient struct {
 	provisioning *ProvisioningClient
 }
 
+// ProducerReservationStatus is where a producer reservation stands.
+type ProducerReservationStatus string
+
+const (
+	ProducerReservationStatusPending  ProducerReservationStatus = "pending"
+	ProducerReservationStatusClaimed  ProducerReservationStatus = "claimed"
+	ProducerReservationStatusReleased ProducerReservationStatus = "released"
+	ProducerReservationStatusExpired  ProducerReservationStatus = "expired"
+)
+
 type ProducerReservation struct {
-	ProducerSlug      string `json:"producerSlug"`
-	ParentCompanySlug string `json:"parentCompanySlug"`
-	ChildCompanySlug  string `json:"childCompanySlug,omitempty"`
-	ClaimedByClientID string `json:"claimedByClientId,omitempty"`
-	Status            string `json:"status"`
-	ReservedAt        string `json:"reservedAt,omitempty"`
-	ExpiresAt         string `json:"expiresAt,omitempty"`
-	MaxTTLSeconds     int64  `json:"maxTtlSeconds,omitempty"`
+	ProducerSlug      string                    `json:"producerSlug"`
+	ParentCompanySlug string                    `json:"parentCompanySlug"`
+	ChildCompanySlug  string                    `json:"childCompanySlug"`
+	ClaimedByClientID string                    `json:"claimedByClientId,omitempty"`
+	Status            ProducerReservationStatus `json:"status"`
+	ReservedAt        string                    `json:"reservedAt,omitempty"`
+	ExpiresAt         string                    `json:"expiresAt,omitempty"`
+	MaxTTLSeconds     int64                     `json:"maxTtlSeconds"`
 }
 
 type ProducerReservationListResponse struct {

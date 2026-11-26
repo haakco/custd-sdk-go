@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -340,7 +341,7 @@ func authProjectDesiredState() AuthProjectDesiredState {
 	return AuthProjectDesiredState{
 		IdentityMode:       AuthProjectIdentityIsolated,
 		RegistrationPolicy: "invite_only",
-		LoginPaused:        false,
+		LoginPaused:        new(false),
 		Audiences: []AuthProjectAudienceBinding{{
 			Audience:               "hosting-edge",
 			PublicClient:           true,
@@ -572,7 +573,7 @@ func TestAuthProjectDesiredStateSendsWithdrawalOnlyWhenAsked(t *testing.T) {
 	if wire["withdrawDisplayName"] != true {
 		t.Fatalf("withdrawDisplayName = %v, want true", wire["withdrawDisplayName"])
 	}
-	if wire["displayNameSource"] != AuthProjectDisplayNameSourceHosting {
+	if wire["displayNameSource"] != string(AuthProjectDisplayNameSourceHosting) {
 		t.Fatalf("displayNameSource = %v, want hosting", wire["displayNameSource"])
 	}
 }
@@ -609,5 +610,40 @@ func TestAuthProjectDesiredStateCarriesTheSessionPolicyOnlyWhenSet(t *testing.T)
 	}
 	if wire["applicationSessionPolicy"] != "short_only" {
 		t.Fatalf("applicationSessionPolicy = %v, want short_only", wire["applicationSessionPolicy"])
+	}
+}
+
+// TestAuthProjectDesiredStateKeepsWhatItLeavesOut proves the realm fields an apply leaves nil are
+// omitted or null, which the server keeps, while explicit empty values are sent to clear them.
+func TestAuthProjectDesiredStateKeepsWhatItLeavesOut(t *testing.T) {
+	kept, err := json.Marshal(AuthProjectDesiredState{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var keptFields map[string]json.RawMessage
+	if err := json.Unmarshal(kept, &keptFields); err != nil {
+		t.Fatal(err)
+	}
+	for _, key := range []string{"entryPath", "brandAccent", "loginPaused"} {
+		if _, sent := keptFields[key]; sent {
+			t.Errorf("unset %s was sent: %s", key, kept)
+		}
+	}
+	for _, key := range []string{"signInMethods", "profileFields"} {
+		if string(keptFields[key]) != "null" {
+			t.Errorf("unset %s = %s, want null", key, keptFields[key])
+		}
+	}
+	cleared, err := json.Marshal(AuthProjectDesiredState{
+		EntryPath: new(""), BrandAccent: new(""), LoginPaused: new(false),
+		SignInMethods: []string{}, ProfileFields: []AuthProjectProfileField{},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{`"entryPath":""`, `"brandAccent":""`, `"loginPaused":false`, `"signInMethods":[]`, `"profileFields":[]`} {
+		if !strings.Contains(string(cleared), want) {
+			t.Errorf("clearing body %s lacks %s", cleared, want)
+		}
 	}
 }

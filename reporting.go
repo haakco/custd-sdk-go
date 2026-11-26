@@ -22,18 +22,18 @@ type ReportingClient struct {
 }
 
 type ReportingQueryRequest struct {
-	DashboardKey string            `json:"dashboardKey,omitempty"`
-	WidgetKey    string            `json:"widgetKey,omitempty"`
-	Template     string            `json:"template"`
-	Metrics      []string          `json:"metrics"`
-	Dimensions   []string          `json:"dimensions,omitempty"`
-	Filters      []ReportingFilter `json:"filters,omitempty"`
-	From         string            `json:"from,omitempty"`
-	To           string            `json:"to,omitempty"`
-	RangeDays    int               `json:"rangeDays,omitempty"`
-	MaxRows      int               `json:"maxRows,omitempty"`
-	CountOnly    bool              `json:"countOnly,omitempty"`
-	Comparison   string            `json:"comparison,omitempty"`
+	DashboardKey string                    `json:"dashboardKey,omitempty"`
+	WidgetKey    string                    `json:"widgetKey,omitempty"`
+	Template     string                    `json:"template"`
+	Metrics      []string                  `json:"metrics"`
+	Dimensions   []string                  `json:"dimensions,omitempty"`
+	Filters      []ReportingFilter         `json:"filters,omitempty"`
+	From         string                    `json:"from,omitempty"`
+	To           string                    `json:"to,omitempty"`
+	RangeDays    int                       `json:"rangeDays,omitempty"`
+	MaxRows      int                       `json:"maxRows,omitempty"`
+	CountOnly    bool                      `json:"countOnly,omitempty"`
+	Comparison   DashboardComparisonPreset `json:"comparison,omitempty"`
 }
 
 type SubjectInsightRequest struct {
@@ -48,18 +48,38 @@ type SubjectInsightResponse struct {
 	Data RenderedWidgetData `json:"data"`
 }
 
+// PreparedDataAvailability is how much of the prepared data can be read.
+type PreparedDataAvailability string
+
+const (
+	PreparedDataAvailabilityComplete    PreparedDataAvailability = "complete"
+	PreparedDataAvailabilityPartial     PreparedDataAvailability = "partial"
+	PreparedDataAvailabilityStale       PreparedDataAvailability = "stale"
+	PreparedDataAvailabilityUnavailable PreparedDataAvailability = "unavailable"
+)
+
+// PreparedDataState is how far Custd has processed prepared data.
+type PreparedDataState string
+
+const (
+	PreparedDataStateAccepted   PreparedDataState = "accepted"
+	PreparedDataStateProcessing PreparedDataState = "processing"
+	PreparedDataStateReady      PreparedDataState = "ready"
+	PreparedDataStateFailed     PreparedDataState = "failed"
+)
+
 // PreparedDataStatus is the state shared by a receipt and an output status;
 // PreparedDataReceiptStatus and PreparedDataOutputStatus add the identity.
 type PreparedDataStatus struct {
-	TenantSlug      string                 `json:"tenantSlug"`
-	ProcessingState string                 `json:"processingState"`
-	Availability    string                 `json:"availability"`
-	ObservedAt      string                 `json:"observedAt"`
-	Watermark       string                 `json:"watermark,omitempty"`
-	Provenance      PreparedDataProvenance `json:"provenance"`
-	Retryability    string                 `json:"retryability"`
-	Warnings        []PreparedDataWarning  `json:"warnings,omitempty"`
-	NextAction      PreparedDataNextAction `json:"nextAction"`
+	TenantSlug      string                   `json:"tenantSlug"`
+	ProcessingState PreparedDataState        `json:"processingState"`
+	Availability    PreparedDataAvailability `json:"availability"`
+	ObservedAt      string                   `json:"observedAt"`
+	Watermark       string                   `json:"watermark,omitempty"`
+	Provenance      PreparedDataProvenance   `json:"provenance"`
+	Retryability    Retryability             `json:"retryability"`
+	Warnings        []PreparedDataWarning    `json:"warnings,omitempty"`
+	NextAction      PreparedDataNextAction   `json:"nextAction"`
 }
 type PreparedDataProvenance struct {
 	Owner      string `json:"owner"`
@@ -71,10 +91,22 @@ type PreparedDataWarning struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
 }
+
+// RecoveryAction is the next safe action a status hints at.
+type RecoveryAction string
+
+const (
+	RecoveryActionNone     RecoveryAction = "none"
+	RecoveryActionPoll     RecoveryAction = "poll"
+	RecoveryActionRetry    RecoveryAction = "retry"
+	RecoveryActionRotate   RecoveryAction = "rotate"
+	RecoveryActionEscalate RecoveryAction = "escalate"
+)
+
 type PreparedDataNextAction struct {
-	Action           string `json:"action"`
-	PollAfterSeconds int    `json:"pollAfterSeconds,omitempty"`
-	MaxRetries       int    `json:"maxRetries,omitempty"`
+	Action           RecoveryAction `json:"action"`
+	PollAfterSeconds int            `json:"pollAfterSeconds,omitempty"`
+	MaxRetries       int            `json:"maxRetries,omitempty"`
 }
 type PreparedDataReceiptStatus struct {
 	PreparedDataStatus
@@ -122,15 +154,47 @@ type RenderedWidgetBucket struct {
 	Secondary       *RenderedMetricValue `json:"secondary,omitempty"`
 }
 
+// DataSufficiency is whether a value rests on enough data.
+type DataSufficiency string
+
+const (
+	DataSufficiencyUnknown      DataSufficiency = "unknown"
+	DataSufficiencySufficient   DataSufficiency = "sufficient"
+	DataSufficiencyPartial      DataSufficiency = "partial"
+	DataSufficiencyInsufficient DataSufficiency = "insufficient"
+)
+
+// RenderedUnit is the unit of a rendered metric value.
+type RenderedUnit string
+
+const (
+	RenderedUnitCurrencyPerUnit RenderedUnit = "currency_per_unit"
+	RenderedUnitCount           RenderedUnit = "count"
+	RenderedUnitMilliseconds    RenderedUnit = "milliseconds"
+	RenderedUnitBytes           RenderedUnit = "bytes"
+	RenderedUnitPercent         RenderedUnit = "percent"
+	RenderedUnitCurrency        RenderedUnit = "currency"
+	RenderedUnitWatt            RenderedUnit = "W"
+	RenderedUnitKilowatt        RenderedUnit = "kW"
+	RenderedUnitWattHour        RenderedUnit = "Wh"
+	RenderedUnitKilowattHour    RenderedUnit = "kWh"
+	RenderedUnitVolt            RenderedUnit = "V"
+	RenderedUnitAmpere          RenderedUnit = "A"
+	RenderedUnitLitre           RenderedUnit = "L"
+	RenderedUnitCelsius         RenderedUnit = "Cel"
+	RenderedUnitLitrePerSecond  RenderedUnit = "L/s"
+	RenderedUnitScore           RenderedUnit = "score"
+)
+
 type RenderedMetricValue struct {
-	Value           float64        `json:"value"`
-	Unit            string         `json:"unit"`
-	Currency        string         `json:"currency,omitempty"`
-	SampleCount     int            `json:"sampleCount"`
-	DataSufficiency string         `json:"dataSufficiency"`
-	Complete        bool           `json:"complete"`
-	Truncated       bool           `json:"truncated,omitempty"`
-	Trust           *TemporalTrust `json:"trust,omitempty"`
+	Value           float64         `json:"value"`
+	Unit            RenderedUnit    `json:"unit"`
+	Currency        string          `json:"currency,omitempty"`
+	SampleCount     int             `json:"sampleCount"`
+	DataSufficiency DataSufficiency `json:"dataSufficiency"`
+	Complete        bool            `json:"complete"`
+	Truncated       bool            `json:"truncated,omitempty"`
+	Trust           *TemporalTrust  `json:"trust,omitempty"`
 }
 
 type ReportingQueryMetadata struct {
@@ -151,10 +215,31 @@ type ReportingSourceSummary struct {
 	Completeness  string `json:"completeness"`
 }
 
+// ReportingDataFreshness is how current a report's data is.
+type ReportingDataFreshness string
+
+const (
+	ReportingDataFreshnessUnknown     ReportingDataFreshness = "unknown"
+	ReportingDataFreshnessCurrent     ReportingDataFreshness = "current"
+	ReportingDataFreshnessFresh       ReportingDataFreshness = "fresh"
+	ReportingDataFreshnessStale       ReportingDataFreshness = "stale"
+	ReportingDataFreshnessUnavailable ReportingDataFreshness = "unavailable"
+)
+
+// ReportingTrustStatus is how far a report can be trusted.
+type ReportingTrustStatus string
+
+const (
+	ReportingTrustStatusHealthy     ReportingTrustStatus = "healthy"
+	ReportingTrustStatusPartial     ReportingTrustStatus = "partial"
+	ReportingTrustStatusUnavailable ReportingTrustStatus = "unavailable"
+	ReportingTrustStatusUnknown     ReportingTrustStatus = "unknown"
+)
+
 type RenderedReportingTrust struct {
-	Status            string                  `json:"status"`
-	DataFreshness     string                  `json:"dataFreshness"`
-	Retryability      string                  `json:"retryability"`
+	Status            ReportingTrustStatus    `json:"status"`
+	DataFreshness     ReportingDataFreshness  `json:"dataFreshness"`
+	Retryability      Retryability            `json:"retryability"`
 	NextAction        ReportingNextActionHint `json:"nextAction"`
 	LastExport        string                  `json:"lastExport,omitempty"`
 	SchemaVersion     string                  `json:"schemaVersion,omitempty"`
@@ -171,15 +256,15 @@ type RenderedReportingTrust struct {
 }
 
 type ReportingNextActionHint struct {
-	Action           string `json:"action"`
-	PollAfterSeconds int    `json:"pollAfterSeconds,omitempty"`
-	MaxRetries       int    `json:"maxRetries,omitempty"`
+	Action           RecoveryAction `json:"action"`
+	PollAfterSeconds int            `json:"pollAfterSeconds,omitempty"`
+	MaxRetries       int            `json:"maxRetries,omitempty"`
 }
 
 type ReportingFilter struct {
-	Dimension string `json:"dimension"`
-	Operator  string `json:"operator"`
-	Value     string `json:"value,omitempty"`
+	Dimension string         `json:"dimension"`
+	Operator  FilterOperator `json:"operator"`
+	Value     string         `json:"value,omitempty"`
 }
 
 func newReportingClient(client *CustdClient) *ReportingClient {
@@ -237,6 +322,20 @@ func (r *ReportingClient) QueryOutput(ctx context.Context, outputUUID string, re
 	return &out, err
 }
 
+// QueryOutputDocument runs a query document the caller already holds against a ready prepared
+// output. The document is sent verbatim, so fields this SDK does not model yet still reach the
+// server, which validates it.
+func (r *ReportingClient) QueryOutputDocument(
+	ctx context.Context, outputUUID string, query json.RawMessage,
+) (*PreparedDataQueryEnvelope, error) {
+	if !preparedDataUUIDPattern.MatchString(outputUUID) {
+		return nil, fmt.Errorf("custd: outputUuid must be a UUID")
+	}
+	var out PreparedDataQueryEnvelope
+	err := r.request(ctx, http.MethodPost, "/outputs/"+url.PathEscape(outputUUID)+"/query", query, &out)
+	return &out, err
+}
+
 func validateReportingSubjectInsightRequest(req SubjectInsightRequest) error {
 	if !subjectInsightTemplatePattern.MatchString(req.Template) {
 		return fmt.Errorf("custd: reporting subject insight template is invalid")
@@ -276,21 +375,22 @@ func (r *ReportingClient) request(ctx context.Context, method string, path strin
 		}
 	}
 	if r.client.config.HTTPClient != nil {
-		return r.requestViaDoer(method, path, body, out)
+		return r.requestViaDoer(ctx, method, path, body, out)
 	}
 	return r.requestViaHTTP(ctx, method, path, body, out)
 }
 
-func (r *ReportingClient) requestViaDoer(method string, path string, body []byte, out any) error {
+func (r *ReportingClient) requestViaDoer(ctx context.Context, method string, path string, body []byte, out any) error {
 	resp, err := r.client.config.HTTPClient.Do(&HTTPRequest{
 		Method:  method,
 		URL:     r.endpoint(path),
-		Headers: r.client.headers(false),
+		Headers: r.headers(),
 		Body:    body,
 	})
 	if err != nil {
 		return &RequestError{Message: "custd: reporting request failed: " + err.Error(), Retryable: true, Cause: err}
 	}
+	recordMetadata(ctx, responseHeader(resp.Headers, requestIDHeader))
 	if err := r.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
 		return err
 	}
@@ -302,7 +402,7 @@ func (r *ReportingClient) requestViaHTTP(ctx context.Context, method string, pat
 	if err != nil {
 		return fmt.Errorf("custd: create reporting request: %w", err)
 	}
-	for k, v := range r.client.headers(false) {
+	for k, v := range r.headers() {
 		req.Header.Set(k, v)
 	}
 	resp, err := r.client.httpClient.Do(req)
@@ -313,10 +413,19 @@ func (r *ReportingClient) requestViaHTTP(ctx context.Context, method string, pat
 	if bodyErr != nil {
 		return fmt.Errorf("custd: read reporting response: %w", bodyErr)
 	}
+	recordMetadata(ctx, resp.Header.Get(requestIDHeader))
 	if err := r.client.checkStatus(resp.StatusCode, respBody); err != nil {
 		return err
 	}
 	return decodeReportingResponse(respBody, out)
+}
+
+// headers are the credential headers plus the caller's audit labels, so a reporting read is
+// attributed to the command that made it like an admin call.
+func (r *ReportingClient) headers() map[string]string {
+	headers := r.client.headers(false)
+	r.client.Admin.applyRequestLabels(headers)
+	return headers
 }
 
 func (r *ReportingClient) endpoint(path string) string {

@@ -10,12 +10,12 @@ import (
 // discloses it. Editable reports whether this administrator surface may write the
 // field; a provider-owned field is disclosed but not writable here.
 type ApplicationProfileField struct {
-	FieldKey   string `json:"fieldKey"`
-	Value      string `json:"value,omitempty"`
-	Present    bool   `json:"present"`
-	Required   bool   `json:"required"`
-	EditableBy string `json:"editableBy"`
-	Editable   bool   `json:"editable"`
+	FieldKey   string                 `json:"fieldKey"`
+	Value      string                 `json:"value,omitempty"`
+	Present    bool                   `json:"present"`
+	Required   bool                   `json:"required"`
+	EditableBy ProfileFieldEditableBy `json:"editableBy"`
+	Editable   bool                   `json:"editable"`
 }
 
 // ApplicationPrincipalProfile is one principal's profile. It carries only the
@@ -43,14 +43,23 @@ type ApplicationProfileValuesRequest struct {
 	Values []ApplicationProfileValue `json:"values"`
 }
 
+// ApplicationMembershipRole is the role a person holds in an application's organisation.
+type ApplicationMembershipRole string
+
+const (
+	ApplicationMembershipRoleAdministrator ApplicationMembershipRole = "administrator"
+	ApplicationMembershipRoleMember        ApplicationMembershipRole = "member"
+	ApplicationMembershipRoleViewer        ApplicationMembershipRole = "viewer"
+)
+
 // ApplicationMembershipChoice is one organisation an application principal may act
 // for, with the role it holds there. The role is scoped to this organisation
 // alone: the same principal may hold a different role in another.
 type ApplicationMembershipChoice struct {
-	OrganisationID   string `json:"organisationId"`
-	OrganisationSlug string `json:"organisationSlug"`
-	OrganisationName string `json:"organisationName"`
-	Role             string `json:"role"`
+	OrganisationID   string                    `json:"organisationId"`
+	OrganisationSlug string                    `json:"organisationSlug"`
+	OrganisationName string                    `json:"organisationName"`
+	Role             ApplicationMembershipRole `json:"role"`
 }
 
 // ApplicationMembershipContext is the set of organisations one application

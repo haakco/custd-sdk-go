@@ -63,7 +63,7 @@ type AdminSiteNextAction struct {
 	Kind          string                    `json:"kind"`
 	Title         string                    `json:"title"`
 	Why           string                    `json:"why"`
-	Severity      string                    `json:"severity"`
+	Severity      AdminSiteFindingSeverity  `json:"severity"`
 	AffectedCount int                       `json:"affectedCount"`
 	Rule          string                    `json:"rule,omitempty"`
 	Target        AdminSiteNextActionTarget `json:"target"`

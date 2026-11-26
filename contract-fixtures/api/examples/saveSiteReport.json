@@ -12,7 +12,7 @@
           {
             "firstSeenAt": "2026-11-20T06:00:00Z",
             "fix": "example",
-            "severity": "example",
+            "severity": "high",
             "title": "example",
             "url": "example"
           }

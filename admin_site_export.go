@@ -14,13 +14,16 @@ const AdminSiteInsightsExportSchema = "custd.site-insights-export.v1"
 // AdminSiteSearchMetricsExportMaxLimit bounds one ExportSearchMetrics page, and is its default.
 const AdminSiteSearchMetricsExportMaxLimit = 10000
 
+// AdminSiteSearchMetricDimension is the dimension a daily search metric row is broken down by.
+type AdminSiteSearchMetricDimension string
+
 // The dimensions of AdminSiteSearchMetricDay.Dimension; total has an empty Key.
 const (
-	AdminSiteSearchMetricTotal   = "total"
-	AdminSiteSearchMetricPage    = "page"
-	AdminSiteSearchMetricQuery   = "query"
-	AdminSiteSearchMetricCountry = "country"
-	AdminSiteSearchMetricDevice  = "device"
+	AdminSiteSearchMetricTotal   AdminSiteSearchMetricDimension = "total"
+	AdminSiteSearchMetricPage    AdminSiteSearchMetricDimension = "page"
+	AdminSiteSearchMetricQuery   AdminSiteSearchMetricDimension = "query"
+	AdminSiteSearchMetricCountry AdminSiteSearchMetricDimension = "country"
+	AdminSiteSearchMetricDevice  AdminSiteSearchMetricDimension = "device"
 )
 
 // AdminSiteInsightsExport is everything Site Insights holds for one domain and its Site, as the
@@ -75,13 +78,13 @@ type AdminSiteInsightsSiteExport struct {
 
 // AdminSiteSearchMetricDay is one provider's figures for one day and one dimension key.
 type AdminSiteSearchMetricDay struct {
-	Provider    AdminSiteSearchProvider `json:"provider"`
-	Day         string                  `json:"day"`
-	Dimension   string                  `json:"dimension"`
-	Key         string                  `json:"key"`
-	Clicks      int64                   `json:"clicks"`
-	Impressions int64                   `json:"impressions"`
-	AvgPosition float64                 `json:"avgPosition"`
+	Provider    AdminSiteSearchProvider        `json:"provider"`
+	Day         string                         `json:"day"`
+	Dimension   AdminSiteSearchMetricDimension `json:"dimension"`
+	Key         string                         `json:"key"`
+	Clicks      int64                          `json:"clicks"`
+	Impressions int64                          `json:"impressions"`
+	AvgPosition float64                        `json:"avgPosition"`
 }
 
 // AdminSiteSearchMetricsExportPage is one page of a domain's stored daily search metrics, ordered

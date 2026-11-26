@@ -7,24 +7,33 @@ import (
 	"time"
 )
 
+// AdminSitePageQueriesState is whether a page's search queries could be read.
+type AdminSitePageQueriesState string
+
 // The values of AdminSitePageSearchQueries.State: why Queries is empty when it is.
 const (
-	AdminSitePageQueriesAvailable    = "available"
-	AdminSitePageQueriesNotConnected = "not_connected"
-	AdminSitePageQueriesNotImported  = "not_imported"
-	AdminSitePageQueriesNone         = "no_queries"
+	AdminSitePageQueriesAvailable    AdminSitePageQueriesState = "available"
+	AdminSitePageQueriesNotConnected AdminSitePageQueriesState = "not_connected"
+	AdminSitePageQueriesNotImported  AdminSitePageQueriesState = "not_imported"
+	AdminSitePageQueriesNone         AdminSitePageQueriesState = "no_queries"
 )
+
+// AdminSiteTitleTemplate is the template a suggested title follows.
+type AdminSiteTitleTemplate string
 
 // The templates of AdminSiteTitleOption.Template. Neither names a year.
 const (
-	AdminSiteTitleTemplateGeneral = "general"
-	AdminSiteTitleTemplateGuide   = "guide"
+	AdminSiteTitleTemplateGeneral AdminSiteTitleTemplate = "general"
+	AdminSiteTitleTemplateGuide   AdminSiteTitleTemplate = "guide"
 )
+
+// AdminSiteLinkLocation is where on a page a suggested link source sits.
+type AdminSiteLinkLocation string
 
 // The values of AdminSiteLinkSource.Where: where the linking page mentions the query.
 const (
-	AdminSiteLinkSourceInTitle   = "title"
-	AdminSiteLinkSourceInHeading = "heading"
+	AdminSiteLinkSourceInTitle   AdminSiteLinkLocation = "title"
+	AdminSiteLinkSourceInHeading AdminSiteLinkLocation = "heading"
 )
 
 // AdminSitePageQuery is one search the page showed for over the window, and whether the page's own
@@ -43,27 +52,27 @@ type AdminSitePageQuery struct {
 // AdminSiteTitleOption is one title built from a ranking query and the Site's brand by a fixed
 // template, within the title.length rule: text to copy, not AI output.
 type AdminSiteTitleOption struct {
-	Title       string `json:"title"`
-	Template    string `json:"template"`
-	Query       string `json:"query"`
-	Impressions int64  `json:"impressions"`
+	Title       string                 `json:"title"`
+	Template    AdminSiteTitleTemplate `json:"template"`
+	Query       string                 `json:"query"`
+	Impressions int64                  `json:"impressions"`
 }
 
 // AdminSiteLinkSource is another crawled page whose title or a heading already uses one of this
 // page's ranking queries, so a link from it with Query as the text reads naturally.
 type AdminSiteLinkSource struct {
-	URL   string `json:"url"`
-	Title string `json:"title"`
-	Query string `json:"query"`
-	Where string `json:"where"`
+	URL   string                `json:"url"`
+	Title string                `json:"title"`
+	Query string                `json:"query"`
+	Where AdminSiteLinkLocation `json:"where"`
 }
 
 // AdminSitePageQueryWindow is the one window of page-by-query numbers a domain keeps.
 type AdminSitePageQueryWindow struct {
-	Provider   string    `json:"provider"`
-	From       string    `json:"from"`
-	To         string    `json:"to"`
-	ImportedAt time.Time `json:"importedAt"`
+	Provider   AdminSiteSearchProvider `json:"provider"`
+	From       string                  `json:"from"`
+	To         string                  `json:"to"`
+	ImportedAt time.Time               `json:"importedAt"`
 }
 
 // AdminSitePageSearchQueries is one page's ranking queries from Search Console for the newest
@@ -72,7 +81,7 @@ type AdminSitePageQueryWindow struct {
 type AdminSitePageSearchQueries struct {
 	DomainUUID   string                    `json:"domainUuid"`
 	URL          string                    `json:"url"`
-	State        string                    `json:"state"`
+	State        AdminSitePageQueriesState `json:"state"`
 	Window       *AdminSitePageQueryWindow `json:"window,omitempty"`
 	MaxQueries   int                       `json:"maxQueries"`
 	Queries      []AdminSitePageQuery      `json:"queries"`

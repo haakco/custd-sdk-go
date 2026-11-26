@@ -44,8 +44,9 @@ var siteAIProductValues = map[SiteAIProduct]bool{
 	SiteAIProductHosting: true, SiteAIProductCustd: true, SiteAIProductCB: true, SiteAIProductAwthy: true,
 }
 
-func (value *SiteAIProduct) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, siteAIProductValues)
+// Valid reports whether value is one of the SiteAIProduct values this SDK knows.
+func (value SiteAIProduct) Valid() bool {
+	return siteAIProductValues[value]
 }
 
 // SiteAISettings contains the current tenant policy and terms versions.

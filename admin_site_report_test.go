@@ -84,20 +84,3 @@ func TestSiteReportShareRoutes(t *testing.T) {
 	shares2 := siteTestBase + "/report-shares"
 	assertSiteRequests(t, doer.requests, []string{"GET " + shares2, "POST " + shares2, "DELETE " + shares2 + "/share-1"})
 }
-
-// A 3.46.0 server sends no report template, Lighthouse URL or pages; they decode as absent.
-func TestSiteReportAndLighthouseDecodeThe346Shape(t *testing.T) {
-	doer := newCaptureDoer(http.StatusOK, recordedFixture(t, "site-insights-reporting-3.46.json", "report"))
-	domains := newAdminTestClient(t, doer, "http://localhost:8080").Admin.SiteDomains
-	ctx := context.Background()
-
-	report, err := domains.GetReport(ctx, "d-1")
-	if err != nil || report.Template != "" || report.Host != "example.com" {
-		t.Fatalf("report = %+v, %v", report, err)
-	}
-	doer.body = recordedFixture(t, "site-insights-reporting-3.46.json", "lighthouse")
-	lighthouse, err := domains.GetLighthouseHistory(ctx, "d-1", 0)
-	if err != nil || lighthouse.URL != "" || len(lighthouse.Pages) != 0 || len(lighthouse.Runs) != 2 {
-		t.Fatalf("lighthouse = %+v, %v", lighthouse, err)
-	}
-}

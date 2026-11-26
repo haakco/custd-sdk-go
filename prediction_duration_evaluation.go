@@ -102,14 +102,22 @@ type DurationForecastEvaluation struct {
 	AsOf                   time.Time                         `json:"as_of"`
 }
 
+// DurationForecastMethod is the method a duration forecast uses.
+type DurationForecastMethod string
+
+const (
+	DurationForecastMethodNominal           DurationForecastMethod = "nominal"
+	DurationForecastMethodDurationShrinkage DurationForecastMethod = "duration_shrinkage"
+)
+
 // DurationForecastDefinition is the immutable, typed configuration for one
 // duration prediction version.
 type DurationForecastDefinition struct {
-	SchemaVersion  string `json:"schema_version"`
-	Method         string `json:"method"`
-	MethodVersion  string `json:"method_version"`
-	PriorWeight    int64  `json:"prior_weight"`
-	MinimumHistory int    `json:"minimum_history"`
+	SchemaVersion  string                 `json:"schema_version"`
+	Method         DurationForecastMethod `json:"method"`
+	MethodVersion  string                 `json:"method_version"`
+	PriorWeight    int64                  `json:"prior_weight"`
+	MinimumHistory int                    `json:"minimum_history"`
 }
 
 // DurationForecastEvaluationMetrics keeps the nominal comparator beside the
@@ -122,7 +130,7 @@ type DurationForecastEvaluationMetrics struct {
 // DurationForecastEvaluationMetric is one method's primary absolute-error
 // result and its interval coverage summary.
 type DurationForecastEvaluationMetric struct {
-	Method              string                             `json:"method"`
+	Method              DurationForecastMethod             `json:"method"`
 	EvaluatedFoldCount  int                                `json:"evaluated_fold_count"`
 	MeanAbsoluteErrorMS float64                            `json:"mean_absolute_error_ms"`
 	Interval            DurationForecastIntervalEvaluation `json:"interval"`

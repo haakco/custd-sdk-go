@@ -1,6 +1,7 @@
 package custd
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -219,6 +220,7 @@ func TestAuditAdminClientLifecycle(t *testing.T) {
 
 	doer.headers = map[string]string{"Content-Type": "text/csv; charset=utf-8"}
 	doer.body = "eventId,tenantSlug\n01957abc-0000-7000-8000-000000000001,acme\n"
+	var exported bytes.Buffer
 	export, err := client.Admin.Audit.ExportEvents(context.Background(), AuditListOptions{
 		Scope:              AuditScopeGlobal,
 		AffectedTenantSlug: "acme",
@@ -231,14 +233,16 @@ func TestAuditAdminClientLifecycle(t *testing.T) {
 		ResourceID:         "acme",
 		Outcome:            AuditOutcomeSuccess,
 		CorrelationID:      "req-1",
-	}, "csv")
+		EnvironmentID:      "01957abc-0000-7000-8000-0000000000e1",
+	}, "csv", &exported)
 	if err != nil {
 		t.Fatalf("ExportEvents error: %v", err)
 	}
-	if string(export.Body) != "eventId,tenantSlug\n01957abc-0000-7000-8000-000000000001,acme\n" || export.ContentType != "text/csv; charset=utf-8" {
-		t.Fatalf("export = %+v", export)
+	if exported.String() != "eventId,tenantSlug\n01957abc-0000-7000-8000-000000000001,acme\n" || export.ContentType != "text/csv; charset=utf-8" ||
+		export.ByteSize != int64(exported.Len()) {
+		t.Fatalf("export = %+v, wrote %q", export, exported.String())
 	}
-	if doer.requests[2].URL != "http://localhost:8080/api/v1/admin/audit/events/export?action=tenant.create&actorKind=user&actorReference=actor-0123456789ab&affectedTenantSlug=acme&correlationId=req-1&format=csv&outcome=success&resourceId=acme&resourceType=tenant&scope=global&since=2026-07-01T00%3A00%3A00Z&until=2026-08-01T00%3A00%3A00Z" {
+	if doer.requests[2].URL != "http://localhost:8080/api/v1/admin/audit/events/export?action=tenant.create&actorKind=user&actorReference=actor-0123456789ab&affectedTenantSlug=acme&correlationId=req-1&environmentId=01957abc-0000-7000-8000-0000000000e1&format=csv&outcome=success&resourceId=acme&resourceType=tenant&scope=global&since=2026-07-01T00%3A00%3A00Z&until=2026-08-01T00%3A00%3A00Z" {
 		t.Fatalf("ExportEvents URL = %s", doer.requests[2].URL)
 	}
 

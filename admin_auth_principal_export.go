@@ -33,12 +33,12 @@ type ApplicationPrincipalIdentityExport struct {
 
 // ApplicationPrincipalMembershipView includes active and removed memberships.
 type ApplicationPrincipalMembershipView struct {
-	OrganisationID   string `json:"organisationId"`
-	OrganisationSlug string `json:"organisationSlug"`
-	OrganisationName string `json:"organisationName"`
-	Role             string `json:"role"`
-	CreatedAt        string `json:"createdAt"`
-	RemovedAt        string `json:"removedAt,omitempty"`
+	OrganisationID   string                    `json:"organisationId"`
+	OrganisationSlug string                    `json:"organisationSlug"`
+	OrganisationName string                    `json:"organisationName"`
+	Role             ApplicationMembershipRole `json:"role"`
+	CreatedAt        string                    `json:"createdAt"`
+	RemovedAt        string                    `json:"removedAt,omitempty"`
 }
 
 type ApplicationPrincipalProfileValueView struct {

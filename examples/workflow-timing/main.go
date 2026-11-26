@@ -165,14 +165,14 @@ func observedRun(externalRunID string, startedAt time.Time) []custd.WorkflowTimi
 		attempt  int
 		start    time.Duration
 		finish   time.Duration
-		state    string
+		state    custd.WorkflowTimingStepState
 		errClass string
 	}{
-		{"validate-plan", 1, 0, 41 * time.Second, "completed", ""},
-		{"provision-host", 1, 41 * time.Second, 341 * time.Second, "failed", "timeout"},
-		{"provision-host", 2, 345 * time.Second, 372 * time.Second, "completed", ""},
-		{"configure-database", 1, 372 * time.Second, 1203 * time.Second, "completed", ""},
-		{"publish-site", 1, 1203 * time.Second, 1427 * time.Second, "completed", ""},
+		{"validate-plan", 1, 0, 41 * time.Second, custd.WorkflowTimingStepStateCompleted, ""},
+		{"provision-host", 1, 41 * time.Second, 341 * time.Second, custd.WorkflowTimingStepStateFailed, "timeout"},
+		{"provision-host", 2, 345 * time.Second, 372 * time.Second, custd.WorkflowTimingStepStateCompleted, ""},
+		{"configure-database", 1, 372 * time.Second, 1203 * time.Second, custd.WorkflowTimingStepStateCompleted, ""},
+		{"publish-site", 1, 1203 * time.Second, 1427 * time.Second, custd.WorkflowTimingStepStateCompleted, ""},
 	}
 
 	for _, phase := range phases {

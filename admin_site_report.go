@@ -8,16 +8,22 @@ import (
 	"time"
 )
 
+// AdminSiteLighthouseProfile is the device profile a Lighthouse run used.
+type AdminSiteLighthouseProfile string
+
 // The Lighthouse profiles of AdminSiteLighthouseRun.Profile and AdminSiteReportSpeed.Profile.
 const (
-	AdminSiteLighthouseDesktop = "desktop"
-	AdminSiteLighthouseMobile  = "mobile"
+	AdminSiteLighthouseDesktop AdminSiteLighthouseProfile = "desktop"
+	AdminSiteLighthouseMobile  AdminSiteLighthouseProfile = "mobile"
 )
+
+// AdminSiteLighthouseOutcome is how a Lighthouse run ended.
+type AdminSiteLighthouseOutcome string
 
 // The outcomes of AdminSiteLighthouseRun.Outcome.
 const (
-	AdminSiteLighthouseSuccess = "success"
-	AdminSiteLighthouseFailed  = "failed"
+	AdminSiteLighthouseSuccess AdminSiteLighthouseOutcome = "success"
+	AdminSiteLighthouseFailed  AdminSiteLighthouseOutcome = "failed"
 )
 
 // AdminSiteUptimeWindow counts checks over one window. UpPercent is nil when there were none.
@@ -83,9 +89,9 @@ type AdminSiteLighthouseMetrics struct {
 
 // AdminSiteLighthouseRun is one scheduled lab run; a failed run says why in Failure.
 type AdminSiteLighthouseRun struct {
-	Profile     string                     `json:"profile"`
+	Profile     AdminSiteLighthouseProfile `json:"profile"`
 	ObservedAt  time.Time                  `json:"observedAt"`
-	Outcome     string                     `json:"outcome"`
+	Outcome     AdminSiteLighthouseOutcome `json:"outcome"`
 	Failure     string                     `json:"failure,omitempty"`
 	URL         string                     `json:"url"`
 	DurationMs  int                        `json:"durationMs"`
@@ -95,14 +101,13 @@ type AdminSiteLighthouseRun struct {
 }
 
 // AdminSiteLighthouseHistory is a domain's lab runs of URL over the last Days days, with the
-// latest score of every measured page and profile in Pages. Servers before per-page Lighthouse
-// leave URL empty and Pages nil, meaning only the home page is measured.
+// latest score of every measured page and profile in Pages.
 type AdminSiteLighthouseHistory struct {
 	DomainUUID string                              `json:"domainUuid"`
 	Days       int                                 `json:"days"`
-	URL        string                              `json:"url,omitempty"`
+	URL        string                              `json:"url"`
 	Runs       []AdminSiteLighthouseRun            `json:"runs"`
-	Pages      []AdminSiteLighthousePageComparison `json:"pages,omitempty"`
+	Pages      []AdminSiteLighthousePageComparison `json:"pages"`
 }
 
 // AdminSiteReportUptime is the report's uptime: status, windows and ninety daily bars.
@@ -125,7 +130,7 @@ type AdminSiteReportCertificate struct {
 
 // AdminSiteReportSpeed is the latest successful Lighthouse run of one profile.
 type AdminSiteReportSpeed struct {
-	Profile    string                     `json:"profile"`
+	Profile    AdminSiteLighthouseProfile `json:"profile"`
 	ObservedAt time.Time                  `json:"observedAt"`
 	Scores     AdminSiteLighthouseScores  `json:"scores"`
 	Metrics    AdminSiteLighthouseMetrics `json:"metrics"`
@@ -162,9 +167,8 @@ type AdminSiteReportAudit struct {
 type AdminSiteReport struct {
 	Host        string    `json:"host"`
 	GeneratedAt time.Time `json:"generatedAt"`
-	// Template is an AdminSiteReportTemplate*; it is empty from servers before the template field,
-	// whose reports are the full template.
-	Template    string                     `json:"template,omitempty"`
+	// Template is an AdminSiteReportTemplate*.
+	Template    AdminSiteReportTemplate    `json:"template"`
 	Uptime      AdminSiteReportUptime      `json:"uptime"`
 	Certificate AdminSiteReportCertificate `json:"certificate"`
 	Speed       []AdminSiteReportSpeed     `json:"speed"`
@@ -215,7 +219,7 @@ func (c *SiteDomainAdminClient) GetReportWithOptions(
 ) (*AdminSiteReport, error) {
 	var report AdminSiteReport
 	path := siteQueryPath(siteDomainPath(domainUUID)+"/report", url.Values{
-		"template": {options.Template}, "days": {sitePositiveInt(options.Days)},
+		"template": {string(options.Template)}, "days": {sitePositiveInt(options.Days)},
 	})
 	err := c.request(ctx, http.MethodGet, path, nil, &report)
 	return &report, err

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -65,7 +66,7 @@ var argumentSurfaceRows = []surfaceRow{
 		return err
 	}},
 	{id: "admin-api GET /api/v1/admin/audit/events/export", path: "/api/v1/admin/audit/events/export", call: func(e *surfaceEnv) error {
-		_, err := e.client.Admin.Audit.ExportEvents(context.Background(), surfaceAuditOptions, "csv")
+		_, err := e.client.Admin.Audit.ExportEvents(context.Background(), surfaceAuditOptions, "csv", io.Discard)
 		return err
 	}},
 	{id: "admin-api POST /api/v1/admin/time-plans/runs/{runUuid}/annotations", path: "/api/v1/admin/time-plans/runs/a2/annotations", call: func(e *surfaceEnv) error {
@@ -249,7 +250,7 @@ var argumentSurfaceRows = []surfaceRow{
 		return err
 	}},
 	{id: "analytics-api POST /api/v1/reporting/exports", path: "/api/v1/reporting/exports", call: func(e *surfaceEnv) error {
-		_, err := e.client.Reporting.CreateExport(context.Background(), ReportExportCreateRequest{DashboardKey: "a1", Formats: []string{"csv"}})
+		_, err := e.client.Reporting.CreateExport(context.Background(), ReportExportCreateRequest{DashboardKey: "a1", Formats: []ExportFormat{FormatCSV}})
 		return err
 	}},
 	{id: "analytics-api GET /api/v1/reporting/exports/{exportID}", path: "/api/v1/reporting/exports/0195f0a0-0000-4000-8000-000000000001", call: func(e *surfaceEnv) error {
@@ -308,7 +309,7 @@ var (
 	surfaceAuditOptions = AuditListOptions{
 		Scope: AuditScopeGlobal, AffectedTenantSlug: "a1", Since: "2026-11-01T00:00:00Z", Until: "2026-11-02T00:00:00Z",
 		ActorKind: "a2", ActorReference: "a3", Action: "a4", ResourceType: "a5", ResourceID: "a6",
-		Outcome: AuditOutcomeSuccess, CorrelationID: "a7", Limit: 5, Cursor: "a8",
+		Outcome: AuditOutcomeSuccess, CorrelationID: "a7", EnvironmentID: surfaceUUID, Limit: 5, Cursor: "a8",
 	}
 	surfaceReservationScope = ProducerReservationScope{ParentCompanySlug: "p1"}
 	surfaceUsageQuery       = UsageQuery{

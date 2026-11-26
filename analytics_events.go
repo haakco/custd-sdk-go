@@ -285,12 +285,12 @@ func (a *AnalyticsEventClient) request(ctx context.Context, method, path string,
 		}
 	}
 	if a.client.config.HTTPClient != nil {
-		return a.requestViaDoer(method, path, body, out)
+		return a.requestViaDoer(ctx, method, path, body, out)
 	}
 	return a.requestViaHTTP(ctx, method, path, body, out)
 }
 
-func (a *AnalyticsEventClient) requestViaDoer(method, path string, body []byte, out any) error {
+func (a *AnalyticsEventClient) requestViaDoer(ctx context.Context, method, path string, body []byte, out any) error {
 	resp, err := a.client.config.HTTPClient.Do(&HTTPRequest{
 		Method:  method,
 		URL:     a.endpoint(path),
@@ -300,6 +300,7 @@ func (a *AnalyticsEventClient) requestViaDoer(method, path string, body []byte, 
 	if err != nil {
 		return &RequestError{Message: "custd: analytics request failed: " + err.Error(), Retryable: true, Cause: err}
 	}
+	recordMetadata(ctx, responseHeader(resp.Headers, requestIDHeader))
 	if err := a.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
 		return err
 	}
@@ -322,6 +323,7 @@ func (a *AnalyticsEventClient) requestViaHTTP(ctx context.Context, method, path 
 	if bodyErr != nil {
 		return fmt.Errorf("custd: read analytics response: %w", bodyErr)
 	}
+	recordMetadata(ctx, resp.Header.Get(requestIDHeader))
 	if err := a.client.checkStatus(resp.StatusCode, respBody); err != nil {
 		return err
 	}

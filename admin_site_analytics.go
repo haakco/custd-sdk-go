@@ -6,24 +6,33 @@ import (
 	"time"
 )
 
+// AdminSiteAnalyticsProvider is a web analytics provider a domain can connect.
+type AdminSiteAnalyticsProvider string
+
 // AdminSiteAnalyticsProviderGA4 names Google Analytics 4, the one analytics provider. Custd reads
 // the property as its Search Console service account, which the tenant adds as a Viewer.
-const AdminSiteAnalyticsProviderGA4 = "ga4"
+const AdminSiteAnalyticsProviderGA4 AdminSiteAnalyticsProvider = "ga4"
+
+// AdminSiteAnalyticsConnectionStatus is the state of a domain's analytics connection.
+type AdminSiteAnalyticsConnectionStatus string
 
 // The values of AdminSiteAnalyticsConnection.Status. Revoked means GA4 refused Custd's service
 // account: add it as a Viewer and connect again. Failing is retried on schedule.
 const (
-	AdminSiteAnalyticsPending = "pending"
-	AdminSiteAnalyticsActive  = "active"
-	AdminSiteAnalyticsFailing = "failing"
-	AdminSiteAnalyticsRevoked = "revoked"
+	AdminSiteAnalyticsPending AdminSiteAnalyticsConnectionStatus = "pending"
+	AdminSiteAnalyticsActive  AdminSiteAnalyticsConnectionStatus = "active"
+	AdminSiteAnalyticsFailing AdminSiteAnalyticsConnectionStatus = "failing"
+	AdminSiteAnalyticsRevoked AdminSiteAnalyticsConnectionStatus = "revoked"
 )
+
+// AdminSiteAnalyticsUnavailableReport is an analytics report that can be unavailable.
+type AdminSiteAnalyticsUnavailableReport string
 
 // The values of AdminSiteAnalyticsUnavailable.Report: GA4 reports Custd does not import, each said
 // as unavailable rather than empty.
 const (
-	AdminSiteAnalyticsEcommerce = "ecommerce"
-	AdminSiteAnalyticsAudience  = "audience"
+	AdminSiteAnalyticsEcommerce AdminSiteAnalyticsUnavailableReport = "ecommerce"
+	AdminSiteAnalyticsAudience  AdminSiteAnalyticsUnavailableReport = "audience"
 )
 
 // SiteAnalyticsPropertyInvalidCode is the problem code a 400 carries when propertyId is not a GA4
@@ -42,11 +51,11 @@ type AdminSiteAnalyticsConnectionRequest struct {
 
 // AdminSiteAnalyticsConnection is one domain's GA4 property and where its import stands.
 type AdminSiteAnalyticsConnection struct {
-	Provider       string     `json:"provider"`
-	PropertyID     string     `json:"propertyId"`
-	Status         string     `json:"status"`
-	LastImportedAt *time.Time `json:"lastImportedAt,omitempty"`
-	LastFailure    string     `json:"lastFailure,omitempty"`
+	Provider       AdminSiteAnalyticsProvider         `json:"provider"`
+	PropertyID     string                             `json:"propertyId"`
+	Status         AdminSiteAnalyticsConnectionStatus `json:"status"`
+	LastImportedAt *time.Time                         `json:"lastImportedAt,omitempty"`
+	LastFailure    string                             `json:"lastFailure,omitempty"`
 }
 
 // AdminSiteAnalyticsRow is one row of a GA4 report over the window: a landing page path, key event
@@ -61,8 +70,8 @@ type AdminSiteAnalyticsRow struct {
 
 // AdminSiteAnalyticsUnavailable is a GA4 report Custd does not read, and why.
 type AdminSiteAnalyticsUnavailable struct {
-	Report string `json:"report"`
-	Reason string `json:"reason"`
+	Report AdminSiteAnalyticsUnavailableReport `json:"report"`
+	Reason string                              `json:"reason"`
 }
 
 // AdminSiteAnalyticsReport is what Custd imported from a domain's GA4 property over the newest 28
@@ -105,5 +114,5 @@ func (c *SiteDomainAdminClient) DisconnectAnalytics(ctx context.Context, domainU
 }
 
 func siteAnalyticsGA4Path(domainUUID string) string {
-	return siteDomainPath(domainUUID) + "/analytics/" + AdminSiteAnalyticsProviderGA4
+	return siteDomainPath(domainUUID) + "/analytics/" + string(AdminSiteAnalyticsProviderGA4)
 }

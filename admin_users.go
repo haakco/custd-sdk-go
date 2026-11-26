@@ -24,16 +24,41 @@ type UserRemovalAttribution struct {
 	DeleteReason      *string `json:"deleteReason"`
 }
 
+// AdminUserMembershipState is whether a user's tenant membership is current.
+type AdminUserMembershipState string
+
+const (
+	AdminUserMembershipStateActive AdminUserMembershipState = "active"
+	AdminUserMembershipStateEnded  AdminUserMembershipState = "ended"
+)
+
+// AdminUserGlobalState is whether a user can sign in anywhere.
+type AdminUserGlobalState string
+
+const (
+	AdminUserGlobalStateEnabled   AdminUserGlobalState = "enabled"
+	AdminUserGlobalStateSuspended AdminUserGlobalState = "suspended"
+)
+
+// TenantRole is a role a tenant administrator can hold.
+type TenantRole string
+
+const (
+	TenantRoleTenantAdmin         TenantRole = "tenant_admin"
+	TenantRoleTenantIngestManager TenantRole = "tenant_ingest_manager"
+	TenantRoleTenantAnalyst       TenantRole = "tenant_analyst"
+)
+
 // AdminUser is one administrator user.
 type AdminUser struct {
-	UserUUID                  string   `json:"userUuid"`
-	Email                     string   `json:"email"`
-	CompanySlug               string   `json:"companySlug"`
-	Roles                     []string `json:"roles"`
-	GlobalUserState           string   `json:"globalUserState"`
-	MembershipState           string   `json:"membershipState"`
-	CreatedAt                 string   `json:"createdAt"`
-	WelcomeNotificationStatus string   `json:"welcomeNotificationStatus"`
+	UserUUID                  string                   `json:"userUuid"`
+	Email                     string                   `json:"email"`
+	CompanySlug               string                   `json:"companySlug"`
+	Roles                     []TenantRole             `json:"roles"`
+	GlobalUserState           AdminUserGlobalState     `json:"globalUserState"`
+	MembershipState           AdminUserMembershipState `json:"membershipState"`
+	CreatedAt                 string                   `json:"createdAt"`
+	WelcomeNotificationStatus string                   `json:"welcomeNotificationStatus"`
 	// LastLoginAt is nil until the user first signs in.
 	LastLoginAt *string `json:"lastLoginAt"`
 	UserRemovalAttribution
@@ -42,20 +67,20 @@ type AdminUser struct {
 // AdminUserCreateRequest creates a user. The company is server-derived unless a
 // system administrator names one.
 type AdminUserCreateRequest struct {
-	Email       string   `json:"email"`
-	CompanySlug string   `json:"companySlug,omitempty"`
-	Roles       []string `json:"roles,omitempty"`
+	Email       string       `json:"email"`
+	CompanySlug string       `json:"companySlug,omitempty"`
+	Roles       []TenantRole `json:"roles,omitempty"`
 }
 
 // AdminUserUpdateRequest changes a user's roles; the server accepts no other field.
 type AdminUserUpdateRequest struct {
-	Roles []string `json:"roles,omitempty"`
+	Roles []TenantRole `json:"roles,omitempty"`
 }
 
 // AdminUserMembershipCreateRequest adds a user to a company.
 type AdminUserMembershipCreateRequest struct {
-	CompanySlug string   `json:"companySlug"`
-	Roles       []string `json:"roles,omitempty"`
+	CompanySlug string       `json:"companySlug"`
+	Roles       []TenantRole `json:"roles,omitempty"`
 }
 
 // AdminUserPasswordReset is the notification a reset queued — not a password. The
@@ -91,9 +116,9 @@ type AdminUserRemovalRequest struct {
 // AdminUserRole is one assignable role. Slug is the value a caller submits; Name and
 // Description are for a person.
 type AdminUserRole struct {
-	Slug        string `json:"slug"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Slug        TenantRole `json:"slug"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
 }
 
 // AdminUserRoleListResponse lists assignable roles.
@@ -189,10 +214,10 @@ func (c *AdminUsersAdminClient) Get(
 func (c *AdminUsersAdminClient) Update(
 	ctx context.Context,
 	userUUID string,
-	roles []string,
+	roles []TenantRole,
 ) (*AdminUser, ResponseMetadata, error) {
 	if roles == nil {
-		roles = []string{}
+		roles = []TenantRole{}
 	}
 	req := AdminUserUpdateRequest{Roles: roles}
 	var out AdminUser
@@ -226,11 +251,11 @@ func (c *AdminUsersAdminClient) Disable(
 func (c *AdminUsersAdminClient) Enable(
 	ctx context.Context,
 	userUUID string,
-	roles []string,
+	roles []TenantRole,
 	globalUser bool,
 ) (ResponseMetadata, error) {
 	if roles == nil {
-		roles = []string{}
+		roles = []TenantRole{}
 	}
 	body := AdminUserEnableRequest{Roles: roles}
 	return c.admin.requestWithMetadata(
@@ -315,7 +340,7 @@ func (c *AdminUsersAdminClient) ListRoles(
 // AdminUserEnableRequest is the body for an enable: the roles the membership reopens
 // with.
 type AdminUserEnableRequest struct {
-	Roles []string `json:"roles"`
+	Roles []TenantRole `json:"roles"`
 }
 
 // adminUserActionPath builds an action route, adding globalUser when the action is on the

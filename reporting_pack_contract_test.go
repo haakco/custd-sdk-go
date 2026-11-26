@@ -62,16 +62,20 @@ func TestReportingPackContractOmitsUnsetOptionalFields(t *testing.T) {
 	}
 }
 
-func TestReportingPackContractRejectsInvalidClosedUnion(t *testing.T) {
+func TestReportingPackContractKeepsUnknownClosedUnionAndMarksItInvalid(t *testing.T) {
 	var metric PackMetric
 	if err := json.Unmarshal([]byte(`{"calculation":"count"}`), &metric); err != nil {
 		t.Fatalf("valid closed-union value rejected: %v", err)
 	}
-	if metric.Calculation != CalculationCount {
-		t.Fatalf("calculation = %q", metric.Calculation)
+	if metric.Calculation != CalculationCount || !metric.Calculation.Valid() {
+		t.Fatalf("calculation = %q valid=%v", metric.Calculation, metric.Calculation.Valid())
 	}
-	if err := json.Unmarshal([]byte(`{"calculation":"not_a_calculation"}`), &metric); err == nil {
-		t.Fatal("expected an invalid closed-union value to be rejected")
+	if err := json.Unmarshal([]byte(`{"calculation":"not_a_calculation"}`), &metric); err != nil {
+		t.Fatalf("unknown closed-union value failed to decode: %v", err)
+	}
+	if metric.Calculation != "not_a_calculation" || metric.Calculation.Valid() {
+		t.Fatalf("calculation = %q valid=%v, want the unknown value kept and invalid",
+			metric.Calculation, metric.Calculation.Valid())
 	}
 }
 
@@ -185,7 +189,7 @@ func canonicalPackFixture() Pack {
 				ResetBehavior: ResetInteraction,
 			}},
 			SharePolicy: &DashboardSharePolicy{
-				RelativeRanges: []string{"7d"}, ComparisonPresets: []DashboardComparisonPreset{ComparisonPreviousPeriod},
+				RelativeRanges: []DashboardRelativeRange{DashboardRelativeRange7Days}, ComparisonPresets: []DashboardComparisonPreset{ComparisonPreviousPeriod},
 			},
 			Sections: []ReportSectionDefinition{{
 				Key: "lead", Title: "Lead", Layout: SectionLayoutLead, ColumnSpan: 1, WidgetKeys: []string{"overview"},

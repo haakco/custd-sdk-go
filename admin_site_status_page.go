@@ -18,11 +18,23 @@ type AdminSiteStatusDraft struct {
 	Components []AdminSiteStatusSelection `json:"components"`
 }
 
+// AdminSiteStatusComponentStatus is the state a status page component shows.
+type AdminSiteStatusComponentStatus string
+
+const (
+	AdminSiteStatusComponentStatusUnknown     AdminSiteStatusComponentStatus = "unknown"
+	AdminSiteStatusComponentStatusUp          AdminSiteStatusComponentStatus = "up"
+	AdminSiteStatusComponentStatusFailing     AdminSiteStatusComponentStatus = "failing"
+	AdminSiteStatusComponentStatusDown        AdminSiteStatusComponentStatus = "down"
+	AdminSiteStatusComponentStatusPaused      AdminSiteStatusComponentStatus = "paused"
+	AdminSiteStatusComponentStatusMaintenance AdminSiteStatusComponentStatus = "maintenance"
+)
+
 // AdminSiteStatusComponent is the public projection of a selected component.
 type AdminSiteStatusComponent struct {
-	Label         string     `json:"label"`
-	Status        string     `json:"status"`
-	LastCheckedAt *time.Time `json:"lastCheckedAt,omitempty"`
+	Label         string                         `json:"label"`
+	Status        AdminSiteStatusComponentStatus `json:"status"`
+	LastCheckedAt *time.Time                     `json:"lastCheckedAt,omitempty"`
 }
 
 // AdminSiteStatusUpdate is an update approved for public display.

@@ -42,8 +42,8 @@ type TimePlanDefinition struct {
 	HorizonMS          int64                     `json:"horizonMs"`
 	DefaultStartsAt    string                    `json:"defaultStartsAt,omitempty"`
 	DefaultEndsAt      string                    `json:"defaultEndsAt,omitempty"`
-	RedistributionMode string                    `json:"redistributionMode,omitempty"`
-	AutoAdvance        bool                      `json:"autoAdvance,omitempty"`
+	RedistributionMode string                    `json:"redistributionMode"`
+	AutoAdvance        bool                      `json:"autoAdvance"`
 	AnnotationSchema   *TimePlanAnnotationSchema `json:"annotationSchema,omitempty"`
 	ThresholdCues      []TimePlanThresholdCue    `json:"thresholdCues,omitempty"`
 	Blocks             []TimePlanBlock           `json:"blocks"`
@@ -156,18 +156,27 @@ func (d *TimePlanDefinition) Validate() error {
 	return nil
 }
 
+// TimePlanAllocationBasis is how a time plan block's duration is allocated.
+type TimePlanAllocationBasis string
+
+const (
+	TimePlanAllocationBasisAbsolute        TimePlanAllocationBasis = "absolute"
+	TimePlanAllocationBasisHorizonFraction TimePlanAllocationBasis = "horizon_fraction"
+	TimePlanAllocationBasisRemainderWeight TimePlanAllocationBasis = "remainder_weight"
+)
+
 type TimePlanBlock struct {
-	UUID        string   `json:"uuid"`
-	SemanticKey string   `json:"semanticKey"`
-	Title       string   `json:"title"`
-	Description string   `json:"description,omitempty"`
-	Category    string   `json:"category,omitempty"`
-	Tags        []string `json:"tags,omitempty"`
-	Basis       string   `json:"basis"`
-	DurationMS  int64    `json:"durationMs,omitempty"`
-	Numerator   int64    `json:"numerator,omitempty"`
-	Denominator int64    `json:"denominator,omitempty"`
-	Weight      int64    `json:"weight,omitempty"`
+	UUID        string                  `json:"uuid"`
+	SemanticKey string                  `json:"semanticKey"`
+	Title       string                  `json:"title"`
+	Description string                  `json:"description,omitempty"`
+	Category    string                  `json:"category,omitempty"`
+	Tags        []string                `json:"tags,omitempty"`
+	Basis       TimePlanAllocationBasis `json:"basis"`
+	DurationMS  int64                   `json:"durationMs,omitempty"`
+	Numerator   int64                   `json:"numerator,omitempty"`
+	Denominator int64                   `json:"denominator,omitempty"`
+	Weight      int64                   `json:"weight,omitempty"`
 }
 
 type TimePlanDraftRequest struct {
@@ -193,7 +202,7 @@ type TimePlan struct {
 	UUID          string             `json:"uuid"`
 	PlanKey       string             `json:"planKey"`
 	Name          string             `json:"name"`
-	Description   string             `json:"description,omitempty"`
+	Description   string             `json:"description"`
 	Status        string             `json:"status"`
 	DraftRevision int64              `json:"draftRevision"`
 	Definition    TimePlanDefinition `json:"definition"`
@@ -248,47 +257,70 @@ type TimePlanRunBlock struct {
 	OutcomeCensored    bool   `json:"outcomeCensored"`
 }
 
+// TimePlanStartPolicy is how a run fits its blocks to the scheduled window.
+type TimePlanStartPolicy string
+
+const (
+	TimePlanStartPolicyFullDuration       TimePlanStartPolicy = "full_duration"
+	TimePlanStartPolicyFitScheduledWindow TimePlanStartPolicy = "fit_scheduled_window"
+)
+
 type TimePlanRun struct {
-	UUID                string             `json:"uuid"`
-	PlanUUID            string             `json:"planUuid"`
-	Status              string             `json:"status"`
-	StreamVersion       int64              `json:"streamVersion"`
-	ScheduledStartsAt   string             `json:"scheduledStartsAt,omitempty"`
-	ScheduledEndsAt     string             `json:"scheduledEndsAt,omitempty"`
-	EffectiveStartsAt   string             `json:"effectiveStartsAt,omitempty"`
-	EffectiveEndsAt     string             `json:"effectiveEndsAt,omitempty"`
-	StartPolicy         string             `json:"startPolicy,omitempty"`
-	BaselineHorizonMS   int64              `json:"baselineHorizonMs"`
-	ExecutableHorizonMS *int64             `json:"executableHorizonMs,omitempty"`
-	LostMS              int64              `json:"lostMs"`
-	UnusedMS            int64              `json:"unusedMs"`
-	OverrunMS           int64              `json:"overrunMs"`
-	CurrentBlockUUID    string             `json:"currentBlockUuid,omitempty"`
-	Blocks              []TimePlanRunBlock `json:"blocks"`
+	UUID                string              `json:"uuid"`
+	PlanUUID            string              `json:"planUuid"`
+	Status              string              `json:"status"`
+	StreamVersion       int64               `json:"streamVersion"`
+	ScheduledStartsAt   string              `json:"scheduledStartsAt,omitempty"`
+	ScheduledEndsAt     string              `json:"scheduledEndsAt,omitempty"`
+	EffectiveStartsAt   string              `json:"effectiveStartsAt,omitempty"`
+	EffectiveEndsAt     string              `json:"effectiveEndsAt,omitempty"`
+	StartPolicy         TimePlanStartPolicy `json:"startPolicy,omitempty"`
+	BaselineHorizonMS   int64               `json:"baselineHorizonMs"`
+	ExecutableHorizonMS *int64              `json:"executableHorizonMs,omitempty"`
+	LostMS              int64               `json:"lostMs"`
+	UnusedMS            int64               `json:"unusedMs"`
+	OverrunMS           int64               `json:"overrunMs"`
+	CurrentBlockUUID    string              `json:"currentBlockUuid,omitempty"`
+	Blocks              []TimePlanRunBlock  `json:"blocks"`
 }
+
+// TimePlanCommandType is a command a time plan run accepts.
+type TimePlanCommandType string
+
+const (
+	TimePlanCommandTypeScheduleRun      TimePlanCommandType = "schedule_run"
+	TimePlanCommandTypeStartRun         TimePlanCommandType = "start_run"
+	TimePlanCommandTypeStartBlock       TimePlanCommandType = "start_block"
+	TimePlanCommandTypeCompleteBlock    TimePlanCommandType = "complete_block"
+	TimePlanCommandTypeSkipBlock        TimePlanCommandType = "skip_block"
+	TimePlanCommandTypeChangeBoundary   TimePlanCommandType = "change_boundary"
+	TimePlanCommandTypeCompleteRun      TimePlanCommandType = "complete_run"
+	TimePlanCommandTypeCancelRun        TimePlanCommandType = "cancel_run"
+	TimePlanCommandTypeAppendCorrection TimePlanCommandType = "append_correction"
+)
 
 type TimePlanCommandRequest struct {
 	CommandID                string                    `json:"commandId"`
 	IdempotencyKey           string                    `json:"idempotencyKey"`
 	ExpectedVersion          int64                     `json:"expectedVersion"`
-	Type                     string                    `json:"type"`
+	Type                     TimePlanCommandType       `json:"type"`
 	BlockID                  string                    `json:"blockId,omitempty"`
 	ClientOccurredAt         string                    `json:"clientOccurredAt,omitempty"`
 	BoundaryEndsAt           string                    `json:"boundaryEndsAt,omitempty"`
 	ScheduledStartsAt        string                    `json:"scheduledStartsAt,omitempty"`
 	ScheduledEndsAt          string                    `json:"scheduledEndsAt,omitempty"`
-	StartPolicy              string                    `json:"startPolicy,omitempty"`
+	StartPolicy              TimePlanStartPolicy       `json:"startPolicy,omitempty"`
 	Reason                   string                    `json:"reason,omitempty"`
 	SupersedesTransitionUUID string                    `json:"supersedesTransitionUuid,omitempty"`
 	Corrected                *TimePlanCorrectedCommand `json:"corrected,omitempty"`
 }
 
 type TimePlanCorrectedCommand struct {
-	Type           string `json:"type"`
-	BlockID        string `json:"blockId,omitempty"`
-	EffectiveAt    string `json:"effectiveAt"`
-	BoundaryEndsAt string `json:"boundaryEndsAt,omitempty"`
-	StartPolicy    string `json:"startPolicy,omitempty"`
+	Type           TimePlanCommandType `json:"type"`
+	BlockID        string              `json:"blockId,omitempty"`
+	EffectiveAt    string              `json:"effectiveAt"`
+	BoundaryEndsAt string              `json:"boundaryEndsAt,omitempty"`
+	StartPolicy    TimePlanStartPolicy `json:"startPolicy,omitempty"`
 }
 
 type TimePlanCalculationChange struct {
@@ -297,9 +329,21 @@ type TimePlanCalculationChange struct {
 	ToMS    int64  `json:"toMs"`
 }
 
+// TimePlanAdjustmentReason is why a time plan recalculated its allocations.
+type TimePlanAdjustmentReason string
+
+const (
+	TimePlanAdjustmentReasonLateStart       TimePlanAdjustmentReason = "late_start"
+	TimePlanAdjustmentReasonEarlyCompletion TimePlanAdjustmentReason = "early_completion"
+	TimePlanAdjustmentReasonOverrun         TimePlanAdjustmentReason = "overrun"
+	TimePlanAdjustmentReasonSkip            TimePlanAdjustmentReason = "skip"
+	TimePlanAdjustmentReasonCompletion      TimePlanAdjustmentReason = "completion"
+	TimePlanAdjustmentReasonBoundaryChange  TimePlanAdjustmentReason = "boundary_change"
+)
+
 type TimePlanCalculationReceipt struct {
 	AllocatorVersion string                      `json:"allocatorVersion"`
-	Reason           string                      `json:"reason"`
+	Reason           TimePlanAdjustmentReason    `json:"reason"`
 	Summary          string                      `json:"summary"`
 	Source           []TimePlanAllocation        `json:"source"`
 	Result           []TimePlanAllocation        `json:"result"`
@@ -337,33 +381,33 @@ type TimePlanHistoryResponse struct {
 }
 
 type TimePlanAnnotationInput struct {
-	Type           string `json:"type"`
-	RunBlockUUID   string `json:"runBlockUuid,omitempty"`
-	Text           string `json:"text,omitempty"`
-	MarkerLabel    string `json:"markerLabel,omitempty"`
-	DecisionStatus string `json:"decisionStatus,omitempty"`
-	AssigneeRef    string `json:"assigneeRef,omitempty"`
-	DueDate        string `json:"dueDate,omitempty"`
-	ActionStatus   string `json:"actionStatus,omitempty"`
+	Type           TimePlanAnnotationType `json:"type"`
+	RunBlockUUID   string                 `json:"runBlockUuid,omitempty"`
+	Text           string                 `json:"text,omitempty"`
+	MarkerLabel    string                 `json:"markerLabel,omitempty"`
+	DecisionStatus string                 `json:"decisionStatus,omitempty"`
+	AssigneeRef    string                 `json:"assigneeRef,omitempty"`
+	DueDate        string                 `json:"dueDate,omitempty"`
+	ActionStatus   string                 `json:"actionStatus,omitempty"`
 }
 
 type TimePlanAnnotation struct {
-	UUID            string `json:"uuid"`
-	RunUUID         string `json:"runUuid"`
-	RunBlockUUID    string `json:"runBlockUuid,omitempty"`
-	Type            string `json:"type"`
-	Text            string `json:"text,omitempty"`
-	MarkerLabel     string `json:"markerLabel,omitempty"`
-	DecisionStatus  string `json:"decisionStatus,omitempty"`
-	AssigneeRef     string `json:"assigneeRef,omitempty"`
-	DueDate         string `json:"dueDate,omitempty"`
-	ActionStatus    string `json:"actionStatus,omitempty"`
-	SupersedesUUID  string `json:"supersedesUuid,omitempty"`
-	RecordedAt      string `json:"recordedAt"`
-	ActorKind       string `json:"actorKind"`
-	ActorRef        string `json:"actorRef"`
-	RedactedAt      string `json:"redactedAt,omitempty"`
-	RedactionReason string `json:"redactionReason,omitempty"`
+	UUID            string                 `json:"uuid"`
+	RunUUID         string                 `json:"runUuid"`
+	RunBlockUUID    string                 `json:"runBlockUuid,omitempty"`
+	Type            TimePlanAnnotationType `json:"type"`
+	Text            string                 `json:"text,omitempty"`
+	MarkerLabel     string                 `json:"markerLabel,omitempty"`
+	DecisionStatus  string                 `json:"decisionStatus,omitempty"`
+	AssigneeRef     string                 `json:"assigneeRef,omitempty"`
+	DueDate         string                 `json:"dueDate,omitempty"`
+	ActionStatus    string                 `json:"actionStatus,omitempty"`
+	SupersedesUUID  string                 `json:"supersedesUuid,omitempty"`
+	RecordedAt      string                 `json:"recordedAt"`
+	ActorKind       string                 `json:"actorKind"`
+	ActorRef        string                 `json:"actorRef"`
+	RedactedAt      string                 `json:"redactedAt,omitempty"`
+	RedactionReason string                 `json:"redactionReason,omitempty"`
 }
 
 type TimePlanAnnotationListResponse struct {

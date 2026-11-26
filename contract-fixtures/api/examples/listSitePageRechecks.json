@@ -5,10 +5,10 @@
         "checkedAt": "2026-11-20T06:00:00Z",
         "failure": "example",
         "fixedRules": [
-          "example"
+          "crawl.page-status"
         ],
         "openRules": [
-          "example"
+          "crawl.page-status"
         ],
         "recheckUuid": "example",
         "requestedAt": "2026-11-20T06:00:00Z",

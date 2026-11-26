@@ -101,12 +101,27 @@ type SubjectExportStoreProgress struct {
 	LastCompletedAt    string `json:"lastCompletedAt,omitempty"`
 }
 
+// SubjectExportScope is what a subject export covers. A request may ask for both; each downloadable artifact is access or portability.
+type SubjectExportScope string
+
 // Subject export scopes. A request may ask for both; each downloadable artifact
 // is one of access or portability.
 const (
-	SubjectExportScopeAccess      = "access"
-	SubjectExportScopePortability = "portability"
-	SubjectExportScopeBoth        = "both"
+	SubjectExportScopeAccess      SubjectExportScope = "access"
+	SubjectExportScopePortability SubjectExportScope = "portability"
+	SubjectExportScopeBoth        SubjectExportScope = "both"
+)
+
+// SubjectExportStatus is where a subject export request stands.
+type SubjectExportStatus string
+
+const (
+	SubjectExportStatusQueued    SubjectExportStatus = "queued"
+	SubjectExportStatusRunning   SubjectExportStatus = "running"
+	SubjectExportStatusComplete  SubjectExportStatus = "complete"
+	SubjectExportStatusFailed    SubjectExportStatus = "failed"
+	SubjectExportStatusCancelled SubjectExportStatus = "cancelled"
+	SubjectExportStatusExpired   SubjectExportStatus = "expired"
 )
 
 // SubjectExport is the status of one subject export request. Scope is access,
@@ -115,8 +130,8 @@ const (
 type SubjectExport struct {
 	ID                 string                       `json:"id"`
 	OpaqueSubjectID    string                       `json:"opaqueSubjectId"`
-	Scope              string                       `json:"scope"`
-	State              string                       `json:"state"`
+	Scope              SubjectExportScope           `json:"scope"`
+	State              SubjectExportStatus          `json:"state"`
 	IdempotencyKey     string                       `json:"idempotencyKey"`
 	RequestedAt        string                       `json:"requestedAt"`
 	ExpiresAt          string                       `json:"expiresAt"`
@@ -135,26 +150,26 @@ type SubjectExportListResponse struct {
 // SubjectExportCreateRequest is the body for POST /admin/subject-exports.
 // IdempotencyKey is required for safe retries.
 type SubjectExportCreateRequest struct {
-	OpaqueSubjectID string `json:"opaqueSubjectId"`
-	Scope           string `json:"scope"`
-	IdempotencyKey  string `json:"idempotencyKey"`
+	OpaqueSubjectID string             `json:"opaqueSubjectId"`
+	Scope           SubjectExportScope `json:"scope"`
+	IdempotencyKey  string             `json:"idempotencyKey"`
 }
 
 // SubjectExportDownloadResponse is the body for GET
 // /admin/subject-exports/{requestId}/download: the stored artifact's identity,
 // location and integrity metadata. It names an object key, not a signed URL.
 type SubjectExportDownloadResponse struct {
-	ID              string `json:"id"`
-	RequestID       string `json:"requestId"`
-	Scope           string `json:"scope"`
-	ObjectKey       string `json:"objectKey"`
-	S3Key           string `json:"s3Key"`
-	EncryptionKeyID string `json:"encryptionKeyId"`
-	ChecksumSHA256  string `json:"checksumSha256"`
-	ByteSize        int64  `json:"byteSize"`
-	RecordCount     int64  `json:"recordCount"`
-	GeneratedAt     string `json:"generatedAt"`
-	ExpiresAt       string `json:"expiresAt"`
+	ID              string             `json:"id"`
+	RequestID       string             `json:"requestId"`
+	Scope           SubjectExportScope `json:"scope"`
+	ObjectKey       string             `json:"objectKey"`
+	S3Key           string             `json:"s3Key"`
+	EncryptionKeyID string             `json:"encryptionKeyId"`
+	ChecksumSHA256  string             `json:"checksumSha256"`
+	ByteSize        int64              `json:"byteSize"`
+	RecordCount     int64              `json:"recordCount"`
+	GeneratedAt     string             `json:"generatedAt"`
+	ExpiresAt       string             `json:"expiresAt"`
 }
 
 func (c *SubjectExportAdminClient) Create(
@@ -198,10 +213,10 @@ func (c *SubjectExportAdminClient) Cancel(ctx context.Context, requestID string)
 func (c *SubjectExportAdminClient) Download(
 	ctx context.Context,
 	requestID string,
-	scope string,
+	scope SubjectExportScope,
 ) (*SubjectExportDownloadResponse, error) {
 	var out SubjectExportDownloadResponse
-	path := "/subject-exports/" + url.PathEscape(requestID) + "/download?" + url.Values{"scope": {scope}}.Encode()
+	path := "/subject-exports/" + url.PathEscape(requestID) + "/download?" + url.Values{"scope": {string(scope)}}.Encode()
 	err := c.admin.request(ctx, http.MethodGet, path, nil, &out)
 	return &out, err
 }
@@ -440,13 +455,37 @@ type RetentionAdminClient struct {
 	admin *AdminClient
 }
 
+// RetentionClass is the class of stored data a retention policy governs.
+type RetentionClass string
+
+const (
+	RetentionClassRaw            RetentionClass = "raw"
+	RetentionClassArchive        RetentionClass = "archive"
+	RetentionClassMaterialized   RetentionClass = "materialized"
+	RetentionClassCache          RetentionClass = "cache"
+	RetentionClassObject         RetentionClass = "object"
+	RetentionClassAuditEvent     RetentionClass = "audit_event"
+	RetentionClassAuditIPAddress RetentionClass = "audit_ip_address"
+	RetentionClassAuditUserAgent RetentionClass = "audit_user_agent"
+)
+
+// RetentionScope is what a retention policy applies to.
+type RetentionScope string
+
+const (
+	RetentionScopeTenant    RetentionScope = "tenant"
+	RetentionScopeDataSpace RetentionScope = "data_space"
+	RetentionScopeEventType RetentionScope = "event_type"
+	RetentionScopeGlobal    RetentionScope = "global"
+)
+
 // RetentionPolicy is one bounded retention policy row. Scope is tenant,
 // data_space, event_type or global; RetentionClass names the classified store.
 type RetentionPolicy struct {
 	ID                 int64            `json:"id"`
 	CompanyID          int64            `json:"companyId,omitempty"`
-	Scope              string           `json:"scope"`
-	RetentionClass     string           `json:"retentionClass"`
+	Scope              RetentionScope   `json:"scope"`
+	RetentionClass     RetentionClass   `json:"retentionClass"`
 	MaxAgeSeconds      int64            `json:"maxAgeSeconds"`
 	Precedence         int64            `json:"precedence"`
 	LegalHold          bool             `json:"legalHold"`
@@ -464,15 +503,15 @@ type RetentionPolicy struct {
 // /admin/retention/policies/{tenantSlug}. LegalHold is operator-only and needs
 // a future LegalHoldUntil plus an opaque LegalHoldReference.
 type RetentionPolicyUpsertRequest struct {
-	Scope              string `json:"scope"`
-	RetentionClass     string `json:"retentionClass"`
-	MaxAgeSeconds      int64  `json:"maxAgeSeconds"`
-	Precedence         int64  `json:"precedence"`
-	LegalHold          bool   `json:"legalHold"`
-	LegalHoldUntil     string `json:"legalHoldUntil,omitempty"`
-	LegalHoldReference string `json:"legalHoldReference,omitempty"`
-	EffectiveAt        string `json:"effectiveAt,omitempty"`
-	ExpiresAt          string `json:"expiresAt,omitempty"`
+	Scope              RetentionScope `json:"scope"`
+	RetentionClass     RetentionClass `json:"retentionClass"`
+	MaxAgeSeconds      int64          `json:"maxAgeSeconds"`
+	Precedence         int64          `json:"precedence"`
+	LegalHold          bool           `json:"legalHold"`
+	LegalHoldUntil     string         `json:"legalHoldUntil,omitempty"`
+	LegalHoldReference string         `json:"legalHoldReference,omitempty"`
+	EffectiveAt        string         `json:"effectiveAt,omitempty"`
+	ExpiresAt          string         `json:"expiresAt,omitempty"`
 }
 
 // RetentionPolicyListResponse is the body for GET /admin/retention/policies
@@ -628,12 +667,20 @@ type StorageAlertAdminClient struct {
 	admin *AdminClient
 }
 
+// StorageAlertChannel is how a storage alert is delivered.
+type StorageAlertChannel string
+
+const (
+	StorageAlertChannelEmail   StorageAlertChannel = "email"
+	StorageAlertChannelWebhook StorageAlertChannel = "webhook"
+)
+
 type StorageAlertRule struct {
 	RuleID           string                  `json:"ruleId"`
 	TenantSlug       string                  `json:"tenantSlug"`
 	Metric           string                  `json:"metric"`
 	ThresholdPercent int                     `json:"thresholdPercent"`
-	Channel          string                  `json:"channel"`
+	Channel          StorageAlertChannel     `json:"channel"`
 	EmailRecipient   string                  `json:"emailRecipient,omitempty"`
 	Enabled          bool                    `json:"enabled"`
 	Evaluation       *StorageAlertEvaluation `json:"evaluation,omitempty"`
@@ -652,11 +699,11 @@ type StorageAlertEvaluation struct {
 // StorageAlertRuleCreateRequest is the body for POST
 // /admin/storage/alerts/{tenantSlug}. Channel is email or webhook.
 type StorageAlertRuleCreateRequest struct {
-	Metric           string `json:"metric"`
-	ThresholdPercent int    `json:"thresholdPercent"`
-	Channel          string `json:"channel"`
-	EmailRecipient   string `json:"emailRecipient"`
-	Enabled          bool   `json:"enabled"`
+	Metric           string              `json:"metric"`
+	ThresholdPercent int                 `json:"thresholdPercent"`
+	Channel          StorageAlertChannel `json:"channel"`
+	EmailRecipient   string              `json:"emailRecipient"`
+	Enabled          bool                `json:"enabled"`
 }
 
 type StorageAlertRuleListResponse struct {
@@ -813,13 +860,26 @@ type AuditListOptions struct {
 	ResourceID         string
 	Outcome            AuditOutcome
 	CorrelationID      string
-	Limit              int
-	Cursor             string
+	// EnvironmentID narrows the events to one environment's realm.
+	EnvironmentID string
+	Limit         int
+	Cursor        string
 }
 
-type AuditExportResponse struct {
-	Body        []byte
+// AuditExportFormat is the file format an audit export is served in.
+type AuditExportFormat string
+
+const (
+	AuditExportFormatCSV  AuditExportFormat = "csv"
+	AuditExportFormatJSON AuditExportFormat = "json"
+)
+
+// AuditExport describes an audit export ExportEvents wrote: the media type the server served,
+// the bytes written and the answer's request id.
+type AuditExport struct {
 	ContentType string
+	ByteSize    int64
+	Metadata    ResponseMetadata
 }
 
 type ReportingPackAuditEvent struct {
@@ -870,21 +930,29 @@ func (c *AuditAdminClient) GetEvent(ctx context.Context, eventID string, options
 	return &out, err
 }
 
-func (c *AuditAdminClient) ExportEvents(ctx context.Context, opts AuditListOptions, format string) (*AuditExportResponse, error) {
+// ExportEvents streams the audit events matching opts into w in the given format, JSON when
+// empty. On error w may hold a partial export.
+func (c *AuditAdminClient) ExportEvents(
+	ctx context.Context, opts AuditListOptions, format AuditExportFormat, w io.Writer,
+) (*AuditExport, error) {
 	if format == "" {
-		format = "json"
+		format = AuditExportFormatJSON
 	}
-	if format != "csv" && format != "json" {
+	if format != AuditExportFormatCSV && format != AuditExportFormatJSON {
 		return nil, fmt.Errorf("custd: audit export format must be csv or json")
 	}
 	params := auditExportParams(opts)
-	params.Set("format", format)
-	path := "/audit/events/export?" + params.Encode()
-	body, headers, err := c.admin.requestBytes(ctx, http.MethodGet, path)
+	params.Set("format", string(format))
+	path := c.admin.actingCompanyPath("/audit/events/export?" + params.Encode())
+	download, err := c.admin.openAdminDownload(ctx, path, "audit export")
 	if err != nil {
 		return nil, err
 	}
-	return &AuditExportResponse{Body: body, ContentType: responseHeader(headers, "Content-Type")}, nil
+	written, copyErr := io.Copy(w, download.body)
+	if err := errors.Join(copyErr, download.body.Close()); err != nil {
+		return nil, fmt.Errorf("custd: stream audit export: %w", err)
+	}
+	return &AuditExport{ContentType: download.header.Get("Content-Type"), ByteSize: written, Metadata: download.metadata}, nil
 }
 
 func (c *AuditAdminClient) ListReportingPackEvents(ctx context.Context, packKey string) (*ReportingPackAuditListResponse, error) {
@@ -924,12 +992,32 @@ type OffboardingCancelRequest struct {
 	Reason string `json:"reason"`
 }
 
+// OffboardingState is where a tenant offboarding request stands.
+type OffboardingState string
+
+const (
+	OffboardingStatePreview         OffboardingState = "preview"
+	OffboardingStateRequested       OffboardingState = "requested"
+	OffboardingStateExporting       OffboardingState = "exporting"
+	OffboardingStateExported        OffboardingState = "exported"
+	OffboardingStateConfirming      OffboardingState = "confirming"
+	OffboardingStateConfirmed       OffboardingState = "confirmed"
+	OffboardingStateWaiverRequested OffboardingState = "waiver_requested"
+	OffboardingStateWaiverApproved  OffboardingState = "waiver_approved"
+	OffboardingStateFencing         OffboardingState = "fencing"
+	OffboardingStateRevoking        OffboardingState = "revoking"
+	OffboardingStateDeleting        OffboardingState = "deleting"
+	OffboardingStateComplete        OffboardingState = "complete"
+	OffboardingStateFailed          OffboardingState = "failed"
+	OffboardingStateCancelled       OffboardingState = "cancelled"
+)
+
 // OffboardingRequest is the public request state returned by RequestOffboarding,
 // GetRequest, and the acknowledgement endpoint.
 type OffboardingRequest struct {
-	RequestUUID string `json:"requestUuid"`
-	State       string `json:"state"`
-	RequestedAt string `json:"requestedAt"`
+	RequestUUID string           `json:"requestUuid"`
+	State       OffboardingState `json:"state"`
+	RequestedAt string           `json:"requestedAt"`
 }
 
 // OffboardingRequestCreate carries the body for POST /offboarding. Confirmation
@@ -1087,14 +1175,13 @@ type OffboardingExportResponse struct {
 	PreviewInventoryDigest string `json:"previewInventoryDigest"`
 }
 
-const maxOffboardingDownloadBytes int64 = 64 << 20
-
-// OffboardingDownloadResponse contains authenticated export bytes and the
-// integrity metadata verified against the response headers.
-type OffboardingDownloadResponse struct {
-	Bytes          []byte
+// OffboardingDownload describes the bundle Download wrote and the integrity it verified: the
+// declared length and SHA-256 both matched the bytes written.
+type OffboardingDownload struct {
+	ContentType    string
 	ChecksumSHA256 string
 	ByteSize       int64
+	Metadata       ResponseMetadata
 }
 
 // OffboardingAcknowledgeResponse is the body for POST
@@ -1126,7 +1213,7 @@ type OffboardingReceiptResponse struct {
 	RequestedByKind string                       `json:"requested_by_kind"`
 	RequestedAt     string                       `json:"requested_at"`
 	CompletedAt     string                       `json:"completed_at"`
-	FinalState      string                       `json:"final_state"`
+	FinalState      OffboardingState             `json:"final_state"`
 	PerStore        []OffboardingReceiptPerStore `json:"per_store"`
 	Waiver          *OffboardingWaiver           `json:"waiver,omitempty"`
 	SHA256          string                       `json:"sha256"`
@@ -1168,81 +1255,49 @@ func (c *OffboardingAdminClient) Export(
 	return &out, err
 }
 
-// Download returns the authenticated export bytes. It rejects missing or
-// inconsistent integrity headers and responses larger than 64 MiB.
+// Download streams the authenticated export bundle into w, hashing it as it copies. It refuses a
+// response without valid Content-Length and X-Checksum-SHA256 headers before writing anything,
+// and fails when the bytes written do not match them. On error w may hold a partial or
+// unverified bundle, which the caller must discard.
 func (c *OffboardingAdminClient) Download(
-	ctx context.Context,
-	requestUUID string,
-) (*OffboardingDownloadResponse, error) {
+	ctx context.Context, requestUUID string, w io.Writer,
+) (*OffboardingDownload, error) {
 	path := "/offboarding/requests/" + url.PathEscape(requestUUID) + "/download"
-	if c.admin.client.config.HTTPClient != nil {
-		return c.downloadViaDoer(path)
-	}
-	return c.downloadViaHTTP(ctx, path)
-}
-
-func (c *OffboardingAdminClient) downloadViaDoer(path string) (*OffboardingDownloadResponse, error) {
-	resp, err := c.admin.client.config.HTTPClient.Do(&HTTPRequest{
-		Method: http.MethodGet, URL: c.admin.endpoint(path), Headers: c.admin.client.headers(false),
-	})
+	download, err := c.admin.openAdminDownload(ctx, path, "offboarding download")
 	if err != nil {
-		return nil, fmt.Errorf("custd: offboarding download failed: %w", err)
-	}
-	if err := c.admin.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
 		return nil, err
 	}
-	return verifiedOffboardingDownload(resp.Body, responseHeader(resp.Headers, "Content-Length"), responseHeader(resp.Headers, "X-Checksum-SHA256"))
+	result, err := writeVerifiedOffboardingDownload(download, w)
+	if closeErr := download.body.Close(); err == nil && closeErr != nil {
+		return nil, fmt.Errorf("custd: close offboarding download: %w", closeErr)
+	}
+	return result, err
 }
 
-func (c *OffboardingAdminClient) downloadViaHTTP(ctx context.Context, path string) (*OffboardingDownloadResponse, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.admin.endpoint(path), nil)
-	if err != nil {
-		return nil, fmt.Errorf("custd: create offboarding download: %w", err)
-	}
-	for key, value := range c.admin.client.headers(false) {
-		req.Header.Set(key, value)
-	}
-	resp, err := c.admin.client.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("custd: offboarding download failed: %w", err)
-	}
-	defer resp.Body.Close()
-	if resp.ContentLength > maxOffboardingDownloadBytes {
-		return nil, errors.New("custd: offboarding download exceeds 64 MiB")
-	}
-	body, err := io.ReadAll(io.LimitReader(resp.Body, maxOffboardingDownloadBytes+1))
-	if err != nil {
-		return nil, fmt.Errorf("custd: read offboarding download: %w", err)
-	}
-	if err := c.admin.client.checkStatus(resp.StatusCode, body); err != nil {
-		return nil, err
-	}
-	return verifiedOffboardingDownload(body, resp.Header.Get("Content-Length"), resp.Header.Get("X-Checksum-SHA256"))
-}
-
-func verifiedOffboardingDownload(body []byte, lengthHeader, checksumHeader string) (*OffboardingDownloadResponse, error) {
-	if int64(len(body)) > maxOffboardingDownloadBytes {
-		return nil, errors.New("custd: offboarding download exceeds 64 MiB")
-	}
-	declared, err := strconv.ParseInt(strings.TrimSpace(lengthHeader), 10, 64)
+func writeVerifiedOffboardingDownload(download *adminDownload, w io.Writer) (*OffboardingDownload, error) {
+	declared, err := strconv.ParseInt(strings.TrimSpace(download.header.Get("Content-Length")), 10, 64)
 	if err != nil || declared < 0 {
 		return nil, errors.New("custd: offboarding download content length is invalid")
 	}
-	if declared > maxOffboardingDownloadBytes {
-		return nil, errors.New("custd: offboarding download exceeds 64 MiB")
-	}
-	checksum := strings.ToLower(strings.TrimSpace(checksumHeader))
+	checksum := strings.ToLower(strings.TrimSpace(download.header.Get("X-Checksum-SHA256")))
 	if decoded, err := hex.DecodeString(checksum); err != nil || len(decoded) != sha256.Size {
 		return nil, errors.New("custd: offboarding download checksum header is invalid")
 	}
-	actual := sha256.Sum256(body)
-	if checksum != hex.EncodeToString(actual[:]) {
-		return nil, errors.New("custd: offboarding download checksum mismatch")
+	hash := sha256.New()
+	written, err := io.Copy(io.MultiWriter(w, hash), io.LimitReader(download.body, declared+1))
+	if err != nil {
+		return nil, fmt.Errorf("custd: stream offboarding download: %w", err)
 	}
-	if declared != int64(len(body)) {
+	if written != declared {
 		return nil, errors.New("custd: offboarding download content length mismatch")
 	}
-	return &OffboardingDownloadResponse{Bytes: body, ChecksumSHA256: checksum, ByteSize: declared}, nil
+	if checksum != hex.EncodeToString(hash.Sum(nil)) {
+		return nil, errors.New("custd: offboarding download checksum mismatch")
+	}
+	return &OffboardingDownload{
+		ContentType: download.header.Get("Content-Type"), ChecksumSHA256: checksum,
+		ByteSize: written, Metadata: download.metadata,
+	}, nil
 }
 
 func responseHeader(headers map[string]string, name string) string {
@@ -1375,6 +1430,9 @@ func auditFilterParams(opts AuditListOptions) url.Values {
 	}
 	if opts.CorrelationID != "" {
 		params.Set("correlationId", opts.CorrelationID)
+	}
+	if opts.EnvironmentID != "" {
+		params.Set("environmentId", opts.EnvironmentID)
 	}
 	return params
 }

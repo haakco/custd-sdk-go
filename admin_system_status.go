@@ -172,11 +172,21 @@ type SystemStageSignals struct {
 	LivenessFlapCount                int64   `json:"livenessFlapCount,omitempty"`
 }
 
+// SystemHealthStatus is the health of the system or one of its stages.
+type SystemHealthStatus string
+
+const (
+	SystemHealthStatusHealthy  SystemHealthStatus = "healthy"
+	SystemHealthStatusDegraded SystemHealthStatus = "degraded"
+	SystemHealthStatusFailing  SystemHealthStatus = "failing"
+	SystemHealthStatusUnknown  SystemHealthStatus = "unknown"
+)
+
 // SystemStatusStage is one pipeline stage's health, with its backlog trend and
 // the signals behind the status when the server measured them.
 type SystemStatusStage struct {
 	Name     string               `json:"name"`
-	Status   string               `json:"status"`
+	Status   SystemHealthStatus   `json:"status"`
 	Reason   string               `json:"reason,omitempty"`
 	Progress *SystemStageProgress `json:"progress,omitempty"`
 	Signals  *SystemStageSignals  `json:"signals,omitempty"`
@@ -217,8 +227,8 @@ type SystemRealmCapacity struct {
 
 // OperationalStageSummary is one step of the received, durable, queryable flow.
 type OperationalStageSummary struct {
-	Status string `json:"status"`
-	Reason string `json:"reason,omitempty"`
+	Status SystemHealthStatus `json:"status"`
+	Reason string             `json:"reason,omitempty"`
 }
 
 // OperationalBacklogSummary is the pipeline backlog and how it is trending.
@@ -230,7 +240,7 @@ type OperationalBacklogSummary struct {
 // OperationalSummary is the one-line answer to "is data flowing": whether
 // events are received, durable and queryable, and the backlog between them.
 type OperationalSummary struct {
-	Status    string                    `json:"status"`
+	Status    SystemHealthStatus        `json:"status"`
 	Received  OperationalStageSummary   `json:"received"`
 	Durable   OperationalStageSummary   `json:"durable"`
 	Queryable OperationalStageSummary   `json:"queryable"`

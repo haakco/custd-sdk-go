@@ -693,54 +693,58 @@ func (c *AdminClient) requestNonAdminWithHeaders(
 	return decodeAdminResponse(respBody, out)
 }
 
-const maxAdminBinaryResponseBytes = 64 << 20
+// adminDownload is an accepted admin response whose body is a file rather than a JSON document,
+// still unread, with its headers and request id.
+type adminDownload struct {
+	body     io.ReadCloser
+	header   http.Header
+	metadata ResponseMetadata
+}
 
-func (c *AdminClient) requestBytes(ctx context.Context, method, path string) ([]byte, map[string]string, error) {
-	path = c.actingCompanyPath(path)
+// openAdminDownload starts an admin GET for a file. A refused request is read so its problem
+// reaches checkStatus; an accepted body is left unread so the caller streams it instead of
+// holding the whole file in memory. A caller-supplied doer answers with a complete body, so
+// that body is the stream.
+func (c *AdminClient) openAdminDownload(ctx context.Context, path, label string) (*adminDownload, error) {
 	if c.client.config.HTTPClient != nil {
 		resp, err := c.client.config.HTTPClient.Do(&HTTPRequest{
-			Method: method, URL: c.endpoint(path), Headers: c.client.headers(false),
+			Method: http.MethodGet, URL: c.endpoint(path), Headers: c.client.headers(false),
 		})
 		if err != nil {
-			return nil, nil, fmt.Errorf("custd: admin request failed: %w", err)
+			return nil, fmt.Errorf("custd: %s failed: %w", label, err)
 		}
+		header := http.Header{}
+		for key, value := range resp.Headers {
+			header.Set(key, value)
+		}
+		metadata := ResponseMetadata{RequestID: header.Get(requestIDHeader)}
+		recordMetadata(ctx, metadata.RequestID)
 		if err := c.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
-			return nil, nil, err
+			return nil, err
 		}
-		if len(resp.Body) > maxAdminBinaryResponseBytes {
-			return nil, nil, fmt.Errorf("custd: admin response exceeds 64 MiB")
-		}
-		return resp.Body, resp.Headers, nil
+		return &adminDownload{body: io.NopCloser(bytes.NewReader(resp.Body)), header: header, metadata: metadata}, nil
 	}
-	req, err := http.NewRequestWithContext(ctx, method, c.endpoint(path), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.endpoint(path), nil)
 	if err != nil {
-		return nil, nil, fmt.Errorf("custd: create admin request: %w", err)
+		return nil, fmt.Errorf("custd: create %s: %w", label, err)
 	}
 	for key, value := range c.client.headers(false) {
 		req.Header.Set(key, value)
 	}
 	resp, err := c.client.httpClient.Do(req)
 	if err != nil {
-		return nil, nil, fmt.Errorf("custd: admin request failed: %w", err)
+		return nil, fmt.Errorf("custd: %s failed: %w", label, err)
 	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(io.LimitReader(resp.Body, maxAdminBinaryResponseBytes+1))
-	if err != nil {
-		return nil, nil, fmt.Errorf("custd: read admin response: %w", err)
-	}
-	if err := c.client.checkStatus(resp.StatusCode, body); err != nil {
-		return nil, nil, err
-	}
-	if len(body) > maxAdminBinaryResponseBytes {
-		return nil, nil, fmt.Errorf("custd: admin response exceeds 64 MiB")
-	}
-	headers := make(map[string]string, len(resp.Header))
-	for key, values := range resp.Header {
-		if len(values) > 0 {
-			headers[key] = values[0]
+	metadata := ResponseMetadata{RequestID: resp.Header.Get(requestIDHeader)}
+	recordMetadata(ctx, metadata.RequestID)
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+		body, readErr := readResponseBody(resp.Body)
+		if readErr != nil {
+			return nil, fmt.Errorf("custd: read %s response: %w", label, readErr)
 		}
+		return nil, c.client.checkStatus(resp.StatusCode, body)
 	}
-	return body, headers, nil
+	return &adminDownload{body: resp.Body, header: resp.Header, metadata: metadata}, nil
 }
 
 func decodeAdminResponse(body []byte, out any) error {

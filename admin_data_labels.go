@@ -33,24 +33,44 @@ type DataLabelDefinition struct {
 	UpdatedAt         string           `json:"updatedAt"`
 	Values            []DataLabelValue `json:"values"`
 }
+
+// DataLabelPropagationPolicy is how a data label carries over to derived data.
+type DataLabelPropagationPolicy string
+
+const (
+	DataLabelPropagationPolicyNone             DataLabelPropagationPolicy = "none"
+	DataLabelPropagationPolicyEventTypeToEvent DataLabelPropagationPolicy = "event_type_to_event"
+	DataLabelPropagationPolicyPackSelected     DataLabelPropagationPolicy = "pack_selected"
+)
+
+// DataLabelSensitivity is how sensitive the data a label marks is.
+type DataLabelSensitivity string
+
+const (
+	DataLabelSensitivityPublic     DataLabelSensitivity = "public"
+	DataLabelSensitivityInternal   DataLabelSensitivity = "internal"
+	DataLabelSensitivityPersonal   DataLabelSensitivity = "personal"
+	DataLabelSensitivityRestricted DataLabelSensitivity = "restricted"
+)
+
 type DataLabelDefinitionCreateRequest struct {
-	Key               string   `json:"key"`
-	DisplayName       string   `json:"displayName"`
-	Description       string   `json:"description"`
-	AllowedScopes     []string `json:"allowedScopes"`
-	Sensitivity       string   `json:"sensitivity"`
-	IntendedUse       string   `json:"intendedUse"`
-	Synonyms          []string `json:"synonyms"`
-	PropagationPolicy string   `json:"propagationPolicy"`
+	Key               string                     `json:"key"`
+	DisplayName       string                     `json:"displayName"`
+	Description       string                     `json:"description"`
+	AllowedScopes     []string                   `json:"allowedScopes"`
+	Sensitivity       DataLabelSensitivity       `json:"sensitivity"`
+	IntendedUse       string                     `json:"intendedUse"`
+	Synonyms          []string                   `json:"synonyms"`
+	PropagationPolicy DataLabelPropagationPolicy `json:"propagationPolicy"`
 }
 type DataLabelDefinitionUpdateRequest struct {
-	DisplayName       string   `json:"displayName"`
-	Description       string   `json:"description"`
-	AllowedScopes     []string `json:"allowedScopes"`
-	Sensitivity       string   `json:"sensitivity"`
-	IntendedUse       string   `json:"intendedUse"`
-	Synonyms          []string `json:"synonyms"`
-	PropagationPolicy string   `json:"propagationPolicy"`
+	DisplayName       string                     `json:"displayName"`
+	Description       string                     `json:"description"`
+	AllowedScopes     []string                   `json:"allowedScopes"`
+	Sensitivity       DataLabelSensitivity       `json:"sensitivity"`
+	IntendedUse       string                     `json:"intendedUse"`
+	Synonyms          []string                   `json:"synonyms"`
+	PropagationPolicy DataLabelPropagationPolicy `json:"propagationPolicy"`
 }
 type DataLabelValueCreateRequest struct {
 	Value       string `json:"value"`

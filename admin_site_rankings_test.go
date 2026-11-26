@@ -17,7 +17,7 @@ func TestSiteRankingsDecodeStatesAndSources(t *testing.T) {
 	ctx := context.Background()
 
 	rankings, err := domains.GetRankings(ctx, "d-1", 3)
-	if err != nil || rankings.Source != string(AdminSiteSearchConnectionActive) || len(rankings.Keywords) != 2 {
+	if err != nil || rankings.Source != AdminSiteRankingsSourceActive || len(rankings.Keywords) != 2 {
 		t.Fatalf("rankings = %+v, %v", rankings, err)
 	}
 	active, paused := rankings.Keywords[0], rankings.Keywords[1]
@@ -40,13 +40,8 @@ func TestSiteRankingsDecodeStatesAndSources(t *testing.T) {
 	}
 	doer.body = siteRankingsFixture(t, "rankingsFailing")
 	failing, err := domains.GetRankings(ctx, "d-1", 0)
-	if err != nil || failing.Source != string(AdminSiteSearchConnectionFailing) || failing.SourceFailure == "" {
+	if err != nil || failing.Source != AdminSiteRankingsSourceFailing || failing.SourceFailure == "" {
 		t.Fatalf("failing = %+v, %v", failing, err)
-	}
-	doer.body = siteRankingsFixture(t, "rankingsBeforePool")
-	before, err := domains.GetRankings(ctx, "d-1", 0)
-	if err != nil || before.Pool != "" || before.Keywords[0].Pool != nil || before.Keywords[1].Pool != nil {
-		t.Fatalf("before pool = %+v, %v", before, err)
 	}
 	assertSiteRequests(t, doer.requests[:2], []string{
 		"GET " + siteTestBase + "/rankings?days=3", "GET " + siteTestBase + "/rankings",

@@ -7,13 +7,22 @@ import (
 	"time"
 )
 
+// PrivateUptimeStatus is the latest result of a private uptime monitor.
+type PrivateUptimeStatus string
+
+const (
+	PrivateUptimeStatusUnknown PrivateUptimeStatus = "unknown"
+	PrivateUptimeStatusUp      PrivateUptimeStatus = "up"
+	PrivateUptimeStatusDown    PrivateUptimeStatus = "down"
+)
+
 // PrivateUptimeMonitor gives the network label, latest observation, and pending check.
 type PrivateUptimeMonitor struct {
 	MonitorUUID  string               `json:"monitorUuid"`
 	NetworkLabel string               `json:"networkLabel"`
 	Latest       *PrivateUptimeReport `json:"latest,omitempty"`
 	RequestedAt  *time.Time           `json:"requestedAt,omitempty"`
-	Status       string               `json:"status"`
+	Status       PrivateUptimeStatus  `json:"status"`
 }
 
 // PrivateUptimeCredential is returned when a monitor is created or its token is rotated.

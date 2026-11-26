@@ -240,3 +240,29 @@ func measurementBulkRequest(count int) MeasurementObservationBulkRequest {
 	}
 	return MeasurementObservationBulkRequest{Rows: rows}
 }
+
+// TestMeasurementProjectUpdateClearsWithAnEmptyString proves "" reaches the server, which clears
+// the field, while a nil field is left out and kept; an unknown chance and movement stay nil.
+func TestMeasurementProjectUpdateClearsWithAnEmptyString(t *testing.T) {
+	body, err := json.Marshal(MeasurementProjectUpdate{Description: new(""), Name: "Runway"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(body) != `{"description":"","name":"Runway"}` {
+		t.Fatalf("update body = %s", body)
+	}
+	var status MeasurementEstimateStatus
+	if err := json.Unmarshal([]byte(`{"ageDays":1,"chanceByDeliveryTarget":null,"movementDays":null,"estimate":{}}`), &status); err != nil {
+		t.Fatal(err)
+	}
+	if status.ChanceByDeliveryTarget != nil || status.MovementDays != nil {
+		t.Fatalf("unknown chance or movement read as a value: %+v", status)
+	}
+	var first MeasurementForecastStoryEstimate
+	if err := json.Unmarshal([]byte(`{"estimatedAt":"2026-11-01T00:00:00Z","high":"2026-12-01T00:00:00Z","low":"2026-11-20T00:00:00Z","widthDays":11}`), &first); err != nil {
+		t.Fatal(err)
+	}
+	if first.MovementDays != nil {
+		t.Fatalf("first story estimate movement = %v, want nil", *first.MovementDays)
+	}
+}

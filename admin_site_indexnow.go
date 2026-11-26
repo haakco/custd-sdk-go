@@ -6,13 +6,16 @@ import (
 	"time"
 )
 
+// AdminSiteIndexNowStatus is how an IndexNow submission went.
+type AdminSiteIndexNowStatus string
+
 // The states of AdminSiteIndexNowSubmission.Status. Compare against these rather than assuming
 // the set is closed.
 const (
-	AdminSiteIndexNowQueued   = "queued"
-	AdminSiteIndexNowAccepted = "accepted"
-	AdminSiteIndexNowRejected = "rejected"
-	AdminSiteIndexNowFailed   = "failed"
+	AdminSiteIndexNowQueued   AdminSiteIndexNowStatus = "queued"
+	AdminSiteIndexNowAccepted AdminSiteIndexNowStatus = "accepted"
+	AdminSiteIndexNowRejected AdminSiteIndexNowStatus = "rejected"
+	AdminSiteIndexNowFailed   AdminSiteIndexNowStatus = "failed"
 )
 
 // SiteIndexNowDomainUnverifiedCode is the problem code a 409 carries when IndexNow is enabled on
@@ -38,13 +41,13 @@ const SiteIndexNowLimitCode = "site_indexnow_limit"
 // AdminSiteIndexNowSubmission is one batch of URLs sent to IndexNow. ProviderStatus is IndexNow's
 // HTTP status, nil until it answered; SubmittedAt is nil until it was sent.
 type AdminSiteIndexNowSubmission struct {
-	SubmissionUUID string     `json:"submissionUuid"`
-	Status         string     `json:"status"`
-	URLs           []string   `json:"urls"`
-	ProviderStatus *int       `json:"providerStatus,omitempty"`
-	Failure        string     `json:"failure,omitempty"`
-	RequestedAt    time.Time  `json:"requestedAt"`
-	SubmittedAt    *time.Time `json:"submittedAt,omitempty"`
+	SubmissionUUID string                  `json:"submissionUuid"`
+	Status         AdminSiteIndexNowStatus `json:"status"`
+	URLs           []string                `json:"urls"`
+	ProviderStatus *int                    `json:"providerStatus,omitempty"`
+	Failure        string                  `json:"failure,omitempty"`
+	RequestedAt    time.Time               `json:"requestedAt"`
+	SubmittedAt    *time.Time              `json:"submittedAt,omitempty"`
 }
 
 // AdminSiteIndexNowState is a domain's IndexNow setup, the tenant's daily use and its latest

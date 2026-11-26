@@ -2,6 +2,7 @@ package custd
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -154,7 +155,7 @@ func TestActingCompanyTargetsByQueryOnBinaryRequests(t *testing.T) {
 	client := newAdminTestClient(t, doer, "http://localhost:8080")
 	client.config.ActingCompanySlug = "haakco"
 
-	if _, err := client.Admin.Audit.ExportEvents(context.Background(), AuditListOptions{}, "csv"); err != nil {
+	if _, err := client.Admin.Audit.ExportEvents(context.Background(), AuditListOptions{}, "csv", io.Discard); err != nil {
 		t.Fatalf("ExportEvents returned error: %v", err)
 	}
 	assertTenantTargetedByQueryOnly(t, recordDoerRequest(doer), "haakco")
@@ -280,7 +281,7 @@ func TestAccountDiagnosticDoesNotSynthesizeSupportHeader(t *testing.T) {
 	assertAuditLabels(t, request, "custdctl", "auth.whoami")
 }
 
-// TestPreparedDataDiagnosticDoesNotSynthesizeSupportHeader proves the prepared-data root
+// TestPreparedDataDiagnosticDoesNotSynthesizeSupportHeader proves the prepared-output catalogue
 // is ordinary tenant reading as well: it keeps the audit labels and does not open
 // support context.
 func TestPreparedDataDiagnosticDoesNotSynthesizeSupportHeader(t *testing.T) {
@@ -289,10 +290,9 @@ func TestPreparedDataDiagnosticDoesNotSynthesizeSupportHeader(t *testing.T) {
 	client.config.ActingCompanySlug = "haakco"
 	client.config.ClientLabel = "custdctl"
 	client.config.CommandLabel = "reporting.outputs.list"
-	prepared := NewPreparedDataClient(client.Admin)
 
-	if _, _, err := prepared.ListPreparedDataOutputs(context.Background()); err != nil {
-		t.Fatalf("ListPreparedDataOutputs returned error: %v", err)
+	if _, err := client.Reporting.Outputs(context.Background()); err != nil {
+		t.Fatalf("Outputs returned error: %v", err)
 	}
 	request := recordDoerRequest(doer)
 	if got, present := request.headers[supportContextHeader]; present {

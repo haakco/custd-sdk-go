@@ -144,9 +144,17 @@ func (c *AppItemClient) endpoint(path, item string) string {
 	return endpoint + separator + url.Values{"item": {item}}.Encode()
 }
 
+// AppMeasurementProjectKind is the kind of measurement project an app item creates.
+type AppMeasurementProjectKind string
+
+const (
+	AppMeasurementProjectKindDeadlineForecast AppMeasurementProjectKind = "deadline_forecast"
+	AppMeasurementProjectKindRunwayForecast   AppMeasurementProjectKind = "runway_forecast"
+)
+
 type AppMeasurementProjectCreate struct {
 	Description string                    `json:"description,omitempty"`
-	Kind        string                    `json:"kind"`
+	Kind        AppMeasurementProjectKind `json:"kind"`
 	Name        string                    `json:"name"`
 	Series      []MeasurementSeriesCreate `json:"series"`
 	Target      MeasurementTargetCreate   `json:"target"`
@@ -162,9 +170,20 @@ type AppMeetingCreate struct {
 	Name   string                  `json:"name"`
 }
 
+// AppItemKind is the kind of an app item.
+type AppItemKind string
+
+const (
+	AppItemKindMeasurementProject AppItemKind = "measurement_project"
+	AppItemKindLinkCollection     AppItemKind = "link_collection"
+	AppItemKindMeeting            AppItemKind = "meeting"
+	AppItemKindUncertaintyModel   AppItemKind = "uncertainty_model"
+	AppItemKindPlan               AppItemKind = "plan"
+)
+
 type AppItemCreateRequest struct {
 	IdleExpirySeconds  *int64                       `json:"idleExpirySeconds,omitempty"`
-	Kind               string                       `json:"kind"`
+	Kind               AppItemKind                  `json:"kind"`
 	MeasurementProject *AppMeasurementProjectCreate `json:"measurementProject,omitempty"`
 	Meeting            *AppMeetingCreate            `json:"meeting,omitempty"`
 	// Display name of a link collection or plan.
@@ -178,6 +197,23 @@ type AppItemCounterProgress struct {
 	Percent     int64      `json:"percent,omitempty"`
 }
 
+// AppItemOwnership is who owns an app item, from the caller's view.
+type AppItemOwnership string
+
+const (
+	AppItemOwnershipUnowned AppItemOwnership = "unowned"
+	AppItemOwnershipYours   AppItemOwnership = "yours"
+	AppItemOwnershipOther   AppItemOwnership = "other"
+)
+
+// AppItemRole is whether a person owns an app item or has it shared with them.
+type AppItemRole string
+
+const (
+	AppItemRoleOwner AppItemRole = "owner"
+	AppItemRoleShare AppItemRole = "share"
+)
+
 type AppItem struct {
 	// When the item is deleted unless it changes first.
 	ExpiresAt         time.Time `json:"expiresAt"`
@@ -185,10 +221,10 @@ type AppItem struct {
 	ItemUUID          string    `json:"itemUuid"`
 	Kind              string    `json:"kind"`
 	// Whether the signed-in caller owns it.
-	Ownership string `json:"ownership"`
+	Ownership AppItemOwnership `json:"ownership"`
 	// What the presented link, or the signed-in owner, may do.
-	Role      string    `json:"role"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	Role      AppItemRole `json:"role"`
+	UpdatedAt time.Time   `json:"updatedAt"`
 	// Moves on with every change; the read's ETag carries it.
 	Version int64 `json:"version"`
 }
@@ -209,9 +245,9 @@ type AppLinkCollection struct {
 }
 
 type AppItemLink struct {
-	CreatedAt time.Time `json:"createdAt"`
-	LinkUUID  string    `json:"linkUuid"`
-	Role      string    `json:"role"`
+	CreatedAt time.Time   `json:"createdAt"`
+	LinkUUID  string      `json:"linkUuid"`
+	Role      AppItemRole `json:"role"`
 	// Available for share links created or rotated after recovery was enabled.
 	ShareToken string `json:"shareToken,omitempty"`
 }
@@ -228,6 +264,17 @@ type AppItemRunPage struct {
 	Runs       []AppItemRun `json:"runs"`
 }
 
+// AppMeetingBlockStatus is where one meeting block stands.
+type AppMeetingBlockStatus string
+
+const (
+	AppMeetingBlockStatusPending   AppMeetingBlockStatus = "pending"
+	AppMeetingBlockStatusActive    AppMeetingBlockStatus = "active"
+	AppMeetingBlockStatusCompleted AppMeetingBlockStatus = "completed"
+	AppMeetingBlockStatusSkipped   AppMeetingBlockStatus = "skipped"
+	AppMeetingBlockStatusNotRun    AppMeetingBlockStatus = "not_run"
+)
+
 type AppMeetingBlock struct {
 	// The time it took, once it is done.
 	ActualMs int64 `json:"actualMs"`
@@ -237,10 +284,10 @@ type AppMeetingBlock struct {
 	EndedAt     *time.Time `json:"endedAt,omitempty"`
 	Position    int64      `json:"position"`
 	// The time the agenda predicted.
-	PredictedMs int64      `json:"predictedMs"`
-	StartedAt   *time.Time `json:"startedAt,omitempty"`
-	Status      string     `json:"status"`
-	Title       string     `json:"title"`
+	PredictedMs int64                 `json:"predictedMs"`
+	StartedAt   *time.Time            `json:"startedAt,omitempty"`
+	Status      AppMeetingBlockStatus `json:"status"`
+	Title       string                `json:"title"`
 }
 
 type AppMeetingSummary struct {
@@ -255,6 +302,16 @@ type AppMeetingSummary struct {
 	PredictedMs int64 `json:"predictedMs"`
 }
 
+// AppMeetingStatus is where a meeting stands.
+type AppMeetingStatus string
+
+const (
+	AppMeetingStatusReady     AppMeetingStatus = "ready"
+	AppMeetingStatusRunning   AppMeetingStatus = "running"
+	AppMeetingStatusCompleted AppMeetingStatus = "completed"
+	AppMeetingStatusCancelled AppMeetingStatus = "cancelled"
+)
+
 type AppMeeting struct {
 	Blocks []AppMeetingBlock `json:"blocks"`
 	// The block that is on now, if any.
@@ -263,7 +320,7 @@ type AppMeeting struct {
 	Name             string     `json:"name"`
 	StartedAt        *time.Time `json:"startedAt,omitempty"`
 	// ready until started; completed once ended.
-	Status  string            `json:"status"`
+	Status  AppMeetingStatus  `json:"status"`
 	Summary AppMeetingSummary `json:"summary"`
 }
 
@@ -339,9 +396,9 @@ type AppItemSummary struct {
 	// The item's display name, when set.
 	Name string `json:"name"`
 	// Whether the signed-in caller owns it.
-	Ownership string `json:"ownership"`
+	Ownership AppItemOwnership `json:"ownership"`
 	// What the presented link, or the signed-in owner, may do.
-	Role string `json:"role"`
+	Role AppItemRole `json:"role"`
 	// Code of the first series in a measurement project.
 	SeriesCode string `json:"seriesCode,omitempty"`
 	// The measurement project's or meeting run's status; empty for a link collection or a model.
@@ -438,6 +495,17 @@ type AppModelVersionCreateRequest struct {
 	Quantities   []UncertaintyQuantity `json:"quantities"`
 }
 
+// AppItemAlertRuleType is what an app item alert rule watches for.
+type AppItemAlertRuleType string
+
+const (
+	AppItemAlertRuleTypeDeadlineProbabilityBelow  AppItemAlertRuleType = "deadline_probability_below"
+	AppItemAlertRuleTypeTargetReached             AppItemAlertRuleType = "target_reached"
+	AppItemAlertRuleTypeEstimateStale             AppItemAlertRuleType = "estimate_stale"
+	AppItemAlertRuleTypeForecastMovedInsideTarget AppItemAlertRuleType = "forecast_moved_inside_target"
+	AppItemAlertRuleTypeModelRangeAbove           AppItemAlertRuleType = "model_range_above"
+)
+
 type AppItemAlertRule struct {
 	// Whether the condition held at the last evaluation.
 	ConditionMet bool      `json:"conditionMet"`
@@ -450,8 +518,8 @@ type AppItemAlertRule struct {
 	// Days without a new estimate, 1 to 365; estimate_stale only.
 	StaleDays int64 `json:"staleDays,omitempty"`
 	// Deadline probability or model output threshold.
-	Threshold float64 `json:"threshold,omitempty"`
-	Type      string  `json:"type"`
+	Threshold float64              `json:"threshold,omitempty"`
+	Type      AppItemAlertRuleType `json:"type"`
 }
 
 type AppItemAlertSubscription struct {
@@ -463,8 +531,8 @@ type AppItemAlertWebhook struct {
 	CreatedAt time.Time `json:"createdAt"`
 	Endpoint  string    `json:"endpoint"`
 	// webhook posts signed Custd JSON; slack posts a Slack message.
-	Kind        string `json:"kind"`
-	WebhookUUID string `json:"webhookUuid"`
+	Kind        NotificationWebhookKind `json:"kind"`
+	WebhookUUID string                  `json:"webhookUuid"`
 }
 
 type AppItemAlertSettings struct {
@@ -474,20 +542,38 @@ type AppItemAlertSettings struct {
 	Webhooks          []AppItemAlertWebhook     `json:"webhooks"`
 }
 
+// AppItemAlertDeliveryOutcome is how one app item alert delivery went.
+type AppItemAlertDeliveryOutcome string
+
+const (
+	AppItemAlertDeliveryOutcomePending AppItemAlertDeliveryOutcome = "pending"
+	AppItemAlertDeliveryOutcomeSent    AppItemAlertDeliveryOutcome = "sent"
+	AppItemAlertDeliveryOutcomeFailed  AppItemAlertDeliveryOutcome = "failed"
+)
+
+// AppItemAlertChannel is how an app item alert was delivered.
+type AppItemAlertChannel string
+
+const (
+	AppItemAlertChannelWebhook AppItemAlertChannel = "webhook"
+	AppItemAlertChannelSlack   AppItemAlertChannel = "slack"
+	AppItemAlertChannelEmail   AppItemAlertChannel = "email"
+)
+
 type AppItemAlertDelivery struct {
-	Attempts  int64     `json:"attempts"`
-	Channel   string    `json:"channel"`
-	CreatedAt time.Time `json:"createdAt"`
-	Crossing  int64     `json:"crossing"`
+	Attempts  int64               `json:"attempts"`
+	Channel   AppItemAlertChannel `json:"channel"`
+	CreatedAt time.Time           `json:"createdAt"`
+	Crossing  int64               `json:"crossing"`
 	// Matches the webhook's X-Custd-Delivery-Id.
-	DeliveryUUID   string    `json:"deliveryUuid"`
-	LastErrorClass string    `json:"lastErrorClass,omitempty"`
-	LastStatusCode int64     `json:"lastStatusCode,omitempty"`
-	Outcome        string    `json:"outcome"`
-	RuleType       string    `json:"ruleType"`
-	RuleUUID       string    `json:"ruleUuid"`
-	UpdatedAt      time.Time `json:"updatedAt"`
-	WebhookUUID    string    `json:"webhookUuid,omitempty"`
+	DeliveryUUID   string                      `json:"deliveryUuid"`
+	LastErrorClass string                      `json:"lastErrorClass,omitempty"`
+	LastStatusCode int64                       `json:"lastStatusCode,omitempty"`
+	Outcome        AppItemAlertDeliveryOutcome `json:"outcome"`
+	RuleType       string                      `json:"ruleType"`
+	RuleUUID       string                      `json:"ruleUuid"`
+	UpdatedAt      time.Time                   `json:"updatedAt"`
+	WebhookUUID    string                      `json:"webhookUuid,omitempty"`
 }
 
 type AppItemAlertDeliveryList struct {
@@ -500,8 +586,8 @@ type AppItemAlertRuleCreateRequest struct {
 	// Days without a new estimate, 1 to 365; estimate_stale only.
 	StaleDays *int64 `json:"staleDays,omitempty"`
 	// Deadline probability or model output threshold.
-	Threshold *float64 `json:"threshold,omitempty"`
-	Type      string   `json:"type"`
+	Threshold *float64             `json:"threshold,omitempty"`
+	Type      AppItemAlertRuleType `json:"type"`
 }
 
 type AppItemAlertWebhookCreateRequest struct {

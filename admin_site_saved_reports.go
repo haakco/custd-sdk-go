@@ -7,10 +7,13 @@ import (
 	"time"
 )
 
+// AdminSiteReportTemplate is the template a client report is built from.
+type AdminSiteReportTemplate string
+
 // The templates of AdminSiteReport.Template and a saved report.
 const (
-	AdminSiteReportTemplateExecutive = "executive"
-	AdminSiteReportTemplateFull      = "full"
+	AdminSiteReportTemplateExecutive AdminSiteReportTemplate = "executive"
+	AdminSiteReportTemplateFull      AdminSiteReportTemplate = "full"
 )
 
 // AdminSiteMaxSavedReports is how many saved reports a domain keeps.
@@ -27,28 +30,28 @@ const SavedSiteReportLimitCode = "saved_site_report_limit"
 // AdminSiteReportOptions chooses a report's template (AdminSiteReportTemplate*) and days (1..90)
 // of search numbers; zero values use the server's full template and 28 days.
 type AdminSiteReportOptions struct {
-	Template string
+	Template AdminSiteReportTemplate
 	Days     int
 }
 
 // AdminSiteSavedReportRequest saves, or replaces, a named report built now. Template and Days are
 // omitted when unset, so the server uses full and 28.
 type AdminSiteSavedReportRequest struct {
-	Name     string `json:"name"`
-	Template string `json:"template,omitempty"`
-	Days     int    `json:"days,omitempty"`
+	Name     string                  `json:"name"`
+	Template AdminSiteReportTemplate `json:"template,omitempty"`
+	Days     int                     `json:"days,omitempty"`
 }
 
 // AdminSiteSavedReportSummary is one saved report without its content. GeneratedAt is when its
 // content was built; LiveShares counts unexpired share links that open it.
 type AdminSiteSavedReportSummary struct {
-	ReportUUID  string    `json:"reportUuid"`
-	Name        string    `json:"name"`
-	Template    string    `json:"template"`
-	Days        int       `json:"days"`
-	GeneratedAt time.Time `json:"generatedAt"`
-	CreatedAt   time.Time `json:"createdAt"`
-	LiveShares  int       `json:"liveShares"`
+	ReportUUID  string                  `json:"reportUuid"`
+	Name        string                  `json:"name"`
+	Template    AdminSiteReportTemplate `json:"template"`
+	Days        int                     `json:"days"`
+	GeneratedAt time.Time               `json:"generatedAt"`
+	CreatedAt   time.Time               `json:"createdAt"`
+	LiveShares  int                     `json:"liveShares"`
 }
 
 // AdminSiteSavedReport is a saved report's summary and its stored content.

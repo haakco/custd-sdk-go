@@ -152,9 +152,9 @@ type ReportingDashboardCatalogueTrust struct {
 type ReportingDashboardCatalogueEntry struct {
 	DefaultRange   string                           `json:"defaultRange"`
 	Description    string                           `json:"description"`
-	ExportFormats  []string                         `json:"exportFormats"`
+	ExportFormats  []ExportFormat                   `json:"exportFormats"`
 	Group          string                           `json:"group"`
-	Interactions   []string                         `json:"interactions"`
+	Interactions   []DashboardInteraction           `json:"interactions"`
 	Key            string                           `json:"key"`
 	RefreshSeconds int64                            `json:"refreshSeconds"`
 	Title          string                           `json:"title"`
@@ -175,13 +175,29 @@ type ReportingDatasetRowCount struct {
 	Key   string `json:"key"`
 }
 
+// ReportingSnapshotColumnType is the value type of a snapshot column.
+type ReportingSnapshotColumnType string
+
+const (
+	ReportingSnapshotColumnTypeText       ReportingSnapshotColumnType = "text"
+	ReportingSnapshotColumnTypeInteger    ReportingSnapshotColumnType = "integer"
+	ReportingSnapshotColumnTypeNumber     ReportingSnapshotColumnType = "number"
+	ReportingSnapshotColumnTypePercentage ReportingSnapshotColumnType = "percentage"
+	ReportingSnapshotColumnTypeCurrency   ReportingSnapshotColumnType = "currency"
+	ReportingSnapshotColumnTypeDate       ReportingSnapshotColumnType = "date"
+	ReportingSnapshotColumnTypeDatetime   ReportingSnapshotColumnType = "datetime"
+	ReportingSnapshotColumnTypeDuration   ReportingSnapshotColumnType = "duration"
+	ReportingSnapshotColumnTypeBoolean    ReportingSnapshotColumnType = "boolean"
+	ReportingSnapshotColumnTypeNull       ReportingSnapshotColumnType = "null"
+)
+
 type ReportingSnapshotColumn struct {
-	Description string `json:"description,omitempty"`
-	Key         string `json:"key"`
-	Label       string `json:"label"`
-	Nullable    bool   `json:"nullable"`
-	Type        string `json:"type"`
-	Unit        string `json:"unit,omitempty"`
+	Description string                      `json:"description,omitempty"`
+	Key         string                      `json:"key"`
+	Label       string                      `json:"label"`
+	Nullable    bool                        `json:"nullable"`
+	Type        ReportingSnapshotColumnType `json:"type"`
+	Unit        string                      `json:"unit,omitempty"`
 }
 
 type ReportingSnapshotDatasetSchema struct {
@@ -190,20 +206,29 @@ type ReportingSnapshotDatasetSchema struct {
 	Label   string                    `json:"label"`
 }
 
+// ReportingDashboardGenerationState is whether a dashboard generation can be read yet.
+type ReportingDashboardGenerationState string
+
+const (
+	ReportingDashboardGenerationStateBuilding    ReportingDashboardGenerationState = "building"
+	ReportingDashboardGenerationStateReady       ReportingDashboardGenerationState = "ready"
+	ReportingDashboardGenerationStateUnavailable ReportingDashboardGenerationState = "unavailable"
+)
+
 type ReportingDashboardGenerationResponse struct {
-	ByteLength       int64                            `json:"byteLength,omitempty"`
-	Compression      string                           `json:"compression,omitempty"`
-	ContractVersion  int64                            `json:"contractVersion,omitempty"`
-	DatasetRowCounts []ReportingDatasetRowCount       `json:"datasetRowCounts,omitempty"`
-	DatasetSchemas   []ReportingSnapshotDatasetSchema `json:"datasetSchemas,omitempty"`
-	DownloadURL      string                           `json:"downloadUrl,omitempty"`
-	GenerationID     string                           `json:"generationId"`
-	MediaType        string                           `json:"mediaType,omitempty"`
-	PollAfterSeconds int64                            `json:"pollAfterSeconds,omitempty"`
-	SnapshotSha256   string                           `json:"snapshotSha256,omitempty"`
-	State            string                           `json:"state"`
-	URLExpiresAt     *time.Time                       `json:"urlExpiresAt,omitempty"`
-	ValidUntil       *time.Time                       `json:"validUntil,omitempty"`
+	ByteLength       int64                             `json:"byteLength,omitempty"`
+	Compression      string                            `json:"compression,omitempty"`
+	ContractVersion  int64                             `json:"contractVersion,omitempty"`
+	DatasetRowCounts []ReportingDatasetRowCount        `json:"datasetRowCounts,omitempty"`
+	DatasetSchemas   []ReportingSnapshotDatasetSchema  `json:"datasetSchemas,omitempty"`
+	DownloadURL      string                            `json:"downloadUrl,omitempty"`
+	GenerationID     string                            `json:"generationId"`
+	MediaType        string                            `json:"mediaType,omitempty"`
+	PollAfterSeconds int64                             `json:"pollAfterSeconds,omitempty"`
+	SnapshotSha256   string                            `json:"snapshotSha256,omitempty"`
+	State            ReportingDashboardGenerationState `json:"state"`
+	URLExpiresAt     *time.Time                        `json:"urlExpiresAt,omitempty"`
+	ValidUntil       *time.Time                        `json:"validUntil,omitempty"`
 }
 
 // REUSED existing:

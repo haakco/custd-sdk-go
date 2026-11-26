@@ -42,24 +42,32 @@ type AuthProjectRequestOptions struct {
 	IdempotencyKey string
 }
 
+// AuthProjectAudienceEntitlementMode is how a realm decides which audiences a principal may use.
+type AuthProjectAudienceEntitlementMode string
+
+const (
+	AuthProjectAudienceEntitlementModeOrganisationMembership AuthProjectAudienceEntitlementMode = "organisation_membership"
+	AuthProjectAudienceEntitlementModeExplicitGrants         AuthProjectAudienceEntitlementMode = "explicit_grants"
+)
+
 // AuthProjectCreateRequest is the body of POST /api/v1/admin/auth-projects. It
 // creates the named owning user's project ownership, identity pool and first
 // paused environment atomically.
 type AuthProjectCreateRequest struct {
-	Slug                    string                  `json:"slug"`
-	Name                    string                  `json:"name"`
-	EnvironmentSlug         string                  `json:"environmentSlug"`
-	IdentityMode            AuthProjectIdentityMode `json:"identityMode"`
-	AudienceEntitlementMode string                  `json:"audienceEntitlementMode"`
+	Slug                    string                             `json:"slug"`
+	Name                    string                             `json:"name"`
+	EnvironmentSlug         string                             `json:"environmentSlug"`
+	IdentityMode            AuthProjectIdentityMode            `json:"identityMode"`
+	AudienceEntitlementMode AuthProjectAudienceEntitlementMode `json:"audienceEntitlementMode"`
 }
 
 // AuthProjectEnvironmentCreateRequest is the body of
 // POST /api/v1/admin/auth-projects/{projectId}/environments.
 type AuthProjectEnvironmentCreateRequest struct {
-	Slug                    string                  `json:"slug"`
-	Name                    string                  `json:"name"`
-	IdentityMode            AuthProjectIdentityMode `json:"identityMode"`
-	AudienceEntitlementMode string                  `json:"audienceEntitlementMode"`
+	Slug                    string                             `json:"slug"`
+	Name                    string                             `json:"name"`
+	IdentityMode            AuthProjectIdentityMode            `json:"identityMode"`
+	AudienceEntitlementMode AuthProjectAudienceEntitlementMode `json:"audienceEntitlementMode"`
 }
 
 // AuthProjectSummary is one project and the environment the call is scoped to.
@@ -68,14 +76,14 @@ type AuthProjectEnvironmentCreateRequest struct {
 // project is explicitly unbound; a caller must never infer it from a slug, an
 // email or its own company.
 type AuthProjectSummary struct {
-	ProjectID               string                  `json:"projectId"`
-	Slug                    string                  `json:"slug"`
-	Name                    string                  `json:"name"`
-	EnvironmentID           string                  `json:"environmentId"`
-	EnvironmentSlug         string                  `json:"environmentSlug"`
-	IdentityMode            AuthProjectIdentityMode `json:"identityMode"`
-	CompanyUUID             *string                 `json:"companyUuid"`
-	AudienceEntitlementMode string                  `json:"audienceEntitlementMode"`
+	ProjectID               string                             `json:"projectId"`
+	Slug                    string                             `json:"slug"`
+	Name                    string                             `json:"name"`
+	EnvironmentID           string                             `json:"environmentId"`
+	EnvironmentSlug         string                             `json:"environmentSlug"`
+	IdentityMode            AuthProjectIdentityMode            `json:"identityMode"`
+	CompanyUUID             *string                            `json:"companyUuid"`
+	AudienceEntitlementMode AuthProjectAudienceEntitlementMode `json:"audienceEntitlementMode"`
 }
 
 // AuthProjectCompanyBinding is the result of binding an explicitly unbound project
@@ -181,20 +189,40 @@ type AuthProjectAudienceBinding struct {
 	AllowedOrigins         []string `json:"allowedOrigins"`
 }
 
+// ProfileFieldEditableBy is who may edit an application profile field.
+type ProfileFieldEditableBy string
+
+const (
+	ProfileFieldEditableByUser          ProfileFieldEditableBy = "user"
+	ProfileFieldEditableByProvider      ProfileFieldEditableBy = "provider"
+	ProfileFieldEditableByAdministrator ProfileFieldEditableBy = "administrator"
+)
+
 // AuthProjectProfileField is one profile field's policy inside the environment's
 // desired state.
 type AuthProjectProfileField struct {
-	Key                  string `json:"key"`
-	Required             bool   `json:"required"`
-	VisibleToApplication bool   `json:"visibleToApplication"`
-	EditableBy           string `json:"editableBy"`
+	Key                  string                 `json:"key"`
+	Required             bool                   `json:"required"`
+	VisibleToApplication bool                   `json:"visibleToApplication"`
+	EditableBy           ProfileFieldEditableBy `json:"editableBy"`
 }
+
+// AuthProjectApplicationSessionPolicy is whether hosted sign-in offers a remembered session.
+type AuthProjectApplicationSessionPolicy string
 
 // The remembered-session offers a realm may choose. Offering lets a person tick "Remember me" on
 // hosted sign-in; short-only issues the short session to everyone.
 const (
-	AuthProjectSessionPolicyOfferRememberMe = "offer_remember_me"
-	AuthProjectSessionPolicyShortOnly       = "short_only"
+	AuthProjectSessionPolicyOfferRememberMe AuthProjectApplicationSessionPolicy = "offer_remember_me"
+	AuthProjectSessionPolicyShortOnly       AuthProjectApplicationSessionPolicy = "short_only"
+)
+
+// AuthProjectRegistrationPolicy is who may register in an environment's realm.
+type AuthProjectRegistrationPolicy string
+
+const (
+	AuthProjectRegistrationPolicyInviteOnly AuthProjectRegistrationPolicy = "invite_only"
+	AuthProjectRegistrationPolicyOpen       AuthProjectRegistrationPolicy = "open"
 )
 
 // AuthProjectDesiredState is the environment configuration an apply writes. A
@@ -202,15 +230,22 @@ const (
 // binding, and IdentityMode, RegistrationPolicy, LoginPaused and ProfileFields
 // carry the rest. The legal scalar vocabularies are read from the capability
 // operation Custd exposes for the environment, not fixed here.
+//
+// EntryPath, BrandAccent, LoginPaused, SignInMethods and ProfileFields follow one
+// rule on an apply or preview: nil keeps the stored value, so a tool can reconcile
+// only its own sections; an explicit empty value ("" or an empty, non-nil slice)
+// clears it; LoginPaused true or false sets it. A status read always fills them.
 type AuthProjectDesiredState struct {
-	IdentityMode       AuthProjectIdentityMode `json:"identityMode"`
-	RegistrationPolicy string                  `json:"registrationPolicy"`
-	LoginPaused        bool                    `json:"loginPaused"`
-	// EntryPath is the realm's public entry path, empty when it has none. A configured path is
-	// validated and globally unique, so a taken path is refused rather than silently moved.
-	EntryPath string `json:"entryPath"`
-	// BrandAccent is the realm's optional sign-in accent as #rrggbb, empty for the shared default.
-	BrandAccent string `json:"brandAccent"`
+	IdentityMode       AuthProjectIdentityMode       `json:"identityMode"`
+	RegistrationPolicy AuthProjectRegistrationPolicy `json:"registrationPolicy"`
+	// LoginPaused pauses or resumes sign-in; nil keeps the stored pause.
+	LoginPaused *bool `json:"loginPaused,omitempty"`
+	// EntryPath is the realm's public entry path; "" clears it and nil keeps it. A configured
+	// path is validated and globally unique, so a taken path is refused rather than silently moved.
+	EntryPath *string `json:"entryPath,omitempty"`
+	// BrandAccent is the realm's optional sign-in accent as #rrggbb; "" restores the shared
+	// default and nil keeps the stored accent.
+	BrandAccent *string `json:"brandAccent,omitempty"`
 	// DisplayName is the customer-facing application name the realm shows on invitations, hosted
 	// sign-in and hosted account settings. It is presentation only, empty when the realm has not
 	// chosen a name, and it is not the environment's own name.
@@ -218,20 +253,22 @@ type AuthProjectDesiredState struct {
 	// DisplayNameSource records which surface owns DisplayName, so a client edits the name where it
 	// is actually owned instead of overwriting a mirrored one. It is descriptive provenance and
 	// never authority; the closed set is the AuthProjectDisplayNameSource constants.
-	DisplayNameSource string `json:"displayNameSource"`
+	DisplayNameSource AuthProjectDisplayNameSource `json:"displayNameSource"`
 	// WithdrawDisplayName asks Custd to give the name back. Sent with an empty DisplayName and a
 	// declared DisplayNameSource, it clears the name and releases the owner only when that surface
 	// actually holds it; a surface that does not own the name changes nothing at all. It is an
 	// instruction, never stored state, so a status read never returns it.
 	WithdrawDisplayName bool `json:"withdrawDisplayName,omitempty"`
 	// SignInMethods narrows the methods the realm offers to a non-empty subset of the closed set.
-	// Empty means no narrowing.
+	// An empty, non-nil slice clears the narrowing; nil is sent as null and keeps it.
 	SignInMethods []string `json:"signInMethods"`
 	// ApplicationSessionPolicy is whether hosted sign-in offers a remembered session: one of the
 	// AuthProjectSessionPolicy constants. Leaving it empty keeps the stored setting.
-	ApplicationSessionPolicy string                       `json:"applicationSessionPolicy,omitempty"`
-	Audiences                []AuthProjectAudienceBinding `json:"audiences"`
-	ProfileFields            []AuthProjectProfileField    `json:"profileFields"`
+	ApplicationSessionPolicy AuthProjectApplicationSessionPolicy `json:"applicationSessionPolicy,omitempty"`
+	Audiences                []AuthProjectAudienceBinding        `json:"audiences"`
+	// ProfileFields are the profile fields the realm collects. An empty, non-nil slice clears
+	// them; nil is sent as null and keeps them.
+	ProfileFields []AuthProjectProfileField `json:"profileFields"`
 	// Hosting serves the environment as a hosted application. Leaving it nil
 	// keeps the stored section, so an apply cannot switch an app off by omission.
 	Hosting *AuthProjectHosting `json:"hosting,omitempty"`
@@ -240,20 +277,26 @@ type AuthProjectDesiredState struct {
 	SocialSignIn *AuthProjectSocialSignIn `json:"socialSignIn,omitempty"`
 }
 
+// AuthProjectDisplayNameSource is the surface that owns an environment's customer-facing display name; empty means none is declared.
+type AuthProjectDisplayNameSource string
+
 // The closed set of surfaces that can own an environment's customer-facing display name.
 const (
 	// AuthProjectDisplayNameSourceApplication means the client edits the name in Custd's realm
 	// branding, so Custd is the source of truth for it.
-	AuthProjectDisplayNameSourceApplication = "application"
+	AuthProjectDisplayNameSourceApplication AuthProjectDisplayNameSource = "application"
 	// AuthProjectDisplayNameSourceHosting means the Hosting platform's application label is the
 	// source of truth and Custd only mirrors it, so a Custd editor must not overwrite it.
-	AuthProjectDisplayNameSourceHosting = "hosting"
+	AuthProjectDisplayNameSourceHosting AuthProjectDisplayNameSource = "hosting"
 )
+
+// AuthProjectSocialMode is whether a social provider uses Custd's shared app or the owner's own.
+type AuthProjectSocialMode string
 
 // Social sign-in modes: Custd's shared provider app, or the owner's own.
 const (
-	AuthProjectSocialModeShared = "shared"
-	AuthProjectSocialModeOwn    = "own"
+	AuthProjectSocialModeShared AuthProjectSocialMode = "shared"
+	AuthProjectSocialModeOwn    AuthProjectSocialMode = "own"
 )
 
 // AuthProjectSocialSignIn is the social providers one environment offers.
@@ -264,15 +307,23 @@ type AuthProjectSocialSignIn struct {
 	Status *AuthProjectSocialSignInStatus `json:"status,omitempty"`
 }
 
+// AuthProjectSocialProviderName is a social sign-in provider.
+type AuthProjectSocialProviderName string
+
+const (
+	AuthProjectSocialProviderGoogle AuthProjectSocialProviderName = "google"
+	AuthProjectSocialProviderGitHub AuthProjectSocialProviderName = "github"
+)
+
 // AuthProjectSocialProvider is one provider: google or github, in shared or own mode. ClientSecret is
 // write-only: send it once for an own provider; leave it empty later to keep the stored secret while
 // ClientID is unchanged. ClientSecretSet is read-only.
 type AuthProjectSocialProvider struct {
-	Provider        string `json:"provider"`
-	Mode            string `json:"mode"`
-	ClientID        string `json:"clientId,omitempty"`
-	ClientSecret    string `json:"clientSecret,omitempty"`
-	ClientSecretSet bool   `json:"clientSecretSet,omitempty"`
+	Provider        AuthProjectSocialProviderName `json:"provider"`
+	Mode            AuthProjectSocialMode         `json:"mode"`
+	ClientID        string                        `json:"clientId,omitempty"`
+	ClientSecret    string                        `json:"clientSecret,omitempty"`
+	ClientSecretSet bool                          `json:"clientSecretSet,omitempty"`
 }
 
 // AuthProjectSocialSignInStatus is the observed state of an environment's social providers.
@@ -281,19 +332,29 @@ type AuthProjectSocialSignInStatus struct {
 	CallbackURLs []AuthProjectSocialCallbackURL    `json:"callbackUrls"`
 }
 
+// AuthProjectSocialProviderState is whether a social provider is live in the realm.
+type AuthProjectSocialProviderState string
+
+const (
+	AuthProjectSocialProviderStateActive              AuthProjectSocialProviderState = "active"
+	AuthProjectSocialProviderStateApplying            AuthProjectSocialProviderState = "applying"
+	AuthProjectSocialProviderStateUnavailable         AuthProjectSocialProviderState = "unavailable"
+	AuthProjectSocialProviderStateWaitingForDirectory AuthProjectSocialProviderState = "waiting_for_directory"
+)
+
 // AuthProjectSocialProviderStatus is one provider's state: active, applying, unavailable or
 // waiting_for_directory, with a plain note.
 type AuthProjectSocialProviderStatus struct {
-	Provider string `json:"provider"`
-	Mode     string `json:"mode"`
-	State    string `json:"state"`
-	Note     string `json:"note"`
+	Provider AuthProjectSocialProviderName  `json:"provider"`
+	Mode     AuthProjectSocialMode          `json:"mode"`
+	State    AuthProjectSocialProviderState `json:"state"`
+	Note     string                         `json:"note"`
 }
 
 // AuthProjectSocialCallbackURL is the exact callback one provider app must register.
 type AuthProjectSocialCallbackURL struct {
-	Provider string `json:"provider"`
-	URL      string `json:"url"`
+	Provider AuthProjectSocialProviderName `json:"provider"`
+	URL      string                        `json:"url"`
 }
 
 // AuthProjectDesiredStateRequest is the body of both the apply and preview

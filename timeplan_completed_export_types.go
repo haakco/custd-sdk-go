@@ -78,11 +78,19 @@ type CompletedRunExportSections struct {
 	Provenance           CompletedDurationReportProvenance             `json:"provenance"`
 }
 
+// CompletedRunExportRedactionResult is whether a completed run export was redacted.
+type CompletedRunExportRedactionResult string
+
+const (
+	CompletedRunExportRedactionResultNotRequired CompletedRunExportRedactionResult = "not_required"
+	CompletedRunExportRedactionResultApplied     CompletedRunExportRedactionResult = "applied"
+)
+
 // CompletedRunExportRedaction records the result of the canonical report's
 // fail-closed annotation redaction.
 type CompletedRunExportRedaction struct {
-	Result                  string `json:"result"`
-	RedactedAnnotationCount int    `json:"redactedAnnotationCount"`
+	Result                  CompletedRunExportRedactionResult `json:"result"`
+	RedactedAnnotationCount int                               `json:"redactedAnnotationCount"`
 }
 
 // CompletedRunExportMetadata carries the generation and correction facts of

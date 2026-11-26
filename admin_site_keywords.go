@@ -19,11 +19,14 @@ const SiteKeywordListLimitCode = "site_keyword_list_limit"
 // Bing's keyword research for the Site's first market, read with the Site's own Bing key.
 const AdminSiteKeywordDemandSourceBing = "bing_keyword_research"
 
+// AdminSiteKeywordDemandState is whether keyword demand could be read for a set.
+type AdminSiteKeywordDemandState string
+
 // The values of AdminSiteKeywordDemandSet.State: why a list's keywords have demand numbers or not.
 const (
-	AdminSiteKeywordDemandAvailable = "available"
-	AdminSiteKeywordDemandNoMarket  = "no_market"
-	AdminSiteKeywordDemandNoBing    = "no_bing"
+	AdminSiteKeywordDemandAvailable AdminSiteKeywordDemandState = "available"
+	AdminSiteKeywordDemandNoMarket  AdminSiteKeywordDemandState = "no_market"
+	AdminSiteKeywordDemandNoBing    AdminSiteKeywordDemandState = "no_bing"
 )
 
 // AdminSiteKeywordList is one named list of keywords a Site tracks. SeedTerm is empty when the
@@ -92,10 +95,10 @@ type AdminSiteKeywordDemand struct {
 // Site's own numbers. Keywords holds only keywords Bing has been asked about; the rest are read
 // within a week.
 type AdminSiteKeywordDemandSet struct {
-	State    string                   `json:"state"`
-	Source   string                   `json:"source"`
-	Market   string                   `json:"market,omitempty"`
-	Keywords []AdminSiteKeywordDemand `json:"keywords"`
+	State    AdminSiteKeywordDemandState `json:"state"`
+	Source   string                      `json:"source"`
+	Market   string                      `json:"market,omitempty"`
+	Keywords []AdminSiteKeywordDemand    `json:"keywords"`
 }
 
 // AdminSiteKeywordLists lists a Site's keyword lists.
@@ -163,7 +166,9 @@ func (c *SiteDomainAdminClient) ListKeywordLists(ctx context.Context, siteUUID s
 func (c *SiteDomainAdminClient) SaveKeywordList(
 	ctx context.Context, siteUUID string, req AdminSiteKeywordListRequest,
 ) (*AdminSiteKeywordList, error) {
-	body := AdminSiteKeywordListRequest{Name: req.Name, SeedTerm: req.SeedTerm, Keywords: nonNilSlice(req.Keywords)}
+	body := AdminSiteKeywordListRequest{
+		Name: req.Name, SeedTerm: req.SeedTerm, Keywords: nonNilSlice(req.Keywords), MarketSampleEnabled: req.MarketSampleEnabled,
+	}
 	var list AdminSiteKeywordList
 	err := c.request(ctx, http.MethodPut, siteScopedPath(siteKeywordListsRoute, siteUUID, nil), body, &list)
 	return &list, err

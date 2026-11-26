@@ -50,12 +50,23 @@ type AdminSiteDomainAttestation struct {
 	AttestedAt time.Time `json:"attestedAt"`
 }
 
+// AdminSiteDomainVerifiedBy is how a domain's ownership was proved.
+type AdminSiteDomainVerifiedBy string
+
+const (
+	AdminSiteDomainVerifiedByDNS      AdminSiteDomainVerifiedBy = "dns"
+	AdminSiteDomainVerifiedByFile     AdminSiteDomainVerifiedBy = "file"
+	AdminSiteDomainVerifiedByAttested AdminSiteDomainVerifiedBy = "attested"
+	AdminSiteDomainVerifiedByParent   AdminSiteDomainVerifiedBy = "parent"
+	AdminSiteDomainVerifiedByOperator AdminSiteDomainVerifiedBy = "operator"
+)
+
 // AdminSiteDomainOwnership is the proof of control and what the last check saw. VerifiedBy is
 // "dns", "file", "attested", "parent" or "operator".
 type AdminSiteDomainOwnership struct {
 	Verified         bool                        `json:"verified"`
 	VerifiedAt       *time.Time                  `json:"verifiedAt,omitempty"`
-	VerifiedBy       string                      `json:"verifiedBy,omitempty"`
+	VerifiedBy       AdminSiteDomainVerifiedBy   `json:"verifiedBy,omitempty"`
 	LastCheckedAt    *time.Time                  `json:"lastCheckedAt,omitempty"`
 	LastCheckFailure string                      `json:"lastCheckFailure,omitempty"`
 	Instructions     AdminSiteDomainVerification `json:"instructions"`
@@ -111,6 +122,16 @@ type AdminSiteFindingHistory struct {
 	Fixed       bool       `json:"fixed"`
 	FixedAt     *time.Time `json:"fixedAt,omitempty"`
 }
+
+// AdminSiteFindingSeverity is how much a finding matters.
+type AdminSiteFindingSeverity string
+
+const (
+	AdminSiteFindingSeverityHigh   AdminSiteFindingSeverity = "high"
+	AdminSiteFindingSeverityMedium AdminSiteFindingSeverity = "medium"
+	AdminSiteFindingSeverityLow    AdminSiteFindingSeverity = "low"
+	AdminSiteFindingSeverityInfo   AdminSiteFindingSeverity = "info"
+)
 
 // AdminSiteFinding is one problem an audit found on a verified domain, with the
 // advice to fix it.

@@ -452,6 +452,10 @@ application principals a directory holds, through `/api/v1/admin/auth-projects`:
   `UploadAppReleaseFile` (one file's raw bytes, sent as `application/octet-stream`),
   `VerifyAppRelease`, `PromoteAppRelease` and `ListAppReleases`
 
+An apply or preview keeps every realm field it leaves nil: `EntryPath`,
+`BrandAccent` and `LoginPaused` are pointers, and nil `SignInMethods` or
+`ProfileFields` are sent as null. An explicit `""` or empty slice clears the field.
+
 An environment is served as a hosted app by the optional `Hosting` field of
 `AuthProjectDesiredState`; a nil value keeps the stored section.
 `AuthProjectStatus.Hosting` reports the derived host, origin and, with the

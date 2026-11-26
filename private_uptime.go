@@ -9,13 +9,23 @@ import (
 	"time"
 )
 
+// PrivateUptimeFailure is why a private uptime check failed.
+type PrivateUptimeFailure string
+
+const (
+	PrivateUptimeFailureDNS        PrivateUptimeFailure = "dns"
+	PrivateUptimeFailureConnection PrivateUptimeFailure = "connection"
+	PrivateUptimeFailureTLS        PrivateUptimeFailure = "tls"
+	PrivateUptimeFailureTimeout    PrivateUptimeFailure = "timeout"
+)
+
 // PrivateUptimeReport is an observation from a probe inside the monitored network.
 type PrivateUptimeReport struct {
-	ReportUUID string    `json:"reportUuid"`
-	ObservedAt time.Time `json:"observedAt"`
-	StatusCode int       `json:"statusCode,omitempty"`
-	ResponseMs int       `json:"responseMs"`
-	Failure    string    `json:"failure,omitempty"`
+	ReportUUID string               `json:"reportUuid"`
+	ObservedAt time.Time            `json:"observedAt"`
+	StatusCode int                  `json:"statusCode,omitempty"`
+	ResponseMs int                  `json:"responseMs"`
+	Failure    PrivateUptimeFailure `json:"failure,omitempty"`
 }
 
 // PrivateUptimeDestination holds the API origin and the monitor's report path and write token.

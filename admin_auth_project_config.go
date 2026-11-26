@@ -11,24 +11,36 @@ import (
 // so a caller can show unavailable options honestly rather than offering them.
 // The legal vocabularies are server-owned and surfaced unchanged.
 type AuthProjectCapability struct {
-	IdentityModes        []string `json:"identityModes"`
-	RegistrationPolicies []string `json:"registrationPolicies"`
-	ProfileFieldKeys     []string `json:"profileFieldKeys"`
-	AudienceConstraints  string   `json:"audienceConstraints"`
-	SubjectUniqueness    string   `json:"subjectUniqueness"`
+	IdentityModes        []AuthProjectIdentityMode       `json:"identityModes"`
+	RegistrationPolicies []AuthProjectRegistrationPolicy `json:"registrationPolicies"`
+	ProfileFieldKeys     []string                        `json:"profileFieldKeys"`
+	AudienceConstraints  string                          `json:"audienceConstraints"`
+	SubjectUniqueness    string                          `json:"subjectUniqueness"`
 }
+
+// AuthProjectDirectoryState is the provisioning state of an environment's identity directory.
+type AuthProjectDirectoryState string
+
+const (
+	AuthProjectDirectoryStateDraft        AuthProjectDirectoryState = "draft"
+	AuthProjectDirectoryStateProvisioning AuthProjectDirectoryState = "provisioning"
+	AuthProjectDirectoryStateReady        AuthProjectDirectoryState = "ready"
+	AuthProjectDirectoryStatePaused       AuthProjectDirectoryState = "paused"
+	AuthProjectDirectoryStateFailed       AuthProjectDirectoryState = "failed"
+	AuthProjectDirectoryStateReleased     AuthProjectDirectoryState = "released"
+)
 
 // AuthProjectDirectoryView is one directory's credential-store state as reported.
 type AuthProjectDirectoryView struct {
-	PoolID            string `json:"poolId"`
-	PoolSlug          string `json:"poolSlug"`
-	State             string `json:"state"`
-	SlotRef           string `json:"slotRef,omitempty"`
-	RuntimePublicURL  string `json:"runtimePublicUrl,omitempty"`
-	Revision          int64  `json:"revision"`
-	AttemptCount      int    `json:"attemptCount"`
-	LastErrorCategory string `json:"lastErrorCategory,omitempty"`
-	ReadyAt           string `json:"readyAt,omitempty"`
+	PoolID            string                    `json:"poolId"`
+	PoolSlug          string                    `json:"poolSlug"`
+	State             AuthProjectDirectoryState `json:"state"`
+	SlotRef           string                    `json:"slotRef,omitempty"`
+	RuntimePublicURL  string                    `json:"runtimePublicUrl,omitempty"`
+	Revision          int64                     `json:"revision"`
+	AttemptCount      int                       `json:"attemptCount"`
+	LastErrorCategory string                    `json:"lastErrorCategory,omitempty"`
+	ReadyAt           string                    `json:"readyAt,omitempty"`
 }
 
 // AuthProjectDirectoryCapacity reports the deployment's declared credential-store
@@ -110,13 +122,24 @@ type AuthProjectClientSyncRequest struct {
 	ExpectedRevision int64 `json:"expectedRevision"`
 }
 
+// AuthProjectClientSyncAction is what a client sync did to one OAuth client registration.
+type AuthProjectClientSyncAction string
+
+const (
+	AuthProjectClientSyncActionCreated   AuthProjectClientSyncAction = "created"
+	AuthProjectClientSyncActionUpdated   AuthProjectClientSyncAction = "updated"
+	AuthProjectClientSyncActionUnchanged AuthProjectClientSyncAction = "unchanged"
+	AuthProjectClientSyncActionRemoved   AuthProjectClientSyncAction = "removed"
+	AuthProjectClientSyncActionRefused   AuthProjectClientSyncAction = "refused"
+)
+
 // AuthProjectClientSyncRegistration is one audience's reconcile outcome. It
 // reports what the provider was observed to hold, not what the caller asked for.
 type AuthProjectClientSyncRegistration struct {
-	Audience string `json:"audience"`
-	ClientID string `json:"clientId"`
-	Action   string `json:"action"`
-	Reason   string `json:"reason,omitempty"`
+	Audience string                      `json:"audience"`
+	ClientID string                      `json:"clientId"`
+	Action   AuthProjectClientSyncAction `json:"action"`
+	Reason   string                      `json:"reason,omitempty"`
 }
 
 // AuthProjectClientSyncReport is one reconcile's outcome. Superseded reports that

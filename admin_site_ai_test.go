@@ -62,9 +62,16 @@ func TestSiteAIClient(t *testing.T) {
 	}
 }
 
-func TestSiteAIProductRejectsUnknownSampleAttribution(t *testing.T) {
+func TestSiteAIProductKeepsUnknownSampleAttributionAndMarksItInvalid(t *testing.T) {
 	var row SiteAIUsageRow
-	if err := json.Unmarshal([]byte(`{"samplingProduct":"unregistered"}`), &row); err == nil {
-		t.Fatal("unsupported sampling product was accepted")
+	if err := json.Unmarshal([]byte(`{"samplingProduct":"unregistered"}`), &row); err != nil {
+		t.Fatalf("unknown sampling product failed to decode: %v", err)
+	}
+	if row.SamplingProduct != "unregistered" || row.SamplingProduct.Valid() {
+		t.Fatalf("sampling product = %q valid=%v, want the unknown value kept and invalid",
+			row.SamplingProduct, row.SamplingProduct.Valid())
+	}
+	if !SiteAIProductHosting.Valid() {
+		t.Fatal("a known sampling product reported invalid")
 	}
 }

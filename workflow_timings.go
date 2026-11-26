@@ -42,22 +42,53 @@ type WorkflowTimingDeclaration struct {
 	PredictionVersionUUID string                          `json:"predictionVersionUuid,omitempty"`
 }
 
+// WorkflowTimingRunState is where a workflow run stands.
+type WorkflowTimingRunState string
+
+const (
+	WorkflowTimingRunStateRunning   WorkflowTimingRunState = "running"
+	WorkflowTimingRunStateCompleted WorkflowTimingRunState = "completed"
+	WorkflowTimingRunStateFailed    WorkflowTimingRunState = "failed"
+	WorkflowTimingRunStateCancelled WorkflowTimingRunState = "cancelled"
+)
+
 // WorkflowTimingRunFact carries the run-level fields of a run observation.
 type WorkflowTimingRunFact struct {
-	State string `json:"state"`
+	State WorkflowTimingRunState `json:"state"`
 }
+
+// WorkflowTimingStepState is where a workflow step stands.
+type WorkflowTimingStepState string
+
+const (
+	WorkflowTimingStepStateRunning   WorkflowTimingStepState = "running"
+	WorkflowTimingStepStateCompleted WorkflowTimingStepState = "completed"
+	WorkflowTimingStepStateFailed    WorkflowTimingStepState = "failed"
+	WorkflowTimingStepStateCancelled WorkflowTimingStepState = "cancelled"
+	WorkflowTimingStepStateSkipped   WorkflowTimingStepState = "skipped"
+)
 
 // WorkflowTimingStepFact carries the step-attempt fields of an observation.
 type WorkflowTimingStepFact struct {
-	StepKey    string `json:"stepKey"`
-	Attempt    int    `json:"attempt"`
-	State      string `json:"state"`
-	ErrorClass string `json:"errorClass,omitempty"`
+	StepKey    string                  `json:"stepKey"`
+	Attempt    int                     `json:"attempt"`
+	State      WorkflowTimingStepState `json:"state"`
+	ErrorClass string                  `json:"errorClass,omitempty"`
 }
+
+// WorkflowTimingFactKind is the kind of a workflow timing fact.
+type WorkflowTimingFactKind string
+
+const (
+	WorkflowTimingFactKindRunStarted   WorkflowTimingFactKind = "run_started"
+	WorkflowTimingFactKindRunFinished  WorkflowTimingFactKind = "run_finished"
+	WorkflowTimingFactKindStepStarted  WorkflowTimingFactKind = "step_started"
+	WorkflowTimingFactKindStepFinished WorkflowTimingFactKind = "step_finished"
+)
 
 // WorkflowTimingFact is the observed fact body.
 type WorkflowTimingFact struct {
-	Kind       string                  `json:"kind"`
+	Kind       WorkflowTimingFactKind  `json:"kind"`
 	OccurredAt string                  `json:"occurredAt"`
 	Dimensions map[string]string       `json:"dimensions,omitempty"`
 	Run        *WorkflowTimingRunFact  `json:"run,omitempty"`
@@ -164,15 +195,23 @@ type WorkflowTimingRevision struct {
 	Steps                 []WorkflowTimingStepDefinition      `json:"steps"`
 }
 
+// WorkflowTimingDefinitionStatus is whether a workflow definition is still in use.
+type WorkflowTimingDefinitionStatus string
+
+const (
+	WorkflowTimingDefinitionStatusActive  WorkflowTimingDefinitionStatus = "active"
+	WorkflowTimingDefinitionStatusRetired WorkflowTimingDefinitionStatus = "retired"
+)
+
 // WorkflowTimingDefinition is one tenant-scoped workflow shape.
 type WorkflowTimingDefinition struct {
-	UUID          string                 `json:"uuid"`
-	WorkflowKey   string                 `json:"workflowKey"`
-	Name          string                 `json:"name"`
-	Description   string                 `json:"description"`
-	Status        string                 `json:"status"`
-	Current       WorkflowTimingRevision `json:"currentRevision"`
-	RevisionCount int64                  `json:"revisionCount"`
+	UUID          string                         `json:"uuid"`
+	WorkflowKey   string                         `json:"workflowKey"`
+	Name          string                         `json:"name"`
+	Description   string                         `json:"description"`
+	Status        WorkflowTimingDefinitionStatus `json:"status"`
+	Current       WorkflowTimingRevision         `json:"currentRevision"`
+	RevisionCount int64                          `json:"revisionCount"`
 }
 
 // WorkflowTimingReconcileResult reports what one reconcile changed.
@@ -191,22 +230,22 @@ type WorkflowTimingObservationBatch struct {
 // point and range are nil when the engine did not produce them, which is what
 // keeps a cold start from looking like a supported forecast.
 type WorkflowTimingExpectation struct {
-	SeriesKey          string   `json:"seriesKey"`
-	StepKey            string   `json:"stepKey,omitempty"`
-	Attempt            int      `json:"attempt,omitempty"`
-	State              string   `json:"state"`
-	BaselineMS         int64    `json:"baselineMs"`
-	ExpectedMS         *int64   `json:"expectedMs,omitempty"`
-	ConservativeLowMS  *int64   `json:"conservativeLowMs,omitempty"`
-	ConservativeHighMS *int64   `json:"conservativeHighMs,omitempty"`
-	SampleCount        int      `json:"sampleCount"`
-	Method             string   `json:"method"`
-	MethodVersion      string   `json:"methodVersion"`
-	PredictionVersion  string   `json:"predictionVersionUuid,omitempty"`
-	InputHash          string   `json:"inputHash"`
-	GeneratedAt        string   `json:"generatedAt"`
-	EvidenceWindowFrom string   `json:"evidenceWindowStart"`
-	Warnings           []string `json:"warnings"`
+	SeriesKey          string              `json:"seriesKey"`
+	StepKey            string              `json:"stepKey,omitempty"`
+	Attempt            int                 `json:"attempt,omitempty"`
+	State              WorkflowTimingState `json:"state"`
+	BaselineMS         int64               `json:"baselineMs"`
+	ExpectedMS         *int64              `json:"expectedMs,omitempty"`
+	ConservativeLowMS  *int64              `json:"conservativeLowMs,omitempty"`
+	ConservativeHighMS *int64              `json:"conservativeHighMs,omitempty"`
+	SampleCount        int                 `json:"sampleCount"`
+	Method             string              `json:"method"`
+	MethodVersion      string              `json:"methodVersion"`
+	PredictionVersion  string              `json:"predictionVersionUuid,omitempty"`
+	InputHash          string              `json:"inputHash"`
+	GeneratedAt        string              `json:"generatedAt"`
+	EvidenceWindowFrom string              `json:"evidenceWindowStart"`
+	Warnings           []string            `json:"warnings"`
 }
 
 // Supported reports whether the expectation is backed by enough comparable
@@ -220,7 +259,7 @@ type WorkflowTimingPrediction struct {
 	RunUUID       string                      `json:"runUuid"`
 	WorkflowKey   string                      `json:"workflowKey"`
 	ExternalRunID string                      `json:"externalRunId"`
-	State         string                      `json:"state"`
+	State         WorkflowTimingRunState      `json:"state"`
 	AllowOverlap  bool                        `json:"allowOverlap"`
 	GeneratedAt   string                      `json:"generatedAt"`
 	Run           WorkflowTimingExpectation   `json:"run"`
@@ -256,14 +295,14 @@ func (status WorkflowTimingProjectionStatus) Behind() bool {
 
 // WorkflowTimingAttempt is one projected step attempt.
 type WorkflowTimingAttempt struct {
-	StepKey    string `json:"stepKey"`
-	Attempt    int    `json:"attempt"`
-	State      string `json:"state"`
-	StartedAt  string `json:"startedAt,omitempty"`
-	FinishedAt string `json:"finishedAt,omitempty"`
-	ErrorClass string `json:"errorClass,omitempty"`
-	OccurredAt string `json:"occurredAt"`
-	ReceiptAt  string `json:"receiptAt"`
+	StepKey    string                  `json:"stepKey"`
+	Attempt    int                     `json:"attempt"`
+	State      WorkflowTimingStepState `json:"state"`
+	StartedAt  string                  `json:"startedAt,omitempty"`
+	FinishedAt string                  `json:"finishedAt,omitempty"`
+	ErrorClass string                  `json:"errorClass,omitempty"`
+	OccurredAt string                  `json:"occurredAt"`
+	ReceiptAt  string                  `json:"receiptAt"`
 }
 
 // WorkflowTimingRun is one observed run with its projection status and attempts.
@@ -275,7 +314,7 @@ type WorkflowTimingRun struct {
 	RevisionNumber   int64                          `json:"revisionNumber"`
 	RevisionHash     string                         `json:"revisionHash"`
 	ExternalRunID    string                         `json:"externalRunId"`
-	State            string                         `json:"state"`
+	State            WorkflowTimingRunState         `json:"state"`
 	StartedAt        string                         `json:"startedAt,omitempty"`
 	FinishedAt       string                         `json:"finishedAt,omitempty"`
 	SourceOccurredAt string                         `json:"sourceOccurredAt,omitempty"`
@@ -287,15 +326,15 @@ type WorkflowTimingRun struct {
 
 // WorkflowTimingRunSummary is one observed run in the bounded run list.
 type WorkflowTimingRunSummary struct {
-	RunUUID       string `json:"runUuid"`
-	ExternalRunID string `json:"externalRunId"`
-	WorkflowKey   string `json:"workflowKey"`
-	State         string `json:"state"`
-	StartedAt     string `json:"startedAt,omitempty"`
-	FinishedAt    string `json:"finishedAt,omitempty"`
-	PendingFacts  int64  `json:"pendingFacts"`
-	OpenAttempts  int64  `json:"openAttempts"`
-	ReceiptAt     string `json:"receiptAt"`
+	RunUUID       string                 `json:"runUuid"`
+	ExternalRunID string                 `json:"externalRunId"`
+	WorkflowKey   string                 `json:"workflowKey"`
+	State         WorkflowTimingRunState `json:"state"`
+	StartedAt     string                 `json:"startedAt,omitempty"`
+	FinishedAt    string                 `json:"finishedAt,omitempty"`
+	PendingFacts  int64                  `json:"pendingFacts"`
+	OpenAttempts  int64                  `json:"openAttempts"`
+	ReceiptAt     string                 `json:"receiptAt"`
 }
 
 // WorkflowTimingOutcomeCounts is the closed outcome tally of a workflow.
@@ -363,7 +402,7 @@ type WorkflowTimingEvaluation struct {
 	WorkflowKey           string                            `json:"workflowKey"`
 	WorkflowUUID          string                            `json:"workflowUuid"`
 	SeriesKey             string                            `json:"seriesKey"`
-	State                 string                            `json:"state"`
+	State                 WorkflowTimingState               `json:"state"`
 	NextAction            string                            `json:"nextAction"`
 	BaselineMS            int64                             `json:"baselineMs"`
 	Outcomes              WorkflowTimingOutcomeCounts       `json:"outcomes"`
@@ -390,16 +429,19 @@ type WorkflowTimingRunList struct {
 	Items []WorkflowTimingRunSummary `json:"items"`
 }
 
+// WorkflowTimingState is whether a workflow timing estimate can be trusted.
+type WorkflowTimingState string
+
 // Workflow timing expectation states. A consumer UI must not render a cold start
 // and a ready forecast the same way.
 const (
-	WorkflowTimingStateReady       = "ready"
-	WorkflowTimingStateColdStart   = "cold_start"
-	WorkflowTimingStateSparse      = "sparse"
-	WorkflowTimingStateStale       = "stale"
-	WorkflowTimingStatePartial     = "partial"
-	WorkflowTimingStateUnavailable = "unavailable"
-	WorkflowTimingStateError       = "error"
+	WorkflowTimingStateReady       WorkflowTimingState = "ready"
+	WorkflowTimingStateColdStart   WorkflowTimingState = "cold_start"
+	WorkflowTimingStateSparse      WorkflowTimingState = "sparse"
+	WorkflowTimingStateStale       WorkflowTimingState = "stale"
+	WorkflowTimingStatePartial     WorkflowTimingState = "partial"
+	WorkflowTimingStateUnavailable WorkflowTimingState = "unavailable"
+	WorkflowTimingStateError       WorkflowTimingState = "error"
 )
 
 // WorkflowTimingIdempotency builds the deterministic identity of one observed
@@ -672,7 +714,7 @@ type WorkflowTimingRebuildResult struct {
 // WorkflowTimingRunProjection is the run state folded from its ledger facts.
 type WorkflowTimingRunProjection struct {
 	RunUUID         string                  `json:"runUuid"`
-	State           string                  `json:"state"`
+	State           WorkflowTimingRunState  `json:"state"`
 	Corrected       bool                    `json:"corrected"`
 	StartedAt       string                  `json:"startedAt,omitempty"`
 	FinishedAt      string                  `json:"finishedAt,omitempty"`
@@ -714,11 +756,22 @@ type WorkflowTimingStepDuration struct {
 	ReceiptAt  string `json:"receiptAt"`
 }
 
+// WorkflowTimingExcludedStepOutcome is how a step excluded from an estimate ended.
+type WorkflowTimingExcludedStepOutcome string
+
+const (
+	WorkflowTimingExcludedStepOutcomeCompleted WorkflowTimingExcludedStepOutcome = "completed"
+	WorkflowTimingExcludedStepOutcomeFailed    WorkflowTimingExcludedStepOutcome = "failed"
+	WorkflowTimingExcludedStepOutcomeCancelled WorkflowTimingExcludedStepOutcome = "cancelled"
+	WorkflowTimingExcludedStepOutcomeSkipped   WorkflowTimingExcludedStepOutcome = "skipped"
+	WorkflowTimingExcludedStepOutcomeOpen      WorkflowTimingExcludedStepOutcome = "open"
+)
+
 // WorkflowTimingExcludedStep is a step attempt left out of the duration with its outcome.
 type WorkflowTimingExcludedStep struct {
-	StepKey string `json:"stepKey"`
-	Attempt int    `json:"attempt"`
-	Outcome string `json:"outcome"`
+	StepKey string                            `json:"stepKey"`
+	Attempt int                               `json:"attempt"`
+	Outcome WorkflowTimingExcludedStepOutcome `json:"outcome"`
 }
 
 type workflowTimingObservationRequest struct {

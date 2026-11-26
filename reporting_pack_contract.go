@@ -1,16 +1,13 @@
 package custd
 
-import (
-	"encoding/json"
-	"fmt"
-	"time"
-)
+import "time"
 
 // This file mirrors the canonical reporting-pack contract owned by
 // libs/go/reporting.Pack so a Go client can build, validate, preview and
 // publish a valid definition. Every JSON field name, type and required/optional
-// distinction is copied from the canonical source; the closed unions are named
-// types whose decoder rejects a value the canonical contract does not define.
+// distinction is copied from the canonical source. The closed unions are named
+// types: decoding keeps any value, so a pack from a newer server still reads, and
+// each type's Valid method says whether a value is one this contract defines.
 
 // CalculationType is the closed set of metric calculations.
 type CalculationType string
@@ -53,8 +50,9 @@ var calculationTypeValues = map[CalculationType]bool{
 	CalculationAllocatedRecovery: true, CalculationCorrectionCount: true,
 }
 
-func (value *CalculationType) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, calculationTypeValues)
+// Valid reports whether value is one of the CalculationType values this SDK knows.
+func (value CalculationType) Valid() bool {
+	return calculationTypeValues[value]
 }
 
 // AggregationMode is the closed set of template aggregation modes.
@@ -75,8 +73,9 @@ var aggregationModeValues = map[AggregationMode]bool{
 	AggregationAverage: true, AggregationPercentile: true, AggregationRatio: true,
 }
 
-func (value *AggregationMode) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, aggregationModeValues)
+// Valid reports whether value is one of the AggregationMode values this SDK knows.
+func (value AggregationMode) Valid() bool {
+	return aggregationModeValues[value]
 }
 
 // FlowResult is the closed set of flow computation outputs.
@@ -96,8 +95,9 @@ var flowResultValues = map[FlowResult]bool{
 	FlowResultDropOffs: true, FlowResultCompletionRate: true, FlowResultUncorrelated: true,
 }
 
-func (value *FlowResult) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, flowResultValues)
+// Valid reports whether value is one of the FlowResult values this SDK knows.
+func (value FlowResult) Valid() bool {
+	return flowResultValues[value]
 }
 
 // SelectorType is the closed set of JSON value types a selector may read.
@@ -114,8 +114,9 @@ var selectorTypeValues = map[SelectorType]bool{
 	SelectorTypeString: true, NumericTypeInteger: true, NumericTypeNumber: true,
 }
 
-func (value *SelectorType) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, selectorTypeValues)
+// Valid reports whether value is one of the SelectorType values this SDK knows.
+func (value SelectorType) Valid() bool {
+	return selectorTypeValues[value]
 }
 
 // MetricKind is the closed set of metric classifications.
@@ -145,8 +146,9 @@ var metricKindValues = map[MetricKind]bool{
 	MetricKindForecastDate: true, MetricKindValueOfInformation: true,
 }
 
-func (value *MetricKind) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, metricKindValues)
+// Valid reports whether value is one of the MetricKind values this SDK knows.
+func (value MetricKind) Valid() bool {
+	return metricKindValues[value]
 }
 
 // MeasurementKind is the closed set of observation measurement kinds.
@@ -164,8 +166,9 @@ var measurementKindValues = map[MeasurementKind]bool{
 	MeasurementKindIntervalIncrement: true, MeasurementKindState: true,
 }
 
-func (value *MeasurementKind) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, measurementKindValues)
+// Valid reports whether value is one of the MeasurementKind values this SDK knows.
+func (value MeasurementKind) Valid() bool {
+	return measurementKindValues[value]
 }
 
 // Unit is the closed observation unit vocabulary.
@@ -189,8 +192,9 @@ var unitValues = map[Unit]bool{
 	UnitAmpere: true, UnitLitre: true, UnitCelsius: true, UnitByte: true, UnitNone: true,
 }
 
-func (value *Unit) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, unitValues)
+// Valid reports whether value is one of the Unit values this SDK knows.
+func (value Unit) Valid() bool {
+	return unitValues[value]
 }
 
 // NumericUnit is the closed output-unit vocabulary for numeric measures.
@@ -224,8 +228,9 @@ var numericUnitValues = map[NumericUnit]bool{
 	NumericUnitScore: true,
 }
 
-func (value *NumericUnit) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, numericUnitValues)
+// Valid reports whether value is one of the NumericUnit values this SDK knows.
+func (value NumericUnit) Valid() bool {
+	return numericUnitValues[value]
 }
 
 // CounterResetPolicy is the closed set of monotonic-counter reset behaviors.
@@ -241,8 +246,9 @@ var counterResetPolicyValues = map[CounterResetPolicy]bool{
 	CounterResetAsIncrement: true, CounterResetReject: true, CounterResetRollover: true,
 }
 
-func (value *CounterResetPolicy) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, counterResetPolicyValues)
+// Valid reports whether value is one of the CounterResetPolicy values this SDK knows.
+func (value CounterResetPolicy) Valid() bool {
+	return counterResetPolicyValues[value]
 }
 
 // FilterOperator is the closed set of operators a filter may use.
@@ -259,8 +265,9 @@ var filterOperatorValues = map[FilterOperator]bool{
 	OpEq: true, OpNeq: true, OpIn: true, OpContains: true,
 }
 
-func (value *FilterOperator) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, filterOperatorValues)
+// Valid reports whether value is one of the FilterOperator values this SDK knows.
+func (value FilterOperator) Valid() bool {
+	return filterOperatorValues[value]
 }
 
 // SourceMode is the closed set of storage backends a template may read.
@@ -276,8 +283,9 @@ var sourceModeValues = map[SourceMode]bool{
 	SourceModeAuto: true, SourceModePostgres: true, SourceModeDuckDB: true,
 }
 
-func (value *SourceMode) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, sourceModeValues)
+// Valid reports whether value is one of the SourceMode values this SDK knows.
+func (value SourceMode) Valid() bool {
+	return sourceModeValues[value]
 }
 
 // WidgetKind is the closed set of widget render kinds.
@@ -313,8 +321,9 @@ var widgetKindValues = map[WidgetKind]bool{
 	WidgetRunwayTile: true, WidgetAnomalyTimeline: true, WidgetDriverBreakdown: true,
 }
 
-func (value *WidgetKind) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, widgetKindValues)
+// Valid reports whether value is one of the WidgetKind values this SDK knows.
+func (value WidgetKind) Valid() bool {
+	return widgetKindValues[value]
 }
 
 // ExportFormat is the closed set of report artifact formats.
@@ -341,8 +350,9 @@ var exportFormatValues = map[ExportFormat]bool{
 	FormatSVG: true, FormatPNG: true, FormatParquet: true, FormatManifest: true,
 }
 
-func (value *ExportFormat) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, exportFormatValues)
+// Valid reports whether value is one of the ExportFormat values this SDK knows.
+func (value ExportFormat) Valid() bool {
+	return exportFormatValues[value]
 }
 
 // DashboardInteraction is the closed set of dashboard interactions.
@@ -357,8 +367,9 @@ var dashboardInteractionValues = map[DashboardInteraction]bool{
 	InteractionFilter: true, InteractionDrillDown: true,
 }
 
-func (value *DashboardInteraction) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, dashboardInteractionValues)
+// Valid reports whether value is one of the DashboardInteraction values this SDK knows.
+func (value DashboardInteraction) Valid() bool {
+	return dashboardInteractionValues[value]
 }
 
 // DashboardComparisonPreset is the closed set of server-computed comparisons.
@@ -373,8 +384,9 @@ var dashboardComparisonPresetValues = map[DashboardComparisonPreset]bool{
 	ComparisonPreviousPeriod: true, ComparisonPreviousYear: true,
 }
 
-func (value *DashboardComparisonPreset) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, dashboardComparisonPresetValues)
+// Valid reports whether value is one of the DashboardComparisonPreset values this SDK knows.
+func (value DashboardComparisonPreset) Valid() bool {
+	return dashboardComparisonPresetValues[value]
 }
 
 // InteractionResetBehavior is the closed set of selection reset behaviors.
@@ -389,8 +401,9 @@ var interactionResetBehaviorValues = map[InteractionResetBehavior]bool{
 	ResetInteraction: true, ResetDashboard: true,
 }
 
-func (value *InteractionResetBehavior) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, interactionResetBehaviorValues)
+// Valid reports whether value is one of the InteractionResetBehavior values this SDK knows.
+func (value InteractionResetBehavior) Valid() bool {
+	return interactionResetBehaviorValues[value]
 }
 
 // SectionLayoutPreset is the closed set of responsive section layouts.
@@ -406,8 +419,9 @@ var sectionLayoutPresetValues = map[SectionLayoutPreset]bool{
 	SectionLayoutLead: true, SectionLayoutGrid: true, SectionLayoutDetail: true,
 }
 
-func (value *SectionLayoutPreset) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, sectionLayoutPresetValues)
+// Valid reports whether value is one of the SectionLayoutPreset values this SDK knows.
+func (value SectionLayoutPreset) Valid() bool {
+	return sectionLayoutPresetValues[value]
 }
 
 // NarrativeValue is the closed set of canonical values available to narrative.
@@ -422,8 +436,9 @@ var narrativeValueValues = map[NarrativeValue]bool{
 	NarrativeValuePrimary: true, NarrativeValueDelta: true,
 }
 
-func (value *NarrativeValue) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, narrativeValueValues)
+// Valid reports whether value is one of the NarrativeValue values this SDK knows.
+func (value NarrativeValue) Valid() bool {
+	return narrativeValueValues[value]
 }
 
 // IdentityRole selects one pseudonymous identity declared by the pack.
@@ -439,8 +454,9 @@ var identityRoleValues = map[IdentityRole]bool{
 	IdentityRoleSubject: true, IdentityRoleSession: true, IdentityRoleCorrelation: true,
 }
 
-func (value *IdentityRole) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, identityRoleValues)
+// Valid reports whether value is one of the IdentityRole values this SDK knows.
+func (value IdentityRole) Valid() bool {
+	return identityRoleValues[value]
 }
 
 // AssetEdgeMode is the closed set of asset-hierarchy edge modes.
@@ -456,8 +472,9 @@ var assetEdgeModeValues = map[AssetEdgeMode]bool{
 	AssetEdgeInclusive: true, AssetEdgeExclusive: true, AssetEdgeInformational: true,
 }
 
-func (value *AssetEdgeMode) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, assetEdgeModeValues)
+// Valid reports whether value is one of the AssetEdgeMode values this SDK knows.
+func (value AssetEdgeMode) Valid() bool {
+	return assetEdgeModeValues[value]
 }
 
 // SourceSelectionMode is the closed set of reconciliation selection modes.
@@ -475,8 +492,9 @@ var sourceSelectionModeValues = map[SourceSelectionMode]bool{
 	SourceSelectionAvailability: true, SourceSelectionAgreement: true,
 }
 
-func (value *SourceSelectionMode) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, sourceSelectionModeValues)
+// Valid reports whether value is one of the SourceSelectionMode values this SDK knows.
+func (value SourceSelectionMode) Valid() bool {
+	return sourceSelectionModeValues[value]
 }
 
 // BillingBoundary is the closed set of accounting billing boundaries.
@@ -491,8 +509,9 @@ var billingBoundaryValues = map[BillingBoundary]bool{
 	BillingBoundaryCalendarMonth: true, BillingBoundaryCalendarDay: true,
 }
 
-func (value *BillingBoundary) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, billingBoundaryValues)
+// Valid reports whether value is one of the BillingBoundary values this SDK knows.
+func (value BillingBoundary) Valid() bool {
+	return billingBoundaryValues[value]
 }
 
 // RoundingMode is the closed set of accounting rounding modes.
@@ -509,8 +528,9 @@ var roundingModeValues = map[RoundingMode]bool{
 	RoundingHalfUp: true, RoundingHalfEven: true, RoundingDown: true, RoundingUp: true,
 }
 
-func (value *RoundingMode) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, roundingModeValues)
+// Valid reports whether value is one of the RoundingMode values this SDK knows.
+func (value RoundingMode) Valid() bool {
+	return roundingModeValues[value]
 }
 
 // ExecutiveRecipe is the closed set of executive report recipes.
@@ -528,8 +548,9 @@ var executiveRecipeValues = map[ExecutiveRecipe]bool{
 	ExecutiveRecipeOperationsHealth: true, ExecutiveRecipeForecastDecision: true,
 }
 
-func (value *ExecutiveRecipe) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, executiveRecipeValues)
+// Valid reports whether value is one of the ExecutiveRecipe values this SDK knows.
+func (value ExecutiveRecipe) Valid() bool {
+	return executiveRecipeValues[value]
 }
 
 // ExecutiveComparisonBasis is the closed set of executive comparison bases.
@@ -545,23 +566,9 @@ var executiveComparisonBasisValues = map[ExecutiveComparisonBasis]bool{
 	ExecutiveComparisonNone: true, ExecutiveComparisonPreviousPeriod: true, ExecutiveComparisonTarget: true,
 }
 
-func (value *ExecutiveComparisonBasis) UnmarshalJSON(raw []byte) error {
-	return unmarshalClosedUnion(raw, value, executiveComparisonBasisValues)
-}
-
-// unmarshalClosedUnion decodes a closed-union value and rejects any member the
-// canonical contract does not define. An empty string is the zero value and is
-// accepted so an unfilled definition can still round-trip through JSON.
-func unmarshalClosedUnion[T ~string](raw []byte, value *T, allowed map[T]bool) error {
-	var text string
-	if err := json.Unmarshal(raw, &text); err != nil {
-		return err
-	}
-	if text != "" && !allowed[T(text)] {
-		return fmt.Errorf("custd: %q is not a valid closed-union value", text)
-	}
-	*value = T(text)
-	return nil
+// Valid reports whether value is one of the ExecutiveComparisonBasis values this SDK knows.
+func (value ExecutiveComparisonBasis) Valid() bool {
+	return executiveComparisonBasisValues[value]
 }
 
 // MetricDefinition describes a server-owned metric a widget may request.
@@ -792,9 +799,20 @@ type DashboardInteractionRule struct {
 	ResetBehavior     InteractionResetBehavior  `json:"resetBehavior"`
 }
 
+// DashboardRelativeRange is a relative range a shared dashboard may offer.
+type DashboardRelativeRange string
+
+const (
+	DashboardRelativeRange1Day   DashboardRelativeRange = "1d"
+	DashboardRelativeRange7Days  DashboardRelativeRange = "7d"
+	DashboardRelativeRange14Days DashboardRelativeRange = "14d"
+	DashboardRelativeRange30Days DashboardRelativeRange = "30d"
+	DashboardRelativeRange90Days DashboardRelativeRange = "90d"
+)
+
 // DashboardSharePolicy declares the bounded state a share URL may encode.
 type DashboardSharePolicy struct {
-	RelativeRanges    []string                    `json:"relativeRanges,omitempty"`
+	RelativeRanges    []DashboardRelativeRange    `json:"relativeRanges,omitempty"`
 	ComparisonPresets []DashboardComparisonPreset `json:"comparisonPresets,omitempty"`
 }
 
@@ -820,12 +838,41 @@ type ReportSectionDefinition struct {
 	Narrative  []NarrativeBlock    `json:"narrative,omitempty"`
 }
 
+// PresentationSummaryTemplateID names a preset's evidence summary template.
+type PresentationSummaryTemplateID string
+
+const (
+	PresentationSummaryForecastWindowEvidence       PresentationSummaryTemplateID = "forecast_window_evidence"
+	PresentationSummaryAnomalyReferenceEvidence     PresentationSummaryTemplateID = "anomaly_reference_evidence"
+	PresentationSummaryDescriptiveDriverEvidence    PresentationSummaryTemplateID = "descriptive_driver_evidence"
+	PresentationSummaryUncertaintyReferenceEvidence PresentationSummaryTemplateID = "uncertainty_reference_evidence"
+)
+
+// PresentationNonColorEncoding is how a preset encodes meaning without colour.
+type PresentationNonColorEncoding string
+
+const (
+	PresentationNonColorEncodingLineSymbolLabel   PresentationNonColorEncoding = "line_symbol_label"
+	PresentationNonColorEncodingSignedBarLabel    PresentationNonColorEncoding = "signed_bar_label"
+	PresentationNonColorEncodingBandBoundaryLabel PresentationNonColorEncoding = "band_boundary_label"
+)
+
+// PresentationPresetID names a presentation preset.
+type PresentationPresetID string
+
+const (
+	PresentationPresetForecastConvergenceV1  PresentationPresetID = "forecast_convergence_v1"
+	PresentationPresetAnomalyReferenceV1     PresentationPresetID = "anomaly_reference_v1"
+	PresentationPresetDescriptiveDriverV1    PresentationPresetID = "descriptive_driver_v1"
+	PresentationPresetUncertaintyReferenceV1 PresentationPresetID = "uncertainty_reference_v1"
+)
+
 // PresentationPresetSelection is the only visualization choice a pack may persist.
 type PresentationPresetSelection struct {
-	PresetID          string `json:"presetId"`
-	Version           int    `json:"version"`
-	NonColorEncoding  string `json:"nonColorEncoding"`
-	SummaryTemplateID string `json:"summaryTemplateId"`
+	PresetID          PresentationPresetID          `json:"presetId"`
+	Version           int                           `json:"version"`
+	NonColorEncoding  PresentationNonColorEncoding  `json:"nonColorEncoding"`
+	SummaryTemplateID PresentationSummaryTemplateID `json:"summaryTemplateId"`
 }
 
 // WidgetDefinition binds a template to a render kind and a metric subset.

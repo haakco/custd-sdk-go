@@ -214,7 +214,7 @@ func TestAdminUserEnableSendsTheRoles(t *testing.T) {
 	client, doer := newSurfaceClient(t, http.StatusOK, `{}`)
 
 	if _, err := client.Admin.AdminUsers.Enable(
-		context.Background(), "user-1", []string{"tenant_admin"}, false,
+		context.Background(), "user-1", []TenantRole{TenantRoleTenantAdmin}, false,
 	); err != nil {
 		t.Fatalf("Enable returned error: %v", err)
 	}
@@ -367,5 +367,22 @@ func TestOAuthMutationRefusesAnEmptyKey(t *testing.T) {
 	}
 	if len(doer.requests) != 0 {
 		t.Fatalf("a refused call still made %d requests", len(doer.requests))
+	}
+}
+
+// TestClosedStringSetsDecodeUnknownValues proves a state the server adds after
+// this SDK was released still decodes, so a caller can branch on the named
+// constants it knows and treat anything else as unknown.
+func TestClosedStringSetsDecodeUnknownValues(t *testing.T) {
+	client, _ := newSurfaceClient(t, http.StatusOK, `{"issueUuid":"a1","state":"snoozed"}`)
+
+	issue, err := client.Admin.ErrorIssues.SetState(
+		context.Background(), "", "a1", ErrorIssueStateRequest{State: ErrorIssueStateResolved},
+	)
+	if err != nil {
+		t.Fatalf("SetState returned error: %v", err)
+	}
+	if issue.State != ErrorIssueState("snoozed") {
+		t.Fatalf("state = %q, want the unknown value kept", issue.State)
 	}
 }

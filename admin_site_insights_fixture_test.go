@@ -88,7 +88,7 @@ func TestSiteFindingRuleMatchesRuleConstant(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if findings.Findings[0].Rule != SiteRuleTitleMissing || findings.Findings[1].Rule != SiteRuleUptimeDown {
+	if findings.Findings[0].Rule != string(SiteRuleTitleMissing) || findings.Findings[1].Rule != string(SiteRuleUptimeDown) {
 		t.Fatalf("findings = %+v", findings.Findings)
 	}
 	title, uptime := findings.Findings[0].Remedy, findings.Findings[1].Remedy

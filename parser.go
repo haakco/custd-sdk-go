@@ -328,12 +328,12 @@ func (p *ParserClient) request(ctx context.Context, method, path string, payload
 		}
 	}
 	if p.client.config.HTTPClient != nil {
-		return p.requestViaDoer(method, path, body, out)
+		return p.requestViaDoer(ctx, method, path, body, out)
 	}
 	return p.requestViaHTTP(ctx, method, path, body, out)
 }
 
-func (p *ParserClient) requestViaDoer(method, path string, body []byte, out any) error {
+func (p *ParserClient) requestViaDoer(ctx context.Context, method, path string, body []byte, out any) error {
 	resp, err := p.client.config.HTTPClient.Do(&HTTPRequest{
 		Method:  method,
 		URL:     p.endpoint(path),
@@ -343,6 +343,7 @@ func (p *ParserClient) requestViaDoer(method, path string, body []byte, out any)
 	if err != nil {
 		return &RequestError{Message: "custd: parser request failed: " + err.Error(), Retryable: true, Cause: err}
 	}
+	recordMetadata(ctx, responseHeader(resp.Headers, requestIDHeader))
 	if err := p.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
 		return err
 	}
@@ -365,6 +366,7 @@ func (p *ParserClient) requestViaHTTP(ctx context.Context, method, path string, 
 	if bodyErr != nil {
 		return fmt.Errorf("custd: read parser response: %w", bodyErr)
 	}
+	recordMetadata(ctx, resp.Header.Get(requestIDHeader))
 	if err := p.client.checkStatus(resp.StatusCode, respBody); err != nil {
 		return err
 	}

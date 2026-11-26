@@ -14,33 +14,33 @@ const maxReportExportDownloadBytes = 64 << 20
 // the reporting library, so the shape is restated here field for field; a map would let a
 // caller send a selector the server ignores rather than rejects.
 type ReportExportParameters struct {
-	Filters    []RequestedFilter `json:"filters,omitempty"`
-	Selections []string          `json:"selections,omitempty"`
-	Comparison string            `json:"comparison,omitempty"`
-	From       string            `json:"from,omitempty"`
-	To         string            `json:"to,omitempty"`
-	RangeDays  int               `json:"rangeDays,omitempty"`
-	MaxRows    int               `json:"maxRows,omitempty"`
+	Filters    []RequestedFilter         `json:"filters,omitempty"`
+	Selections []string                  `json:"selections,omitempty"`
+	Comparison DashboardComparisonPreset `json:"comparison,omitempty"`
+	From       string                    `json:"from,omitempty"`
+	To         string                    `json:"to,omitempty"`
+	RangeDays  int                       `json:"rangeDays,omitempty"`
+	MaxRows    int                       `json:"maxRows,omitempty"`
 }
 
 type ReportExportCreateRequest struct {
 	DashboardKey   string                 `json:"dashboardKey"`
-	Formats        []string               `json:"formats"`
+	Formats        []ExportFormat         `json:"formats"`
 	Parameters     ReportExportParameters `json:"parameters"`
 	IdempotencyKey string                 `json:"idempotencyKey,omitempty"`
 }
 
 type ReportExportArtifact struct {
-	ID                string   `json:"id"`
-	ArtifactKey       string   `json:"artifactKey"`
-	Format            string   `json:"format"`
-	Filename          string   `json:"filename"`
-	MediaType         string   `json:"mediaType"`
-	ObjectBytes       int64    `json:"objectBytes"`
-	ObjectSHA256      string   `json:"objectSha256"`
-	Warnings          []string `json:"warnings,omitempty"`
-	FallbackForFormat string   `json:"fallbackForFormat,omitempty"`
-	RendererVersion   string   `json:"rendererVersion,omitempty"`
+	ID                string       `json:"id"`
+	ArtifactKey       string       `json:"artifactKey"`
+	Format            ExportFormat `json:"format"`
+	Filename          string       `json:"filename"`
+	MediaType         string       `json:"mediaType"`
+	ObjectBytes       int64        `json:"objectBytes"`
+	ObjectSHA256      string       `json:"objectSha256"`
+	Warnings          []string     `json:"warnings,omitempty"`
+	FallbackForFormat ExportFormat `json:"fallbackForFormat,omitempty"`
+	RendererVersion   string       `json:"rendererVersion,omitempty"`
 }
 
 type ReportExportJob struct {
@@ -48,7 +48,7 @@ type ReportExportJob struct {
 	PackKey            string                 `json:"packKey"`
 	PackGeneration     int                    `json:"packGeneration"`
 	DashboardKey       string                 `json:"dashboardKey"`
-	Formats            []string               `json:"formats"`
+	Formats            []ExportFormat         `json:"formats"`
 	ParametersDigest   string                 `json:"parametersDigest"`
 	SnapshotSHA256     string                 `json:"snapshotSha256,omitempty"`
 	State              string                 `json:"state"`
@@ -151,6 +151,7 @@ func (r *ReportingClient) DownloadExportArtifact(
 		if err != nil {
 			return nil, fmt.Errorf("custd: report export download failed: %w", err)
 		}
+		recordMetadata(ctx, responseHeader(resp.Headers, requestIDHeader))
 		if err := r.client.checkStatus(resp.StatusCode, resp.Body); err != nil {
 			return nil, err
 		}
@@ -178,6 +179,7 @@ func (r *ReportingClient) DownloadExportArtifact(
 	if err != nil {
 		return nil, fmt.Errorf("custd: read report export download: %w", err)
 	}
+	recordMetadata(ctx, resp.Header.Get(requestIDHeader))
 	if err := r.client.checkStatus(resp.StatusCode, body); err != nil {
 		return nil, err
 	}
