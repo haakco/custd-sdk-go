@@ -2,6 +2,9 @@
   "maximal": {
     "clientId": "example",
     "companySlug": "example",
+    "keyFingerprints": [
+      "example"
+    ],
     "publicKeys": [
       "example"
     ]
@@ -9,6 +12,7 @@
   "minimal": {
     "clientId": "example",
     "companySlug": "example",
+    "keyFingerprints": null,
     "publicKeys": null
   }
 }

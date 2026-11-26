@@ -1,0 +1,20 @@
+{
+  "maximal": {
+    "credentialClientIds": [
+      "example"
+    ],
+    "dataSpaceSlug": "example",
+    "movedRecords": 1,
+    "parentCompanySlug": "example",
+    "siteUuid": "example",
+    "status": "adopted"
+  },
+  "minimal": {
+    "credentialClientIds": null,
+    "dataSpaceSlug": "example",
+    "movedRecords": 1,
+    "parentCompanySlug": "example",
+    "siteUuid": "example",
+    "status": "adopted"
+  }
+}

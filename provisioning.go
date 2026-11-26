@@ -137,6 +137,84 @@ func (c *DataSpaceProvisioningClient) GetErasure(ctx context.Context, slug, pare
 	return &erasure, err
 }
 
+// DataSpaceSigningState is whether a data space still accepts signed events.
+type DataSpaceSigningState string
+
+const (
+	DataSpaceSigningActive  DataSpaceSigningState = "active"
+	DataSpaceSigningRevoked DataSpaceSigningState = "revoked"
+	DataSpaceSigningErased  DataSpaceSigningState = "erased"
+)
+
+// SigningProducerState is whether a signing producer's events are accepted.
+type SigningProducerState string
+
+const (
+	SigningProducerReady        SigningProducerState = "ready"
+	SigningProducerAwaitingKeys SigningProducerState = "awaiting_keys"
+	SigningProducerCancelled    SigningProducerState = "cancelled"
+)
+
+// SigningRefusalCounts counts the signed events ingest refused for one producer, by reason.
+type SigningRefusalCounts struct {
+	BindingNotReady  int64  `json:"bindingNotReady"`
+	BindingCancelled int64  `json:"bindingCancelled"`
+	InvalidSignature int64  `json:"invalidSignature"`
+	LastRefusedAt    string `json:"lastRefusedAt,omitempty"`
+}
+
+// SigningProducerStatus is one signing producer of a data space: its keys and its refusals.
+type SigningProducerStatus struct {
+	ClientID        string               `json:"clientId"`
+	State           SigningProducerState `json:"state"`
+	KeyFingerprints []string             `json:"keyFingerprints"`
+	Refusals        SigningRefusalCounts `json:"refusals"`
+}
+
+// DataSpaceSigningStatus is whether a data space's signing producers can deliver events.
+type DataSpaceSigningStatus struct {
+	DataSpaceSlug     string                  `json:"dataSpaceSlug"`
+	ParentCompanySlug string                  `json:"parentCompanySlug"`
+	State             DataSpaceSigningState   `json:"state"`
+	ErasedAt          string                  `json:"erasedAt,omitempty"`
+	Producers         []SigningProducerStatus `json:"producers"`
+}
+
+// GetSigningStatus reads whether a data space's signing producers are ready and what ingest refused.
+func (c *DataSpaceProvisioningClient) GetSigningStatus(ctx context.Context, slug, parentCompanySlug string) (*DataSpaceSigningStatus, error) {
+	var status DataSpaceSigningStatus
+	path := dataSpacePath("/data-spaces/"+url.PathEscape(slug)+"/signing-status", parentCompanySlug)
+	err := c.provisioning.request(ctx, http.MethodGet, path, nil, &status)
+	return &status, err
+}
+
+// DataSpaceSiteAdoptionStatus is whether an adoption moved the Site or found it already moved.
+type DataSpaceSiteAdoptionStatus string
+
+const (
+	DataSpaceSiteAdopted        DataSpaceSiteAdoptionStatus = "adopted"
+	DataSpaceSiteAlreadyAdopted DataSpaceSiteAdoptionStatus = "already_adopted"
+)
+
+// DataSpaceSiteAdoption is the result of moving a parent's Site into an owned data space.
+type DataSpaceSiteAdoption struct {
+	SiteUUID            string                      `json:"siteUuid"`
+	DataSpaceSlug       string                      `json:"dataSpaceSlug"`
+	ParentCompanySlug   string                      `json:"parentCompanySlug"`
+	Status              DataSpaceSiteAdoptionStatus `json:"status"`
+	MovedRecords        int64                       `json:"movedRecords"`
+	CredentialClientIDs []string                    `json:"credentialClientIds"`
+}
+
+// AdoptSite moves a parent's Site, with every record keyed to it, into the data space. Its
+// credentials keep their client id and secret. Repeating it answers DataSpaceSiteAlreadyAdopted.
+func (c *DataSpaceProvisioningClient) AdoptSite(ctx context.Context, slug, siteUUID, parentCompanySlug string) (*DataSpaceSiteAdoption, error) {
+	var adoption DataSpaceSiteAdoption
+	path := dataSpacePath("/data-spaces/"+url.PathEscape(slug)+"/sites/"+url.PathEscape(siteUUID)+"/adopt", parentCompanySlug)
+	err := c.provisioning.request(ctx, http.MethodPost, path, nil, &adoption)
+	return &adoption, err
+}
+
 // dataSpacePath adds the parentCompanySlug a platform administrator names.
 func dataSpacePath(path, parentCompanySlug string) string {
 	return siteQueryPath(path, url.Values{"parentCompanySlug": {parentCompanySlug}})
@@ -220,6 +298,8 @@ type ProducerSigningKeys struct {
 	ClientID    string   `json:"clientId"`
 	CompanySlug string   `json:"companySlug"`
 	PublicKeys  []string `json:"publicKeys"`
+	// KeyFingerprints are the keys' sha256 fingerprints, `sha256:<hex>`, in PublicKeys order.
+	KeyFingerprints []string `json:"keyFingerprints"`
 }
 
 // SetSigningKeys replaces the public keys of a producer minted with
@@ -237,6 +317,13 @@ func (c *ProducerProvisioningClient) SetSigningKeys(
 		req,
 		&keys,
 	)
+	return &keys, err
+}
+
+// GetSigningKeys reads the public keys, and their fingerprints, a signing producer's events are verified with.
+func (c *ProducerProvisioningClient) GetSigningKeys(ctx context.Context, clientID string) (*ProducerSigningKeys, error) {
+	var keys ProducerSigningKeys
+	err := c.provisioning.request(ctx, http.MethodGet, "/producer-provisioning/"+url.PathEscape(clientID)+"/signing-keys", nil, &keys)
 	return &keys, err
 }
 

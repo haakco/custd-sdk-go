@@ -175,6 +175,30 @@ var clientSurfaceRows = []surfaceRow{
 		},
 	},
 	{
+		id:   "admin-api GET /api/v1/producer-provisioning/{clientId}/signing-keys",
+		path: "/api/v1/producer-provisioning/a1/signing-keys",
+		call: func(e *surfaceEnv) error {
+			_, err := e.client.Provisioning.Producers.GetSigningKeys(context.Background(), "a1")
+			return err
+		},
+	},
+	{
+		id:   "admin-api GET /api/v1/data-spaces/{slug}/signing-status",
+		path: "/api/v1/data-spaces/a1/signing-status",
+		call: func(e *surfaceEnv) error {
+			_, err := e.client.Provisioning.DataSpaces.GetSigningStatus(context.Background(), "a1", "p1")
+			return err
+		},
+	},
+	{
+		id:   "admin-api POST /api/v1/data-spaces/{slug}/sites/{siteUuid}/adopt",
+		path: "/api/v1/data-spaces/a1/sites/s1/adopt",
+		call: func(e *surfaceEnv) error {
+			_, err := e.client.Provisioning.DataSpaces.AdoptSite(context.Background(), "a1", "s1", "p1")
+			return err
+		},
+	},
+	{
 		id:   "admin-api GET /api/v1/producer-provisioning",
 		path: "/api/v1/producer-provisioning",
 		call: func(e *surfaceEnv) error {

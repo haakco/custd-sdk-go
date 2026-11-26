@@ -1,0 +1,29 @@
+{
+  "maximal": {
+    "dataSpaceSlug": "example",
+    "erasedAt": "2026-11-20T06:00:00Z",
+    "parentCompanySlug": "example",
+    "producers": [
+      {
+        "clientId": "example",
+        "keyFingerprints": [
+          "example"
+        ],
+        "refusals": {
+          "bindingCancelled": 1,
+          "bindingNotReady": 1,
+          "invalidSignature": 1,
+          "lastRefusedAt": "2026-11-20T06:00:00Z"
+        },
+        "state": "ready"
+      }
+    ],
+    "state": "active"
+  },
+  "minimal": {
+    "dataSpaceSlug": "example",
+    "parentCompanySlug": "example",
+    "producers": null,
+    "state": "active"
+  }
+}

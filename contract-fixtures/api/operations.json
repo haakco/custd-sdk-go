@@ -2,9 +2,9 @@
   "source": {
     "apiReviewedAt": "2026-11-26",
     "sha256": {
-      "admin-api.openapi.yaml": "132b3568c718dc5f99f79e1a709bd23a0f1b627b7af58e5e5a6c70482bac78ff",
+      "admin-api.openapi.yaml": "44bf182d6a55faad881f18f9f81904e924f6c90978f585d1e6648acc4092683e",
       "analytics-api.openapi.yaml": "e521f61d1cffb8c8a9fdd7f4d50e2afbfad93f83e8a295b9dc6398dde3747997",
-      "api-operations.json": "08475e882b57acd4a9382cebfce602abdedd7b7f8dfd6a7783984e6abfc44d87"
+      "api-operations.json": "963ab9ccf1fccf18827a69db7dbdc04251fed5b7a27af440b2aa446f8b89c1fe"
     }
   },
   "operations": [
@@ -2843,6 +2843,21 @@
       "example": "examples/listProducerReservations.json"
     },
     {
+      "id": "admin-api GET /api/v1/data-spaces/{slug}/signing-status",
+      "service": "admin-api",
+      "method": "GET",
+      "path": "/api/v1/data-spaces/{slug}/signing-status",
+      "sdk": "required",
+      "operationId": "getDataSpaceSigningStatus",
+      "query": [
+        {
+          "name": "parentCompanySlug",
+          "required": false
+        }
+      ],
+      "example": "examples/getDataSpaceSigningStatus.json"
+    },
+    {
       "id": "admin-api GET /api/v1/error-issues",
       "service": "admin-api",
       "method": "GET",
@@ -2930,6 +2945,15 @@
       "sdk": "required",
       "operationId": "getProducer",
       "example": "examples/getProducer.json"
+    },
+    {
+      "id": "admin-api GET /api/v1/producer-provisioning/{clientId}/signing-keys",
+      "service": "admin-api",
+      "method": "GET",
+      "path": "/api/v1/producer-provisioning/{clientId}/signing-keys",
+      "sdk": "required",
+      "operationId": "getProducerSigningKeys",
+      "example": "examples/getProducerSigningKeys.json"
     },
     {
       "id": "admin-api GET /api/v1/public-status-pages/{key}",
@@ -6658,6 +6682,21 @@
         }
       ],
       "example": "examples/claimProducerReservation.json"
+    },
+    {
+      "id": "admin-api POST /api/v1/data-spaces/{slug}/sites/{siteUuid}/adopt",
+      "service": "admin-api",
+      "method": "POST",
+      "path": "/api/v1/data-spaces/{slug}/sites/{siteUuid}/adopt",
+      "sdk": "required",
+      "operationId": "adoptDataSpaceSite",
+      "query": [
+        {
+          "name": "parentCompanySlug",
+          "required": false
+        }
+      ],
+      "example": "examples/adoptDataSpaceSite.json"
     },
     {
       "id": "admin-api POST /api/v1/error-issues/{issueUuid}/state",
