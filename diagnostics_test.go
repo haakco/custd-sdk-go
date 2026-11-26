@@ -3,6 +3,7 @@ package custd
 import (
 	"context"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
@@ -70,5 +71,26 @@ func TestIssuerEndpointMustStayOnTheIssuerOrigin(t *testing.T) {
 				t.Fatalf("%s was refused: %v", testCase.raw, err)
 			}
 		})
+	}
+}
+
+// An issuer may publish its identifier with a trailing slash (Ory Hydra does); the requested
+// issuer is compared without one, so the slash alone must not fail the inspection.
+func TestInspectIssuerAcceptsAnIssuerPublishedWithATrailingSlash(t *testing.T) {
+	server := httptest.NewServer(nil)
+	t.Cleanup(server.Close)
+	server.Config.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch r.URL.Path {
+		case "/.well-known/oauth-authorization-server":
+			_, _ = w.Write([]byte(`{"issuer":"` + server.URL + `/","jwks_uri":"` + server.URL + `/keys"}`))
+		default:
+			_, _ = w.Write([]byte(`{"keys":[{"kty":"RSA","kid":"k1","n":"AQAB","e":"AQAB"}]}`))
+		}
+	})
+	client := NewClient(&ClientConfig{BaseURL: server.URL})
+
+	if _, err := client.Admin.InspectIssuer(context.Background(), server.URL); err != nil {
+		t.Fatalf("InspectIssuer: %v", err)
 	}
 }

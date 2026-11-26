@@ -129,7 +129,9 @@ func (c *AdminClient) InspectIssuer(ctx context.Context, issuerURL string) (*Iss
 	if err := c.fetchIssuerDocument(ctx, discoveryURL, &metadata); err != nil {
 		return nil, err
 	}
-	if metadata.Issuer != issuer {
+	// The requested issuer is held without a trailing slash; an issuer that publishes its
+	// identifier with one (Ory Hydra does) names the same issuer.
+	if strings.TrimRight(metadata.Issuer, "/") != issuer {
 		return nil, errors.New("custd: issuer metadata does not match the requested issuer")
 	}
 	keysURL, err := trustedIssuerEndpoint(metadata.JWKSURI, issuer)
