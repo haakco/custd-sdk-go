@@ -37,6 +37,7 @@ type CustdClient struct {
 	Provisioning *ProvisioningClient
 	Reporting    *ReportingClient
 	Schemas      *SchemaRegistryClient
+	Storefronts  *StorefrontClient
 	config       ClientConfig
 	q            *queue
 	retrySet     map[int]bool
@@ -73,6 +74,7 @@ func NewClient(config *ClientConfig) *CustdClient {
 	c.Provisioning = newProvisioningClient(c)
 	c.Reporting = newReportingClient(c)
 	c.Schemas = newSchemaRegistryClient(c)
+	c.Storefronts = &StorefrontClient{client: c}
 	c.startFlusher()
 	return c
 }

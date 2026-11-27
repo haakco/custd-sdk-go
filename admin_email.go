@@ -187,8 +187,9 @@ type EmailRelayWriteRequest struct {
 }
 
 type EmailRelayTestSendRequest struct {
-	Campaign  *CampaignTestSelection `json:"campaign,omitempty"`
-	Recipient string                 `json:"recipient"`
+	Campaign        *CampaignTestSelection `json:"campaign,omitempty"`
+	ReceiptRevision string                 `json:"receiptRevision,omitempty"`
+	Recipient       string                 `json:"recipient"`
 }
 
 type EmailRelayTestSendResult struct {
