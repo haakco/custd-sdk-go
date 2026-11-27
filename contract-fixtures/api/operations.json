@@ -2,7 +2,7 @@
   "source": {
     "apiReviewedAt": "2026-11-26",
     "sha256": {
-      "admin-api.openapi.yaml": "517a6ec87ce1639a1ee48456d5198493ff13cb5815a7565fd52732c36c94b1a4",
+      "admin-api.openapi.yaml": "b2e5bfbbac33450c0fafda6afb57281741f12c369be4e1676870adc2c3f394ac",
       "analytics-api.openapi.yaml": "e521f61d1cffb8c8a9fdd7f4d50e2afbfad93f83e8a295b9dc6398dde3747997",
       "api-operations.json": "6266ad378922650b5bcc2f76d30c946b3023d6e55a879e65e322da7076ae62d7"
     }

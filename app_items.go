@@ -278,11 +278,12 @@ const (
 type AppMeetingBlock struct {
 	// The time it took, once it is done.
 	ActualMs int64 `json:"actualMs"`
-	// The time it has now: an overrun earlier block shrinks the blocks after it.
-	AllocatedMs int64      `json:"allocatedMs"`
-	BlockUUID   string     `json:"blockUuid"`
-	EndedAt     *time.Time `json:"endedAt,omitempty"`
-	Position    int64      `json:"position"`
+	// The time currently allocated to the block.
+	AllocatedMs        int64      `json:"allocatedMs"`
+	AllocatedAtStartMs *int64     `json:"allocatedAtStartMs,omitempty"`
+	BlockUUID          string     `json:"blockUuid"`
+	EndedAt            *time.Time `json:"endedAt,omitempty"`
+	Position           int64      `json:"position"`
 	// The time the agenda predicted.
 	PredictedMs int64                 `json:"predictedMs"`
 	StartedAt   *time.Time            `json:"startedAt,omitempty"`
@@ -312,8 +313,20 @@ const (
 	AppMeetingStatusCancelled AppMeetingStatus = "cancelled"
 )
 
+type AppMeetingAdjustment struct {
+	BlockUUID string                       `json:"blockUuid"`
+	Changes   []AppMeetingAllocationChange `json:"changes"`
+}
+
+type AppMeetingAllocationChange struct {
+	BlockUUID string `json:"blockUuid"`
+	BeforeMs  int64  `json:"beforeMs"`
+	AfterMs   int64  `json:"afterMs"`
+}
+
 type AppMeeting struct {
-	Blocks []AppMeetingBlock `json:"blocks"`
+	Adjustments []AppMeetingAdjustment `json:"adjustments,omitempty"`
+	Blocks      []AppMeetingBlock      `json:"blocks"`
 	// The block that is on now, if any.
 	CurrentBlockUUID string     `json:"currentBlockUuid,omitempty"`
 	EndsAt           *time.Time `json:"endsAt,omitempty"`
