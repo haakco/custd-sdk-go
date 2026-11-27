@@ -1,5 +1,6 @@
 {
   "maximal": {
+    "companyName": "example",
     "issue": {
       "culprit": "example",
       "environments": [
@@ -65,6 +66,7 @@
     "latestEventUuid": "example"
   },
   "minimal": {
+    "companyName": "example",
     "issue": {
       "culprit": "example",
       "environments": null,

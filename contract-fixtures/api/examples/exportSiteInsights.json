@@ -33,6 +33,7 @@
             "value": "example"
           },
           "maxResponseMs": 1,
+          "path": "example",
           "statusCode": 1
         },
         "mode": "paused",

@@ -552,6 +552,7 @@ type ErrorIssueEvent struct {
 }
 
 type ErrorIssueDetail struct {
+	CompanyName     string          `json:"companyName"`
 	Issue           ErrorIssue      `json:"issue"`
 	LatestEvent     ErrorIssueEvent `json:"latestEvent"`
 	LatestEventUUID string          `json:"latestEventUuid"`
