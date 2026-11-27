@@ -118,8 +118,9 @@ type AdminSiteChromeUXObservation struct {
 	CLS       *float64  `json:"cls,omitempty"`
 }
 
-// AdminSiteHTTPExpectations configures optional checks on the final home page response.
+// AdminSiteHTTPExpectations configures optional checks on the final response from a public HTTPS path.
 type AdminSiteHTTPExpectations struct {
+	Path          string                        `json:"path,omitempty"`
 	StatusCode    int                           `json:"statusCode,omitempty"`
 	MaxResponseMs int                           `json:"maxResponseMs,omitempty"`
 	BodyContains  string                        `json:"bodyContains,omitempty"`

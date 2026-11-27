@@ -94,14 +94,14 @@ func TestSiteIncidentAcknowledgmentDoesNotResolveAnOutage(t *testing.T) {
 
 func TestSiteHTTPExpectationsSetAndClear(t *testing.T) {
 	doer := newCaptureDoer(http.StatusOK,
-		`{"checks":{"mode":"uptime","httpExpectations":{"statusCode":200,"maxResponseMs":750,"json":{"field":"status","value":"ok"}}}}`)
+		`{"checks":{"mode":"uptime","httpExpectations":{"path":"/ready","statusCode":200,"maxResponseMs":750,"json":{"field":"status","value":"ok"}}}}`)
 	domains := newAdminTestClient(t, doer, "http://localhost:8080").Admin.SiteDomains
 	settings := AdminSiteCheckSettings{Mode: AdminSiteCheckModeUptime, HTTPExpectations: &AdminSiteHTTPExpectations{
-		StatusCode: 200, MaxResponseMs: 750, JSON: &AdminSiteHTTPJSONExpectation{Field: "status", Value: "ok"},
+		Path: "/ready", StatusCode: 200, MaxResponseMs: 750, JSON: &AdminSiteHTTPJSONExpectation{Field: "status", Value: "ok"},
 	}}
 	domain, err := domains.SetCheckSettings(context.Background(), "d-1", settings)
 	if err != nil || domain.Checks.HTTPExpectations == nil || domain.Checks.HTTPExpectations.JSON == nil ||
-		domain.Checks.HTTPExpectations.MaxResponseMs != 750 || domain.Checks.HTTPExpectations.JSON.Value != "ok" {
+		domain.Checks.HTTPExpectations.Path != "/ready" || domain.Checks.HTTPExpectations.MaxResponseMs != 750 || domain.Checks.HTTPExpectations.JSON.Value != "ok" {
 		t.Fatalf("settings result = %+v, %v", domain, err)
 	}
 	doer.body = `{"checks":{"mode":"uptime"}}`
@@ -113,7 +113,7 @@ func TestSiteHTTPExpectationsSetAndClear(t *testing.T) {
 	target := "PUT " + siteTestBase + "/checks"
 	assertSiteRequests(t, doer.requests, []string{target, target})
 	assertSiteBody(t, doer.requests[0],
-		`{"mode":"uptime","httpExpectations":{"statusCode":200,"maxResponseMs":750,"json":{"field":"status","value":"ok"}}}`)
+		`{"mode":"uptime","httpExpectations":{"path":"/ready","statusCode":200,"maxResponseMs":750,"json":{"field":"status","value":"ok"}}}`)
 	assertSiteBody(t, doer.requests[1], `{"mode":"uptime","httpExpectations":{}}`)
 }
 
