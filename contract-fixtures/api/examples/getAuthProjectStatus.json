@@ -21,6 +21,8 @@
     "companySlug": "example",
     "companyUuid": "0198a3b2-0000-7000-8000-000000000001",
     "desired": {
+      "accountReturnLabel": "example",
+      "accountReturnUrl": "example",
       "applicationSessionPolicy": "offer_remember_me",
       "audiences": [
         {
@@ -38,6 +40,10 @@
         }
       ],
       "brandAccent": "example",
+      "brandMode": "shared",
+      "brandPalette": "default",
+      "brandPrivacyUrl": "example",
+      "brandSupportUrl": "example",
       "displayName": "example",
       "displayNameSource": "",
       "entryPath": "example",
@@ -108,6 +114,9 @@
     "loginNote": "example",
     "loginReady": true,
     "projectId": "example",
+    "recommendations": [
+      "example"
+    ],
     "reconcileNote": "example",
     "reconciled": true,
     "revision": 1

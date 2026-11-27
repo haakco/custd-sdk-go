@@ -225,6 +225,23 @@ const (
 	AuthProjectRegistrationPolicyOpen       AuthProjectRegistrationPolicy = "open"
 )
 
+// AuthProjectBrandMode selects which product marks appear on the realm.
+type AuthProjectBrandMode string
+
+const (
+	AuthProjectBrandModeShared     AuthProjectBrandMode = "shared"
+	AuthProjectBrandModeWhiteLabel AuthProjectBrandMode = "white_label"
+)
+
+// AuthProjectBrandPalette selects the realm’s color scheme.
+type AuthProjectBrandPalette string
+
+const (
+	AuthProjectBrandPaletteDefault AuthProjectBrandPalette = "default"
+	AuthProjectBrandPaletteLight   AuthProjectBrandPalette = "light"
+	AuthProjectBrandPaletteDark    AuthProjectBrandPalette = "dark"
+)
+
 // AuthProjectDesiredState is the environment configuration an apply writes. A
 // consumer builds it from these fields alone: Audiences carries the audience
 // binding, and IdentityMode, RegistrationPolicy, LoginPaused and ProfileFields
@@ -246,6 +263,17 @@ type AuthProjectDesiredState struct {
 	// BrandAccent is the realm's optional sign-in accent as #rrggbb; "" restores the shared
 	// default and nil keeps the stored accent.
 	BrandAccent *string `json:"brandAccent,omitempty"`
+	// BrandMode selects product or white-label marks; nil keeps the stored mode.
+	BrandMode *AuthProjectBrandMode `json:"brandMode,omitempty"`
+	// BrandPalette selects the color scheme; nil keeps the stored palette.
+	BrandPalette *AuthProjectBrandPalette `json:"brandPalette,omitempty"`
+	// BrandSupportURL and BrandPrivacyURL link to the verified app; nil keeps and "" clears each link.
+	BrandSupportURL *string `json:"brandSupportUrl,omitempty"`
+	BrandPrivacyURL *string `json:"brandPrivacyUrl,omitempty"`
+	// AccountReturnURL and AccountReturnLabel configure the realm's hosted account return link.
+	// Nil keeps each recorded value; an empty string clears it.
+	AccountReturnURL   *string `json:"accountReturnUrl,omitempty"`
+	AccountReturnLabel *string `json:"accountReturnLabel,omitempty"`
 	// DisplayName is the customer-facing application name the realm shows on invitations, hosted
 	// sign-in and hosted account settings. It is presentation only, empty when the realm has not
 	// chosen a name, and it is not the environment's own name.
@@ -431,7 +459,9 @@ type AuthProjectStatus struct {
 	ReconcileNote string                  `json:"reconcileNote"`
 	LoginReady    bool                    `json:"loginReady"`
 	LoginNote     string                  `json:"loginNote"`
-	ClientSync    *AuthProjectClientSync  `json:"clientSync,omitempty"`
+	// Recommendations are non-failing configuration guidance for this environment.
+	Recommendations []string               `json:"recommendations,omitempty"`
+	ClientSync      *AuthProjectClientSync `json:"clientSync,omitempty"`
 	// CompanyUUID is the persisted company of this environment's project; nil
 	// means explicitly unbound, never inferred.
 	CompanyUUID *string `json:"companyUuid"`

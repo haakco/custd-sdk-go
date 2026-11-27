@@ -489,6 +489,7 @@ func TestAuthProjectsGetEnvironmentStatusReadsBackAudienceBinding(t *testing.T) 
 		"reconcileNote": "",
 		"loginReady": false,
 		"loginNote": "",
+		"recommendations": ["Set an account return URL."],
 		"clientSync": {
 			"clientIds": ["custd-app-environment-1-hosting-edge"],
 			"revision": 7,
@@ -516,6 +517,9 @@ func TestAuthProjectsGetEnvironmentStatusReadsBackAudienceBinding(t *testing.T) 
 		authProjectOwningUser, "")
 	if status.ProjectID != "project-1" || status.EnvironmentID != "environment-1" || !status.Reconciled {
 		t.Fatalf("status = %+v", status)
+	}
+	if len(status.Recommendations) != 1 || status.Recommendations[0] != "Set an account return URL." {
+		t.Fatalf("recommendations = %v", status.Recommendations)
 	}
 	if len(status.Desired.Audiences) != 1 || status.Desired.Audiences[0].Audience != "hosting-edge" ||
 		!status.Desired.Audiences[0].PublicClient {
@@ -624,7 +628,7 @@ func TestAuthProjectDesiredStateKeepsWhatItLeavesOut(t *testing.T) {
 	if err := json.Unmarshal(kept, &keptFields); err != nil {
 		t.Fatal(err)
 	}
-	for _, key := range []string{"entryPath", "brandAccent", "loginPaused"} {
+	for _, key := range []string{"entryPath", "brandAccent", "brandMode", "brandPalette", "brandSupportUrl", "brandPrivacyUrl", "accountReturnUrl", "accountReturnLabel", "loginPaused"} {
 		if _, sent := keptFields[key]; sent {
 			t.Errorf("unset %s was sent: %s", key, kept)
 		}
@@ -636,12 +640,19 @@ func TestAuthProjectDesiredStateKeepsWhatItLeavesOut(t *testing.T) {
 	}
 	cleared, err := json.Marshal(AuthProjectDesiredState{
 		EntryPath: new(""), BrandAccent: new(""), LoginPaused: new(false),
+		BrandMode: new(AuthProjectBrandModeShared), BrandPalette: new(AuthProjectBrandPaletteDefault),
+		BrandSupportURL: new(""), BrandPrivacyURL: new(""),
+		AccountReturnURL: new(""), AccountReturnLabel: new(""),
 		SignInMethods: []string{}, ProfileFields: []AuthProjectProfileField{},
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, want := range []string{`"entryPath":""`, `"brandAccent":""`, `"loginPaused":false`, `"signInMethods":[]`, `"profileFields":[]`} {
+	for _, want := range []string{
+		`"entryPath":""`, `"brandAccent":""`, `"brandMode":"shared"`, `"brandPalette":"default"`,
+		`"brandSupportUrl":""`, `"brandPrivacyUrl":""`, `"accountReturnUrl":""`, `"accountReturnLabel":""`,
+		`"loginPaused":false`, `"signInMethods":[]`, `"profileFields":[]`,
+	} {
 		if !strings.Contains(string(cleared), want) {
 			t.Errorf("clearing body %s lacks %s", cleared, want)
 		}
