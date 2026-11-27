@@ -47,6 +47,8 @@ const (
 	MachineAccessDecidedByCompany MachineAccessDecidedBy = "company"
 	// MachineAccessDecidedByMachine is the machine's own override for the area.
 	MachineAccessDecidedByMachine MachineAccessDecidedBy = "machine"
+	// MachineAccessDecidedByScope means the effective view found no matching OAuth scope.
+	MachineAccessDecidedByScope MachineAccessDecidedBy = "scope"
 	// MachineAccessDecidedBySupportAutomation is the target company's "Allow Custd support
 	// automation" setting, which refuses Custd's platform operator machine acting inside it.
 	MachineAccessDecidedBySupportAutomation MachineAccessDecidedBy = "support_automation"
