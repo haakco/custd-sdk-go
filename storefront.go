@@ -207,6 +207,7 @@ type StorefrontAdjustmentRequest struct {
 }
 
 type StorefrontPurchase struct {
+	Usage            *UsageCertificate       `json:"usage,omitempty"`
 	ActivationStatus string                  `json:"activationStatus,omitempty"`
 	Refund           *StorefrontRefund       `json:"refund,omitempty"`
 	InvoiceUUID      string                  `json:"invoiceUuid"`
@@ -275,16 +276,28 @@ func (s *StorefrontClient) ReconcileRefund(ctx context.Context, storefront, invo
 }
 
 func storefrontRequest[T any](ctx context.Context, s *StorefrontClient, method string, payload any, parts ...string) (*T, error) {
+	path, err := storefrontPath(parts...)
+	if err != nil {
+		return nil, err
+	}
+	return billingRequest[T](ctx, s, method, path, payload)
+}
+
+func storefrontPath(parts ...string) (string, error) {
+	return buildStorefrontPath("/api/v1/storefronts", parts...)
+}
+
+func buildStorefrontPath(base string, parts ...string) (string, error) {
 	var path strings.Builder
-	path.WriteString("/api/v1/storefronts")
+	path.WriteString(base)
 	for _, part := range parts {
 		if part == "" || part == "." || part == ".." || strings.ContainsAny(part, "/\\") {
-			return nil, fmt.Errorf("custd: invalid storefront path segment")
+			return "", fmt.Errorf("custd: invalid storefront path segment")
 		}
 		path.WriteByte('/')
 		path.WriteString(url.PathEscape(part))
 	}
-	return billingRequest[T](ctx, s, method, path.String(), payload)
+	return path.String(), nil
 }
 
 func billingRequest[T any](ctx context.Context, s *StorefrontClient, method, path string, payload any) (*T, error) {
