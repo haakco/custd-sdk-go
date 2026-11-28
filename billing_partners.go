@@ -270,3 +270,31 @@ func (s *StorefrontClient) RecordPartnerPayout(ctx context.Context, partnerUUID 
 	}
 	return billingRequest[PartnerPayout](ctx, s, http.MethodPost, path, input)
 }
+
+// PartnerFeeBalanceRequest selects the business date through which to include fee movements.
+type PartnerFeeBalanceRequest struct {
+	AsOf string
+}
+
+type PartnerFeeBalance struct {
+	SellerCompanyUUID  string                      `json:"sellerCompanyUuid"`
+	PartnerCompanyUUID string                      `json:"partnerCompanyUuid"`
+	AsOf               string                      `json:"asOf"`
+	Currencies         []PartnerFeeBalanceCurrency `json:"currencies"`
+}
+
+type PartnerFeeBalanceCurrency struct {
+	Held      StorefrontMoney `json:"held"`
+	Available StorefrontMoney `json:"available"`
+	Negative  StorefrontMoney `json:"negative"`
+}
+
+// GetPartnerFeeBalance reads one partner’s fee balance across the authenticated seller’s storefronts.
+func (s *StorefrontClient) GetPartnerFeeBalance(ctx context.Context, partnerUUID string, input PartnerFeeBalanceRequest) (*PartnerFeeBalance, error) {
+	path, err := buildStorefrontPath(billingPartnersPath, partnerUUID, "fee-balance")
+	if err != nil {
+		return nil, err
+	}
+	path += "?" + (url.Values{"asOf": {input.AsOf}}).Encode()
+	return billingRequest[PartnerFeeBalance](ctx, s, http.MethodGet, path, nil)
+}

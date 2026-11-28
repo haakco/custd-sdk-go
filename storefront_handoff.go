@@ -36,6 +36,11 @@ func (s *StorefrontClient) CancelPurchaseHandoff(ctx context.Context, storefront
 	return storefrontHandoffRequest(ctx, s, http.MethodPost, nil, storefront, "purchase-handoffs", handoffUUID, "cancel")
 }
 
+// RedeemPurchaseHandoff returns the quote the authenticated buyer can review before checkout.
+func (s *StorefrontClient) RedeemPurchaseHandoff(ctx context.Context, storefront, handoffUUID string) (*StorefrontQuote, error) {
+	return storefrontRequest[StorefrontQuote](ctx, s, http.MethodPost, nil, storefront, "purchase-handoffs", handoffUUID, "redeem")
+}
+
 func storefrontHandoffRequest(ctx context.Context, s *StorefrontClient, method string, payload any, parts ...string) (*StorefrontPurchaseHandoff, error) {
 	path, err := buildStorefrontPath(storefrontRegistryPath, parts...)
 	if err != nil {

@@ -116,3 +116,23 @@ func TestStorefrontPartnerPayoutKeepsExactMinorUnits(t *testing.T) {
 		t.Fatal("payout requests used the wrong route, cursor or exact amount")
 	}
 }
+
+func TestGetPartnerFeeBalancePreservesSellerWideSignedMoney(t *testing.T) {
+	const origin = "https://billing.example"
+	doer := newCaptureDoer(http.StatusOK, `{"sellerCompanyUuid":"seller","partnerCompanyUuid":"partner","asOf":"2026-11-28",
+		"currencies":[{"held":{"currency":"ZAR","amountMinor":"9007199254740993"},
+		"available":{"currency":"ZAR","amountMinor":"0"},"negative":{"currency":"ZAR","amountMinor":"-450"}}]}`)
+	client := NewClient(&ClientConfig{BaseURL: origin, APIKey: "fixture-seller", HTTPClient: fakeTransport(doer)})
+	t.Cleanup(func() { _ = client.Close(t.Context()) })
+	balance, err := client.Storefronts.GetPartnerFeeBalance(t.Context(), "partner", PartnerFeeBalanceRequest{AsOf: "2026-11-28"})
+	if err != nil || balance.SellerCompanyUUID != "seller" || balance.PartnerCompanyUUID != "partner" ||
+		balance.AsOf != "2026-11-28" || len(balance.Currencies) != 1 ||
+		balance.Currencies[0].Held.AmountMinor != "9007199254740993" || balance.Currencies[0].Negative.AmountMinor != "-450" {
+		t.Fatalf("unexpected partner balance: %+v, %v", balance, err)
+	}
+	request := doer.requests[0]
+	if request.Method != http.MethodGet || request.URL != origin+billingPartnersPath+"/partner/fee-balance?asOf=2026-11-28" ||
+		request.Headers["Authorization"] != "Bearer fixture-seller" || len(request.Body) != 0 {
+		t.Fatal("partner balance did not use a seller-wide, authenticated read")
+	}
+}
