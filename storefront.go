@@ -87,6 +87,18 @@ type StorefrontPublishOffer struct {
 	EffectiveFrom             *time.Time          `json:"effectiveFrom,omitempty"`
 }
 
+// PublishStorefrontCapacityOffer publishes one platform capacity offer with a stable OfferUUID for retries.
+type PublishStorefrontCapacityOffer struct {
+	OfferUUID         string                      `json:"offerUuid"`
+	Name              string                      `json:"name"`
+	BillingInterval   string                      `json:"billingInterval"`
+	UnitPrice         StorefrontUnitPrice         `json:"unitPrice"`
+	TaxRate           string                      `json:"taxRate"`
+	TaxLabel          string                      `json:"taxLabel"`
+	EffectiveFrom     *time.Time                  `json:"effectiveFrom,omitempty"`
+	DataSpaceCapacity StorefrontDataSpaceCapacity `json:"dataSpaceCapacity"`
+}
+
 type StorefrontCartLine struct {
 	OfferUUID         string `json:"offerUuid"`
 	PriceRevisionUUID string `json:"priceRevisionUuid"`
@@ -259,6 +271,15 @@ func (s *StorefrontClient) ListOffers(ctx context.Context, storefront string) (*
 
 func (s *StorefrontClient) PublishOffer(ctx context.Context, storefront string, offer StorefrontPublishOffer) (*StorefrontOffer, error) {
 	return storefrontRequest[StorefrontOffer](ctx, s, http.MethodPost, offer, storefront, "offers")
+}
+
+// PublishCapacityOffer records a data-space capacity offer as a platform administrator.
+func (s *StorefrontClient) PublishCapacityOffer(ctx context.Context, storefront string, input PublishStorefrontCapacityOffer) (*StorefrontOffer, error) {
+	path, err := buildStorefrontPath(storefrontRegistryPath, storefront, "capacity-offers")
+	if err != nil {
+		return nil, err
+	}
+	return billingRequest[StorefrontOffer](ctx, s, http.MethodPost, path, input)
 }
 
 func (s *StorefrontClient) CreateCart(ctx context.Context, storefront string) (*StorefrontCart, error) {
