@@ -3,6 +3,7 @@ package custd
 import (
 	"net/http"
 	"testing"
+	"time"
 )
 
 func TestStorefrontPartnerInvitationUsesScopedBody(t *testing.T) {
@@ -86,5 +87,32 @@ func TestStorefrontPartnerTaxDisclosurePreservesExplicitNonregistration(t *testi
 		if request.Method != method || request.URL != baseURL+billingPartnersPath+path || string(request.Body) != body {
 			t.Fatalf("wrong request for %s", path)
 		}
+	}
+}
+
+func TestStorefrontPartnerPayoutKeepsExactMinorUnits(t *testing.T) {
+	const base = "https://store.example"
+	const amount = "9007199254740993"
+	const body = `{"externalReference":"transfer","amount":{"currency":"ZAR","amountMinor":"` + amount + `"},"paidAt":"2026-11-28T00:00:00Z"}`
+	doer := newCaptureDoer(http.StatusOK, `{"nextBefore":"next","amount":{"currency":"ZAR","amountMinor":"`+amount+`"}}`)
+	client := NewClient(&ClientConfig{BaseURL: base, APIKey: "seller-token", HTTPClient: fakeTransport(doer)})
+	t.Cleanup(func() { _ = client.Close(t.Context()) })
+	ctx := t.Context()
+	page, err := client.Storefronts.ListPartnerPayouts(ctx, PartnerPayoutPageRequest{PartnerCompanyUUID: "partner", Before: "previous"})
+	if err != nil || page.NextBefore != "next" {
+		t.Fatalf("payout page: %v", err)
+	}
+	result, err := client.Storefronts.RecordPartnerPayout(ctx, "partner", RecordPartnerPayoutRequest{
+		ExternalReference: "transfer", Amount: StorefrontMoney{Currency: "ZAR", AmountMinor: amount},
+		PaidAt: time.Date(2026, 11, 28, 0, 0, 0, 0, time.UTC),
+	})
+	if err != nil || result.Amount.AmountMinor != amount {
+		t.Fatalf("payout response: %v", err)
+	}
+	path := base + billingPartnersPath + "/partner/payouts"
+	list, record := doer.requests[0], doer.requests[1]
+	if list.Method != http.MethodGet || list.URL != path+"?before=previous" ||
+		record.Method != http.MethodPost || record.URL != path || string(record.Body) != body {
+		t.Fatal("payout requests used the wrong route, cursor or exact amount")
 	}
 }

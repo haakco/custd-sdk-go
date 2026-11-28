@@ -225,3 +225,48 @@ func (s *StorefrontClient) RecordPartnerTaxDisclosure(ctx context.Context, selle
 	}
 	return billingRequest[PartnerTaxDisclosure](ctx, s, http.MethodPost, path, input)
 }
+
+type RecordPartnerPayoutRequest struct {
+	ExternalReference string          `json:"externalReference"`
+	Amount            StorefrontMoney `json:"amount"`
+	PaidAt            time.Time       `json:"paidAt"`
+}
+
+type PartnerPayout struct {
+	RecordPartnerPayoutRequest
+	PayoutUUID         string    `json:"payoutUuid"`
+	PartnerCompanyUUID string    `json:"partnerCompanyUuid"`
+	PaidOn             string    `json:"paidOn"`
+	RecordedAt         time.Time `json:"recordedAt"`
+	PreferenceUUID     string    `json:"preferenceUuid"`
+	TaxDisclosureUUID  string    `json:"taxDisclosureUuid"`
+}
+
+type PartnerPayoutPageRequest struct {
+	PartnerCompanyUUID string
+	Before             string
+}
+
+type PartnerPayoutPage struct {
+	Payouts    []PartnerPayout `json:"payouts"`
+	NextBefore string          `json:"nextBefore,omitempty"`
+}
+
+func (s *StorefrontClient) ListPartnerPayouts(ctx context.Context, input PartnerPayoutPageRequest) (*PartnerPayoutPage, error) {
+	path, err := buildStorefrontPath(billingPartnersPath, input.PartnerCompanyUUID, "payouts")
+	if err != nil {
+		return nil, err
+	}
+	if input.Before != "" {
+		path += "?" + (url.Values{"before": {input.Before}}).Encode()
+	}
+	return billingRequest[PartnerPayoutPage](ctx, s, http.MethodGet, path, nil)
+}
+
+func (s *StorefrontClient) RecordPartnerPayout(ctx context.Context, partnerUUID string, input RecordPartnerPayoutRequest) (*PartnerPayout, error) {
+	path, err := buildStorefrontPath(billingPartnersPath, partnerUUID, "payouts")
+	if err != nil {
+		return nil, err
+	}
+	return billingRequest[PartnerPayout](ctx, s, http.MethodPost, path, input)
+}

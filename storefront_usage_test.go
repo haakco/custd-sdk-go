@@ -59,3 +59,33 @@ func TestStorefrontUsageScheduleSendsExplicitConsent(t *testing.T) {
 		}
 	}
 }
+
+func TestStorefrontSetOffUsesInvoiceOnlyRoutes(t *testing.T) {
+	const base = "https://store.example"
+	doer := newCaptureDoer(http.StatusOK, `{"eligible":true,"amount":{"currency":"ZAR","amountMinor":"9007199254740993"}}`)
+	client := NewClient(&ClientConfig{BaseURL: base, APIKey: "buyer-token", HTTPClient: fakeTransport(doer)})
+	t.Cleanup(func() { _ = client.Close(t.Context()) })
+	ctx := t.Context()
+	if _, err := client.Storefronts.IssueStorefrontInvoice(ctx, "shop", "quote"); err != nil {
+		t.Fatal(err)
+	}
+	eligibility, err := client.Storefronts.GetStorefrontSetOffEligibility(ctx, "shop", "invoice")
+	if err != nil || !eligibility.Eligible {
+		t.Fatalf("eligibility = %+v, %v", eligibility, err)
+	}
+	setoff, err := client.Storefronts.ApplyStorefrontSetOff(ctx, "shop", "invoice")
+	if err != nil || setoff.Amount.AmountMinor != "9007199254740993" {
+		t.Fatalf("set-off = %+v, %v", setoff, err)
+	}
+	want := []struct{ method, path string }{
+		{http.MethodPost, "/quotes/quote/invoice"},
+		{http.MethodGet, "/purchases/invoice/set-off"},
+		{http.MethodPost, "/purchases/invoice/set-off"},
+	}
+	for index, expected := range want {
+		request := doer.requests[index]
+		if request.Method != expected.method || request.URL != base+"/api/v1/storefronts/shop"+expected.path || len(request.Body) != 0 {
+			t.Fatalf("unexpected set-off request for %s", expected.path)
+		}
+	}
+}

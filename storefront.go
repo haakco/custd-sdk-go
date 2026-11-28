@@ -206,7 +206,28 @@ type StorefrontAdjustmentRequest struct {
 	Reason string `json:"reason"`
 }
 
+type StorefrontSetOff struct {
+	UUID              string                    `json:"setOffUuid"`
+	InvoiceUUID       string                    `json:"invoiceUuid"`
+	Amount            StorefrontMoney           `json:"amount"`
+	AppliedAt         time.Time                 `json:"appliedAt"`
+	AppliedOn         string                    `json:"appliedOn"`
+	PreferenceUUID    string                    `json:"preferenceUuid"`
+	TaxDisclosureUUID string                    `json:"taxDisclosureUuid"`
+	Reversal          *StorefrontSetOffReversal `json:"reversal,omitempty"`
+}
+
+type StorefrontSetOffReversal struct {
+	CreditNoteUUID string    `json:"creditNoteUuid"`
+	ReversedAt     time.Time `json:"reversedAt"`
+}
+
+type StorefrontSetOffEligibility struct {
+	Eligible bool `json:"eligible"`
+}
+
 type StorefrontPurchase struct {
+	SetOff           *StorefrontSetOff       `json:"setOff,omitempty"`
 	Usage            *UsageCertificate       `json:"usage,omitempty"`
 	ActivationStatus string                  `json:"activationStatus,omitempty"`
 	Refund           *StorefrontRefund       `json:"refund,omitempty"`
@@ -252,6 +273,18 @@ func (s *StorefrontClient) GetQuote(ctx context.Context, storefront, quoteUUID s
 // Checkout starts or resumes the purchase for an accepted quote.
 func (s *StorefrontClient) Checkout(ctx context.Context, storefront, quoteUUID string) (*StorefrontPurchase, error) {
 	return storefrontRequest[StorefrontPurchase](ctx, s, http.MethodPost, nil, storefront, "quotes", quoteUUID, "checkout")
+}
+
+func (s *StorefrontClient) IssueStorefrontInvoice(ctx context.Context, storefront, quoteUUID string) (*StorefrontPurchase, error) {
+	return storefrontRequest[StorefrontPurchase](ctx, s, http.MethodPost, nil, storefront, "quotes", quoteUUID, "invoice")
+}
+
+func (s *StorefrontClient) GetStorefrontSetOffEligibility(ctx context.Context, storefront, invoiceUUID string) (*StorefrontSetOffEligibility, error) {
+	return storefrontRequest[StorefrontSetOffEligibility](ctx, s, http.MethodGet, nil, storefront, "purchases", invoiceUUID, "set-off")
+}
+
+func (s *StorefrontClient) ApplyStorefrontSetOff(ctx context.Context, storefront, invoiceUUID string) (*StorefrontSetOff, error) {
+	return storefrontRequest[StorefrontSetOff](ctx, s, http.MethodPost, nil, storefront, "purchases", invoiceUUID, "set-off")
 }
 
 func (s *StorefrontClient) GetPurchase(ctx context.Context, storefront, invoiceUUID string) (*StorefrontPurchase, error) {
