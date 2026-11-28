@@ -1,7 +1,8 @@
 {
   "maximal": {
     "deletedCount": 1,
-    "source": "example"
+    "source": "example",
+    "sourceGeneration": 1
   },
   "minimal": {
     "deletedCount": 1,

@@ -1,0 +1,15 @@
+{
+  "maximal": {
+    "connectionState": "connecting",
+    "createdAt": "2026-11-20T06:00:00Z",
+    "grantId": "0198a3b2-0000-7000-8000-000000000001",
+    "lastReportAt": "2026-11-20T06:00:00Z",
+    "pendingMedia": 1,
+    "sourceGeneration": 1,
+    "state": "active",
+    "updatedAt": "2026-11-20T06:00:00Z"
+  },
+  "minimal": {
+    "state": "active"
+  }
+}

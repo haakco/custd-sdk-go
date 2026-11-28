@@ -1,0 +1,14 @@
+{
+  "maximal": {
+    "companySlug": "example",
+    "importAllowed": true,
+    "principalId": "example",
+    "whatsappSourceGeneration": 1
+  },
+  "minimal": {
+    "companySlug": "example",
+    "importAllowed": true,
+    "principalId": "example",
+    "whatsappSourceGeneration": 1
+  }
+}

@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -28,9 +29,10 @@ const (
 )
 
 type AppMessageSession struct {
-	CompanySlug   string `json:"companySlug"`
-	PrincipalID   string `json:"principalId"`
-	ImportAllowed bool   `json:"importAllowed"`
+	CompanySlug              string `json:"companySlug"`
+	PrincipalID              string `json:"principalId"`
+	ImportAllowed            bool   `json:"importAllowed"`
+	WhatsAppSourceGeneration int64  `json:"whatsappSourceGeneration"`
 }
 
 type AppMessageInput struct {
@@ -44,8 +46,9 @@ type AppMessageInput struct {
 }
 
 type AppMessageBatchRequest struct {
-	Source   AppMessageSource  `json:"source"`
-	Messages []AppMessageInput `json:"messages"`
+	Source           AppMessageSource  `json:"source"`
+	Messages         []AppMessageInput `json:"messages"`
+	SourceGeneration *int64            `json:"sourceGeneration,omitempty"`
 }
 
 type AppMessageImportResult struct {
@@ -101,13 +104,15 @@ type AppMessageReadResponse struct {
 }
 
 type AppMessageDeleteSourceResponse struct {
-	Source       AppMessageSource `json:"source"`
-	DeletedCount int64            `json:"deletedCount"`
+	Source           AppMessageSource `json:"source"`
+	DeletedCount     int64            `json:"deletedCount"`
+	SourceGeneration int64            `json:"sourceGeneration,omitempty"`
 }
 
 type AppMessageMediaUpload struct {
-	MessageUUID string
-	Image       []byte
+	MessageUUID      string
+	Image            []byte
+	SourceGeneration *int64
 }
 
 type AppMessageMediaRef struct {
@@ -158,6 +163,12 @@ func (c *AppMessageClient) UploadMedia(ctx context.Context, upload *AppMessageMe
 	}
 	request := c.request(http.MethodPut, "/"+url.PathEscape(upload.MessageUUID)+"/media", upload.Image)
 	request.Headers["Content-Type"] = "application/octet-stream"
+	if upload.SourceGeneration != nil {
+		if *upload.SourceGeneration < 1 {
+			return nil, validationErrorf("custd: archive source generation must be positive")
+		}
+		request.Headers[appMessageSourceGenerationHeader] = strconv.FormatInt(*upload.SourceGeneration, 10)
+	}
 	_, body, err := c.client.exchangeChecked(ctx, "archive image upload", request)
 	if err != nil {
 		return nil, err

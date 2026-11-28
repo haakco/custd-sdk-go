@@ -2,9 +2,9 @@
   "source": {
     "apiReviewedAt": "2026-11-28",
     "sha256": {
-      "admin-api.openapi.yaml": "d6294da7c46c8983dc2a75cf6ea76fe8c1d05419051fb361db9359e2253d294f",
+      "admin-api.openapi.yaml": "842678eb8f0cb690f18f231880bf9a4a5dab9c31e19ba5ee6b4e6c03ca0f381c",
       "analytics-api.openapi.yaml": "e521f61d1cffb8c8a9fdd7f4d50e2afbfad93f83e8a295b9dc6398dde3747997",
-      "api-operations.json": "ca3d3d4d9a688f70d681e68d0be413bfaaeb930302d381ccb2925dccb9c382b0"
+      "api-operations.json": "90309ef6488c0a8a477e7a03f6c52b1f8506d38f8097ec81b2f11d81d49c9f51"
     }
   },
   "operations": [
@@ -2824,6 +2824,24 @@
       "sdk": "required",
       "operationId": "listAppItems",
       "example": "examples/listAppItems.json"
+    },
+    {
+      "id": "admin-api GET /api/v1/app/messages/connector",
+      "service": "admin-api",
+      "method": "GET",
+      "path": "/api/v1/app/messages/connector",
+      "sdk": "required",
+      "operationId": "getAppMessageConnector",
+      "example": "examples/getAppMessageConnector.json"
+    },
+    {
+      "id": "admin-api GET /api/v1/app/messages/connector/session",
+      "service": "admin-api",
+      "method": "GET",
+      "path": "/api/v1/app/messages/connector/session",
+      "sdk": "required",
+      "operationId": "getAppMessageConnectorSession",
+      "example": "examples/getAppMessageConnectorSession.json"
     },
     {
       "id": "admin-api GET /api/v1/app/messages/session",
@@ -6732,6 +6750,42 @@
       "example": "examples/importAppMessages.json"
     },
     {
+      "id": "admin-api POST /api/v1/app/messages/connector/control",
+      "service": "admin-api",
+      "method": "POST",
+      "path": "/api/v1/app/messages/connector/control",
+      "sdk": "required",
+      "operationId": "controlAppMessageConnector",
+      "example": "examples/controlAppMessageConnector.json"
+    },
+    {
+      "id": "admin-api POST /api/v1/app/messages/connector/enroll",
+      "service": "admin-api",
+      "method": "POST",
+      "path": "/api/v1/app/messages/connector/enroll",
+      "sdk": "required",
+      "operationId": "enrollAppMessageConnector",
+      "example": "examples/enrollAppMessageConnector.json"
+    },
+    {
+      "id": "admin-api POST /api/v1/app/messages/connector/report",
+      "service": "admin-api",
+      "method": "POST",
+      "path": "/api/v1/app/messages/connector/report",
+      "sdk": "required",
+      "operationId": "reportAppMessageConnector",
+      "example": "examples/reportAppMessageConnector.json"
+    },
+    {
+      "id": "admin-api POST /api/v1/app/messages/mutations",
+      "service": "admin-api",
+      "method": "POST",
+      "path": "/api/v1/app/messages/mutations",
+      "sdk": "required",
+      "operationId": "mutateAppMessages",
+      "example": "examples/mutateAppMessages.json"
+    },
+    {
       "id": "admin-api POST /api/v1/app/messages/search",
       "service": "admin-api",
       "method": "POST",
@@ -9101,13 +9155,6 @@
       "sdk": "required"
     },
     {
-      "id": "ingest-api ANY /api/v1/account/me",
-      "service": "ingest-api",
-      "method": "ANY",
-      "path": "/api/v1/account/me",
-      "sdk": "required"
-    },
-    {
       "id": "ingest-api ANY /api/v1/errors/api/{project}/envelope/",
       "service": "ingest-api",
       "method": "ANY",
@@ -9217,6 +9264,13 @@
       "path": "/readyz",
       "sdk": "excluded",
       "reason": "infrastructure, debug or private internal transport"
+    },
+    {
+      "id": "ingest-api GET /api/v1/account/me",
+      "service": "ingest-api",
+      "method": "GET",
+      "path": "/api/v1/account/me",
+      "sdk": "required"
     },
     {
       "id": "ingest-api GET /api/v1/admin/cleanup/plans",

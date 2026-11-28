@@ -35,4 +35,29 @@ var appMessageSurfaceRows = []surfaceRow{
 		})
 		return err
 	}},
+
+	{id: "admin-api GET /api/v1/app/messages/connector", path: "/api/v1/app/messages/connector", call: func(e *surfaceEnv) error {
+		_, err := e.client.AppMessages.GetConnector(context.Background())
+		return err
+	}},
+	{id: "admin-api POST /api/v1/app/messages/connector/control", path: "/api/v1/app/messages/connector/control", call: func(e *surfaceEnv) error {
+		_, err := e.client.AppMessages.ControlConnector(context.Background(), AppMessageConnectorControl{Action: AppMessageConnectorPause})
+		return err
+	}},
+	{id: "admin-api POST /api/v1/app/messages/connector/enroll", path: "/api/v1/app/messages/connector/enroll", call: func(e *surfaceEnv) error {
+		_, err := e.client.AppMessages.EnrollConnector(context.Background())
+		return err
+	}},
+	{id: "admin-api POST /api/v1/app/messages/connector/report", path: "/api/v1/app/messages/connector/report", call: func(e *surfaceEnv) error {
+		_, err := e.client.AppMessages.ReportConnector(context.Background(), AppMessageConnectorReport{ConnectionState: AppMessageConnectorSyncing})
+		return err
+	}},
+	{id: "admin-api GET /api/v1/app/messages/connector/session", path: "/api/v1/app/messages/connector/session", call: func(e *surfaceEnv) error {
+		_, err := e.client.AppMessages.ConnectorSession(context.Background())
+		return err
+	}},
+	{id: "admin-api POST /api/v1/app/messages/mutations", path: "/api/v1/app/messages/mutations", call: func(e *surfaceEnv) error {
+		_, err := e.client.AppMessages.Mutate(context.Background(), AppMessageMutationBatch{Source: AppMessageSourceWhatsApp, SourceGeneration: 2, Mutations: []AppMessageMutation{}})
+		return err
+	}},
 }

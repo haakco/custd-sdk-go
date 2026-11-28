@@ -1,0 +1,15 @@
+{
+  "maximal": {
+    "results": [
+      {
+        "errorCode": "example",
+        "externalId": "example",
+        "operationId": "example",
+        "status": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "results": null
+  }
+}

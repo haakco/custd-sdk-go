@@ -3,14 +3,12 @@ package custd
 import (
 	"context"
 	"io"
-	"net/http"
 )
 
 var adminSurfaceRows = []surfaceRow{
 	{
-		id:     "ingest-api ANY /api/v1/account/me",
-		path:   "/api/v1/account/me",
-		method: http.MethodGet,
+		id:   "ingest-api GET /api/v1/account/me",
+		path: "/api/v1/account/me",
 		call: func(e *surfaceEnv) error {
 			_, _, err := e.client.Admin.GetAccount(context.Background())
 			return err

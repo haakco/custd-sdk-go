@@ -59,3 +59,30 @@ func TestAppMessageArchiveMedia(t *testing.T) {
 		t.Fatalf("download original: %v", err)
 	}
 }
+
+func TestAppMessageConnectorWritesUseBoundGeneration(t *testing.T) {
+	generation := int64(17)
+	image := []byte{0xff, 0xd8, 0xff, 0xd9}
+	doer := newCaptureDoer(http.StatusOK, `{"results":[],"mediaUuid":"image-1","contentType":"image/jpeg","byteCount":4,"ocrStatus":"pending"}`)
+	client := NewClient(&ClientConfig{BaseURL: "https://custd.example", APIKey: "connector-test-bearer", HTTPClient: fakeTransport(doer)})
+	t.Cleanup(func() { _ = client.Close(context.Background()) })
+	if _, err := client.AppMessages.Import(context.Background(), &AppMessageBatchRequest{
+		Source: AppMessageSourceWhatsApp, SourceGeneration: &generation, Messages: []AppMessageInput{},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := client.AppMessages.UploadMedia(context.Background(), &AppMessageMediaUpload{
+		MessageUUID: appArchiveTestUUID, Image: image, SourceGeneration: &generation,
+	}); err != nil {
+		t.Fatal(err)
+	}
+	requests := doer.requests
+	if len(requests) != 2 ||
+		requests[0].Headers["Authorization"] != "Bearer connector-test-bearer" ||
+		!bytes.Contains(requests[0].Body, []byte(`"sourceGeneration":17`)) ||
+		requests[1].Headers["Authorization"] != "Bearer connector-test-bearer" ||
+		requests[1].Headers[appMessageSourceGenerationHeader] != "17" ||
+		!bytes.Equal(requests[1].Body, image) {
+		t.Fatal("connector writes did not preserve their bearer, source generation and payload")
+	}
+}
