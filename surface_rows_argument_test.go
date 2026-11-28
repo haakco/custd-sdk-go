@@ -13,7 +13,7 @@ import (
 // argumentSurfaceRows need real arguments: the SDK validates them before it
 // sends, or one method selects the operation from an argument.
 var argumentSurfaceRows = []surfaceRow{
-	{id: "ingest-api ANY /api/v1/raw", path: "/api/v1/raw", method: http.MethodPost, call: func(e *surfaceEnv) error {
+	{id: "ingest-api POST /api/v1/raw", path: "/api/v1/raw", call: func(e *surfaceEnv) error {
 		_, err := e.client.IngestRawLines(context.Background(), RawIngestRequest{
 			Content: "line", ParserUUID: "0195f0a0-0000-4000-8000-000000000001"})
 		return err
@@ -26,7 +26,7 @@ var argumentSurfaceRows = []surfaceRow{
 		_, err := e.client.InitializeCurrentAppProfilePhoto(context.Background(), "a1", surfacePhoto())
 		return err
 	}},
-	{id: "ingest-api ANY /api/v1/events/batch", path: "/api/v1/events/batch", method: http.MethodPost, call: func(e *surfaceEnv) error {
+	{id: "ingest-api POST /api/v1/events/batch", path: "/api/v1/events/batch", call: func(e *surfaceEnv) error {
 		_, err := e.client.SendEvents(context.Background(), SendEventsRequest{Events: []EventEnvelope{*validEvent()}})
 		return err
 	}},

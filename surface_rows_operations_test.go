@@ -44,6 +44,14 @@ var operationsSurfaceRows = []surfaceRow{
 		},
 	},
 	{
+		id:   "admin-api GET /api/v1/admin/apps/{slug}/purchase-handoff-credentials",
+		path: "/api/v1/admin/apps/a1/purchase-handoff-credentials",
+		call: func(e *surfaceEnv) error {
+			_, err := e.client.Admin.AuthProjects.ListPurchaseHandoffCredentials(context.Background(), "a1", AuthProjectRequestOptions{IdempotencyKey: "k1"})
+			return err
+		},
+	},
+	{
 		id:   "admin-api POST /api/v1/admin/apps/{slug}/pause",
 		path: "/api/v1/admin/apps/a1/pause",
 		call: func(e *surfaceEnv) error {

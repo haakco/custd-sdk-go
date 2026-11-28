@@ -1,0 +1,13 @@
+{
+  "invoiceUuid": "invoice-1",
+  "invoiceNumber": "CUSTD-INV-000001",
+  "status": "open",
+  "totals": {
+    "netTotal": {"currency": "ZAR", "amountMinor": "9007199254740993"},
+    "taxTotal": {"currency": "ZAR", "amountMinor": "0"},
+    "grossTotal": {"currency": "ZAR", "amountMinor": "9007199254740993"}
+  },
+  "checkoutState": "ready",
+  "paymentStatus": "pending",
+  "paymentUrl": "https://checkout.example/pending"
+}

@@ -46,6 +46,14 @@ var authProjectSurfaceRows = []surfaceRow{
 		},
 	},
 	{
+		id:   "admin-api POST /api/v1/admin/apps/{slug}/purchase-handoff-credentials",
+		path: "/api/v1/admin/apps/a1/purchase-handoff-credentials",
+		call: func(e *surfaceEnv) error {
+			_, err := e.client.Admin.AuthProjects.CreatePurchaseHandoffCredential(context.Background(), "a1", AuthProjectRequestOptions{})
+			return err
+		},
+	},
+	{
 		id:   "admin-api POST /api/v1/admin/auth-projects/{projectId}/environments/{environmentId}/releases",
 		path: "/api/v1/admin/auth-projects/a1/environments/a2/releases",
 		call: func(e *surfaceEnv) error {
@@ -66,6 +74,13 @@ var authProjectSurfaceRows = []surfaceRow{
 		path: "/api/v1/admin/apps/a1/deploy-credentials/a2",
 		call: func(e *surfaceEnv) error {
 			return e.client.Admin.AuthProjects.DeleteAppDeployCredential(context.Background(), "a1", "a2", AuthProjectRequestOptions{})
+		},
+	},
+	{
+		id:   "admin-api DELETE /api/v1/admin/apps/{slug}/purchase-handoff-credentials/{clientId}",
+		path: "/api/v1/admin/apps/a1/purchase-handoff-credentials/a2",
+		call: func(e *surfaceEnv) error {
+			return e.client.Admin.AuthProjects.DeletePurchaseHandoffCredential(context.Background(), "a1", "a2", AuthProjectRequestOptions{})
 		},
 	},
 	{

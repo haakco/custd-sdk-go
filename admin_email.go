@@ -372,6 +372,13 @@ func (c *CampaignEmailAdminClient) RenderRevision(ctx context.Context, revision 
 	return &out, err
 }
 
+// PreviewRevision previews without sending a published email campaign revision.
+func (c *CampaignEmailAdminClient) PreviewRevision(ctx context.Context, companySlug, revision string, req CampaignRenderRequest) (*CampaignRenderResult, error) {
+	var out CampaignRenderResult
+	err := c.admin.request(ctx, http.MethodPost, siteQueryPath("/campaign-email-revisions/"+url.PathEscape(revision)+"/preview", url.Values{companySlugQueryParameter: {companySlug}}), req, &out)
+	return &out, err
+}
+
 // StartRun schedules a pinned campaign run.
 func (c *CampaignEmailAdminClient) StartRun(ctx context.Context, companySlug string, req CampaignRunScheduleRequest) (*CampaignRunStatus, error) {
 	var out CampaignRunStatus

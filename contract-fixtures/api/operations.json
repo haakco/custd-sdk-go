@@ -2,9 +2,9 @@
   "source": {
     "apiReviewedAt": "2026-11-28",
     "sha256": {
-      "admin-api.openapi.yaml": "b2e5bfbbac33450c0fafda6afb57281741f12c369be4e1676870adc2c3f394ac",
+      "admin-api.openapi.yaml": "d6294da7c46c8983dc2a75cf6ea76fe8c1d05419051fb361db9359e2253d294f",
       "analytics-api.openapi.yaml": "e521f61d1cffb8c8a9fdd7f4d50e2afbfad93f83e8a295b9dc6398dde3747997",
-      "api-operations.json": "298036ac74a4e6adcdbd6b5133de4811216401037d3427102dce65b8f5d893e6"
+      "api-operations.json": "ca3d3d4d9a688f70d681e68d0be413bfaaeb930302d381ccb2925dccb9c382b0"
     }
   },
   "operations": [
@@ -86,7 +86,7 @@
       "method": "ANY",
       "path": "/mcp",
       "sdk": "excluded",
-      "reason": "infrastructure, debug or private internal transport"
+      "reason": "MCP protocol transport; application routes own the SDK calls"
     },
     {
       "id": "admin-api ANY /mcp/tenant",
@@ -94,7 +94,7 @@
       "method": "ANY",
       "path": "/mcp/tenant",
       "sdk": "excluded",
-      "reason": "infrastructure, debug or private internal transport"
+      "reason": "MCP protocol transport; application routes own the SDK calls"
     },
     {
       "id": "admin-api DELETE /admin/identities/{id}",
@@ -111,6 +111,14 @@
       "path": "/api/v1/admin/apps/{slug}/deploy-credentials/{clientId}",
       "sdk": "required",
       "operationId": "deleteAppDeployCredential"
+    },
+    {
+      "id": "admin-api DELETE /api/v1/admin/apps/{slug}/purchase-handoff-credentials/{clientId}",
+      "service": "admin-api",
+      "method": "DELETE",
+      "path": "/api/v1/admin/apps/{slug}/purchase-handoff-credentials/{clientId}",
+      "sdk": "required",
+      "operationId": "deleteAppPurchaseHandoffCredential"
     },
     {
       "id": "admin-api DELETE /api/v1/admin/auth-projects/{projectId}/environments/{environmentId}/brand/logo",
@@ -684,6 +692,15 @@
       "sdk": "required",
       "operationId": "listAppDeployCredentials",
       "example": "examples/listAppDeployCredentials.json"
+    },
+    {
+      "id": "admin-api GET /api/v1/admin/apps/{slug}/purchase-handoff-credentials",
+      "service": "admin-api",
+      "method": "GET",
+      "path": "/api/v1/admin/apps/{slug}/purchase-handoff-credentials",
+      "sdk": "required",
+      "operationId": "listAppPurchaseHandoffCredentials",
+      "example": "examples/listAppPurchaseHandoffCredentials.json"
     },
     {
       "id": "admin-api GET /api/v1/admin/audit/events",
@@ -4477,6 +4494,15 @@
       "example": "examples/pauseApp.json"
     },
     {
+      "id": "admin-api POST /api/v1/admin/apps/{slug}/purchase-handoff-credentials",
+      "service": "admin-api",
+      "method": "POST",
+      "path": "/api/v1/admin/apps/{slug}/purchase-handoff-credentials",
+      "sdk": "required",
+      "operationId": "createAppPurchaseHandoffCredential",
+      "example": "examples/createAppPurchaseHandoffCredential.json"
+    },
+    {
       "id": "admin-api POST /api/v1/admin/apps/{slug}/repair",
       "service": "admin-api",
       "method": "POST",
@@ -4865,6 +4891,21 @@
         }
       ],
       "example": "examples/publishCampaignEmailRevision.json"
+    },
+    {
+      "id": "admin-api POST /api/v1/admin/campaign-email-revisions/{revision}/preview",
+      "service": "admin-api",
+      "method": "POST",
+      "path": "/api/v1/admin/campaign-email-revisions/{revision}/preview",
+      "sdk": "required",
+      "operationId": "previewCampaignEmailRevision",
+      "query": [
+        {
+          "name": "companySlug",
+          "required": false
+        }
+      ],
+      "example": "examples/previewCampaignEmailRevision.json"
     },
     {
       "id": "admin-api POST /api/v1/admin/campaign-email-revisions/{revision}/render",
@@ -8603,59 +8644,467 @@
       "example": "examples/queryReporting.json"
     },
     {
+      "id": "billing DELETE /api/v1/billing/merchant",
+      "service": "billing",
+      "method": "DELETE",
+      "path": "/api/v1/billing/merchant",
+      "sdk": "required"
+    },
+    {
+      "id": "billing DELETE /api/v1/billing/storefronts/{storefront}/analytics-destination",
+      "service": "billing",
+      "method": "DELETE",
+      "path": "/api/v1/billing/storefronts/{storefront}/analytics-destination",
+      "sdk": "required"
+    },
+    {
+      "id": "billing DELETE /api/v1/storefronts/{storefront}/usage-enrollments/{enrollment}/scheduled-issuance",
+      "service": "billing",
+      "method": "DELETE",
+      "path": "/api/v1/storefronts/{storefront}/usage-enrollments/{enrollment}/scheduled-issuance",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/billing/accounting-export",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/billing/accounting-export",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/billing/merchant",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/billing/merchant",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/billing/partners",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/billing/partners",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/billing/partners/referral-reviews",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/billing/partners/referral-reviews",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/billing/partners/sellers",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/billing/partners/sellers",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/billing/partners/sellers/{seller}/settlement-preference",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/billing/partners/sellers/{seller}/settlement-preference",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/billing/partners/sellers/{seller}/tax-disclosure",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/billing/partners/sellers/{seller}/tax-disclosure",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/billing/partners/{partner}/fee-balance",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/billing/partners/{partner}/fee-balance",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/billing/partners/{partner}/payouts",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/billing/partners/{partner}/payouts",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/billing/partners/{partner}/referral-terms",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/billing/partners/{partner}/referral-terms",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/billing/partners/{partner}/settlement-preference",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/billing/partners/{partner}/settlement-preference",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/billing/partners/{partner}/tax-disclosure",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/billing/partners/{partner}/tax-disclosure",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/billing/storefronts",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/billing/storefronts",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/billing/storefronts/{storefront}/analytics-destination",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/billing/storefronts/{storefront}/analytics-destination",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/billing/storefronts/{storefront}/invoices",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/billing/storefronts/{storefront}/invoices",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/billing/storefronts/{storefront}/offers/{offer}/partner-terms",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/billing/storefronts/{storefront}/offers/{offer}/partner-terms",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/billing/storefronts/{storefront}/partners/{partner}/statement",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/billing/storefronts/{storefront}/partners/{partner}/statement",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/billing/storefronts/{storefront}/purchase-handoffs/{handoff}",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/billing/storefronts/{storefront}/purchase-handoffs/{handoff}",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/billing/storefronts/{storefront}/receipt-template",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/billing/storefronts/{storefront}/receipt-template",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/storefronts/{storefront}/carts/{cart}",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/storefronts/{storefront}/carts/{cart}",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/storefronts/{storefront}/offers",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/storefronts/{storefront}/offers",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/storefronts/{storefront}/purchases/{invoice}",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/storefronts/{storefront}/purchases/{invoice}",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/storefronts/{storefront}/purchases/{invoice}/set-off",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/storefronts/{storefront}/purchases/{invoice}/set-off",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/storefronts/{storefront}/quotes/{quote}",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/storefronts/{storefront}/quotes/{quote}",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/storefronts/{storefront}/usage-enrollments",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/storefronts/{storefront}/usage-enrollments",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/storefronts/{storefront}/usage-enrollments/{enrollment}/scheduled-issuance",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/storefronts/{storefront}/usage-enrollments/{enrollment}/scheduled-issuance",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/storefronts/{storefront}/usage-tariffs",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/storefronts/{storefront}/usage-tariffs",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /api/v1/storefronts/{storefront}/usage-tariffs/{revision}",
+      "service": "billing",
+      "method": "GET",
+      "path": "/api/v1/storefronts/{storefront}/usage-tariffs/{revision}",
+      "sdk": "required"
+    },
+    {
+      "id": "billing GET /health/live",
+      "service": "billing",
+      "method": "GET",
+      "path": "/health/live",
+      "sdk": "excluded",
+      "reason": "infrastructure, debug or private internal transport"
+    },
+    {
+      "id": "billing GET /health/ready",
+      "service": "billing",
+      "method": "GET",
+      "path": "/health/ready",
+      "sdk": "excluded",
+      "reason": "infrastructure, debug or private internal transport"
+    },
+    {
+      "id": "billing POST /api/v1/billing/merchant/test",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/billing/merchant/test",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/billing/partners/invitations",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/billing/partners/invitations",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/billing/partners/invitations/accept",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/billing/partners/invitations/accept",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/billing/partners/referral-reviews/{attribution}/retry",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/billing/partners/referral-reviews/{attribution}/retry",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/billing/partners/sellers/{seller}/settlement-preference",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/billing/partners/sellers/{seller}/settlement-preference",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/billing/partners/sellers/{seller}/tax-disclosure",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/billing/partners/sellers/{seller}/tax-disclosure",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/billing/partners/{partner}/payouts",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/billing/partners/{partner}/payouts",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/billing/partners/{partner}/referral-terms",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/billing/partners/{partner}/referral-terms",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/billing/storefronts",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/billing/storefronts",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/billing/storefronts/{storefront}/capacity-offers",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/billing/storefronts/{storefront}/capacity-offers",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/billing/storefronts/{storefront}/offers/{offer}/partner-terms",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/billing/storefronts/{storefront}/offers/{offer}/partner-terms",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/billing/storefronts/{storefront}/purchase-handoffs",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/billing/storefronts/{storefront}/purchase-handoffs",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/billing/storefronts/{storefront}/purchase-handoffs/{handoff}/cancel",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/billing/storefronts/{storefront}/purchase-handoffs/{handoff}/cancel",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/storefronts/{storefront}/carts",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/storefronts/{storefront}/carts",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/storefronts/{storefront}/carts/{cart}/quotes",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/storefronts/{storefront}/carts/{cart}/quotes",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/storefronts/{storefront}/invoices/{invoice}/credit-note",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/storefronts/{storefront}/invoices/{invoice}/credit-note",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/storefronts/{storefront}/invoices/{invoice}/refund",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/storefronts/{storefront}/invoices/{invoice}/refund",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/storefronts/{storefront}/invoices/{invoice}/refund/reconcile",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/storefronts/{storefront}/invoices/{invoice}/refund/reconcile",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/storefronts/{storefront}/offers",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/storefronts/{storefront}/offers",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/storefronts/{storefront}/purchase-handoffs/{handoff}/redeem",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/storefronts/{storefront}/purchase-handoffs/{handoff}/redeem",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/storefronts/{storefront}/purchases/{invoice}/payment",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/storefronts/{storefront}/purchases/{invoice}/payment",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/storefronts/{storefront}/purchases/{invoice}/set-off",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/storefronts/{storefront}/purchases/{invoice}/set-off",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/storefronts/{storefront}/quotes/{quote}/checkout",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/storefronts/{storefront}/quotes/{quote}/checkout",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/storefronts/{storefront}/quotes/{quote}/invoice",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/storefronts/{storefront}/quotes/{quote}/invoice",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/storefronts/{storefront}/usage-enrollments",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/storefronts/{storefront}/usage-enrollments",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/storefronts/{storefront}/usage-enrollments/{enrollment}/issue",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/storefronts/{storefront}/usage-enrollments/{enrollment}/issue",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/storefronts/{storefront}/usage-enrollments/{enrollment}/scheduled-issuance",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/storefronts/{storefront}/usage-enrollments/{enrollment}/scheduled-issuance",
+      "sdk": "required"
+    },
+    {
+      "id": "billing POST /api/v1/storefronts/{storefront}/usage-tariffs",
+      "service": "billing",
+      "method": "POST",
+      "path": "/api/v1/storefronts/{storefront}/usage-tariffs",
+      "sdk": "required"
+    },
+    {
+      "id": "billing PUT /api/v1/billing/merchant",
+      "service": "billing",
+      "method": "PUT",
+      "path": "/api/v1/billing/merchant",
+      "sdk": "required"
+    },
+    {
+      "id": "billing PUT /api/v1/billing/storefronts/{storefront}/analytics-destination",
+      "service": "billing",
+      "method": "PUT",
+      "path": "/api/v1/billing/storefronts/{storefront}/analytics-destination",
+      "sdk": "required"
+    },
+    {
+      "id": "billing PUT /api/v1/billing/storefronts/{storefront}/receipt-template",
+      "service": "billing",
+      "method": "PUT",
+      "path": "/api/v1/billing/storefronts/{storefront}/receipt-template",
+      "sdk": "required"
+    },
+    {
+      "id": "billing PUT /api/v1/storefronts/{storefront}/carts/{cart}/lines/{offer}",
+      "service": "billing",
+      "method": "PUT",
+      "path": "/api/v1/storefronts/{storefront}/carts/{cart}/lines/{offer}",
+      "sdk": "required"
+    },
+    {
       "id": "ingest-api ANY /api/v1/account/me",
       "service": "ingest-api",
       "method": "ANY",
       "path": "/api/v1/account/me",
-      "sdk": "required"
-    },
-    {
-      "id": "ingest-api ANY /api/v1/admin/cleanup",
-      "service": "ingest-api",
-      "method": "ANY",
-      "path": "/api/v1/admin/cleanup",
-      "sdk": "required"
-    },
-    {
-      "id": "ingest-api ANY /api/v1/admin/integrity",
-      "service": "ingest-api",
-      "method": "ANY",
-      "path": "/api/v1/admin/integrity",
-      "sdk": "required"
-    },
-    {
-      "id": "ingest-api ANY /api/v1/diagnostics/buffers",
-      "service": "ingest-api",
-      "method": "ANY",
-      "path": "/api/v1/diagnostics/buffers",
-      "sdk": "required"
-    },
-    {
-      "id": "ingest-api ANY /api/v1/diagnostics/database",
-      "service": "ingest-api",
-      "method": "ANY",
-      "path": "/api/v1/diagnostics/database",
-      "sdk": "required"
-    },
-    {
-      "id": "ingest-api ANY /api/v1/diagnostics/ingest",
-      "service": "ingest-api",
-      "method": "ANY",
-      "path": "/api/v1/diagnostics/ingest",
-      "sdk": "required"
-    },
-    {
-      "id": "ingest-api ANY /api/v1/diagnostics/reporting",
-      "service": "ingest-api",
-      "method": "ANY",
-      "path": "/api/v1/diagnostics/reporting",
-      "sdk": "required"
-    },
-    {
-      "id": "ingest-api ANY /api/v1/diagnostics/segments",
-      "service": "ingest-api",
-      "method": "ANY",
-      "path": "/api/v1/diagnostics/segments",
       "sdk": "required"
     },
     {
@@ -8666,75 +9115,12 @@
       "sdk": "required"
     },
     {
-      "id": "ingest-api ANY /api/v1/events",
-      "service": "ingest-api",
-      "method": "ANY",
-      "path": "/api/v1/events",
-      "sdk": "required"
-    },
-    {
-      "id": "ingest-api ANY /api/v1/events/batch",
-      "service": "ingest-api",
-      "method": "ANY",
-      "path": "/api/v1/events/batch",
-      "sdk": "required"
-    },
-    {
       "id": "ingest-api ANY /api/v1/health",
       "service": "ingest-api",
       "method": "ANY",
       "path": "/api/v1/health",
       "sdk": "excluded",
       "reason": "infrastructure, debug or private internal transport"
-    },
-    {
-      "id": "ingest-api ANY /api/v1/managed-audit/redactions",
-      "service": "ingest-api",
-      "method": "ANY",
-      "path": "/api/v1/managed-audit/redactions",
-      "sdk": "required"
-    },
-    {
-      "id": "ingest-api ANY /api/v1/monitoring/alerts",
-      "service": "ingest-api",
-      "method": "ANY",
-      "path": "/api/v1/monitoring/alerts",
-      "sdk": "required"
-    },
-    {
-      "id": "ingest-api ANY /api/v1/monitoring/summary",
-      "service": "ingest-api",
-      "method": "ANY",
-      "path": "/api/v1/monitoring/summary",
-      "sdk": "required"
-    },
-    {
-      "id": "ingest-api ANY /api/v1/parser-preview",
-      "service": "ingest-api",
-      "method": "ANY",
-      "path": "/api/v1/parser-preview",
-      "sdk": "required"
-    },
-    {
-      "id": "ingest-api ANY /api/v1/raw",
-      "service": "ingest-api",
-      "method": "ANY",
-      "path": "/api/v1/raw",
-      "sdk": "required"
-    },
-    {
-      "id": "ingest-api ANY /api/v1/reprocess",
-      "service": "ingest-api",
-      "method": "ANY",
-      "path": "/api/v1/reprocess",
-      "sdk": "required"
-    },
-    {
-      "id": "ingest-api ANY /api/v1/system/monitoring/summary",
-      "service": "ingest-api",
-      "method": "ANY",
-      "path": "/api/v1/system/monitoring/summary",
-      "sdk": "required"
     },
     {
       "id": "ingest-api ANY /debug/pprof/",
@@ -8861,6 +9247,62 @@
       "sdk": "required"
     },
     {
+      "id": "ingest-api GET /api/v1/diagnostics/buffers",
+      "service": "ingest-api",
+      "method": "GET",
+      "path": "/api/v1/diagnostics/buffers",
+      "sdk": "required"
+    },
+    {
+      "id": "ingest-api GET /api/v1/diagnostics/database",
+      "service": "ingest-api",
+      "method": "GET",
+      "path": "/api/v1/diagnostics/database",
+      "sdk": "required"
+    },
+    {
+      "id": "ingest-api GET /api/v1/diagnostics/ingest",
+      "service": "ingest-api",
+      "method": "GET",
+      "path": "/api/v1/diagnostics/ingest",
+      "sdk": "required"
+    },
+    {
+      "id": "ingest-api GET /api/v1/diagnostics/reporting",
+      "service": "ingest-api",
+      "method": "GET",
+      "path": "/api/v1/diagnostics/reporting",
+      "sdk": "required"
+    },
+    {
+      "id": "ingest-api GET /api/v1/diagnostics/segments",
+      "service": "ingest-api",
+      "method": "GET",
+      "path": "/api/v1/diagnostics/segments",
+      "sdk": "required"
+    },
+    {
+      "id": "ingest-api GET /api/v1/monitoring/alerts",
+      "service": "ingest-api",
+      "method": "GET",
+      "path": "/api/v1/monitoring/alerts",
+      "sdk": "required"
+    },
+    {
+      "id": "ingest-api GET /api/v1/monitoring/summary",
+      "service": "ingest-api",
+      "method": "GET",
+      "path": "/api/v1/monitoring/summary",
+      "sdk": "required"
+    },
+    {
+      "id": "ingest-api GET /api/v1/system/monitoring/summary",
+      "service": "ingest-api",
+      "method": "GET",
+      "path": "/api/v1/system/monitoring/summary",
+      "sdk": "required"
+    },
+    {
       "id": "ingest-api OPTIONS /api/v1/collect/events",
       "service": "ingest-api",
       "method": "OPTIONS",
@@ -8877,10 +9319,24 @@
       "reason": "browser CORS preflight"
     },
     {
+      "id": "ingest-api POST /api/v1/admin/cleanup",
+      "service": "ingest-api",
+      "method": "POST",
+      "path": "/api/v1/admin/cleanup",
+      "sdk": "required"
+    },
+    {
       "id": "ingest-api POST /api/v1/admin/cleanup/plans",
       "service": "ingest-api",
       "method": "POST",
       "path": "/api/v1/admin/cleanup/plans",
+      "sdk": "required"
+    },
+    {
+      "id": "ingest-api POST /api/v1/admin/integrity",
+      "service": "ingest-api",
+      "method": "POST",
+      "path": "/api/v1/admin/integrity",
       "sdk": "required"
     },
     {
@@ -8909,6 +9365,48 @@
       "service": "ingest-api",
       "method": "POST",
       "path": "/api/v1/collect/events/batch",
+      "sdk": "required"
+    },
+    {
+      "id": "ingest-api POST /api/v1/events",
+      "service": "ingest-api",
+      "method": "POST",
+      "path": "/api/v1/events",
+      "sdk": "required"
+    },
+    {
+      "id": "ingest-api POST /api/v1/events/batch",
+      "service": "ingest-api",
+      "method": "POST",
+      "path": "/api/v1/events/batch",
+      "sdk": "required"
+    },
+    {
+      "id": "ingest-api POST /api/v1/managed-audit/redactions",
+      "service": "ingest-api",
+      "method": "POST",
+      "path": "/api/v1/managed-audit/redactions",
+      "sdk": "required"
+    },
+    {
+      "id": "ingest-api POST /api/v1/parser-preview",
+      "service": "ingest-api",
+      "method": "POST",
+      "path": "/api/v1/parser-preview",
+      "sdk": "required"
+    },
+    {
+      "id": "ingest-api POST /api/v1/raw",
+      "service": "ingest-api",
+      "method": "POST",
+      "path": "/api/v1/raw",
+      "sdk": "required"
+    },
+    {
+      "id": "ingest-api POST /api/v1/reprocess",
+      "service": "ingest-api",
+      "method": "POST",
+      "path": "/api/v1/reprocess",
       "sdk": "required"
     },
     {

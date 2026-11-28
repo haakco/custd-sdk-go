@@ -2,7 +2,6 @@ package custd
 
 import (
 	"context"
-	"net/http"
 )
 
 var clientSurfaceRows = []surfaceRow{
@@ -111,9 +110,8 @@ var clientSurfaceRows = []surfaceRow{
 		},
 	},
 	{
-		id:     "ingest-api ANY /api/v1/parser-preview",
-		path:   "/api/v1/parser-preview",
-		method: http.MethodPost,
+		id:   "ingest-api POST /api/v1/parser-preview",
+		path: "/api/v1/parser-preview",
 		call: func(e *surfaceEnv) error {
 			_, err := e.client.Parsers.Preview(context.Background(), ParserPreviewRequest{})
 			return err

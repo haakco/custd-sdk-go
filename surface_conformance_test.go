@@ -84,6 +84,7 @@ func allSurfaceRows() []surfaceRow {
 	rows = append(rows, predictionReadSurfaceRows...)
 	rows = append(rows, appItemSurfaceRows...)
 	rows = append(rows, appMessageSurfaceRows...)
+	rows = append(rows, storefrontSurfaceRows...)
 	rows = append(rows, emailSurfaceRows...)
 	rows = append(rows, operationsSurfaceRows...)
 	rows = append(rows, publicReadSurfaceRows...)

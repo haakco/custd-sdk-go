@@ -52,6 +52,14 @@ var emailSurfaceRows = []surfaceRow{
 		},
 	},
 	{
+		id:   "admin-api POST /api/v1/admin/campaign-email-revisions/{revision}/preview",
+		path: "/api/v1/admin/campaign-email-revisions/a1/preview",
+		call: func(e *surfaceEnv) error {
+			_, err := e.client.Admin.CampaignEmail.PreviewRevision(context.Background(), "", "a1", CampaignRenderRequest{})
+			return err
+		},
+	},
+	{
 		id:   "admin-api POST /api/v1/admin/campaign-email-runs",
 		path: "/api/v1/admin/campaign-email-runs",
 		call: func(e *surfaceEnv) error {

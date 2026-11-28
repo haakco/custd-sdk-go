@@ -1,0 +1,14 @@
+{
+  "maximal": {
+    "companyUuid": "example",
+    "html": "example",
+    "subject": "example",
+    "text": "example"
+  },
+  "minimal": {
+    "companyUuid": "example",
+    "html": "example",
+    "subject": "example",
+    "text": "example"
+  }
+}

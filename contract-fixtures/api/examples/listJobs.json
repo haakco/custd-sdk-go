@@ -4,7 +4,7 @@
       {
         "failed": 1,
         "lastRetryReason": "provider_transient",
-        "name": "notification_deliveries",
+        "name": "example",
         "oldestPendingAt": "2026-11-20T06:00:00Z",
         "pending": 1
       }

@@ -5,6 +5,13 @@
     "createdAt": "2026-11-20T06:00:00Z",
     "deliveryUuid": "example",
     "failureReason": "example",
+    "hostingAcceptance": {
+      "acceptedAt": "2026-11-20T06:00:00Z",
+      "messageId": "0198a3b2-0000-7000-8000-000000000001",
+      "recipientIds": [
+        "example"
+      ]
+    },
     "lastErrorClass": "example",
     "messageUuid": "example",
     "nextAction": "example",
