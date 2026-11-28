@@ -177,16 +177,24 @@ type StorefrontCreditNote struct {
 	Totals StorefrontTotals `json:"totals"`
 }
 
+type StorefrontRefund struct {
+	UUID   string          `json:"refundUuid"`
+	Status string          `json:"status"`
+	Amount StorefrontMoney `json:"amount"`
+}
+
 type StorefrontPurchase struct {
-	InvoiceUUID   string                  `json:"invoiceUuid"`
-	InvoiceNumber string                  `json:"invoiceNumber"`
-	Status        StorefrontInvoiceStatus `json:"status"`
-	Totals        StorefrontTotals        `json:"totals"`
-	CheckoutState StorefrontCheckoutState `json:"checkoutState,omitempty"`
-	PaymentStatus StorefrontPaymentStatus `json:"paymentStatus,omitempty"`
-	PaymentURL    string                  `json:"paymentUrl,omitempty"`
-	Receipt       *StorefrontReceipt      `json:"receipt,omitempty"`
-	CreditNote    *StorefrontCreditNote   `json:"creditNote,omitempty"`
+	ActivationStatus string                  `json:"activationStatus,omitempty"`
+	Refund           *StorefrontRefund       `json:"refund,omitempty"`
+	InvoiceUUID      string                  `json:"invoiceUuid"`
+	InvoiceNumber    string                  `json:"invoiceNumber"`
+	Status           StorefrontInvoiceStatus `json:"status"`
+	Totals           StorefrontTotals        `json:"totals"`
+	CheckoutState    StorefrontCheckoutState `json:"checkoutState,omitempty"`
+	PaymentStatus    StorefrontPaymentStatus `json:"paymentStatus,omitempty"`
+	PaymentURL       string                  `json:"paymentUrl,omitempty"`
+	Receipt          *StorefrontReceipt      `json:"receipt,omitempty"`
+	CreditNote       *StorefrontCreditNote   `json:"creditNote,omitempty"`
 }
 
 func (s *StorefrontClient) ListOffers(ctx context.Context, storefront string) (*StorefrontCatalogue, error) {
@@ -241,16 +249,20 @@ func storefrontRequest[T any](ctx context.Context, s *StorefrontClient, method s
 		path.WriteByte('/')
 		path.WriteString(url.PathEscape(part))
 	}
-	body, err := encodeRequestBody(payload, "storefront")
+	return billingRequest[T](ctx, s, method, path.String(), payload)
+}
+
+func billingRequest[T any](ctx context.Context, s *StorefrontClient, method, path string, payload any) (*T, error) {
+	body, err := encodeRequestBody(payload, "billing")
 	if err != nil {
 		return nil, err
 	}
 	response, err := s.client.exchange(ctx, &bufferedRequest{
-		Method: method, URL: strings.TrimRight(s.client.config.BaseURL, "/") + path.String(),
+		Method: method, URL: strings.TrimRight(s.client.config.BaseURL, "/") + path,
 		Headers: s.client.headers(false), Body: body,
 	})
 	if err != nil {
-		return nil, &RequestError{Message: "custd: storefront request failed: " + err.Error(), Retryable: true, Cause: err}
+		return nil, &RequestError{Message: "custd: billing request failed: " + err.Error(), Retryable: true, Cause: err}
 	}
 	recordMetadata(ctx, response.Header.Get(requestIDHeader))
 	if err := s.client.checkStatus(response.StatusCode, response.Body); err != nil {
@@ -258,7 +270,7 @@ func storefrontRequest[T any](ctx context.Context, s *StorefrontClient, method s
 	}
 	var out T
 	if err := unmarshalResponse(response.Body, &out); err != nil {
-		return nil, fmt.Errorf("custd: decode storefront response: %w", err)
+		return nil, fmt.Errorf("custd: decode billing response: %w", err)
 	}
 	return &out, nil
 }
