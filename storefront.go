@@ -172,15 +172,38 @@ type StorefrontReceipt struct {
 }
 
 type StorefrontCreditNote struct {
-	UUID   string           `json:"creditNoteUuid"`
-	Number string           `json:"creditNoteNumber"`
-	Totals StorefrontTotals `json:"totals"`
+	UUID            string                    `json:"creditNoteUuid"`
+	Number          string                    `json:"creditNoteNumber"`
+	InvoiceUUID     string                    `json:"invoiceUuid,omitempty"`
+	InvoiceNumber   string                    `json:"invoiceNumber,omitempty"`
+	InvoiceIssuedAt *time.Time                `json:"invoiceIssuedAt,omitempty"`
+	IssuedAt        *time.Time                `json:"issuedAt,omitempty"`
+	Status          string                    `json:"status,omitempty"`
+	BillTo          *StorefrontBillingContact `json:"billTo,omitempty"`
+	SellerName      string                    `json:"sellerName,omitempty"`
+	Reason          string                    `json:"reason,omitempty"`
+	Lines           []StorefrontQuoteLine     `json:"lines,omitempty"`
+	Totals          StorefrontTotals          `json:"totals"`
+}
+
+type StorefrontBillingContact struct {
+	CompanyUUID string `json:"companyUuid"`
+	Name        string `json:"name"`
+	Email       string `json:"email"`
 }
 
 type StorefrontRefund struct {
-	UUID   string          `json:"refundUuid"`
-	Status string          `json:"status"`
-	Amount StorefrontMoney `json:"amount"`
+	UUID        string          `json:"refundUuid"`
+	Status      string          `json:"status"`
+	Amount      StorefrontMoney `json:"amount"`
+	InvoiceUUID string          `json:"invoiceUuid,omitempty"`
+	PaymentUUID string          `json:"paymentUuid,omitempty"`
+	RequestedAt *time.Time      `json:"requestedAt,omitempty"`
+	ProcessedAt *time.Time      `json:"processedAt,omitempty"`
+}
+
+type StorefrontAdjustmentRequest struct {
+	Reason string `json:"reason"`
 }
 
 type StorefrontPurchase struct {
@@ -237,6 +260,18 @@ func (s *StorefrontClient) GetPurchase(ctx context.Context, storefront, invoiceU
 // StartPayment resumes or retries payment for the same invoice.
 func (s *StorefrontClient) StartPayment(ctx context.Context, storefront, invoiceUUID string) (*StorefrontPurchase, error) {
 	return storefrontRequest[StorefrontPurchase](ctx, s, http.MethodPost, nil, storefront, "purchases", invoiceUUID, "payment")
+}
+
+func (s *StorefrontClient) IssueCreditNote(ctx context.Context, storefront, invoiceUUID string, request StorefrontAdjustmentRequest) (*StorefrontCreditNote, error) {
+	return storefrontRequest[StorefrontCreditNote](ctx, s, http.MethodPost, request, storefront, "invoices", invoiceUUID, "credit-note")
+}
+
+func (s *StorefrontClient) RequestRefund(ctx context.Context, storefront, invoiceUUID string, request StorefrontAdjustmentRequest) (*StorefrontRefund, error) {
+	return storefrontRequest[StorefrontRefund](ctx, s, http.MethodPost, request, storefront, "invoices", invoiceUUID, "refund")
+}
+
+func (s *StorefrontClient) ReconcileRefund(ctx context.Context, storefront, invoiceUUID string) (*StorefrontRefund, error) {
+	return storefrontRequest[StorefrontRefund](ctx, s, http.MethodPost, nil, storefront, "invoices", invoiceUUID, "refund", "reconcile")
 }
 
 func storefrontRequest[T any](ctx context.Context, s *StorefrontClient, method string, payload any, parts ...string) (*T, error) {

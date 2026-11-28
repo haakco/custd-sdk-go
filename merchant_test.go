@@ -5,6 +5,55 @@ import (
 	"testing"
 )
 
+func TestStorefrontPartnerStatementEncodesCursorAndExactReversal(t *testing.T) {
+	const baseURL = "https://store.example"
+	doer := newCaptureDoer(http.StatusOK, `{"movements":[{"kind":"reversal","partnerDelta":{"currency":"ZAR","amountMinor":"-9007199254740993"}}]}`)
+	client := NewClient(&ClientConfig{BaseURL: baseURL, APIKey: "seller-token", HTTPClient: fakeTransport(doer)})
+	t.Cleanup(func() { _ = client.Close(t.Context()) })
+	statement, err := client.Storefronts.GetPartnerStatement(t.Context(), StorefrontPartnerStatementRequest{
+		Storefront: "shop", PartnerCompanyUUID: "partner", Month: "2026-12", Cursor: "2026-12-01/entry",
+	})
+	if err != nil || len(statement.Movements) != 1 || statement.Movements[0].PartnerDelta.AmountMinor != "-9007199254740993" {
+		t.Fatal("statement did not preserve the exact reversal")
+	}
+	request := doer.requests[0]
+	if request.Method != http.MethodGet || request.URL != baseURL+"/api/v1/billing/storefronts/shop/partners/partner/statement?cursor=2026-12-01%2Fentry&month=2026-12" {
+		t.Fatal("statement used the wrong seller route or cursor")
+	}
+}
+
+func TestStorefrontAdjustmentsUseSellerInvoiceRoutesAndExactAmounts(t *testing.T) {
+	const baseURL = "https://store.example"
+	const invoice = baseURL + "/api/v1/storefronts/shop/invoices/invoice"
+	const amount = `{"currency":"ZAR","amountMinor":"9007199254740993"}`
+	const response = `{"refundUuid":"refund","creditNoteUuid":"credit","reason":"Cancelled","amount":` + amount +
+		`,"totals":{"grossTotal":` + amount + `}}`
+	doer := newCaptureDoer(http.StatusOK, response)
+	client := NewClient(&ClientConfig{BaseURL: baseURL, APIKey: "seller-token", HTTPClient: fakeTransport(doer)})
+	t.Cleanup(func() { _ = client.Close(t.Context()) })
+	refund, err := client.Storefronts.RequestRefund(t.Context(), "shop", "invoice", StorefrontAdjustmentRequest{Reason: "Cancelled"})
+	if err != nil || refund.Amount.AmountMinor != "9007199254740993" {
+		t.Fatal("refund response lost the exact amount")
+	}
+	if _, err := client.Storefronts.ReconcileRefund(t.Context(), "shop", "invoice"); err != nil {
+		t.Fatal(err)
+	}
+	note, err := client.Storefronts.IssueCreditNote(t.Context(), "shop", "invoice", StorefrontAdjustmentRequest{Reason: "Cancelled"})
+	if err != nil || note.Reason != "Cancelled" || note.Totals.GrossTotal.AmountMinor != "9007199254740993" {
+		t.Fatal("credit note response lost the reason or exact amount")
+	}
+	for i, route := range []string{"/refund", "/refund/reconcile", "/credit-note"} {
+		request := doer.requests[i]
+		wantBody := `{"reason":"Cancelled"}`
+		if route == "/refund/reconcile" {
+			wantBody = ""
+		}
+		if request.Method != http.MethodPost || request.URL != invoice+route || string(request.Body) != wantBody {
+			t.Fatal("adjustment used the wrong storefront invoice route or body")
+		}
+	}
+}
+
 func TestStorefrontRegistryUsesSellerIdentity(t *testing.T) {
 	const baseURL = "https://store.example"
 	doer := newCaptureDoer(http.StatusOK, `{"sellerCompanyUuid":"seller","slug":"shop","appUuid":"app"}`)
