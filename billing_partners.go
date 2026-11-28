@@ -100,3 +100,128 @@ func (s *StorefrontClient) PublishPartnerProductTerms(ctx context.Context, store
 	}
 	return billingRequest[PartnerProductTermsVersion](ctx, s, http.MethodPost, path, input)
 }
+
+type BillingPartnerSeller struct {
+	SellerCompanyUUID string `json:"sellerCompanyUuid"`
+	Name              string `json:"name"`
+	Active            bool   `json:"active"`
+}
+
+type BillingPartnerSellerPage struct {
+	Sellers   []BillingPartnerSeller `json:"sellers"`
+	NextAfter string                 `json:"nextAfter,omitempty"`
+}
+
+type PartnerSettlementMode string
+
+const (
+	PartnerSettlementPayout PartnerSettlementMode = "payout"
+	PartnerSettlementSetOff PartnerSettlementMode = "set_off"
+)
+
+type PartnerSettlementPreference struct {
+	PreferenceUUID string                `json:"preferenceUuid"`
+	Mode           PartnerSettlementMode `json:"mode"`
+	EffectiveFrom  time.Time             `json:"effectiveFrom"`
+	RecordedAt     time.Time             `json:"recordedAt"`
+}
+
+type PartnerSettlementSelection struct {
+	SellerCompanyUUID  string                       `json:"sellerCompanyUuid"`
+	PartnerCompanyUUID string                       `json:"partnerCompanyUuid"`
+	Current            *PartnerSettlementPreference `json:"current,omitempty"`
+	Next               *PartnerSettlementPreference `json:"next,omitempty"`
+}
+
+type RecordPartnerSettlementPreferenceRequest struct {
+	PreferenceUUID string                `json:"preferenceUuid"`
+	Mode           PartnerSettlementMode `json:"mode"`
+	EffectiveFrom  *time.Time            `json:"effectiveFrom,omitempty"`
+}
+
+func (s *StorefrontClient) ListBillingPartnerSellers(ctx context.Context, input BillingPartnerPageRequest) (*BillingPartnerSellerPage, error) {
+	path := billingPartnersPath + "/sellers"
+	if input.After != "" {
+		path += "?" + (url.Values{"after": {input.After}}).Encode()
+	}
+	return billingRequest[BillingPartnerSellerPage](ctx, s, http.MethodGet, path, nil)
+}
+
+func (s *StorefrontClient) GetSellerSettlementPreference(ctx context.Context, sellerUUID string) (*PartnerSettlementSelection, error) {
+	path, err := buildStorefrontPath(billingPartnersPath+"/sellers", sellerUUID, "settlement-preference")
+	if err != nil {
+		return nil, err
+	}
+	return billingRequest[PartnerSettlementSelection](ctx, s, http.MethodGet, path, nil)
+}
+
+func (s *StorefrontClient) GetPartnerSettlementPreference(ctx context.Context, partnerUUID string) (*PartnerSettlementSelection, error) {
+	path, err := buildStorefrontPath(billingPartnersPath, partnerUUID, "settlement-preference")
+	if err != nil {
+		return nil, err
+	}
+	return billingRequest[PartnerSettlementSelection](ctx, s, http.MethodGet, path, nil)
+}
+
+func (s *StorefrontClient) RecordPartnerSettlementPreference(ctx context.Context, sellerUUID string, input RecordPartnerSettlementPreferenceRequest) (*PartnerSettlementPreference, error) {
+	path, err := buildStorefrontPath(billingPartnersPath+"/sellers", sellerUUID, "settlement-preference")
+	if err != nil {
+		return nil, err
+	}
+	return billingRequest[PartnerSettlementPreference](ctx, s, http.MethodPost, path, input)
+}
+
+type PartnerTaxStatus string
+
+const (
+	PartnerTaxRegistered    PartnerTaxStatus = "registered"
+	PartnerTaxNotRegistered PartnerTaxStatus = "not_registered"
+)
+
+type RecordPartnerTaxDisclosureRequest struct {
+	DisclosureUUID     string           `json:"disclosureUuid"`
+	Status             PartnerTaxStatus `json:"status"`
+	Jurisdiction       string           `json:"jurisdiction"`
+	RegistrationNumber string           `json:"registrationNumber,omitempty"`
+	EffectiveFrom      *time.Time       `json:"effectiveFrom,omitempty"`
+}
+
+type PartnerTaxDisclosure struct {
+	DisclosureUUID     string           `json:"disclosureUuid"`
+	Status             PartnerTaxStatus `json:"status"`
+	Jurisdiction       string           `json:"jurisdiction"`
+	RegistrationNumber string           `json:"registrationNumber,omitempty"`
+	EffectiveFrom      time.Time        `json:"effectiveFrom"`
+	RecordedAt         time.Time        `json:"recordedAt"`
+}
+
+type PartnerTaxDisclosureSelection struct {
+	SellerCompanyUUID  string                `json:"sellerCompanyUuid"`
+	PartnerCompanyUUID string                `json:"partnerCompanyUuid"`
+	Current            *PartnerTaxDisclosure `json:"current,omitempty"`
+	Next               *PartnerTaxDisclosure `json:"next,omitempty"`
+}
+
+func (s *StorefrontClient) GetSellerTaxDisclosure(ctx context.Context, sellerUUID string) (*PartnerTaxDisclosureSelection, error) {
+	path, err := buildStorefrontPath(billingPartnersPath+"/sellers", sellerUUID, "tax-disclosure")
+	if err != nil {
+		return nil, err
+	}
+	return billingRequest[PartnerTaxDisclosureSelection](ctx, s, http.MethodGet, path, nil)
+}
+
+func (s *StorefrontClient) GetPartnerTaxDisclosure(ctx context.Context, partnerUUID string) (*PartnerTaxDisclosureSelection, error) {
+	path, err := buildStorefrontPath(billingPartnersPath, partnerUUID, "tax-disclosure")
+	if err != nil {
+		return nil, err
+	}
+	return billingRequest[PartnerTaxDisclosureSelection](ctx, s, http.MethodGet, path, nil)
+}
+
+func (s *StorefrontClient) RecordPartnerTaxDisclosure(ctx context.Context, sellerUUID string, input RecordPartnerTaxDisclosureRequest) (*PartnerTaxDisclosure, error) {
+	path, err := buildStorefrontPath(billingPartnersPath+"/sellers", sellerUUID, "tax-disclosure")
+	if err != nil {
+		return nil, err
+	}
+	return billingRequest[PartnerTaxDisclosure](ctx, s, http.MethodPost, path, input)
+}
