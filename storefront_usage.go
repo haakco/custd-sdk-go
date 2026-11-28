@@ -63,6 +63,7 @@ type UsageTariffPage struct {
 }
 
 type UsageEnrollmentItem struct {
+	TariffDescription    string     `json:"tariffDescription"`
 	UUID                 string     `json:"enrollmentUuid"`
 	TariffRevisionUUID   string     `json:"tariffRevisionUuid"`
 	DataSpaceCompanyUUID string     `json:"dataSpaceCompanyUuid,omitempty"`
@@ -74,6 +75,7 @@ type UsageEnrollmentItem struct {
 }
 
 type UsageEnrollmentPage struct {
+	CanSchedule bool                  `json:"canSchedule"`
 	Enrollments []UsageEnrollmentItem `json:"enrollments"`
 	NextBefore  string                `json:"nextBefore,omitempty"`
 }
@@ -145,6 +147,31 @@ type IssueUsageResult struct {
 	Usage   UsageCertificate    `json:"usage"`
 }
 
+type UsageScheduleState string
+
+const (
+	UsageScheduled      UsageScheduleState = "scheduled"
+	UsageCancelled      UsageScheduleState = "cancelled"
+	UsageScheduleIssued UsageScheduleState = "invoice_issued"
+	UsageScheduleZero   UsageScheduleState = "no_amount_due"
+	UsageScheduleReview UsageScheduleState = "review_required"
+)
+
+type UsageSchedule struct {
+	EnrollmentUUID string             `json:"enrollmentUuid"`
+	State          UsageScheduleState `json:"state"`
+	ConsentedAt    time.Time          `json:"consentedAt"`
+	Attempts       int                `json:"attempts"`
+	NextAttemptAt  *time.Time         `json:"nextAttemptAt,omitempty"`
+	CompletedAt    *time.Time         `json:"completedAt,omitempty"`
+	InvoiceUUID    string             `json:"invoiceUuid,omitempty"`
+	Reason         string             `json:"reason,omitempty"`
+}
+
+type UsageInvoiceOptIn struct {
+	InvoiceOnlyAttested bool `json:"invoiceOnlyAttested"`
+}
+
 func (s *StorefrontClient) GetUsageTariff(ctx context.Context, storefront, revisionUUID string) (*UsageTariffRevision, error) {
 	return storefrontRequest[UsageTariffRevision](ctx, s, http.MethodGet, nil, storefront, "usage-tariffs", revisionUUID)
 }
@@ -178,4 +205,16 @@ func (s *StorefrontClient) EnrollUsage(ctx context.Context, storefront string, i
 
 func (s *StorefrontClient) IssueUsageInvoice(ctx context.Context, storefront, enrollmentUUID string) (*IssueUsageResult, error) {
 	return storefrontRequest[IssueUsageResult](ctx, s, http.MethodPost, nil, storefront, "usage-enrollments", enrollmentUUID, "issue")
+}
+
+func (s *StorefrontClient) GetUsageSchedule(ctx context.Context, storefront, enrollmentUUID string) (*UsageSchedule, error) {
+	return storefrontRequest[UsageSchedule](ctx, s, http.MethodGet, nil, storefront, "usage-enrollments", enrollmentUUID, "scheduled-issuance")
+}
+
+func (s *StorefrontClient) ScheduleUsageInvoice(ctx context.Context, storefront, enrollmentUUID string, input UsageInvoiceOptIn) (*UsageSchedule, error) {
+	return storefrontRequest[UsageSchedule](ctx, s, http.MethodPost, input, storefront, "usage-enrollments", enrollmentUUID, "scheduled-issuance")
+}
+
+func (s *StorefrontClient) CancelUsageSchedule(ctx context.Context, storefront, enrollmentUUID string) (*UsageSchedule, error) {
+	return storefrontRequest[UsageSchedule](ctx, s, http.MethodDelete, nil, storefront, "usage-enrollments", enrollmentUUID, "scheduled-issuance")
 }
