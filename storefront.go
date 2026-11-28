@@ -55,12 +55,19 @@ type StorefrontPriceRevision struct {
 	EffectiveFrom time.Time           `json:"effectiveFrom"`
 }
 
+// StorefrontDataSpaceCapacity is the platform-configured capacity included per unit of an offer.
+type StorefrontDataSpaceCapacity struct {
+	ExtraSpacesPerUnit            int `json:"extraSpacesPerUnit"`
+	ExtraProducersPerSpacePerUnit int `json:"extraProducersPerSpacePerUnit"`
+}
+
 type StorefrontOffer struct {
-	ComplementaryForOfferUUID string                  `json:"complementaryForOfferUuid,omitempty"`
-	UUID                      string                  `json:"offerUuid"`
-	Name                      string                  `json:"name"`
-	BillingInterval           string                  `json:"billingInterval"`
-	PriceRevision             StorefrontPriceRevision `json:"priceRevision"`
+	DataSpaceCapacity         *StorefrontDataSpaceCapacity `json:"dataSpaceCapacity,omitempty"`
+	ComplementaryForOfferUUID string                       `json:"complementaryForOfferUuid,omitempty"`
+	UUID                      string                       `json:"offerUuid"`
+	Name                      string                       `json:"name"`
+	BillingInterval           string                       `json:"billingInterval"`
+	PriceRevision             StorefrontPriceRevision      `json:"priceRevision"`
 }
 
 type StorefrontCatalogue struct {

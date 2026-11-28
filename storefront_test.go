@@ -65,3 +65,21 @@ func TestPublishOfferDistinguishesOmittedAndClearedComplement(t *testing.T) {
 		t.Fatal("publishing must distinguish omitted and explicitly cleared relationships")
 	}
 }
+
+func TestStorefrontCataloguePreservesDataSpaceCapacity(t *testing.T) {
+	doer := newCaptureDoer(http.StatusOK, `{"offers":[
+		{"offerUuid":"bundle","dataSpaceCapacity":{"extraSpacesPerUnit":2,"extraProducersPerSpacePerUnit":4}},
+		{"offerUuid":"standard"}
+	]}`)
+	client := NewClient(&ClientConfig{BaseURL: "https://store.example", APIKey: "buyer-token", HTTPClient: fakeTransport(doer)})
+	t.Cleanup(func() { _ = client.Close(t.Context()) })
+	catalogue, err := client.Storefronts.ListOffers(t.Context(), "shop")
+	if err != nil || len(catalogue.Offers) != 2 {
+		t.Fatalf("read catalogue: %+v, %v", catalogue, err)
+	}
+	capacity := catalogue.Offers[0].DataSpaceCapacity
+	if capacity == nil || *capacity != (StorefrontDataSpaceCapacity{ExtraSpacesPerUnit: 2, ExtraProducersPerSpacePerUnit: 4}) ||
+		catalogue.Offers[1].DataSpaceCapacity != nil {
+		t.Fatalf("read optional data-space capacity: %+v", catalogue.Offers)
+	}
+}

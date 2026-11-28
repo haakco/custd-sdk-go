@@ -83,6 +83,40 @@ func TestStorefrontRegistryUsesSellerIdentity(t *testing.T) {
 	}
 }
 
+func TestStorefrontAnalyticsDestinationUsesSellerIdentity(t *testing.T) {
+	const baseURL = "https://store.example"
+	const siteUUID = "0193a000-0000-7000-8000-000000000080"
+	doer := newCaptureDoer(http.StatusOK, `{"enabled":false}`)
+	client := NewClient(&ClientConfig{BaseURL: baseURL, APIKey: "seller-token", HTTPClient: fakeTransport(doer)})
+	t.Cleanup(func() { _ = client.Close(t.Context()) })
+
+	destination, err := client.Storefronts.GetAnalyticsDestination(t.Context(), "shop")
+	if err != nil || *destination != (StorefrontAnalyticsDestination{}) {
+		t.Fatalf("read unconfigured destination: %v, %v", destination, err)
+	}
+	doer.body = `{"siteUuid":"` + siteUUID + `","enabled":true}`
+	destination, err = client.Storefronts.SelectAnalyticsDestination(t.Context(), "shop", SelectStorefrontAnalyticsDestination{SiteUUID: siteUUID})
+	if err != nil || *destination != (StorefrontAnalyticsDestination{SiteUUID: siteUUID, Enabled: true}) {
+		t.Fatalf("select destination: %v, %v", destination, err)
+	}
+	doer.body = `{"siteUuid":"` + siteUUID + `","enabled":false}`
+	destination, err = client.Storefronts.DisableAnalyticsDestination(t.Context(), "shop")
+	if err != nil || *destination != (StorefrontAnalyticsDestination{SiteUUID: siteUUID}) {
+		t.Fatalf("disable destination: %v, %v", destination, err)
+	}
+	for i, want := range []struct{ method, body string }{
+		{http.MethodGet, ""},
+		{http.MethodPut, `{"siteUuid":"` + siteUUID + `"}`},
+		{http.MethodDelete, ""},
+	} {
+		request := doer.requests[i]
+		if request.Method != want.method || request.URL != baseURL+storefrontRegistryPath+"/shop/analytics-destination" ||
+			request.Headers["Authorization"] != "Bearer seller-token" || string(request.Body) != want.body {
+			t.Fatalf("analytics destination request %d used the wrong method, path, identity or body", i)
+		}
+	}
+}
+
 func TestMerchantAccountUsesScopedBillingRoute(t *testing.T) {
 	const baseURL = "https://store.example"
 	doer := newCaptureDoer(http.StatusOK, `{"account":{"merchantId":"fixture","revision":7,"status":"active"}}`)

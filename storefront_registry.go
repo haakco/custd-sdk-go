@@ -37,6 +37,16 @@ type StorefrontReceiptTemplateSelection struct {
 	SelectedAt *time.Time `json:"selectedAt,omitempty"`
 }
 
+// StorefrontAnalyticsDestination is the seller's analytics site selection and delivery state.
+type StorefrontAnalyticsDestination struct {
+	SiteUUID string `json:"siteUuid,omitempty"`
+	Enabled  bool   `json:"enabled"`
+}
+
+type SelectStorefrontAnalyticsDestination struct {
+	SiteUUID string `json:"siteUuid"`
+}
+
 type SellerInvoiceListRequest struct {
 	Storefront string
 	Before     string
@@ -95,6 +105,29 @@ func (s *StorefrontClient) receiptTemplate(ctx context.Context, method, slug str
 		return billingRequest[StorefrontReceiptTemplateSelection](ctx, s, method, path, nil)
 	}
 	return billingRequest[StorefrontReceiptTemplateSelection](ctx, s, method, path, input)
+}
+
+// GetAnalyticsDestination reads the seller's current storefront analytics destination.
+func (s *StorefrontClient) GetAnalyticsDestination(ctx context.Context, slug string) (*StorefrontAnalyticsDestination, error) {
+	return s.analyticsDestination(ctx, http.MethodGet, slug, nil)
+}
+
+// SelectAnalyticsDestination enables analytics delivery for the selected seller-owned site.
+func (s *StorefrontClient) SelectAnalyticsDestination(ctx context.Context, slug string, input SelectStorefrontAnalyticsDestination) (*StorefrontAnalyticsDestination, error) {
+	return s.analyticsDestination(ctx, http.MethodPut, slug, input)
+}
+
+// DisableAnalyticsDestination stops analytics delivery for the storefront.
+func (s *StorefrontClient) DisableAnalyticsDestination(ctx context.Context, slug string) (*StorefrontAnalyticsDestination, error) {
+	return s.analyticsDestination(ctx, http.MethodDelete, slug, nil)
+}
+
+func (s *StorefrontClient) analyticsDestination(ctx context.Context, method, slug string, input any) (*StorefrontAnalyticsDestination, error) {
+	path, err := storefrontRegistryResource(slug, "analytics-destination")
+	if err != nil {
+		return nil, err
+	}
+	return billingRequest[StorefrontAnalyticsDestination](ctx, s, method, path, input)
 }
 
 func storefrontRegistryResource(slug, route string) (string, error) {

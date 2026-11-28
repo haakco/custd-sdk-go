@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+	"time"
 )
 
 // newSurfaceClient returns a client whose every answer carries a request
@@ -107,6 +108,27 @@ func TestDeliveryStatusCarriesTheFailureDetail(t *testing.T) {
 	if status.AttemptCount != 3 || status.LastErrorClass != "transport" ||
 		status.FailureReason != "connection refused" || status.NextAction != "retry" {
 		t.Fatalf("status = %#v, want the failure detail carried", status)
+	}
+}
+
+func TestDeliveryStatusCarriesHostingAcceptance(t *testing.T) {
+	client, _ := newSurfaceClient(t, http.StatusOK, `{
+		"state":"sent",
+		"hostingAcceptance":{
+			"messageId":"0193a000-0000-7000-8000-000000000080",
+			"acceptedAt":"2026-11-28T12:30:00Z",
+			"recipientIds":["recipient-fixture"]
+		}
+	}`)
+	status, _, err := client.Admin.Webhooks.GetDelivery(t.Context(), "acme", "delivery")
+	if err != nil {
+		t.Fatal(err)
+	}
+	acceptance := status.HostingAcceptance
+	if acceptance == nil || acceptance.MessageID != "0193a000-0000-7000-8000-000000000080" ||
+		!acceptance.AcceptedAt.Equal(time.Date(2026, 11, 28, 12, 30, 0, 0, time.UTC)) ||
+		len(acceptance.RecipientIDs) != 1 || acceptance.RecipientIDs[0] != "recipient-fixture" {
+		t.Fatalf("decode Hosting acceptance: %+v", acceptance)
 	}
 }
 

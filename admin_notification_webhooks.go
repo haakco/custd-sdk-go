@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 // NotificationWebhookAdminClient owns tenant notification webhook
@@ -63,6 +64,13 @@ type NotificationWebhookCreateRequest struct {
 	Enabled     bool                    `json:"enabled"`
 }
 
+// NotificationHostingAcceptance identifies a Hosting submission accepted for delivery.
+type NotificationHostingAcceptance struct {
+	MessageID    string    `json:"messageId"`
+	AcceptedAt   time.Time `json:"acceptedAt"`
+	RecipientIDs []string  `json:"recipientIds"`
+}
+
 // NotificationDeliveryStatus is one delivery attempt's state.
 //
 // AttemptCount, LastErrorClass, FailureReason and NextAction are part of the
@@ -84,6 +92,9 @@ type NotificationDeliveryStatus struct {
 	UpdatedAt         string `json:"updatedAt"`
 	SentAt            string `json:"sentAt,omitempty"`
 	TerminalAt        string `json:"terminalAt,omitempty"`
+
+	// HostingAcceptance records a submission acceptance. Remote outcomes are reported separately.
+	HostingAcceptance *NotificationHostingAcceptance `json:"hostingAcceptance,omitempty"`
 }
 
 const (
