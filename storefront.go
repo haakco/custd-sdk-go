@@ -227,6 +227,7 @@ type StorefrontSetOffEligibility struct {
 }
 
 type StorefrontPurchase struct {
+	InvoiceNotice    *InvoiceNotice          `json:"invoiceNotice,omitempty"`
 	SetOff           *StorefrontSetOff       `json:"setOff,omitempty"`
 	Usage            *UsageCertificate       `json:"usage,omitempty"`
 	ActivationStatus string                  `json:"activationStatus,omitempty"`

@@ -157,7 +157,32 @@ const (
 	UsageScheduleReview UsageScheduleState = "review_required"
 )
 
+type InvoiceNoticeStatus string
+
+const (
+	InvoiceNoticePending           InvoiceNoticeStatus = "pending"
+	InvoiceNoticeQueued            InvoiceNoticeStatus = "queued"
+	InvoiceNoticeSent              InvoiceNoticeStatus = "sent"
+	InvoiceNoticeFailed            InvoiceNoticeStatus = "failed"
+	InvoiceNoticeUnknown           InvoiceNoticeStatus = "unknown"
+	InvoiceNoticeSellerUnavailable InvoiceNoticeStatus = "seller_unavailable"
+	InvoiceNoticeReviewRequired    InvoiceNoticeStatus = "review_required"
+)
+
+type InvoiceNoticeReason string
+
+const (
+	InvoiceNoticeInvalidDocument InvoiceNoticeReason = "invalid_document"
+	InvoiceNoticePayloadMismatch InvoiceNoticeReason = "payload_mismatch"
+)
+
+type InvoiceNotice struct {
+	Status InvoiceNoticeStatus `json:"status"`
+	Reason InvoiceNoticeReason `json:"reason,omitempty"`
+}
+
 type UsageSchedule struct {
+	InvoiceNotice  *InvoiceNotice     `json:"invoiceNotice,omitempty"`
 	EnrollmentUUID string             `json:"enrollmentUuid"`
 	State          UsageScheduleState `json:"state"`
 	ConsentedAt    time.Time          `json:"consentedAt"`

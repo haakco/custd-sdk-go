@@ -30,7 +30,7 @@ func TestStorefrontUsageKeepsCertifiedQuantitiesAndNoAmountDue(t *testing.T) {
 
 func TestStorefrontUsageScheduleSendsExplicitConsent(t *testing.T) {
 	const baseURL = "https://store.example"
-	doer := newCaptureDoer(http.StatusOK, `{"enrollmentUuid":"enrollment","state":"scheduled"}`)
+	doer := newCaptureDoer(http.StatusOK, `{"enrollmentUuid":"enrollment","state":"scheduled","invoiceNotice":{"status":"review_required","reason":"payload_mismatch"}}`)
 	client := NewClient(&ClientConfig{BaseURL: baseURL, APIKey: "buyer-token", HTTPClient: fakeTransport(doer)})
 	t.Cleanup(func() { _ = client.Close(t.Context()) })
 	ctx := t.Context()
@@ -56,6 +56,15 @@ func TestStorefrontUsageScheduleSendsExplicitConsent(t *testing.T) {
 		}
 		if string(request.Body) != wantBody {
 			t.Fatalf("wrong schedule body for %s: %s", method, request.Body)
+		}
+	}
+	purchase, err := client.Storefronts.GetPurchase(ctx, "shop", "invoice")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, notice := range []*InvoiceNotice{schedule.InvoiceNotice, purchase.InvoiceNotice} {
+		if notice == nil || notice.Status != InvoiceNoticeReviewRequired || notice.Reason != InvoiceNoticePayloadMismatch {
+			t.Fatalf("decode invoice notice: %+v", notice)
 		}
 	}
 }
