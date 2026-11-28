@@ -1,0 +1,12 @@
+{
+  "maximal": {
+    "companySlug": "example",
+    "importAllowed": true,
+    "principalId": "example"
+  },
+  "minimal": {
+    "companySlug": "example",
+    "importAllowed": true,
+    "principalId": "example"
+  }
+}

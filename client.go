@@ -32,6 +32,7 @@ const defaultHTTPTimeout = 10 * time.Second
 type CustdClient struct {
 	Admin        *AdminClient
 	Analytics    *AnalyticsEventClient
+	AppMessages  *AppMessageClient
 	Measurement  *MeasurementClient
 	Parsers      *ParserClient
 	Provisioning *ProvisioningClient
@@ -69,6 +70,7 @@ func NewClient(config *ClientConfig) *CustdClient {
 	}
 	c.Admin = newAdminClient(c)
 	c.Analytics = newAnalyticsEventClient(c)
+	c.AppMessages = &AppMessageClient{client: c}
 	c.Measurement = newMeasurementClient(c)
 	c.Parsers = newParserClient(c)
 	c.Provisioning = newProvisioningClient(c)

@@ -1,0 +1,39 @@
+{
+  "maximal": {
+    "message": {
+      "direction": "example",
+      "externalId": "example",
+      "media": [
+        {
+          "byteCount": 1,
+          "contentType": "example",
+          "mediaUuid": "example",
+          "ocrStatus": "example",
+          "ocrText": "example"
+        }
+      ],
+      "messageUuid": "example",
+      "participants": [
+        "example"
+      ],
+      "sender": "example",
+      "source": "example",
+      "text": "example",
+      "threadId": "example",
+      "timestamp": "2026-11-20T06:00:00Z"
+    }
+  },
+  "minimal": {
+    "message": {
+      "direction": "example",
+      "externalId": "example",
+      "messageUuid": "example",
+      "participants": null,
+      "sender": "example",
+      "source": "example",
+      "text": "example",
+      "threadId": "example",
+      "timestamp": "2026-11-20T06:00:00Z"
+    }
+  }
+}

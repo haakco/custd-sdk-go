@@ -99,3 +99,33 @@ func TestScheduledTaskRunActionsUnwrapTheRun(t *testing.T) {
 		}
 	}
 }
+
+func TestScheduledTaskRunForceSendsExplicitRequest(t *testing.T) {
+	doer := newCaptureDoer(http.StatusAccepted,
+		`{"run":{"runUuid":"r1","taskName":"compaction","status":"queued","scheduledFor":"2026-11-20T06:00:00Z"}}`)
+	client := newAdminTestClient(t, doer, "http://localhost:8080")
+	run, _, err := client.Admin.System.RunScheduledTaskWithOptions(context.Background(), "compaction",
+		&ScheduledTaskRunRequest{Force: true})
+	if err != nil || run.RunUUID != "r1" {
+		t.Fatalf("forced run = %+v, err = %v", run, err)
+	}
+	var sent ScheduledTaskRunRequest
+	if err := json.Unmarshal(doer.requests[0].Body, &sent); err != nil || !sent.Force {
+		t.Fatalf("request = %+v, err = %v", sent, err)
+	}
+}
+
+func TestRLSPlanCreationSendsIdempotencyKey(t *testing.T) {
+	doer := newCaptureDoer(http.StatusCreated, `{"planUuid":"test-plan"}`)
+	client := newAdminTestClient(t, doer, "http://localhost:8080")
+	request := RLSPlanRequest{}
+	if _, err := client.Admin.RLS.CreatePlanWithIdempotencyKey(context.Background(), request, ""); err == nil {
+		t.Fatal("plan creation accepted an empty idempotency key")
+	}
+	if _, err := client.Admin.RLS.CreatePlanWithIdempotencyKey(context.Background(), request, "repeat-key"); err != nil {
+		t.Fatal(err)
+	}
+	if len(doer.requests) != 1 || doer.requests[0].Header("Idempotency-Key") != "repeat-key" {
+		t.Fatal("plan creation did not send its idempotency key exactly once")
+	}
+}

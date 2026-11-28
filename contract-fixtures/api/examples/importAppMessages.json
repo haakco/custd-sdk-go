@@ -1,0 +1,15 @@
+{
+  "maximal": {
+    "results": [
+      {
+        "errorCode": "example",
+        "externalId": "example",
+        "messageUuid": "example",
+        "status": "example"
+      }
+    ]
+  },
+  "minimal": {
+    "results": null
+  }
+}

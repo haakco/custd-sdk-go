@@ -793,6 +793,18 @@ func (c *RLSAdminClient) CreatePlan(ctx context.Context, req RLSPlanRequest) (*R
 	return &out, err
 }
 
+// CreatePlanWithIdempotencyKey creates or replays an RLS reconciliation plan.
+func (c *RLSAdminClient) CreatePlanWithIdempotencyKey(
+	ctx context.Context, req RLSPlanRequest, key string,
+) (*RLSPlan, error) {
+	if strings.TrimSpace(key) == "" {
+		return nil, fmt.Errorf("custd: createPlan requires an idempotency key")
+	}
+	var out RLSPlan
+	err := c.admin.requestWithHeaders(ctx, http.MethodPost, "/rls/reconciliation-plans", req, &out, idempotencyKeyHeader(key))
+	return &out, err
+}
+
 // ExecutePlan executes an RLS reconciliation plan.
 func (c *RLSAdminClient) ExecutePlan(ctx context.Context, planUUID string, req RLSExecuteRequest, idempotencyKey string) (*RLSExecuteResponse, error) {
 	if strings.TrimSpace(idempotencyKey) == "" {

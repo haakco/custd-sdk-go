@@ -237,7 +237,7 @@ var operationsSurfaceRows = []surfaceRow{
 		id:   "admin-api POST /api/v1/admin/rls/reconciliation-plans",
 		path: "/api/v1/admin/rls/reconciliation-plans",
 		call: func(e *surfaceEnv) error {
-			_, err := e.client.Admin.RLS.CreatePlan(context.Background(), RLSPlanRequest{})
+			_, err := e.client.Admin.RLS.CreatePlanWithIdempotencyKey(context.Background(), RLSPlanRequest{}, "reconcile-key")
 			return err
 		},
 	},

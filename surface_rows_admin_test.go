@@ -1687,7 +1687,7 @@ var adminSurfaceRows = []surfaceRow{
 		id:   "admin-api POST /api/v1/admin/scheduled-tasks/{taskName}/run",
 		path: "/api/v1/admin/scheduled-tasks/a1/run",
 		call: func(e *surfaceEnv) error {
-			_, _, err := e.client.Admin.System.RunScheduledTask(context.Background(), "a1")
+			_, _, err := e.client.Admin.System.RunScheduledTaskWithOptions(context.Background(), "a1", &ScheduledTaskRunRequest{Force: true})
 			return err
 		},
 	},

@@ -1,10 +1,10 @@
 {
   "source": {
-    "apiReviewedAt": "2026-11-26",
+    "apiReviewedAt": "2026-11-28",
     "sha256": {
       "admin-api.openapi.yaml": "b2e5bfbbac33450c0fafda6afb57281741f12c369be4e1676870adc2c3f394ac",
       "analytics-api.openapi.yaml": "e521f61d1cffb8c8a9fdd7f4d50e2afbfad93f83e8a295b9dc6398dde3747997",
-      "api-operations.json": "6266ad378922650b5bcc2f76d30c946b3023d6e55a879e65e322da7076ae62d7"
+      "api-operations.json": "298036ac74a4e6adcdbd6b5133de4811216401037d3427102dce65b8f5d893e6"
     }
   },
   "operations": [
@@ -85,6 +85,14 @@
       "service": "admin-api",
       "method": "ANY",
       "path": "/mcp",
+      "sdk": "excluded",
+      "reason": "infrastructure, debug or private internal transport"
+    },
+    {
+      "id": "admin-api ANY /mcp/tenant",
+      "service": "admin-api",
+      "method": "ANY",
+      "path": "/mcp/tenant",
       "sdk": "excluded",
       "reason": "infrastructure, debug or private internal transport"
     },
@@ -333,6 +341,15 @@
           "required": false
         }
       ]
+    },
+    {
+      "id": "admin-api DELETE /api/v1/app/messages/sources/{source}",
+      "service": "admin-api",
+      "method": "DELETE",
+      "path": "/api/v1/app/messages/sources/{source}",
+      "sdk": "required",
+      "operationId": "removeAppMessageSource",
+      "example": "examples/removeAppMessageSource.json"
     },
     {
       "id": "admin-api DELETE /api/v1/app/profile/photo",
@@ -2790,6 +2807,32 @@
       "sdk": "required",
       "operationId": "listAppItems",
       "example": "examples/listAppItems.json"
+    },
+    {
+      "id": "admin-api GET /api/v1/app/messages/session",
+      "service": "admin-api",
+      "method": "GET",
+      "path": "/api/v1/app/messages/session",
+      "sdk": "required",
+      "operationId": "getAppMessageSession",
+      "example": "examples/getAppMessageSession.json"
+    },
+    {
+      "id": "admin-api GET /api/v1/app/messages/{messageUuid}",
+      "service": "admin-api",
+      "method": "GET",
+      "path": "/api/v1/app/messages/{messageUuid}",
+      "sdk": "required",
+      "operationId": "getAppMessage",
+      "example": "examples/getAppMessage.json"
+    },
+    {
+      "id": "admin-api GET /api/v1/app/messages/{messageUuid}/media/{mediaUuid}",
+      "service": "admin-api",
+      "method": "GET",
+      "path": "/api/v1/app/messages/{messageUuid}/media/{mediaUuid}",
+      "sdk": "required",
+      "operationId": "getAppMessageMedia"
     },
     {
       "id": "admin-api GET /api/v1/app/profile",
@@ -6639,6 +6682,24 @@
       "example": "examples/createAppItem.json"
     },
     {
+      "id": "admin-api POST /api/v1/app/messages/batch",
+      "service": "admin-api",
+      "method": "POST",
+      "path": "/api/v1/app/messages/batch",
+      "sdk": "required",
+      "operationId": "importAppMessages",
+      "example": "examples/importAppMessages.json"
+    },
+    {
+      "id": "admin-api POST /api/v1/app/messages/search",
+      "service": "admin-api",
+      "method": "POST",
+      "path": "/api/v1/app/messages/search",
+      "sdk": "required",
+      "operationId": "searchAppMessages",
+      "example": "examples/searchAppMessages.json"
+    },
+    {
       "id": "admin-api POST /api/v1/app/profile",
       "service": "admin-api",
       "method": "POST",
@@ -7683,6 +7744,15 @@
         }
       ],
       "example": "examples/subscribeAppItemAlerts.json"
+    },
+    {
+      "id": "admin-api PUT /api/v1/app/messages/{messageUuid}/media",
+      "service": "admin-api",
+      "method": "PUT",
+      "path": "/api/v1/app/messages/{messageUuid}/media",
+      "sdk": "required",
+      "operationId": "uploadAppMessageMedia",
+      "example": "examples/uploadAppMessageMedia.json"
     },
     {
       "id": "admin-api PUT /api/v1/app/profile/photo",

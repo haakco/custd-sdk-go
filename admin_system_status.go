@@ -354,9 +354,30 @@ func (c *SystemAdminClient) RunScheduledTask(
 	ctx context.Context,
 	taskName string,
 ) (*ScheduledTaskRun, ResponseMetadata, error) {
+	return c.runScheduledTask(ctx, taskName, nil)
+}
+
+// ScheduledTaskRunRequest carries the optional operator force decision.
+type ScheduledTaskRunRequest struct {
+	Force bool `json:"force"`
+}
+
+// RunScheduledTaskWithOptions requests a run under the server's force and overlap policy.
+func (c *SystemAdminClient) RunScheduledTaskWithOptions(
+	ctx context.Context, taskName string, request *ScheduledTaskRunRequest,
+) (*ScheduledTaskRun, ResponseMetadata, error) {
+	if request == nil {
+		return c.RunScheduledTask(ctx, taskName)
+	}
+	return c.runScheduledTask(ctx, taskName, request)
+}
+
+func (c *SystemAdminClient) runScheduledTask(
+	ctx context.Context, taskName string, request any,
+) (*ScheduledTaskRun, ResponseMetadata, error) {
 	var out scheduledTaskRunResponse
 	metadata, err := c.admin.requestWithMetadata(
-		ctx, http.MethodPost, scheduledTasksPath+"/"+url.PathEscape(taskName)+"/run", nil, &out,
+		ctx, http.MethodPost, scheduledTasksPath+"/"+url.PathEscape(taskName)+"/run", request, &out,
 	)
 	return &out.Run, metadata, err
 }

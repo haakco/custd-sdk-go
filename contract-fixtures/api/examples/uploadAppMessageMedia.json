@@ -1,0 +1,15 @@
+{
+  "maximal": {
+    "byteCount": 1,
+    "contentType": "example",
+    "mediaUuid": "example",
+    "ocrStatus": "example",
+    "ocrText": "example"
+  },
+  "minimal": {
+    "byteCount": 1,
+    "contentType": "example",
+    "mediaUuid": "example",
+    "ocrStatus": "example"
+  }
+}
