@@ -68,6 +68,35 @@ func TestAppOperationsSendTheirRoutes(t *testing.T) {
 				return c.DeleteAppDeployCredential(context.Background(), "done-when", "app-deploy-1", options)
 			},
 		},
+		{
+			name: "list handoff credentials", body: `{"credentials":[{"clientId":"seller-app"}]}`,
+			method: http.MethodGet, url: appsURL + "/shop/purchase-handoff-credentials",
+			call: func(c *AuthProjectAdminClient) error {
+				credentials, err := c.ListPurchaseHandoffCredentials(t.Context(), "shop", options)
+				if err == nil && (len(credentials.Credentials) != 1 || credentials.Credentials[0].ClientID != "seller-app") {
+					t.Fatal("handoff credential list did not preserve the client ID")
+				}
+				return err
+			},
+		},
+		{
+			name: "create handoff credential", body: `{"clientId":"seller-app","clientSecret":"fixture","app":"shop","scope":"billing.purchase_handoffs"}`,
+			method: http.MethodPost, url: appsURL + "/shop/purchase-handoff-credentials",
+			call: func(c *AuthProjectAdminClient) error {
+				credential, err := c.CreatePurchaseHandoffCredential(t.Context(), "shop", options)
+				if err == nil && (credential.ClientSecret != "fixture" || credential.Scope != "billing.purchase_handoffs") {
+					t.Fatal("handoff credential did not preserve its receipt")
+				}
+				return err
+			},
+		},
+		{
+			name:   "delete handoff credential",
+			method: http.MethodDelete, url: appsURL + "/shop/purchase-handoff-credentials/seller-app",
+			call: func(c *AuthProjectAdminClient) error {
+				return c.DeletePurchaseHandoffCredential(t.Context(), "shop", "seller-app", options)
+			},
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
