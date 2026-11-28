@@ -21,6 +21,7 @@ type StorefrontPurchaseHandoff struct {
 	ExpiresAt      time.Time       `json:"expiresAt"`
 	InvoiceUUID    string          `json:"invoiceUuid,omitempty"`
 	Settled        bool            `json:"settled"`
+	Cancelled      bool            `json:"cancelled"`
 }
 
 func (s *StorefrontClient) CreatePurchaseHandoff(ctx context.Context, storefront string, input CreateStorefrontPurchaseHandoff) (*StorefrontPurchaseHandoff, error) {
@@ -29,6 +30,10 @@ func (s *StorefrontClient) CreatePurchaseHandoff(ctx context.Context, storefront
 
 func (s *StorefrontClient) GetPurchaseHandoff(ctx context.Context, storefront, handoffUUID string) (*StorefrontPurchaseHandoff, error) {
 	return storefrontHandoffRequest(ctx, s, http.MethodGet, nil, storefront, "purchase-handoffs", handoffUUID)
+}
+
+func (s *StorefrontClient) CancelPurchaseHandoff(ctx context.Context, storefront, handoffUUID string) (*StorefrontPurchaseHandoff, error) {
+	return storefrontHandoffRequest(ctx, s, http.MethodPost, nil, storefront, "purchase-handoffs", handoffUUID, "cancel")
 }
 
 func storefrontHandoffRequest(ctx context.Context, s *StorefrontClient, method string, payload any, parts ...string) (*StorefrontPurchaseHandoff, error) {
