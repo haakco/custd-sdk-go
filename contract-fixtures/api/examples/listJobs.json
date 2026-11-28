@@ -3,7 +3,9 @@
     "outboxes": [
       {
         "failed": 1,
-        "name": "example",
+        "lastRetryReason": "provider_transient",
+        "name": "notification_deliveries",
+        "oldestPendingAt": "2026-11-20T06:00:00Z",
         "pending": 1
       }
     ],

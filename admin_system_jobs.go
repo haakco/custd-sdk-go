@@ -34,11 +34,27 @@ type FailedJob struct {
 	FailedAt    time.Time `json:"failedAt"`
 }
 
+// JobOutboxRetryReason is a sanitized notification delivery retry category.
+type JobOutboxRetryReason string
+
+const (
+	JobOutboxRetryProviderTransient      JobOutboxRetryReason = "provider_transient"
+	JobOutboxRetryAuthenticationRejected JobOutboxRetryReason = "authentication_rejected"
+	JobOutboxRetryTLSFailure             JobOutboxRetryReason = "tls_failure"
+	JobOutboxRetryConnectionFailure      JobOutboxRetryReason = "connection_failure"
+	JobOutboxRetrySenderRejected         JobOutboxRetryReason = "sender_rejected"
+	JobOutboxRetryRecipientRejected      JobOutboxRetryReason = "recipient_rejected"
+	JobOutboxRetryUnclassified           JobOutboxRetryReason = "unclassified_retry"
+)
+
 // JobOutboxStatus gives the backlog reported by an available outbox.
+// The notification outbox may include its oldest pending delivery and latest retry category.
 type JobOutboxStatus struct {
-	Name    string `json:"name"`
-	Pending int64  `json:"pending"`
-	Failed  int64  `json:"failed"`
+	Name            string               `json:"name"`
+	Pending         int64                `json:"pending"`
+	Failed          int64                `json:"failed"`
+	OldestPendingAt *time.Time           `json:"oldestPendingAt,omitempty"`
+	LastRetryReason JobOutboxRetryReason `json:"lastRetryReason,omitempty"`
 }
 
 // JobRetryReceipt identifies the job accepted for retry.

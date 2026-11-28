@@ -3,6 +3,7 @@ package custd
 import (
 	"net/http"
 	"testing"
+	"time"
 )
 
 func TestSystemJobsStatusAndRetry(t *testing.T) {
@@ -12,7 +13,10 @@ func TestSystemJobsStatusAndRetry(t *testing.T) {
 		body: `{
 			"queueCounts":[{"queue":"notifications","kind":"mail","state":"available","count":2,"oldestWaitingAt":"2026-11-18T09:30:00Z"}],
 			"recentFailures":[{"jobId":17,"queue":"notifications","kind":"mail","attempts":3,"maxAttempts":3,"failedAt":"2026-11-18T09:00:00Z"}],
-			"outboxes":[{"name":"app_items","pending":1,"failed":0}],"realtimeEvents":12
+			"outboxes":[{"name":"app_items","pending":1,"failed":0},
+				{"name":"notification_deliveries","pending":2,"failed":0,
+				 "oldestPendingAt":"2026-11-18T09:25:00Z","lastRetryReason":"authentication_rejected"}],
+			"realtimeEvents":12
 		}`,
 		headers: map[string]string{requestIDHeader: "status-request"},
 	}
@@ -22,8 +26,15 @@ func TestSystemJobsStatusAndRetry(t *testing.T) {
 		t.Fatalf("list jobs metadata = %+v, error = %v", metadata, err)
 	}
 	if len(status.QueueCounts) != 1 || status.QueueCounts[0].OldestWaitingAt == nil ||
-		len(status.RecentFailures) != 1 || len(status.Outboxes) != 1 || status.RealtimeEvents != 12 {
+		len(status.RecentFailures) != 1 || len(status.Outboxes) != 2 || status.RealtimeEvents != 12 {
 		t.Fatalf("job status = %+v", status)
+	}
+	legacy, notification := status.Outboxes[0], status.Outboxes[1]
+	wantPendingAt := time.Date(2026, time.November, 18, 9, 25, 0, 0, time.UTC)
+	if legacy.OldestPendingAt != nil || legacy.LastRetryReason != "" ||
+		notification.OldestPendingAt == nil || !notification.OldestPendingAt.Equal(wantPendingAt) ||
+		notification.LastRetryReason != JobOutboxRetryAuthenticationRejected {
+		t.Fatalf("unexpected outbox timing or retry category: %+v", status.Outboxes)
 	}
 	if request := doer.requests[0]; request.Method != http.MethodGet || request.URL != baseURL+"/api/v1/admin/jobs" {
 		t.Fatalf("list jobs request = %s %s", request.Method, request.URL)
