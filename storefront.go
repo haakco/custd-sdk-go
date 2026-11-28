@@ -56,10 +56,11 @@ type StorefrontPriceRevision struct {
 }
 
 type StorefrontOffer struct {
-	UUID            string                  `json:"offerUuid"`
-	Name            string                  `json:"name"`
-	BillingInterval string                  `json:"billingInterval"`
-	PriceRevision   StorefrontPriceRevision `json:"priceRevision"`
+	ComplementaryForOfferUUID string                  `json:"complementaryForOfferUuid,omitempty"`
+	UUID                      string                  `json:"offerUuid"`
+	Name                      string                  `json:"name"`
+	BillingInterval           string                  `json:"billingInterval"`
+	PriceRevision             StorefrontPriceRevision `json:"priceRevision"`
 }
 
 type StorefrontCatalogue struct {
@@ -68,13 +69,15 @@ type StorefrontCatalogue struct {
 }
 
 type StorefrontPublishOffer struct {
-	OfferUUID       string              `json:"offerUuid,omitempty"`
-	Name            string              `json:"name"`
-	BillingInterval string              `json:"billingInterval"`
-	UnitPrice       StorefrontUnitPrice `json:"unitPrice"`
-	TaxRate         string              `json:"taxRate"`
-	TaxLabel        string              `json:"taxLabel"`
-	EffectiveFrom   *time.Time          `json:"effectiveFrom,omitempty"`
+	// Leave nil to preserve the relationship or supply an empty string to clear it.
+	ComplementaryForOfferUUID *string             `json:"complementaryForOfferUuid,omitempty"`
+	OfferUUID                 string              `json:"offerUuid,omitempty"`
+	Name                      string              `json:"name"`
+	BillingInterval           string              `json:"billingInterval"`
+	UnitPrice                 StorefrontUnitPrice `json:"unitPrice"`
+	TaxRate                   string              `json:"taxRate"`
+	TaxLabel                  string              `json:"taxLabel"`
+	EffectiveFrom             *time.Time          `json:"effectiveFrom,omitempty"`
 }
 
 type StorefrontCartLine struct {

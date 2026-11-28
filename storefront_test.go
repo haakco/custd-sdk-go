@@ -1,6 +1,7 @@
 package custd
 
 import (
+	"bytes"
 	"context"
 	"net/http"
 	"testing"
@@ -40,5 +41,27 @@ func TestStorefrontQuantityAndPurchase(t *testing.T) {
 	doer.body = `{"totals":{"grossTotal":{"currency":"ZAR","amountMinor":9007199254740993}}}`
 	if _, err := client.Storefronts.GetPurchase(ctx, "custd", "invoice"); err == nil {
 		t.Fatal("accepted a numeric minor-unit amount")
+	}
+}
+
+func TestPublishOfferDistinguishesOmittedAndClearedComplement(t *testing.T) {
+	doer := newCaptureDoer(http.StatusOK, `{"offerUuid":"add-on","complementaryForOfferUuid":"primary"}`)
+	client := NewClient(&ClientConfig{BaseURL: "https://store.example", APIKey: "seller-token", HTTPClient: fakeTransport(doer)})
+	ctx := t.Context()
+	t.Cleanup(func() { _ = client.Close(ctx) })
+
+	input := StorefrontPublishOffer{OfferUUID: "add-on"}
+	offer, err := client.Storefronts.PublishOffer(ctx, "shop", input)
+	if err != nil || offer.ComplementaryForOfferUUID != "primary" {
+		t.Fatalf("decode related offer: %+v, %v", offer, err)
+	}
+	clear := ""
+	input.ComplementaryForOfferUUID = &clear
+	if _, err := client.Storefronts.PublishOffer(ctx, "shop", input); err != nil {
+		t.Fatal(err)
+	}
+	if bytes.Contains(doer.requests[0].Body, []byte(`"complementaryForOfferUuid"`)) ||
+		!bytes.Contains(doer.requests[1].Body, []byte(`"complementaryForOfferUuid":""`)) {
+		t.Fatal("publishing must distinguish omitted and explicitly cleared relationships")
 	}
 }
